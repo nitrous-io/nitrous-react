@@ -10,14 +10,12 @@ export default class Application extends React.Component {
   };
 
   componentDidMount() {
-    if (!token.isPresent()) {
-      this.context.router.transitionTo('login');
-    }
+    this.context.router.transitionTo(token.isPresent() ? 'dashboard' : 'login');
   }
 
   render() {
     return (
-      <div>
+      <div className='application-component'>
         <RouteHandler />
       </div>
     );

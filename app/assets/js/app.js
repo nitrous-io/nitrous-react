@@ -1,10 +1,13 @@
 import React from 'react';
 import Router from 'react-router';
-import routes from 'components/routes';
+import routes from 'routes';
+import $ from 'jquery';
 
-Router.run(routes, function(Handler) {
-  React.render(
-    <Handler />,
-    document.getElementById('application')
-  );
+$(function() {
+  Router.run(routes, function(Handler) {
+    React.render(
+      <Handler />,
+      document.getElementById('application')
+    );
+  });
 });

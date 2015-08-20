@@ -1,5 +1,6 @@
 import Model from 'models/model';
 import token from 'models/token';
+import md5 from 'md5';
 
 class CurrentUser extends Model {
   id = null;
@@ -44,6 +45,12 @@ class CurrentUser extends Model {
     }).then((data) => {
       this.deserialize(data.user);
     });
+  }
+
+  gravatar(size=36) {
+    if (this.email) {
+      return `https://secure.gravatar.com/avatar/${md5(this.email)}?default=retro&secure=true&size=${size}`;
+    }
   }
 }
 

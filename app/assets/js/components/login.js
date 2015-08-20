@@ -6,6 +6,10 @@ import currentUser from 'models/current-user';
 export default class Login extends React.Component {
   displayName: 'Login'
 
+  static contextTypes = {
+    router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -23,7 +27,9 @@ export default class Login extends React.Component {
           password = this.refs.password.getValue();
 
     token.fetch(username, password).then(() => {
-      currentUser.fetch().catch(() => {
+      currentUser.fetch().then(() => {
+        this.context.router.transitionTo('dashboard');
+      }).catch(() => {
         token.invalidate();
       });
     }).catch((j) => {

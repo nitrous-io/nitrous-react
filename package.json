@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "jquery": "^2.1.4",
+    "md5": "^2.0.0",
     "react": "^0.13.3",
     "react-bootstrap": "^0.24.4",
     "react-router": "^0.13.3",
