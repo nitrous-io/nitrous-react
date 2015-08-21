@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, Panel, Input, ButtonInput } from 'react-bootstrap';
-import token from 'models/token';
-import currentUser from 'models/current-user';
+import tokenStore from 'stores/token-store';
+import tokenActions from 'actions/token-actions';
 
 export default class Login extends React.Component {
   displayName: 'Login'
@@ -9,6 +9,12 @@ export default class Login extends React.Component {
   static contextTypes = {
     router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
+
+  static willTransitionTo(transition) {
+    if (tokenStore.token) {
+      transition.redirect('dashboard');
+    }
+  }
 
   constructor(props) {
     super(props);
@@ -18,34 +24,35 @@ export default class Login extends React.Component {
     };
   }
 
-  handleSubmit = (evt) => {
-    evt.preventDefault();
+  componentDidMount() {
+    tokenStore.on('change', this.tokenStoreDidChange);
+    this.refs.username.getInputDOMNode().focus();
+  }
 
-    this.setState({loggingIn: true, errorMessage: null});
+  componentWillUnmount() {
+    tokenStore.removeListener('change', this.tokenStoreDidChange);
+  }
 
-    const username = this.refs.username.getValue(),
-          password = this.refs.password.getValue();
-
-    token.fetch(username, password).then(() => {
-      currentUser.fetch().then(() => {
-        this.context.router.transitionTo('dashboard');
-      }).catch(() => {
-        token.invalidate();
-      });
-    }).catch((j) => {
-      this.setState({errorMessage: j.responseJSON.error_description || j.responseJSON.error || `${j.status} ${j.statusText}`});
-    }).then(() => {
-      this.setState({loggingIn: false}, () => {
+  tokenStoreDidChange = () => {
+    if (tokenStore.token) {
+      this.context.router.transitionTo('dashboard');
+    } else if (tokenStore.lastError) {
+      this.setState({
+        loggingIn: false,
+        errorMessage: tokenStore.lastError
+      }, () => {
         const usernameInput = this.refs.username.getInputDOMNode();
         usernameInput.select();
         usernameInput.focus();
       });
-    });
-  };
-
-  componentDidMount() {
-    this.refs.username.getInputDOMNode().focus();
+    }
   }
+
+  handleSubmit = (evt) => {
+    evt.preventDefault();
+    this.setState({loggingIn: true, errorMessage: null});
+    tokenActions.fetch(this.refs.username.getValue(), this.refs.password.getValue());
+  };
 
   render() {
     const loggingIn = this.state.loggingIn,
