@@ -13,11 +13,11 @@ export default class Containers extends React.Component {
   }
 
   componentDidMount() {
-    userStore.on('change', this.userStoreDidChange);
+    userStore.onChange(this.userStoreDidChange);
   }
 
   componentWillUnmount() {
-    userStore.removeListener('change', this.userStoreDidChange);
+    userStore.offChange(this.userStoreDidChange);
   }
 
   userStoreDidChange = () => {

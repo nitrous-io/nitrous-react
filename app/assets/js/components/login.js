@@ -25,7 +25,7 @@ export default class Login extends React.Component {
   }
 
   componentDidMount() {
-    tokenStore.on('change', this.tokenStoreDidChange);
+    tokenStore.onChange(this.tokenStoreDidChange);
     this.refs.username.getInputDOMNode().focus();
   }
 

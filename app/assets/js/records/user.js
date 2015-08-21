@@ -32,7 +32,7 @@ export default class User extends Record({
     });
   }
 
-  gravatar(size=36) {
+  gravatar(size=40) {
     if (this.email) {
       return `https://secure.gravatar.com/avatar/${md5(this.email)}?default=retro&secure=true&size=${size}`;
     }
