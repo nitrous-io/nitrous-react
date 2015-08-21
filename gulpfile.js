@@ -79,36 +79,7 @@ gulp.task('js-dev', function() {
 
   var onBuild = function() {
     gutil.log('Built ' + chalk.cyan('JS'));
-    lintJS();
-  };
-
-  buildJS(jsOptions).on('end', onBuild);
-
-  watchify(b).on('update', function () {
-    gutil.log('Building ' + chalk.cyan('JS') + '...');
-    buildJS(jsOptions).on('end', onBuild);
-  });
-});
-
-gulp.task('js-vendor-dev', function() {
-  var dest = 'build/dev/assets/js/vendor.*';
-
-  del.sync([dest]);
-
-  var b = browserifyBundler({
-    debug: true
-  });
-
-  var jsOptions = {
-    dest: dest,
-    sourcemaps: true,
-    compress: false,
-    bundler: b
-  };
-
-  var onBuild = function() {
-    gutil.log('Built ' + chalk.cyan('JS'));
-    lintJS();
+    gulp.start('lint');
   };
 
   buildJS(jsOptions).on('end', onBuild);
