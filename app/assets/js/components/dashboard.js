@@ -5,6 +5,7 @@ import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
+import orgActions from 'actions/org-actions';
 
 export default class Dashboard extends React.Component {
   displayName: 'Dashboard'
@@ -25,6 +26,7 @@ export default class Dashboard extends React.Component {
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
     userActions.fetch();
+    orgActions.fetchAll();
   }
 
   componentWillUnmount() {
@@ -62,11 +64,13 @@ export default class Dashboard extends React.Component {
 
     return (
       <div className='dashboard-component'>
-        <Navbar brand='Nitrous'>
+        <Navbar brand='Nitrous' className='navbar'>
           <Nav right>
             {user ? (
               <OverlayTrigger placement='left' overlay={accountTooltip}>
                 <DropdownButton title={gravatar} navItem onSelect={this.handleAccountMenu}>
+                  <MenuItem disabled>Signed in as <strong>{user.username}</strong></MenuItem>
+                  <MenuItem divider />
                   <MenuItem eventKey='account-settings' disabled>Account Settings</MenuItem>
                   <MenuItem eventKey='billing' disabled>Billing</MenuItem>
                   <MenuItem divider />
