@@ -16,13 +16,10 @@ export default class Login extends React.Component {
     }
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      loggingIn: false,
-      errorMessage: null
-    };
-  }
+  state = {
+    loggingIn: false,
+    errorMessage: null
+  };
 
   componentDidMount() {
     tokenStore.onChange(this.tokenStoreDidChange);

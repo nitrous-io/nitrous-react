@@ -28,7 +28,7 @@ export default class User extends Record({
       billingProfile: p.billing_profile,
       userProfile: p.user_profile,
       createdAt: p.created_at ? new Date(p.created_at) : null,
-      updatedAt: p.created_at ? new Date(p.updated_at) : null
+      updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
   }
 
@@ -36,5 +36,9 @@ export default class User extends Record({
     if (this.email) {
       return `https://secure.gravatar.com/avatar/${md5(this.email)}?default=retro&secure=true&size=${size}`;
     }
+  }
+
+  get displayName() {
+    return this.name || this.username;
   }
 }

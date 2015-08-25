@@ -82,12 +82,13 @@ gulp.task('js-dev', function() {
     gulp.start('lint');
   };
 
-  buildJS(jsOptions).on('end', onBuild);
-
-  watchify(b).on('update', function () {
+  var build = function() {
     gutil.log('Building ' + chalk.cyan('JS') + '...');
     buildJS(jsOptions).on('end', onBuild);
-  });
+  };
+
+  build();
+  watchify(b).on('update', build);
 });
 
 gulp.task('css-dev', function() {

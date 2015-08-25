@@ -6,9 +6,14 @@ import tokenActions from 'actions/token-actions';
 import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
+import $ from 'jquery';
 
 export default class Dashboard extends React.Component {
   displayName: 'Dashboard'
+
+  static contextTypes = {
+    router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired
+  };
 
   static willTransitionTo(transition) {
     if (!tokenStore.token) {
@@ -16,21 +21,26 @@ export default class Dashboard extends React.Component {
     }
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: userStore.user
-    };
-  }
+  state = {
+    user: userStore.user
+  };
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+
     userActions.fetch();
     orgActions.fetchAll();
+
+    // hack to dismiss dropdown menu after clicking MenuItem with href
+    $(React.findDOMNode(this)).on('click', '.account-menu .dropdown-menu a[href]', function() {
+      $('body').click();
+    });
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+
+    $(React.findDOMNode(this)).off('click', '.account-menu .dropdown-menu a[href]');
   }
 
   userStoreDidChange = () => {
@@ -39,18 +49,8 @@ export default class Dashboard extends React.Component {
     });
   }
 
-  handleAccountMenu = (key) => {
-    switch (key) {
-      case 'account-settings':
-        break;
-      case 'billing':
-        break;
-      case 'send-feedback':
-        break;
-      case 'logout':
-        tokenActions.invalidate();
-        break;
-    }
+  handleLogOut = () => {
+    tokenActions.invalidate();
   };
 
   render() {
@@ -68,11 +68,11 @@ export default class Dashboard extends React.Component {
           <Nav right>
             {user ? (
               <OverlayTrigger placement='left' overlay={accountTooltip}>
-                <DropdownButton title={gravatar} navItem onSelect={this.handleAccountMenu}>
+                <DropdownButton className='account-menu' title={gravatar} navItem>
                   <MenuItem disabled>Signed in as <strong>{user.username}</strong></MenuItem>
                   <MenuItem divider />
-                  <MenuItem eventKey='account-settings' disabled>Account Settings</MenuItem>
-                  <MenuItem eventKey='billing' disabled>Billing</MenuItem>
+                  <MenuItem disabled>Account Settings</MenuItem>
+                  <MenuItem disabled>Billing</MenuItem>
                   <MenuItem divider />
                   <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
                   <MenuItem divider />
@@ -80,7 +80,7 @@ export default class Dashboard extends React.Component {
                   <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
                   <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
                   <MenuItem divider />
-                  <MenuItem eventKey='logout'>Log Out</MenuItem>
+                  <MenuItem onSelect={this.handleLogOut}>Log Out</MenuItem>
                 </DropdownButton>
               </OverlayTrigger>
             ) : ''}
