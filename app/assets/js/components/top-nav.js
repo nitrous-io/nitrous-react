@@ -2,6 +2,7 @@ import React from 'react';
 import { Navbar, Nav, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import userStore from 'stores/user-store';
 import tokenActions from 'actions/token-actions';
+import $ from 'jquery';
 
 export default class TopNav extends React.Component {
   displayName: 'TopNav'
@@ -12,10 +13,19 @@ export default class TopNav extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+
+    // hack to dismiss overlay tooltip after clicking menu
+    $(React.findDOMNode(this)).on('click', '.dropdown-menu a[href]', function() {
+      window.setTimeout(function() {
+        $('body').click();
+      }, 1);
+    });
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+
+    $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
 
   userStoreDidChange = () => {
@@ -34,7 +44,7 @@ export default class TopNav extends React.Component {
         <Navbar brand='Nitrous' className='navbar'>
           <Nav right>
             {user ? (
-              <OverlayTrigger placement='left' overlay={<Tooltip>View Account and More</Tooltip>}>
+              <OverlayTrigger placement='left' rootClose overlay={<Tooltip>View Account and More</Tooltip>}>
                 <NavDropdown className='account-menu'
                   title={<img className='gravatar' src={user.gravatar(40)} alt={user.username} />}>
                   <MenuItem disabled>Signed in as <strong>{user.username}</strong></MenuItem>
