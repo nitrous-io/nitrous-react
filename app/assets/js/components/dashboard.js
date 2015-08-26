@@ -2,10 +2,11 @@ import React from 'react';
 import { Navbar, Nav, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { RouteHandler } from 'react-router';
 import tokenStore from 'stores/token-store';
-import tokenActions from 'actions/token-actions';
 import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
+import hostActions from 'actions/host-actions';
+import tokenActions from 'actions/token-actions';
 import $ from 'jquery';
 
 export default class Dashboard extends React.Component {
@@ -15,9 +16,24 @@ export default class Dashboard extends React.Component {
     router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
-  static willTransitionTo(transition) {
+  static preloaded = false;
+
+  static willTransitionTo(transition, params, query, callback) {
     if (!tokenStore.token) {
       transition.redirect('login');
+    }
+
+    if (this.preloaded) {
+      callback();
+    } else {
+      Promise.all([
+        userActions.fetch(),
+        orgActions.fetchAll(),
+        hostActions.fetchAll()
+      ]).then(() => {
+        this.preloaded = true;
+        callback();
+      });
     }
   }
 
@@ -26,11 +42,6 @@ export default class Dashboard extends React.Component {
   };
 
   componentDidMount() {
-    userStore.onChange(this.userStoreDidChange);
-
-    userActions.fetch();
-    orgActions.fetchAll();
-
     // hack to dismiss dropdown menu after clicking MenuItem with href
     $(React.findDOMNode(this)).on('click', '.account-menu .dropdown-menu a[href]', function() {
       $('body').click();
@@ -38,15 +49,7 @@ export default class Dashboard extends React.Component {
   }
 
   componentWillUnmount() {
-    userStore.offChange(this.userStoreDidChange);
-
     $(React.findDOMNode(this)).off('click', '.account-menu .dropdown-menu a[href]');
-  }
-
-  userStoreDidChange = () => {
-    this.setState({
-      user: userStore.user
-    });
   }
 
   handleLogOut = () => {
