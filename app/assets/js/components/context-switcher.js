@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
 import Host from 'records/host';
+import Org from 'records/org';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
@@ -14,7 +15,8 @@ export default class ContextSwitcher extends React.Component {
   };
 
   static propTypes = {
-    selectedHost: PropTypes.instanceOf(Host).isRequired
+    selectedHost: PropTypes.instanceOf(Host),
+    selectedOrg: PropTypes.instanceOf(Org)
   }
 
   state = {
@@ -58,12 +60,21 @@ export default class ContextSwitcher extends React.Component {
 
   render() {
     const selectedHost = this.props.selectedHost,
-          orgId = selectedHost.orgId,
           orgs = this.state.orgs.toList(),
-          selectedOrg = orgs.find((o) => o.id === orgId),
           user = this.state.user,
-          hosts = (orgId ? hostStore.hostsWithOrgId(orgId) : hostStore.userHosts).toList(),
           makeHref = this.context.router.makeHref;
+
+    let hosts,
+        selectedOrg = this.props.selectedOrg;
+
+    if (selectedHost) {
+      const orgId = selectedHost.orgId;
+
+      hosts = hostStore.hostsWithOrgId(orgId).toList();
+      selectedOrg = orgs.find((o) => o.id === orgId);
+    } else {
+      hosts = hostStore.userHosts.toList();
+    }
 
     const withGravatar = function(obj) {
       return (
@@ -123,7 +134,7 @@ export default class ContextSwitcher extends React.Component {
 
     return (
       <div className='context-switcher'>
-        {hosts.size > 1 ? (
+        {selectedHost && hosts.size > 1 ? (
           <ButtonGroup>
             {contextMenu}
             {buildHostsMenu()}
