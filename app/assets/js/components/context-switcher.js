@@ -4,7 +4,6 @@ import Host from 'records/host';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
-import $ from 'jquery';
 
 export default class ContextSwitcher extends React.Component {
   displayName: 'ContextSwitcher'
@@ -27,19 +26,12 @@ export default class ContextSwitcher extends React.Component {
     userStore.onChange(this.userStoreDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
-
-    // hack to dismiss dropdown menu after clicking MenuItem with href
-    $(React.findDOMNode(this)).on('click', '.dropdown-menu a[href]', function() {
-      $('body').click();
-    });
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
-
-    $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
 
   userStoreDidChange = () => {
@@ -101,28 +93,30 @@ export default class ContextSwitcher extends React.Component {
       </OverlayTrigger>
     );
 
-    const hostsMenu = (
-      <OverlayTrigger placement='top' overlay={(<Tooltip>Switch Workspace</Tooltip>)}>
-        <DropdownButton title={selectedHost.name}>
-          <MenuItem header>Workspaces</MenuItem>
-          {hosts ? hosts.map((host) => {
-            return (
-              <MenuItem key={`host-${host.slug}`} eventKey={host.slug}
-                href={makeHref('workspace', { hostSlug: host.slug })}>
-                {host.displayName}
-              </MenuItem>
-            );
-          }) : ''}
-        </DropdownButton>
-      </OverlayTrigger>
-    );
+    const buildHostsMenu = () => {
+      return (
+        <OverlayTrigger placement='top' overlay={(<Tooltip>Switch Workspace</Tooltip>)}>
+          <DropdownButton title={selectedHost.name}>
+            <MenuItem header>Workspaces</MenuItem>
+            {hosts.size > 1 ? hosts.map((host) => {
+              return (
+                <MenuItem key={`host-${host.slug}`} eventKey={host.slug}
+                  href={makeHref('workspace', { hostSlug: host.slug })}>
+                  {host.displayName}
+                </MenuItem>
+              );
+            }) : ''}
+          </DropdownButton>
+        </OverlayTrigger>
+      );
+    };
 
     return (
       <div className='context-switcher'>
         {hosts.size > 1 ? (
           <ButtonGroup>
             {contextMenu}
-            {hostsMenu}
+            {buildHostsMenu()}
           </ButtonGroup>
         ) : (
           contextMenu
