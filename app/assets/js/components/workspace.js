@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { RouteHandler } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
+import Host from 'records/host';
 import hostActions from 'actions/host-actions';
 import hostStore from 'stores/host-store';
 import ContextSwitcher from 'components/context-switcher';
@@ -12,6 +13,10 @@ export default class Workspace extends React.Component {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
+  static childContextTypes = {
+    host: PropTypes.instanceOf(Host).isRequired
+  };
+
   static propTypes = {
     params: PropTypes.shape({
       hostSlug: PropTypes.string.isRequired
@@ -21,7 +26,7 @@ export default class Workspace extends React.Component {
   };
 
   state = {
-    host: hostStore.liveHosts ? hostStore.liveHosts.get(this.props.params.hostSlug) : null
+    host: hostStore.liveHosts.get(this.props.params.hostSlug)
   }
 
   componentDidMount() {
@@ -30,7 +35,11 @@ export default class Workspace extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    hostActions.fetchOne(nextProps.params.hostSlug);
+    const hostSlug = nextProps.params.hostSlug;
+    if (this.props.params.hostSlug !== hostSlug) {
+      this.setState({ host: hostStore.liveHosts.get(hostSlug) });
+      hostActions.fetchOne(hostSlug);
+    }
   }
 
   componentWillUnmount() {
@@ -42,6 +51,10 @@ export default class Workspace extends React.Component {
       this.setState({ host: hostStore.liveHosts.get(this.props.params.hostSlug) });
     }
   };
+
+  getChildContext() {
+    return { host: this.state.host };
+  }
 
   render() {
     const host = this.state.host,

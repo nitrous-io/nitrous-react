@@ -70,7 +70,7 @@ export default class ContextSwitcher extends React.Component {
     if (selectedHost) {
       const orgId = selectedHost.orgId;
 
-      hosts = hostStore.hostsWithOrgId(orgId).toList();
+      hosts = hostStore.hostsByOrgId(orgId).toList();
       selectedOrg = orgs.find((o) => o.id === orgId);
     } else {
       hosts = hostStore.userHosts.toList();

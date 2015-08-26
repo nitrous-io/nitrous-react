@@ -2,19 +2,24 @@ import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
 
 class ContainerActions {
-  fetchAll() {
+  fetchAllByHostSlug(hostSlug) {
     return authedAjax({
       type: 'GET',
       url: '/api/v0/containers',
-      dataType: 'json'
+      dataType: 'json',
+      data: {
+        host: hostSlug
+      }
     }).then((data) => {
       dispatcher.dispatch({
-        type: 'container.fetched-all',
+        type: 'container.fetched-all-by-host-slug',
+        hostSlug,
         data
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'container.fetch-all-failed',
+        type: 'container.fetch-all-by-host-slug-failed',
+        hostSlug,
         data: jqxhr
       });
     });
