@@ -3,7 +3,7 @@ import Host from 'records/host';
 import { OrderedMap } from 'immutable';
 
 class HostStore extends Store {
-  _hosts = null;
+  _hosts = OrderedMap();
 
   handleAction(action) {
     switch (action.type) {
@@ -15,8 +15,16 @@ class HostStore extends Store {
         this._lastError = null;
         break;
       }
-      case 'host.fetch-all-failed': {
+      case 'host.fetched-one': {
+        const h = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(h.slug, h);
+        this._lastError = null;
+        break;
+      }
+      case 'host.fetch-all-failed':
+      case 'host.fetch-one-failed': {
         this._lastError = action.data.errorMessage;
+        break;
       }
       default: return;
     }
@@ -27,21 +35,21 @@ class HostStore extends Store {
     return this._hosts;
   }
 
+  get liveHosts() {
+    return this._hosts.filter((h) => {
+      return !h.terminatedAt;
+    });
+  }
+
   get userHosts() {
-    if (this._hosts == null) {
-      return;
-    }
     return this._hosts.filter((h) => {
       return !h.orgId && !h.terminatedAt;
     });
   }
 
-  get orgHosts() {
-    if (this._hosts == null) {
-      return;
-    }
+  hostsWithOrgId(orgId) {
     return this._hosts.filter((h) => {
-      return h.orgId && !h.terminatedAt;
+      return h.orgId === orgId && !h.terminatedAt;
     });
   }
 }

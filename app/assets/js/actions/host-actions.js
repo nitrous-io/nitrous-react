@@ -19,6 +19,24 @@ class HostActions {
       });
     });
   }
+
+  fetchOne(slug) {
+    return authedAjax({
+      type: 'GET',
+      url: `/api/v0/hosts/${slug}`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'host.fetched-one',
+        data
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.fetch-one-failed',
+        data: jqxhr
+      });
+    });
+  }
 }
 
 export default new HostActions();

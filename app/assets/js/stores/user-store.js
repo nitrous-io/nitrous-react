@@ -14,6 +14,7 @@ class UserStore extends Store {
       case 'user.fetch-failed': {
         this._user = null;
         this._lastError = action.data.errorMessage;
+        break;
       }
       default: return;
     }

@@ -3,7 +3,7 @@ import Org from 'records/org';
 import { OrderedMap } from 'immutable';
 
 class OrgStore extends Store {
-  _orgs = null;
+  _orgs = OrderedMap();
 
   handleAction(action) {
     switch (action.type) {
@@ -17,6 +17,7 @@ class OrgStore extends Store {
       }
       case 'org.fetch-all-failed': {
         this._lastError = action.data.errorMessage;
+        break;
       }
       default: return;
     }
