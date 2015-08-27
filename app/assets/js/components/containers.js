@@ -1,7 +1,9 @@
 import React, { PropTypes } from 'react';
+import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
+import ContainerListItem from 'components/container-list-item';
 
 export default class Containers extends React.Component {
   displayName: 'Containers'
@@ -12,7 +14,7 @@ export default class Containers extends React.Component {
 
   state = {
     containers: containerStore.containersByHostSlug(this.context.host.slug)
-  }
+  };
 
   componentDidMount() {
     containerStore.onChange(this.containerStoreDidChange);
@@ -39,18 +41,23 @@ export default class Containers extends React.Component {
     const containers = this.state.containers;
 
     return (
-      <div className='containers-component'>
-        <div className='container'>
-          {containers == null ? (
-            <p>Loading...</p>
-          ) : (
-            <div>
+      <div className='containers-component container'>
+        {containers == null ? (
+          <p>Loading...</p>
+        ) : (
+          <Grid className='containers-list'>
+            <Row>
               {containers.map((container) => {
-                return <p>{container.name}</p>;
+                return <ContainerListItem key={`container-${container.slug}`} container={container} />;
               })}
-            </div>
-          )}
-        </div>
+              <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
+                <Button className='card'>
+                  <span>New</span>
+                </Button>
+              </Col>
+            </Row>
+          </Grid>
+        )}
       </div>
     );
   }
