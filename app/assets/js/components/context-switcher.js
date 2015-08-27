@@ -77,12 +77,12 @@ export default class ContextSwitcher extends React.Component {
     }
 
     const withGravatar = function(obj) {
-      return (
+      return obj ? (
         <span>
           <img className='gravatar' src={obj.gravatar(40)} />
           {obj.displayName}
         </span>
-      );
+      ) : '';
     };
 
     const buttonTitle = withGravatar(selectedOrg || user);

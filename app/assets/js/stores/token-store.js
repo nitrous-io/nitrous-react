@@ -25,6 +25,7 @@ class TokenStore extends Store {
         this._token = null;
         this._lastError = null;
         localStorage.removeItem('token');
+        location.href = '/';
         break;
       }
       default: return;
