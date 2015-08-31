@@ -5,6 +5,8 @@ import tokenStore from 'stores/token-store';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
 import hostActions from 'actions/host-actions';
+import planActions from 'actions/plan-actions';
+import regionActions from 'actions/region-actions';
 
 export default class Dashboard extends React.Component {
   displayName: 'Dashboard'
@@ -28,7 +30,9 @@ export default class Dashboard extends React.Component {
       Promise.all([
         userActions.fetch(),
         orgActions.fetchAll(),
-        hostActions.fetchAll()
+        hostActions.fetchAll(),
+        planActions.fetchAll(),
+        regionActions.fetchAll()
       ]).then(() => {
         this.preloaded = true;
         callback();

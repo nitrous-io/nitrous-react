@@ -45,13 +45,13 @@ export default class Containers extends React.Component {
         {containers == null ? (
           <p>Loading...</p>
         ) : (
-          <Grid className='containers-list'>
+          <Grid className='ui-card-grid'>
             <Row>
               {containers.map((container) => {
                 return <ContainerListItem key={`container-${container.slug}`} container={container} />;
               })}
               <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                <Button className='card'>
+                <Button className='ui-card'>
                   <span>New</span>
                 </Button>
               </Col>

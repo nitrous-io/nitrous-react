@@ -15,8 +15,8 @@ export default class ContainerListItem extends React.Component {
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
-        <div className='card'>
-          <div className='card-body'>
+        <div className='ui-card'>
+          <div className='ui-card-body'>
             <h4>{container.displayName}</h4>
             <div className='info'>
               <ContainerState state={container.state} />

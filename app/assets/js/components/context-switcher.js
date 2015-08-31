@@ -133,7 +133,7 @@ export default class ContextSwitcher extends React.Component {
     };
 
     return (
-      <div className='context-switcher'>
+      <div className='context-switcher-component'>
         {selectedHost && hosts.size > 1 ? (
           <ButtonGroup>
             {contextMenu}
