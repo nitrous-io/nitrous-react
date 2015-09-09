@@ -2,17 +2,27 @@
 
 ### Setup
 
-`npm install`
+1. Install iojs v3.3.0 (jsdom only supports iojs atm)
 
-Add the following to your `.{z,ba}shrc`:
+```
+nvm install iojs-v3.3.0
+nvm alias default iojs-v3.3.0
+```
+
+2. Install dependencies
+
+```
+npm install
+```
+
+3. Add the following to your `.{z,ba}shrc`:
 
 ```
 # prefer locally installed node module binaries
 export PATH="node_modules/.bin:$PATH"
 ```
 
-Add the following to your nginx config (`/etc/nginx/sites-enabled/default`)
-to forward all API requests to nitrousd:
+4. Add the following to your nginx config (`/etc/nginx/sites-enabled/default`) to forward all API requests to nitrousd:
 
 ```
 server {
@@ -39,6 +49,8 @@ server {
 ### Development
 
 Run `gulp` to start a dev server and watch file system changes. ESLint is run automatically when the code is rebuilt. Please fix all lint issues before committing.
+
+Run `npm test` to run Jest tests.
 
 - - -
 Copyright (c) 2015 Nitrous, Inc. All Rights Reserved.

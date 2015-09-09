@@ -19,7 +19,7 @@ var gulp = require('gulp'),
 var appJS = 'app/assets/js/app.js',
     appCSS = 'app/assets/css/app.sass';
 
-gulp.task('default', ['clean-dev', 'js-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
+gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
 gulp.task('dist', ['clean-dist', 'js-dist', 'css-dist', 'templates-dist', 'images-dist', 'server-dist']);
 
@@ -92,7 +92,7 @@ gulp.task('js-dev', function() {
 
   var onBuild = function() {
     gutil.log('Built ' + chalk.cyan('JS'));
-    gulp.start('lint');
+    //gulp.start('lint');
   };
 
   var build = function() {
@@ -102,6 +102,14 @@ gulp.task('js-dev', function() {
 
   build();
   watchify(b).on('update', build);
+});
+
+gulp.task('lint-dev', function() {
+  gulp.start('lint');
+
+  gulp.watch(['app/assets/js/**/*.+(js|jsx|es6)', 'tests/**/*.+(js|jsx|es6)']).on('change', function() {
+    gulp.start('lint');
+  });
 });
 
 gulp.task('css-dev', function() {
@@ -215,7 +223,7 @@ function browserifyBundler(options) {
 }
 
 function lintJS() {
-  return gulp.src(['app/assets/js/**/*.+(js|jsx|es6)'])
+  return gulp.src(['app/assets/js/**/*.+(js|jsx|es6)', 'tests/**/*.+(js|jsx|es6)'])
     .pipe(eslint())
     .pipe(eslint.format());
 }
