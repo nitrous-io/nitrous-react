@@ -40,18 +40,18 @@ export default class Plan extends Record({
       cpu: p.cpu,
       memory: p.memory,
       storage: p.storage,
-      mostPopular: p.most_popular,
-      subscription: p.subscription,
-      hidden: p.hidden,
-      autoShutdown: p.auto_shutdown,
+      mostPopular: !!p.most_popular,
+      subscription: !!p.subscription,
+      hidden: !!p.hidden,
+      autoShutdown: !!p.auto_shutdown,
       maxContainers: p.max_containers,
       maxSnapshots: p.max_snapshots,
-      cleanPreview: p.clean_preview,
-      desktopApp: p.desktop_app,
-      ssh: p.ssh,
-      customDomain: p.custom_domain,
-      customTemplates: p.custom_templates,
-      org: p.org
+      cleanPreview: !!p.clean_preview,
+      desktopApp: !!p.desktop_app,
+      ssh: !!p.ssh,
+      customDomain: !!p.custom_domain,
+      customTemplates: !!p.custom_templates,
+      org: !!p.org
     });
   }
 }

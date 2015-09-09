@@ -1,6 +1,6 @@
 import Store from 'stores/store';
 import Container from 'records/container';
-import { OrderedMap, Map, List } from 'immutable';
+import { OrderedMap, Map } from 'immutable';
 
 class ContainerStore extends Store {
   _containers = OrderedMap();
@@ -10,14 +10,13 @@ class ContainerStore extends Store {
   handleAction(action) {
     switch (action.type) {
       case 'container.fetched-all-by-host-slug': {
-        const containers = action.data.containers.map(function(d) {
-          return Container.deserialize(d);
-        });
-        this._containers = this._containers.merge(OrderedMap(containers.map(function(c) {
+        const containers = OrderedMap(action.data.containers.map(function(d) {
+          const c = Container.deserialize(d);
           return [c.slug, c];
-        })));
+        }));
+        this._containers = this._containers.merge(containers);
         this._containersByHostSlug = this._containersByHostSlug.merge(Map({
-          [action.hostSlug]: List(containers)
+          [action.hostSlug]: containers
         }));
         this._lastError = null;
         break;
@@ -50,10 +49,7 @@ class ContainerStore extends Store {
 
   containersByHostSlug(hostSlug) {
     const containers = this._containersByHostSlug.get(hostSlug);
-    if (containers == null) { // if null or undefined
-      return null;
-    }
-    return containers.filter(function(c) {
+    return containers == null ? null : containers.filter(function(c) {
       return c.id && !c.terminatedAt && c.state !== 'terminated';
     });
   }

@@ -17,13 +17,16 @@
   padding: 16px
   border: 1px solid #ddd
   border-radius: 4px
-  transition: border-color .2s
+  transition: border-color .1s
+
+  &.btn
+    transition: background-color .1s, border-color .1s, color .1s, box-shadow .1s, opacity .1s
 
   .ui-card-body
     position: relative
 
   h4
-    transition: color .2s
+    transition: color .1s
     margin-top: 0
 
   &.selected
@@ -31,3 +34,35 @@
 
     h4
       color: #2e6da4
+
+.ui-segmented-pill
+  .nav-pills
+    > li
+      display: inline-block
+      float: none
+      margin: 0
+
+      > a
+        padding: 4px 15px
+        border: 1px solid #ddd
+        border-radius: 0
+        margin-left: -1px
+
+      &.active
+        > a
+          border-color: #337ab7
+          border-left-color: #ddd
+
+      &:first-of-type
+        > a
+          border-radius: 4px 0 0 4px
+          border-left: 1px solid #ddd
+          margin-left: 0
+
+        &.active
+          > a
+            border-left-color: #337ab7
+
+      &:last-of-type
+        > a
+          border-radius: 0 4px 4px 0

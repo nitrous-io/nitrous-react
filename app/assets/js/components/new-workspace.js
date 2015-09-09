@@ -25,13 +25,15 @@ export default class NewWorkspace extends React.Component {
 
   componentDidMount() {
     planStore.onChange(this.planStoreDidChange);
-    planActions.fetchAll();
     regionStore.onChange(this.regionStoreDidChange);
+    planActions.fetchAll();
     regionActions.fetchAll();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    this.setPlans(nextContext);
+    if (this.context.org !== nextContext.org) {
+      this.setPlans(nextContext);
+    }
   }
 
   componentWillUnmount() {
@@ -78,7 +80,7 @@ export default class NewWorkspace extends React.Component {
       <div className='new-workspace-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
-          <h2>Create Workspace</h2>
+          <h2>Create New Workspace</h2>
           <h3>Select Plan</h3>
           <p className='hint'>All plans are standard with solid state drives (SSD)</p>
           <Grid className='ui-card-grid'>

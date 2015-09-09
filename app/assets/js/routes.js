@@ -8,6 +8,7 @@ import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
 import Workspace from 'components/workspace';
 import Containers from 'components/containers';
+import NewContainer from 'components/new-container';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -29,9 +30,10 @@ export default (
 
       <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
         <DefaultRoute handler={redirectTo('containers')} />
-        <Route name='containers' path='boxes' handler={Containers} />
+        <Route name='containers' path='projects' handler={Containers} />
         <Route name='images' handler={Containers} />
         <Route name='system' handler={Containers} />
+        <Route name='new-container' path='projects/new' handler={NewContainer} />
       </Route>
     </Route>
   </Route>

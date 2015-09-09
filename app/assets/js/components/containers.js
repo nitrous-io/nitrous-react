@@ -9,7 +9,8 @@ export default class Containers extends React.Component {
   displayName: 'Containers'
 
   static contextTypes = {
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(Host).isRequired,
+    router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
   state = {
@@ -37,8 +38,12 @@ export default class Containers extends React.Component {
     this.setState({ containers: containerStore.containersByHostSlug(this.context.host.slug) });
   };
 
+  handleClickNewContainer = () => {
+    this.context.router.transitionTo('new-container', { hostSlug: this.context.host.slug });
+  };
+
   render() {
-    const containers = this.state.containers;
+    const containers = this.state.containers ? this.state.containers.toList() : null;
 
     return (
       <div className='containers-component container'>
@@ -51,7 +56,7 @@ export default class Containers extends React.Component {
                 return <ContainerListItem key={`container-${container.slug}`} container={container} />;
               })}
               <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                <Button className='ui-card'>
+                <Button className='ui-card' onClick={this.handleClickNewContainer}>
                   <span>New</span>
                 </Button>
               </Col>
