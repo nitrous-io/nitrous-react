@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import { Navbar, Nav, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import userStore from 'stores/user-store';
 import tokenActions from 'actions/token-actions';
@@ -41,14 +42,12 @@ export default class TopNav extends React.Component {
 
     return (
       <div className='top-nav-component'>
-        <Navbar brand='Nitrous' className='navbar'>
+        <Navbar brand={<Link to="application"><span>Nitrous</span></Link>} className='navbar'>
           <Nav right>
             {user ? (
               <OverlayTrigger placement='left' rootClose overlay={<Tooltip>View Account and More</Tooltip>}>
                 <NavDropdown className='account-menu'
-                  title={<img className='gravatar' src={user.gravatar(40)} alt={user.username} />}>
-                  <MenuItem disabled>Signed in as <strong>{user.username}</strong></MenuItem>
-                  <MenuItem divider />
+                  title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}</span></span>}>
                   <MenuItem disabled>Account Settings</MenuItem>
                   <MenuItem disabled>Billing</MenuItem>
                   <MenuItem divider />
