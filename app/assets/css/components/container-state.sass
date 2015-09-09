@@ -1,6 +1,17 @@
 .container-state-component
   display: inline-block
+  width: 10px
+  height: 10px
+  border-radius: 5px
+  vertical-align: middle
+  background-color: #f0ad4e
+  transition: background-color .1s
 
-  .label
-    text-transform: uppercase
-    font-weight: 500
+  &.running
+    background-color: #5cb85c
+
+  &.stopped
+    background-color: #d9534f
+
+  &.terminated
+    background-color: #777
