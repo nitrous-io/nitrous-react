@@ -4,6 +4,7 @@ import Host from 'records/host';
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
 import ContainerListItem from 'components/container-list-item';
+import LoadingIndicator from 'components/loading-indicator';
 
 export default class Containers extends React.Component {
   displayName: 'Containers'
@@ -48,7 +49,7 @@ export default class Containers extends React.Component {
     return (
       <div className='containers-component container'>
         {containers == null ? (
-          <p>Loading...</p>
+          <LoadingIndicator />
         ) : (
           <Grid className='ui-card-grid'>
             <Row>
