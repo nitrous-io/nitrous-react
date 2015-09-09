@@ -23,7 +23,7 @@
     "no-lonely-if": 2,
     "no-mixed-spaces-and-tabs": 2,
     "no-multiple-empty-lines": 2,
-    "no-nested-ternary": 1,
+    "no-nested-ternary": 0,
     "semi-spacing": 2,
     "semi": 2,
     "space-after-keywords": 2,
