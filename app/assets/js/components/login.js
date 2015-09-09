@@ -4,7 +4,7 @@ import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 
 export default class Login extends React.Component {
-  displayName: 'Login'
+  displayName = 'Login';
 
   static contextTypes = {
     router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired

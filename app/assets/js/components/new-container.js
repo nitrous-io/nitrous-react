@@ -17,7 +17,7 @@ const imageTypeTemplate = 'template',
       imageTypeRepo = 'repo';
 
 export default class NewContainer extends React.Component {
-  displayName: 'NewContainer'
+  displayName = 'NewContainer';
 
   static contextTypes = {
     host: PropTypes.instanceOf(Host).isRequired

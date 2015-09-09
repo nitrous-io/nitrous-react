@@ -9,7 +9,7 @@ import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
 
 export default class Dashboard extends React.Component {
-  displayName: 'Dashboard'
+  displayName = 'Dashboard';
 
   static contextTypes = {
     router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired

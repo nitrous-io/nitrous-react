@@ -4,7 +4,7 @@ import Region from 'records/region';
 import classNames from 'classnames';
 
 export default class RegionListItem extends React.Component {
-  displayName: 'RegionListItem'
+  displayName = 'RegionListItem';
 
   static propTypes = {
     region: PropTypes.instanceOf(Region).isRequired,

@@ -7,7 +7,7 @@ import hostStore from 'stores/host-store';
 import ContextSwitcher from 'components/context-switcher';
 
 export default class Workspace extends React.Component {
-  displayName: 'Workspace'
+  displayName = 'Workspace';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired

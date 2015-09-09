@@ -3,15 +3,11 @@ import { Table, Button } from 'react-bootstrap';
 import Host from 'records/host';
 
 export default class Registries extends React.Component {
-  displayName: 'Registries'
+  displayName = 'Registries';
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired
   };
-
-  componentDidMount() {
-
-  }
 
   render() {
     return (

@@ -7,7 +7,7 @@ import ContainerListItem from 'components/container-list-item';
 import LoadingIndicator from 'components/loading-indicator';
 
 export default class Containers extends React.Component {
-  displayName: 'Containers'
+  displayName = 'Containers';
 
   static contextTypes = {
     host: PropTypes.instanceOf(Host).isRequired,

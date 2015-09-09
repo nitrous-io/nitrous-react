@@ -6,7 +6,7 @@ import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
 
 export default class ImageListItem extends React.Component {
-  displayName: 'ImageListItem'
+  displayName = 'ImageListItem';
 
   static propTypes = {
     image: PropTypes.instanceOf(Image).isRequired,

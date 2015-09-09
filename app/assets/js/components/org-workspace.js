@@ -5,7 +5,7 @@ import hostStore from 'stores/host-store';
 import orgStore from 'stores/org-store';
 
 export default class OrgWorkspace extends React.Component {
-  displayName: 'OrgWorkspace'
+  displayName = 'OrgWorkspace';
 
   static childContextTypes = {
     org: PropTypes.instanceOf(Org).isRequired

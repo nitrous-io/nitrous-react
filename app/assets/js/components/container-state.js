@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { Label } from 'react-bootstrap';
 
 export default class ContainerState extends React.Component {
-  displayName: 'ContainerState'
+  displayName = 'ContainerState';
 
   static propTypes = {
     state: PropTypes.string

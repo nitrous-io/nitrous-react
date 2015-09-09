@@ -3,7 +3,7 @@ import { RouteHandler } from 'react-router';
 import hostStore from 'stores/host-store';
 
 export default class UserWorkspace extends React.Component {
-  displayName: 'UserWorkspace'
+  displayName = 'UserWorkspace';
 
   static willTransitionTo(transition) {
     const userHosts = hostStore.userHosts;

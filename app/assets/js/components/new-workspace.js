@@ -10,7 +10,7 @@ import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
 
 export default class NewWorkspace extends React.Component {
-  displayName: 'NewWorkspace'
+  displayName = 'NewWorkspace';
 
   static contextTypes = {
     org: PropTypes.instanceOf(Org)

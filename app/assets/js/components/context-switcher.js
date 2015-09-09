@@ -8,7 +8,7 @@ import hostStore from 'stores/host-store';
 import $ from 'jquery';
 
 export default class ContextSwitcher extends React.Component {
-  displayName: 'ContextSwitcher'
+  displayName = 'ContextSwitcher';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired

@@ -4,7 +4,7 @@ import Container from 'records/container';
 import ContainerState from 'components/container-state';
 
 export default class ContainerListItem extends React.Component {
-  displayName: 'ContainerListItem'
+  displayName = 'ContainerListItem';
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired

@@ -6,7 +6,7 @@ import tokenActions from 'actions/token-actions';
 import $ from 'jquery';
 
 export default class TopNav extends React.Component {
-  displayName: 'TopNav'
+  displayName = 'TopNav';
 
   state = {
     user: userStore.user

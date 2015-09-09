@@ -4,7 +4,7 @@ import Plan from 'records/plan';
 import classNames from 'classnames';
 
 export default class PlanListItem extends React.Component {
-  displayName: 'PlanListItem'
+  displayName = 'PlanListItem';
 
   static propTypes = {
     plan: PropTypes.instanceOf(Plan).isRequired,

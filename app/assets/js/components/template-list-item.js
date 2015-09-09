@@ -4,7 +4,7 @@ import Template from 'records/template';
 import classNames from 'classnames';
 
 export default class TemplateListItem extends React.Component {
-  displayName: 'TemplateListItem'
+  displayName = 'TemplateListItem';
 
   static propTypes = {
     template: PropTypes.instanceOf(Template).isRequired,
