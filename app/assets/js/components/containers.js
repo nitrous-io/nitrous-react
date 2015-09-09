@@ -5,6 +5,7 @@ import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
 import ContainerListItem from 'components/container-list-item';
 import LoadingIndicator from 'components/loading-indicator';
+import Fa from 'components/fa';
 
 export default class Containers extends React.Component {
   displayName = 'Containers';
@@ -58,7 +59,7 @@ export default class Containers extends React.Component {
               })}
               <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
                 <Button className='ui-card' onClick={this.handleClickNewContainer}>
-                  <span>New</span>
+                  <Fa icon='plus' />
                 </Button>
               </Col>
             </Row>
