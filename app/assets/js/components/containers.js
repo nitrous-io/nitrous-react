@@ -16,7 +16,7 @@ export default class Containers extends React.Component {
   };
 
   state = {
-    containers: containerStore.containersByHostSlug(this.context.host.slug)
+    containers: containerStore.liveContainersByHostSlug(this.context.host.slug)
   };
 
   componentDidMount() {
@@ -27,7 +27,7 @@ export default class Containers extends React.Component {
   componentWillReceiveProps(nextProps, nextContext) {
     const hostSlug = nextContext.host.slug;
     if (this.context.host.slug !== hostSlug) {
-      this.setState({ containers: containerStore.containersByHostSlug(hostSlug) });
+      this.setState({ containers: containerStore.liveContainersByHostSlug(hostSlug) });
       containerActions.fetchAllByHostSlug(hostSlug);
     }
   }
@@ -37,7 +37,7 @@ export default class Containers extends React.Component {
   }
 
   containerStoreDidChange = () => {
-    this.setState({ containers: containerStore.containersByHostSlug(this.context.host.slug) });
+    this.setState({ containers: containerStore.liveContainersByHostSlug(this.context.host.slug) });
   };
 
   handleClickNewContainer = () => {

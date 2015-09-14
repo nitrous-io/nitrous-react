@@ -1,10 +1,10 @@
 import Store from 'stores/store';
 import Image from 'records/image';
-import { OrderedMap, Map } from 'immutable';
+import { OrderedMap } from 'immutable';
 
 class ImageStore extends Store {
   _images = OrderedMap();
-  _imagesByHostSlug = Map();
+  _imageReposByHostSlug = OrderedMap();
 
   handleAction(action) {
     switch (action.type) {
@@ -14,8 +14,8 @@ class ImageStore extends Store {
           return [i.repo, i];
         }));
         this._images = this._images.merge(images);
-        this._imagesByHostSlug = this._imagesByHostSlug.merge(Map({
-          [action.hostSlug]: images
+        this._imageReposByHostSlug = this._imageReposByHostSlug.merge(OrderedMap({
+          [action.hostSlug]: images.keySeq().toList() // list of keys == list of image repos
         }));
         this._lastError = null;
         break;
@@ -34,23 +34,23 @@ class ImageStore extends Store {
   }
 
   imagesByHostSlug(hostSlug) {
-    const images = this._imagesByHostSlug.get(hostSlug);
-    return images == null ? null : images.filter(function(i) {
-      return i.id;
-    });
+    const imageRepos = this._imageReposByHostSlug.get(hostSlug);
+    return imageRepos == null ? null : OrderedMap(imageRepos.map((repo) => {
+      return [repo, this._images.get(repo)];
+    }));
   }
 
   snapshotsByHostSlug(hostSlug) {
-    const images = this._imagesByHostSlug.get(hostSlug);
+    const images = this.imagesByHostSlug(hostSlug);
     return images == null ? null : images.filter(function(i) {
-      return i.id && i.isSnapshot;
+      return i.isSnapshot;
     });
   }
 
   otherImagesByHostSlug(hostSlug) {
-    const images = this._imagesByHostSlug.get(hostSlug);
+    const images = this.imagesByHostSlug(hostSlug);
     return images == null ? null : images.filter(function(i) {
-      return i.id && !i.isSnapshot;
+      return !i.isSnapshot;
     });
   }
 }

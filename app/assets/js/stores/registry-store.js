@@ -1,10 +1,10 @@
 import Store from 'stores/store';
 import Registry from 'records/registry';
-import { OrderedMap, Map } from 'immutable';
+import { OrderedMap } from 'immutable';
 
 class RegistryStore extends Store {
   _registries = OrderedMap();
-  _registriesByHostSlug = Map();
+  _registryUrlsByHostSlug = OrderedMap();
 
   handleAction(action) {
     switch (action.type) {
@@ -14,8 +14,8 @@ class RegistryStore extends Store {
           return [r.url, r];
         }));
         this._registries = this._registries.merge(registries);
-        this._registriesByHostSlug = this._registriesByHostSlug.merge(Map({
-          [action.hostSlug]: registries
+        this._registryUrlsByHostSlug = this._registryUrlsByHostSlug.merge(OrderedMap({
+          [action.hostSlug]: registries.keySeq().toList() // list of keys == list of registry urls
         }));
         this._lastError = null;
         break;
@@ -34,7 +34,10 @@ class RegistryStore extends Store {
   }
 
   registriesByHostSlug(hostSlug) {
-    return this._registriesByHostSlug.get(hostSlug);
+    const registryUrls = this._registryUrlsByHostSlug.get(hostSlug);
+    return registryUrls == null ? null : OrderedMap(registryUrls.map((url) => {
+      return [url, this._registries.get(url)];
+    }));
   }
 }
 
