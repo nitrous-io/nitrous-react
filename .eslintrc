@@ -5,7 +5,8 @@
   },
   "plugins": [
     "babel",
-    "react"
+    "react",
+    "no-empty-blocks"
   ],
   "extends": "eslint:recommended",
   "rules": {
@@ -24,6 +25,7 @@
     "no-mixed-spaces-and-tabs": 2,
     "no-multiple-empty-lines": 2,
     "no-nested-ternary": 0,
+    "no-empty": 0,
     "semi-spacing": 2,
     "semi": 2,
     "space-after-keywords": 2,
