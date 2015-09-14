@@ -34,6 +34,21 @@ class ContainerStore extends Store {
         this._lastError = action.data.errorMessage;
         break;
       }
+      case 'container.start-failed': {
+        // FIXME: display action.data.errorMessage in a snackbar notification
+        break;
+      }
+      // from events-socket
+      case 'events:container.starting':
+      case 'events:container.started':
+      case 'events:container.stopping':
+      case 'events:container.stopped':
+      case 'events:container.restarting':
+      case 'events:container.restarted': {
+        const c = Container.deserialize(action.data.container);
+        this._containers = this._containers.set(c.slug, c);
+        break;
+      }
       default: return;
     }
     this.notifyChange();

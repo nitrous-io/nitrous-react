@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import classNames from 'classnames';
 
 export default class ContainerState extends React.Component {
@@ -12,7 +13,9 @@ export default class ContainerState extends React.Component {
     const state = this.props.state;
 
     return (
-      <div className={classNames('container-state-component', state)} title={state} />
+      <OverlayTrigger placement='top' overlay={<Tooltip>{state}</Tooltip>}>
+        <div className={classNames('container-state-component', state)} />
+      </OverlayTrigger>
     );
   }
 }

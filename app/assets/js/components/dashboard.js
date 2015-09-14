@@ -7,6 +7,7 @@ import orgActions from 'actions/org-actions';
 import hostActions from 'actions/host-actions';
 import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
+import eventsSocket from 'lib/events-socket';
 
 export default class Dashboard extends React.Component {
   displayName = 'Dashboard';
@@ -38,6 +39,14 @@ export default class Dashboard extends React.Component {
         callback();
       });
     }
+  }
+
+  componentDidMount() {
+    eventsSocket.connect(tokenStore.token);
+  }
+
+  componentWillUnmount() {
+    eventsSocket.disconnect();
   }
 
   render() {

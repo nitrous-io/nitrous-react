@@ -65,4 +65,8 @@ export default class Container extends Record({
   get displayName() {
     return this.name || this.slug;
   }
+
+  get isInIntermediateState() {
+    return !['running', 'stopped'].includes(this.state);
+  }
 }

@@ -42,6 +42,46 @@ class ContainerActions {
       });
     });
   }
+
+  postAction(container, action) {
+    return authedAjax({
+      type: 'POST',
+      url: `/api/v0/containers/${container.slug}/${action}`,
+      dataType: 'json'
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: `container.${action}-failed`,
+        containerSlug: container.slug,
+        data: jqxhr
+      });
+    });
+  }
+
+  start(container) {
+    return this.postAction(container, 'start');
+  }
+
+  stop(container) {
+    return this.postAction(container, 'stop');
+  }
+
+  restart(container) {
+    return this.postAction(container, 'restart');
+  }
+
+  terminate(container) {
+    return authedAjax({
+      type: 'DELETE',
+      url: `/api/v0/containers/${container.slug}`,
+      dataType: 'json'
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: `container.terminate-failed`,
+        containerSlug: container.slug,
+        data: jqxhr
+      });
+    });
+  }
 }
 
 export default new ContainerActions();
