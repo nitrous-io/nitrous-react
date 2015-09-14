@@ -17,7 +17,8 @@ var gulp = require('gulp'),
     path = require('path');
 
 var appJS = 'app/assets/js/app.js',
-    appCSS = 'app/assets/css/app.sass';
+    appCSS = 'app/assets/css/app.sass',
+    vendorJSPath = 'vendor/assets/js';
 
 gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
@@ -206,7 +207,7 @@ function browserifyBundler(options) {
   var jsExtensions = ['.js', '.jsx', '.es6', '.coffee', '.json'];
   options = merge({
     extensions: jsExtensions,
-    paths: path.dirname(appJS),
+    paths: [path.dirname(appJS), vendorJSPath],
     cache: {},
     packageCache: {},
   }, options || {});

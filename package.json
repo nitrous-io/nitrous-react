@@ -2,18 +2,18 @@
   "name": "react-gulp-boilerplate",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "test": "BABEL_JEST_STAGE=0 NODE_PATH=app/assets/js jest"
+  },
   "author": "Peter Jihoon Kim",
   "repository": "https://github.com/petejkim/react-gulp-boilerplate",
   "license": "MIT",
-  "scripts": {
-    "test": "NODE_PATH=app/assets/js:node_modules jest"
-  },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-    "testFileExtensions": ["js", "jsx", "es6"],
-    "moduleFileExtensions": ["js", "jsx", "es6", "json"],
-    "testDirectoryName": "tests"
+    "testDirectoryName": "tests",
+    "testPathIgnorePatterns": ["/node_modules/", "test-helper.js"],
+    "setupEnvScriptFile": "<rootDir>/tests/test-helper.js",
+    "unmockedModulePathPatterns": ["<rootDir>/node_modules/react", "<rootDir>/node_modules/babel"]
   },
   "dependencies": {
     "classnames": "^2.1.3",
