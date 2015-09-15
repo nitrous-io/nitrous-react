@@ -1,0 +1,41 @@
+.snackbar-component
+  position: fixed
+  top: 16px
+  right: 16px
+  width: 100%
+
+  ul
+    margin: 0
+    padding: 0
+    list-style: none
+
+.snackbar-list-item-component
+  display: block
+  left: auto
+  right: 0
+  min-width: 20%
+  max-width: 90%
+  cursor: pointer
+  user-select: none
+  transition: top .3s
+
+  .popover-content
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow: hidden
+
+  &.el-enter
+    transition: transform .3s
+    transform: perspective(500px) rotateX(90deg) translate3d(0px, -21px, 0px)
+
+    &.el-enter-active
+      transform: perspective(500px) rotateX(0deg) translate3d(0px, 0px, 0px)
+
+  &.el-leave
+    transition: opacity .3s, transform .3s
+    opacity: 1
+    transform: translate3d(0px, 0px, 0px)
+
+    &.el-leave-active
+      opacity: 0
+      transform: translate3d(100px, 0px, 0px)
