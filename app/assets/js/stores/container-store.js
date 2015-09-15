@@ -5,18 +5,24 @@ import snackbarActions from 'actions/snackbar-actions';
 import hostStore from 'stores/host-store';
 
 class ContainerStore extends Store {
-  _containers = OrderedMap();
-  _containerSlugsByHostSlug = OrderedMap();
-  _sharedContainers = OrderedMap();
+  // private ivars with public getters
+  _containers = OrderedMap(); // <K: ContainerSlug, V: Container>
+  _containerSlugsByHostSlug = OrderedMap(); // <K: HostSlug, V: OrderedSet<ContainerSlug>>
+  _sharedContainers = OrderedMap(); // <K: ContainerSlug, V: Container>
 
   handleAction(action) {
     switch (action.type) {
+      // use curly braces to ensure each case has its own let/const variable scope
       case 'container.fetched-all-by-host-slug': {
+        // deserialize containers
         const containers = OrderedMap(action.data.containers.map(function(d) {
           const c = Container.deserialize(d);
           return [c.slug, c];
         }));
+        // merge the newly fetched containers with global container map
         this._containers = this._containers.merge(containers);
+        // update the host -> containers mapping. use slugs instead of Record objects to ensure
+        // that there is only one Record object that represents a model object
         this._containerSlugsByHostSlug = this._containerSlugsByHostSlug.merge(OrderedMap({
           [action.hostSlug]: containers.keySeq().toOrderedSet() // list of keys == list of container slugs
         }));
@@ -24,6 +30,7 @@ class ContainerStore extends Store {
         break;
       }
       case 'container.fetched-all-shared': {
+        // update shared containers map
         this._sharedContainers = OrderedMap(action.data.containers.map(function(d) {
           const c = Container.deserialize(d);
           return [c.slug, c];
@@ -32,15 +39,13 @@ class ContainerStore extends Store {
         break;
       }
       case 'container.fetch-all-by-host-slug-failed':
-      case 'container.fetch-all-shared-failed': {
-        this._lastError = action.data.errorMessage;
-        break;
-      }
+      case 'container.fetch-all-shared-failed':
       case 'container.start-failed':
       case 'container.stop-failed':
       case 'container.restart-failed':
       case 'container.terminate-failed': {
-        snackbarActions.post(action.data.errorMessage);
+        const err = this._lastError = action.data.errorMessage;
+        snackbarActions.post(err);
         break;
       }
       // from events-socket
@@ -54,8 +59,12 @@ class ContainerStore extends Store {
       case 'events:container.destroying':
       case 'events:container.destroyed': {
         const c = Container.deserialize(action.data.container);
+
+        // replace the old container object in the global container map with newly updated object
         this._containers = this._containers.set(c.slug, c);
 
+        // if the container belongs to a known host, make sure its slug is added to the set of
+        // containers for the host, so that the UI can be updated if it is a new container
         const hostSlug = hostStore.hostSlugByHostId(c.hostId);
         if (hostSlug) {
           const set = (this._containerSlugsByHostSlug.get(hostSlug) || OrderedSet()).add(c.slug);
