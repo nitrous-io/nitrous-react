@@ -76,7 +76,7 @@ class ContainerActions {
       dataType: 'json'
     }).catch((jqxhr) => {
       dispatcher.dispatch({
-        type: `container.terminate-failed`,
+        type: 'container.terminate-failed',
         containerSlug: container.slug,
         data: jqxhr
       });

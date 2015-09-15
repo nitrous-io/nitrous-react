@@ -4,12 +4,18 @@ import Container from 'records/container';
 import containerActions from 'actions/container-actions';
 import ContainerState from 'components/container-state';
 import Fa from 'components/fa';
+import PromptModal from 'components/prompt-modal';
+import SelectableText from 'components/selectable-text';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired
+  };
+
+  state = {
+    slugConfirmation: null // slug entered by user in the termination confirmation dialog
   };
 
   handleStop = () => {
@@ -25,7 +31,17 @@ export default class ContainerListItem extends React.Component {
   };
 
   handleTerminate = () => {
+    this.setState({ slugConfirmation: '' }, () => {
+      this.refs.terminateModal.show();
+    });
+  };
+
+  handleTerminateModalOK = () => {
     containerActions.terminate(this.props.container);
+  };
+
+  handleTerminateModalTextInput = (text) => {
+    this.setState({ slugConfirmation: text });
   };
 
   render() {
@@ -38,7 +54,7 @@ export default class ContainerListItem extends React.Component {
             <h4>{container.displayName}</h4>
             <div className='info'>
               <ContainerState state={container.state} />
-              <span className='slug'>{container.slug}</span>
+              <SelectableText className='slug'>{container.slug}</SelectableText>
             </div>
               {container.state !== 'terminated' ? (
                 <ButtonToolbar className='buttons'>
@@ -66,7 +82,21 @@ export default class ContainerListItem extends React.Component {
                 <ButtonToolbar className='buttons'>
                   <Button disabled>Terminated</Button>
                 </ButtonToolbar>
-              )}
+              )
+            }
+            {container.state === 'stopped' ? (
+              <PromptModal ref='terminateModal' okButtonLabel='Terminate' okButtonStyle='danger'
+                okButtonDisabled={this.state.slugConfirmation !== container.slug} placeholder={container.slug}
+                onOK={this.handleTerminateModalOK} onTextInput={this.handleTerminateModalTextInput}>
+                <p>This action <strong>CANNOT</strong> be undone!</p>
+                <p>This will permanently delete the project &ldquo;{container.displayName}&rdquo; and all data stored within the project container.</p>
+                <p>
+                  Please type in the slug of the project
+                  (<SelectableText><strong>{container.slug}</strong></SelectableText>)
+                  to confirm:
+                </p>
+              </PromptModal>
+            ) : ''}
           </div>
         </div>
       </Col>
