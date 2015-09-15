@@ -15,7 +15,7 @@ class ImageStore extends Store {
         }));
         this._images = this._images.merge(images);
         this._imageReposByHostSlug = this._imageReposByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: images.keySeq().toList() // list of keys == list of image repos
+          [action.hostSlug]: images.keySeq().toOrderedSet() // list of keys == list of image repos
         }));
         this._lastError = null;
         break;

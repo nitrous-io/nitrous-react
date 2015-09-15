@@ -1,6 +1,7 @@
 import Store from 'stores/store';
 import Container from 'records/container';
-import { OrderedMap } from 'immutable';
+import { OrderedMap, OrderedSet } from 'immutable';
+import hostStore from 'stores/host-store';
 
 class ContainerStore extends Store {
   _containers = OrderedMap();
@@ -16,7 +17,7 @@ class ContainerStore extends Store {
         }));
         this._containers = this._containers.merge(containers);
         this._containerSlugsByHostSlug = this._containerSlugsByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: containers.keySeq().toList() // list of keys == list of container slugs
+          [action.hostSlug]: containers.keySeq().toOrderedSet() // list of keys == list of container slugs
         }));
         this._lastError = null;
         break;
@@ -34,8 +35,10 @@ class ContainerStore extends Store {
         this._lastError = action.data.errorMessage;
         break;
       }
-      case 'container.start-failed': {
-        // FIXME: display action.data.errorMessage in a snackbar notification
+      case 'container.start-failed':
+      case 'container.stop-failed':
+      case 'container.restart-failed':
+      case 'container.terminate-failed': {
         break;
       }
       // from events-socket
@@ -44,9 +47,18 @@ class ContainerStore extends Store {
       case 'events:container.stopping':
       case 'events:container.stopped':
       case 'events:container.restarting':
-      case 'events:container.restarted': {
+      case 'events:container.restarted':
+      case 'events:container.created':
+      case 'events:container.destroying':
+      case 'events:container.destroyed': {
         const c = Container.deserialize(action.data.container);
         this._containers = this._containers.set(c.slug, c);
+
+        const hostSlug = hostStore.hostSlugByHostId(c.hostId);
+        if (hostSlug) {
+          const set = (this._containerSlugsByHostSlug.get(hostSlug) || OrderedSet()).add(c.slug);
+          this._containerSlugsByHostSlug = this._containerSlugsByHostSlug.set(hostSlug, set);
+        }
         break;
       }
       default: return;

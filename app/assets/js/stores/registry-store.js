@@ -15,7 +15,7 @@ class RegistryStore extends Store {
         }));
         this._registries = this._registries.merge(registries);
         this._registryUrlsByHostSlug = this._registryUrlsByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: registries.keySeq().toList() // list of keys == list of registry urls
+          [action.hostSlug]: registries.keySeq().toOrderedSet() // list of keys == list of registry urls
         }));
         this._lastError = null;
         break;

@@ -52,6 +52,13 @@ class HostStore extends Store {
       return h.orgId === orgId && !h.terminatedAt && h.state !== 'terminated';
     });
   }
+
+  hostSlugByHostId(hostId) {
+    const host = this._hosts.find((h) => {
+      return h.id === hostId;
+    });
+    return host ? host.slug : null;
+  }
 }
 
 export default new HostStore();
