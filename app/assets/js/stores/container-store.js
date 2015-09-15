@@ -1,6 +1,7 @@
 import Store from 'stores/store';
 import Container from 'records/container';
 import { OrderedMap, OrderedSet } from 'immutable';
+import snackbarActions from 'actions/snackbar-actions';
 import hostStore from 'stores/host-store';
 
 class ContainerStore extends Store {
@@ -39,6 +40,7 @@ class ContainerStore extends Store {
       case 'container.stop-failed':
       case 'container.restart-failed':
       case 'container.terminate-failed': {
+        snackbarActions.post(action.data.errorMessage);
         break;
       }
       // from events-socket
@@ -58,6 +60,14 @@ class ContainerStore extends Store {
         if (hostSlug) {
           const set = (this._containerSlugsByHostSlug.get(hostSlug) || OrderedSet()).add(c.slug);
           this._containerSlugsByHostSlug = this._containerSlugsByHostSlug.set(hostSlug, set);
+        }
+
+        if (action.type === 'events:container.created') {
+          snackbarActions.post(`Your project container “${c.displayName}” was created successfully.`);
+        }
+
+        if (action.type === 'events:container.destroyed') {
+          snackbarActions.post(`Your project container “${c.displayName}” was terminated successfully.`);
         }
         break;
       }
