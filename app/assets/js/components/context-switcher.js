@@ -16,7 +16,8 @@ export default class ContextSwitcher extends React.Component {
 
   static propTypes = {
     selectedHost: PropTypes.instanceOf(Host),
-    selectedOrg: PropTypes.instanceOf(Org)
+    selectedOrg: PropTypes.instanceOf(Org),
+    shared: PropTypes.bool
   }
 
   state = {
@@ -85,7 +86,12 @@ export default class ContextSwitcher extends React.Component {
       ) : '';
     };
 
-    const buttonTitle = withGravatar(selectedOrg || user);
+    let buttonTitle;
+    if (this.props.shared) {
+      buttonTitle = 'Shared With Me';
+    } else {
+      buttonTitle = withGravatar(selectedOrg || user);
+    }
 
     const contextMenu = (
       <OverlayTrigger placement='top' rootClose overlay={(<Tooltip>Switch Dashboard Context</Tooltip>)}>
@@ -103,7 +109,7 @@ export default class ContextSwitcher extends React.Component {
             );
           }) : ''}
           {orgs ? <MenuItem divider /> : ''}
-          <MenuItem href={makeHref('user-workspace')}>
+          <MenuItem href={makeHref('shared-containers')}>
             Shared With Me
             <Badge eventKey='shared' pullRight>1</Badge>
           </MenuItem>

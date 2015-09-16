@@ -1,11 +1,8 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
-import ContainerListItem from 'components/container-list-item';
-import LoadingIndicator from 'components/loading-indicator';
-import Fa from 'components/fa';
+import ContainerList from 'components/container-list';
 
 export default class Containers extends React.Component {
   displayName = 'Containers';
@@ -49,22 +46,7 @@ export default class Containers extends React.Component {
 
     return (
       <div className='containers-component container'>
-        {containers == null ? (
-          <LoadingIndicator />
-        ) : (
-          <Grid className='ui-card-grid'>
-            <Row>
-              {containers.map((container) => {
-                return <ContainerListItem key={`container-${container.slug}`} container={container} />;
-              })}
-              <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                <Button className='ui-card' onClick={this.handleClickNewContainer}>
-                  <Fa icon='plus' />
-                </Button>
-              </Col>
-            </Row>
-          </Grid>
-        )}
+        <ContainerList containers={containers} />
       </div>
     );
   }

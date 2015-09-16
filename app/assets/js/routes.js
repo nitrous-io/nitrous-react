@@ -9,6 +9,7 @@ import NewWorkspace from 'components/new-workspace';
 import Workspace from 'components/workspace';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
+import SharedContainers from 'components/shared-containers';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -35,6 +36,8 @@ export default (
         <Route name='system' handler={Containers} />
         <Route name='new-container' path='projects/new' handler={NewContainer} />
       </Route>
+
+      <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
     </Route>
   </Route>
 );

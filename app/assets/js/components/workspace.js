@@ -65,7 +65,7 @@ export default class Workspace extends React.Component {
         {host ? (
           <div className='container'>
             <ContextSwitcher selectedHost={host} />
-            <Nav className='tabs' bsStyle='tabs' activeKey='containers'>
+            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
               <NavItem href={makeHref('containers', { hostSlug: host.slug })} eventKey='containers'>Projects</NavItem>
               <NavItem href={makeHref('images', { hostSlug: host.slug })} eventKey='images'>Images</NavItem>
               <NavItem href={makeHref('system', { hostSlug: host.slug })} eventKey='system'>System</NavItem>
