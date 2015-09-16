@@ -1,5 +1,6 @@
 /**
  * https://github.com/Khan/react-components/blob/d7afd09286996a0b4905398e25eb22dd3e087203/js/timeout-transition-group.jsx
+ * Modified to use ES6 module syntax
  *
  * The CSSTransitionGroup component uses the 'transitionend' event, which
  * browsers will not send for any number of reasons, including the
@@ -16,9 +17,11 @@
  * addons and under the Apache 2.0 License.
  */
 
-var React = require('react/addons');
+//var React = require('react/addons');
+//var ReactTransitionGroup = React.addons.TransitionGroup;
 
-var ReactTransitionGroup = React.addons.TransitionGroup;
+import React from 'react/addons';
+const ReactTransitionGroup = React.addons.TransitionGroup;
 
 var TICK = 17;
 
@@ -240,4 +243,5 @@ var TimeoutTransitionGroup = React.createClass({
     }
 });
 
-module.exports = TimeoutTransitionGroup;
+//module.exports = TimeoutTransitionGroup;
+export default TimeoutTransitionGroup;
