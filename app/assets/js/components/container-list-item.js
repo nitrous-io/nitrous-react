@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Col, ButtonToolbar, Button, DropdownButton, MenuItem } from 'react-bootstrap';
+import Host from 'records/host';
 import Container from 'records/container';
 import containerActions from 'actions/container-actions';
 import ContainerState from 'components/container-state';
@@ -9,6 +10,10 @@ import SelectableText from 'components/selectable-text';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
+
+  static contextTypes = {
+    host: PropTypes.instanceOf(Host)
+  };
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired
@@ -45,7 +50,8 @@ export default class ContainerListItem extends React.Component {
   };
 
   render() {
-    const container = this.props.container;
+    const { container } = this.props,
+          shared = !this.context.host;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -65,8 +71,10 @@ export default class ContainerListItem extends React.Component {
                   ] : ''}
                   {container.state === 'stopped' ? [
                     <MenuItem key='cm3' onSelect={this.handleStart}>Start</MenuItem>,
-                    <MenuItem key='cm4' divider />,
-                    <MenuItem key='cm5' onSelect={this.handleTerminate}>Terminate...</MenuItem>
+                    (!shared ? [
+                      <MenuItem key='cm4' divider />,
+                      <MenuItem key='cm5' onSelect={this.handleTerminate}>Terminate...</MenuItem>
+                    ] : '')
                   ] : ''}
                 </DropdownButton>
                 <DropdownButton title='Settings'>

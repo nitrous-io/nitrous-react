@@ -5,6 +5,7 @@ import Org from 'records/org';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
+import containerStore from 'stores/container-store';
 import $ from 'jquery';
 
 export default class ContextSwitcher extends React.Component {
@@ -23,13 +24,15 @@ export default class ContextSwitcher extends React.Component {
   state = {
     user: userStore.user,
     orgs: orgStore.orgs,
-    hosts: hostStore.hosts
+    hosts: hostStore.hosts,
+    sharedContainerCount: containerStore.sharedContainers.size
   };
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
+    containerStore.onChange(this.containerStoreDidChange);
 
     // hack to dismiss overlay tooltip after clicking menu
     $(React.findDOMNode(this)).on('click', '.dropdown-menu a[href]', function() {
@@ -43,6 +46,7 @@ export default class ContextSwitcher extends React.Component {
     userStore.offChange(this.userStoreDidChange);
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
+    containerStore.offChange(this.containerStoreDidChange);
 
     $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
@@ -59,14 +63,18 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ hosts: hostStore.liveHosts });
   };
 
-  render() {
-    const selectedHost = this.props.selectedHost,
-          orgs = this.state.orgs.toList(),
-          user = this.state.user,
-          makeHref = this.context.router.makeHref;
+  containerStoreDidChange = () => {
+    this.setState({ sharedContainerCount: containerStore.sharedContainers.size });
+  };
 
-    let hosts,
-        selectedOrg = this.props.selectedOrg;
+  render() {
+    const { selectedHost } = this.props,
+          { user, sharedContainerCount } = this.state,
+          orgs = this.state.orgs.toList(),
+          { makeHref } = this.context.router;
+
+    let { selectedOrg } = this.props,
+        hosts;
 
     if (selectedHost) {
       const orgId = selectedHost.orgId;
@@ -111,7 +119,9 @@ export default class ContextSwitcher extends React.Component {
           {orgs ? <MenuItem divider /> : ''}
           <MenuItem href={makeHref('shared-containers')}>
             Shared With Me
-            <Badge eventKey='shared' pullRight>1</Badge>
+            {sharedContainerCount > 0 ? (
+              <Badge eventKey='shared' pullRight>1</Badge>
+            ) : ''}
           </MenuItem>
           <MenuItem divider />
           <MenuItem eventKey='manage-orgs' disabled>Manage Organizations...</MenuItem>

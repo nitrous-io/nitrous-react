@@ -7,6 +7,7 @@ import orgActions from 'actions/org-actions';
 import hostActions from 'actions/host-actions';
 import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
+import containerActions from 'actions/container-actions';
 import eventsSocket from 'lib/events-socket';
 
 export default class Dashboard extends React.Component {
@@ -37,6 +38,8 @@ export default class Dashboard extends React.Component {
       ]).then(() => {
         this.preloaded = true;
         callback();
+        // does not have to be fetched synchronously
+        containerActions.fetchAllShared();
       });
     }
   }

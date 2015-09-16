@@ -30,7 +30,8 @@ export default class SharedContainers extends React.Component {
   };
 
   render() {
-    const makeHref = this.context.router.makeHref;
+    const { makeHref } = this.context.router,
+          containers = this.state.containers.toList();
 
     return (
       <div className='shared-containers-component'>
@@ -39,7 +40,7 @@ export default class SharedContainers extends React.Component {
           <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
             <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
           </Nav>
-          <ContainerList containers={this.state.containers} />
+          <ContainerList containers={containers} />
         </div>
       </div>
     );

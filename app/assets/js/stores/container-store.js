@@ -8,7 +8,7 @@ class ContainerStore extends Store {
   // private ivars with public getters
   _containers = OrderedMap(); // <K: ContainerSlug, V: Container>
   _containerSlugsByHostSlug = OrderedMap(); // <K: HostSlug, V: OrderedSet<ContainerSlug>>
-  _sharedContainers = OrderedMap(); // <K: ContainerSlug, V: Container>
+  _sharedContainerSlugs = OrderedSet(); // <ContainerSlug>
 
   handleAction(action) {
     switch (action.type) {
@@ -30,11 +30,17 @@ class ContainerStore extends Store {
         break;
       }
       case 'container.fetched-all-shared': {
-        // update shared containers map
-        this._sharedContainers = OrderedMap(action.data.containers.map(function(d) {
+        // deserialize containers
+        const containers = OrderedMap(action.data.containers.map(function(d) {
           const c = Container.deserialize(d);
           return [c.slug, c];
         }));
+        // merge the newly fetched containers with global container map
+        this._containers = this._containers.merge(containers);
+        // update shared containers set
+        this._sharedContainerSlugs = containers.map(function(c) {
+          return c.slug;
+        });
         this._lastError = null;
         break;
       }
@@ -90,7 +96,9 @@ class ContainerStore extends Store {
   }
 
   get sharedContainers() {
-    return this._sharedContainers;
+    return this._sharedContainerSlugs.map((slug) => {
+      return this._containers.get(slug);
+    });
   }
 
   containersByHostSlug(hostSlug) {

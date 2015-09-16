@@ -8,8 +8,7 @@ export default class Containers extends React.Component {
   displayName = 'Containers';
 
   static contextTypes = {
-    host: PropTypes.instanceOf(Host).isRequired,
-    router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
+    host: PropTypes.instanceOf(Host).isRequired
   };
 
   state = {
@@ -35,10 +34,6 @@ export default class Containers extends React.Component {
 
   containerStoreDidChange = () => {
     this.setState({ containers: containerStore.liveContainersByHostSlug(this.context.host.slug) });
-  };
-
-  handleClickNewContainer = () => {
-    this.context.router.transitionTo('new-container', { hostSlug: this.context.host.slug });
   };
 
   render() {
