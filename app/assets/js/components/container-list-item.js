@@ -56,34 +56,33 @@ export default class ContainerListItem extends React.Component {
               <ContainerState state={container.state} />
               <SelectableText className='slug'>{container.slug}</SelectableText>
             </div>
-              {container.state !== 'terminated' ? (
-                <ButtonToolbar className='buttons'>
-                  <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState}>
-                    {container.state === 'running' ? [
-                      <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
-                      <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
-                    ] : ''}
-                    {container.state === 'stopped' ? [
-                      <MenuItem key='cm3' onSelect={this.handleStart}>Start</MenuItem>,
-                      <MenuItem key='cm4' divider />,
-                      <MenuItem key='cm5' onSelect={this.handleTerminate}>Terminate...</MenuItem>
-                    ] : ''}
-                  </DropdownButton>
-                  <DropdownButton title='Settings'>
-                    <MenuItem>Snapshot...</MenuItem>
-                    <MenuItem divider />
-                    <MenuItem>Manage Collaborators...</MenuItem>
-                    <MenuItem>Manage SSH Keys...</MenuItem>
-                    <MenuItem>Manage Ports...</MenuItem>
-                  </DropdownButton>
-                  <Button>Open IDE</Button>
-                </ButtonToolbar>
-              ) : (
-                <ButtonToolbar className='buttons'>
-                  <Button disabled>Terminated</Button>
-                </ButtonToolbar>
-              )
-            }
+            {container.state !== 'terminated' ? (
+              <ButtonToolbar className='buttons'>
+                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState}>
+                  {container.state === 'running' ? [
+                    <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
+                    <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
+                  ] : ''}
+                  {container.state === 'stopped' ? [
+                    <MenuItem key='cm3' onSelect={this.handleStart}>Start</MenuItem>,
+                    <MenuItem key='cm4' divider />,
+                    <MenuItem key='cm5' onSelect={this.handleTerminate}>Terminate...</MenuItem>
+                  ] : ''}
+                </DropdownButton>
+                <DropdownButton title='Settings'>
+                  <MenuItem>Snapshot...</MenuItem>
+                  <MenuItem divider />
+                  <MenuItem>Manage Collaborators...</MenuItem>
+                  <MenuItem>Manage SSH Keys...</MenuItem>
+                  <MenuItem>Manage Ports...</MenuItem>
+                </DropdownButton>
+                <Button>Open IDE</Button>
+              </ButtonToolbar>
+            ) : (
+              <ButtonToolbar className='buttons'>
+                <Button disabled>Terminated</Button>
+              </ButtonToolbar>
+            )}
             {container.state === 'stopped' ? (
               <PromptModal ref='terminateModal' okButtonLabel='Terminate' okButtonStyle='danger'
                 okButtonDisabled={this.state.slugConfirmation !== container.slug} placeholder={container.slug}
