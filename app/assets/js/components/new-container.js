@@ -9,6 +9,7 @@ import TemplateListItem from 'components/template-list-item';
 import ImageListItem from 'components/image-list-item';
 import Registries from 'components/registries';
 import keypather from 'keypather';
+import GenerateRandomNameButton from 'components/generate-random-name-button';
 
 const keypath = keypather();
 
@@ -38,6 +39,8 @@ export default class NewContainer extends React.Component {
     imageStore.onChange(this.imageStoreDidChange);
     templateActions.fetchAll();
     imageActions.fetchAllByHostSlug(this.context.host.slug);
+
+    this.refs.generateNameBtn.generate();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -109,6 +112,14 @@ export default class NewContainer extends React.Component {
     this.setState({ selectedImage: repo });
   };
 
+  handleRandomNameGenerated = (name) => {
+    this.setState({ projectName: name }, () => {
+      const input = this.refs.projectNameField.getInputDOMNode();
+      input.select();
+      input.focus();
+    });
+  };
+
   get isValid() {
     return !!(this.state.projectName && this.state.selectedImageType && this.state.selectedImage);
   }
@@ -121,8 +132,11 @@ export default class NewContainer extends React.Component {
         <div className='container'>
           <h2>Create New Project</h2>
           <h3>Project Name</h3>
-          <Input ref='projectNameField' className='project-name-field' type='text' placeholder='Name your Project...'
-            required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField} />
+          <div className='project-name'>
+            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
+              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
+              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
+          </div>
           <h3>Select Image</h3>
           <Tabs defaultActiveKey='templates'>
             <Tab eventKey='templates' title='Nitrous Templates'>

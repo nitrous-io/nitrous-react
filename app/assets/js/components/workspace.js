@@ -27,7 +27,7 @@ export default class Workspace extends React.Component {
 
   state = {
     host: hostStore.liveHosts.get(this.props.params.hostSlug)
-  }
+  };
 
   componentDidMount() {
     hostStore.onChange(this.hostStoreDidChange);
