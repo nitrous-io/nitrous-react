@@ -8,8 +8,8 @@ import imageActions from 'actions/image-actions';
 import TemplateListItem from 'components/template-list-item';
 import ImageListItem from 'components/image-list-item';
 import Registries from 'components/registries';
-import keypather from 'keypather';
 import GenerateRandomNameButton from 'components/generate-random-name-button';
+import keypather from 'keypather';
 
 const keypath = keypather();
 
