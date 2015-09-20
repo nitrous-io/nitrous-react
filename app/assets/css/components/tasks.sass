@@ -1,0 +1,54 @@
+.tasks-component
+  position: fixed
+  z-index: 9000
+  top: auto
+  bottom: 15px
+  right: 15px
+  width: 100%
+
+  ul
+    margin: 0
+    padding: 0
+    list-style: none
+    position: relative
+
+.task-list-item-component
+  display: block
+  left: auto
+  top: auto
+  right: 0
+  max-width: none
+  width: 290px
+  cursor: pointer
+  user-select: none
+  transition: bottom .3s, right .3s
+
+  .task-description
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow-x: hidden
+    font-size: 12px
+
+  .progress
+    height: 6px
+    margin-bottom: 5px
+
+  &.hidden
+    display: block !important
+    right: -290px
+
+  &.el-enter
+    transition: transform .3s
+    transform: perspective(500px) rotateX(90deg) translate3d(0px, -21px, 0px)
+
+    &.el-enter-active
+      transform: perspective(500px) rotateX(0deg) translate3d(0px, 0px, 0px)
+
+  &.el-leave
+    transition: opacity .3s, transform .3s
+    opacity: 1
+    transform: translate3d(0px, 0px, 0px)
+
+    &.el-leave-active
+      opacity: 0
+      transform: translate3d(100px, 0px, 0px)

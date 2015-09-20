@@ -1,7 +1,8 @@
 .snackbar-component
   position: fixed
-  top: 16px
-  right: 16px
+  z-index: 9000
+  top: 15px
+  right: 15px
   width: 100%
 
   ul
@@ -13,7 +14,7 @@
   display: block
   left: auto
   right: 0
-  min-width: 20%
+  min-width: 290px
   max-width: 90%
   cursor: pointer
   user-select: none
@@ -22,7 +23,7 @@
   .popover-content
     white-space: nowrap
     text-overflow: ellipsis
-    overflow: hidden
+    overflow-x: hidden
 
   &.el-enter
     transition: transform .3s

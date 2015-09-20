@@ -27,7 +27,7 @@ export default class Login extends React.Component {
   }
 
   componentWillUnmount() {
-    tokenStore.removeListener('change', this.tokenStoreDidChange);
+    tokenStore.offChange(this.tokenStoreDidChange);
   }
 
   tokenStoreDidChange = () => {

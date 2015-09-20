@@ -16,10 +16,12 @@ export default class SnackbarListItem extends React.Component {
 
   render() {
     const itemHeight = 42,
-          margin = 16;
+          margin = 15;
 
     return (
-      <li className='snackbar-list-item-component popover' style={{ top: (itemHeight + margin) * this.props.index }} onClick={this.handleClick}>
+      <li className='snackbar-list-item-component popover'
+        style={{ top: (itemHeight + margin) * this.props.index }}
+        onClick={this.handleClick}>
         <div className='popover-content'>
           {this.props.notification.content}
         </div>
