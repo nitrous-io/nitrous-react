@@ -5,7 +5,6 @@ import snackbarActions from 'actions/snackbar-actions';
 import hostStore from 'stores/host-store';
 
 class ContainerStore extends Store {
-  // private ivars with public getters
   _containers = OrderedMap(); // <K: ContainerSlug, V: Container>
   _containerSlugsByHostSlug = OrderedMap(); // <K: HostSlug, V: OrderedSet<ContainerSlug>>
   _sharedContainerSlugs = OrderedSet(); // <ContainerSlug>
@@ -14,8 +13,9 @@ class ContainerStore extends Store {
     switch (action.type) {
       // use curly braces to ensure each case has its own let/const variable scope
       case 'container.fetched-all-by-host-slug': {
+        const { data, hostSlug } = action.data;
         // deserialize containers
-        const containers = OrderedMap(action.data.containers.map(function(d) {
+        const containers = OrderedMap(data.containers.map(function(d) {
           const c = Container.deserialize(d);
           return [c.slug, c];
         }));
@@ -24,14 +24,15 @@ class ContainerStore extends Store {
         // update the host -> containers mapping. use slugs instead of Record objects to ensure
         // that there is only one Record object that represents a model object
         this._containerSlugsByHostSlug = this._containerSlugsByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: containers.keySeq().toOrderedSet() // list of keys == list of container slugs
+          [hostSlug]: containers.keySeq().toOrderedSet() // list of keys == list of container slugs
         }));
         this._lastError = null;
         break;
       }
       case 'container.fetched-all-shared': {
+        const { data } = action.data;
         // deserialize containers
-        const containers = OrderedMap(action.data.containers.map(function(d) {
+        const containers = OrderedMap(data.containers.map(function(d) {
           const c = Container.deserialize(d);
           return [c.slug, c];
         }));
@@ -50,8 +51,7 @@ class ContainerStore extends Store {
       case 'container.stop-failed':
       case 'container.restart-failed':
       case 'container.terminate-failed': {
-        const err = this._lastError = action.data.errorMessage;
-        snackbarActions.post(err);
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       // from events-socket

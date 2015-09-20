@@ -3,25 +3,28 @@ import Image from 'records/image';
 import { OrderedMap } from 'immutable';
 
 class ImageStore extends Store {
-  _images = OrderedMap();
-  _imageReposByHostSlug = OrderedMap();
+  _images = OrderedMap(); // <K: ImageRepo, V: Image>
+  _imageReposByHostSlug = OrderedMap(); // <K: HostSlug, V: OrderedSet<ImageRepo>>
 
   handleAction(action) {
     switch (action.type) {
       case 'image.fetched-all-by-host-slug': {
-        const images = OrderedMap(action.data.images.map(function(d) {
+        const { data, hostSlug } = action.data;
+
+        const images = OrderedMap(data.images.map(function(d) {
           const i = Image.deserialize(d);
           return [i.repo, i];
         }));
+
         this._images = this._images.merge(images);
         this._imageReposByHostSlug = this._imageReposByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: images.keySeq().toOrderedSet() // list of keys == list of image repos
+          [hostSlug]: images.keySeq().toOrderedSet() // list of keys == list of image repos
         }));
         this._lastError = null;
         break;
       }
       case 'image.fetch-all-by-host-slug-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

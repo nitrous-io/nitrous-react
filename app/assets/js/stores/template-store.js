@@ -3,12 +3,13 @@ import Template from 'records/template';
 import { OrderedMap } from 'immutable';
 
 class TemplateStore extends Store {
-  _templates = OrderedMap();
+  _templates = OrderedMap(); // <K: TemplateSlug, V: Template>
 
   handleAction(action) {
     switch (action.type) {
       case 'template.fetched-all': {
-        this._templates = OrderedMap(action.data.templates.map(function(d) {
+        const { data } = action.data;
+        this._templates = OrderedMap(data.templates.map(function(d) {
           const t = Template.deserialize(d);
           return [t.slug, t];
         }));
@@ -16,7 +17,7 @@ class TemplateStore extends Store {
         break;
       }
       case 'template.fetch-all-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

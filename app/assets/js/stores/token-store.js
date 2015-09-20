@@ -11,14 +11,16 @@ class TokenStore extends Store {
   handleAction(action) {
     switch (action.type) {
       case 'token.fetched': {
-        this._token = action.data.access_token;
+        const { data } = action.data;
+        this._token = data.access_token;
         this._lastError = null;
         localStorage.setItem('token', this._token);
         break;
       }
       case 'token.fetch-failed': {
+        const { jqxhr } = action.data;
         this._token = null;
-        this._lastError = action.data.errorMessage;
+        this._lastError = jqxhr.errorMessage;
         break;
       }
       case 'token.invalidate': {

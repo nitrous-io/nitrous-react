@@ -3,12 +3,13 @@ import Host from 'records/host';
 import { OrderedMap } from 'immutable';
 
 class HostStore extends Store {
-  _hosts = OrderedMap();
+  _hosts = OrderedMap(); // <K: HostSlug, V: Host>
 
   handleAction(action) {
     switch (action.type) {
       case 'host.fetched-all': {
-        this._hosts = OrderedMap(action.data.hosts.map(function(d) {
+        const { data } = action.data;
+        this._hosts = OrderedMap(data.hosts.map(function(d) {
           const h = Host.deserialize(d);
           return [h.slug, h];
         }));
@@ -16,14 +17,15 @@ class HostStore extends Store {
         break;
       }
       case 'host.fetched-one': {
-        const h = Host.deserialize(action.data.host);
-        this._hosts = this._hosts.set(h.slug, h);
+        const { data, slug } = action.data,
+              h = Host.deserialize(data.host);
+        this._hosts = this._hosts.set(slug, h);
         this._lastError = null;
         break;
       }
       case 'host.fetch-all-failed':
       case 'host.fetch-one-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

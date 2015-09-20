@@ -3,12 +3,13 @@ import Plan from 'records/plan';
 import { OrderedMap } from 'immutable';
 
 class PlanStore extends Store {
-  _plans = OrderedMap();
+  _plans = OrderedMap(); // <K: PlanSlug, V: Plan>
 
   handleAction(action) {
     switch (action.type) {
       case 'plan.fetched-all': {
-        this._plans = OrderedMap(action.data.plans.map(function(d) {
+        const { data } = action.data;
+        this._plans = OrderedMap(data.plans.map(function(d) {
           const p = Plan.deserialize(d);
           return [p.slug, p];
         }));
@@ -16,7 +17,7 @@ class PlanStore extends Store {
         break;
       }
       case 'plan.fetch-all-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

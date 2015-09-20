@@ -10,14 +10,18 @@ class RegistryActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'registry.fetched-all-by-host-slug',
-        hostSlug,
-        data
+        data: {
+          data,
+          hostSlug
+        }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'registry.fetch-all-by-host-slug-failed',
-        hostSlug,
-        data: jqxhr
+        data: {
+          jqxhr,
+          hostSlug
+        }
       });
     });
   }

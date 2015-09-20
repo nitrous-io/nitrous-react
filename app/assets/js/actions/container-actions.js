@@ -13,14 +13,18 @@ class ContainerActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'container.fetched-all-by-host-slug',
-        hostSlug,
-        data
+        data: {
+          data,
+          hostSlug
+        }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.fetch-all-by-host-slug-failed',
-        hostSlug,
-        data: jqxhr
+        data: {
+          jqxhr,
+          hostSlug
+        }
       });
     });
   }
@@ -33,12 +37,12 @@ class ContainerActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'container.fetched-all-shared',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.fetch-all-shared-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }
@@ -51,8 +55,10 @@ class ContainerActions {
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: `container.${action}-failed`,
-        containerSlug: container.slug,
-        data: jqxhr
+        data: {
+          jqxhr,
+          containerSlug: container.slug
+        }
       });
     });
   }
@@ -77,8 +83,10 @@ class ContainerActions {
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.terminate-failed',
-        containerSlug: container.slug,
-        data: jqxhr
+        data: {
+          jqxhr,
+          containerSlug: container.slug
+        }
       });
     });
   }

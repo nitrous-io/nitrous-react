@@ -10,12 +10,12 @@ class TemplateActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'template.fetched-all',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'template.fetch-all-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

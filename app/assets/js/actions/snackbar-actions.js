@@ -5,7 +5,7 @@ class SnackbarActions {
     window.setTimeout(function() {
       dispatcher.dispatch({
         type: 'snackbar.post',
-        data: content
+        data: { content }
       });
     }, 1);
   }
@@ -14,7 +14,7 @@ class SnackbarActions {
     window.setTimeout(function() {
       dispatcher.dispatch({
         type: 'snackbar.remove',
-        data: id
+        data: { id }
       });
     }, 1);
   }

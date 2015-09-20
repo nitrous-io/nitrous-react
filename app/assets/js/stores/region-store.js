@@ -3,12 +3,13 @@ import Region from 'records/region';
 import { OrderedMap } from 'immutable';
 
 class RegionStore extends Store {
-  _regions = OrderedMap();
+  _regions = OrderedMap(); // <K: RegionSlug, V: Region>
 
   handleAction(action) {
     switch (action.type) {
       case 'region.fetched-all': {
-        this._regions = OrderedMap(action.data.regions.map(function(d) {
+        const { data } = action.data;
+        this._regions = OrderedMap(data.regions.map(function(d) {
           const r = Region.deserialize(d);
           return [r.slug, r];
         }));
@@ -16,7 +17,7 @@ class RegionStore extends Store {
         break;
       }
       case 'region.fetch-all-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

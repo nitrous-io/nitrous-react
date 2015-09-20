@@ -10,12 +10,12 @@ class UserActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.fetched',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'user.fetch-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

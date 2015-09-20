@@ -10,14 +10,18 @@ class ImageActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'image.fetched-all-by-host-slug',
-        hostSlug,
-        data
+        data: {
+          data,
+          hostSlug
+        }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'image.fetch-all-by-host-slug-failed',
-        hostSlug,
-        data: jqxhr
+        data: {
+          jqxhr,
+          hostSlug
+        }
       });
     });
   }

@@ -3,16 +3,17 @@ import { List } from 'immutable';
 import Notification from 'lib/snackbar-notification';
 
 class SnackbarStore extends Store {
-  _notifications = List();
+  _notifications = List(); // <Notification>
 
   handleAction(action) {
     switch (action.type) {
       case 'snackbar.post': {
-        this._notifications = this._notifications.push(new Notification(action.data));
+        const { content } = action.data;
+        this._notifications = this._notifications.push(new Notification(content));
         break;
       }
       case 'snackbar.remove': {
-        const id = action.data;
+        const { id } = action.data;
         this._notifications = this._notifications.filter((n) => {
           return n.id !== id;
         });

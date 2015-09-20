@@ -10,12 +10,12 @@ class OrgActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'org.fetched-all',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'org.fetch-all-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

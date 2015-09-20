@@ -10,12 +10,12 @@ class HostActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.fetched-all',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.fetch-all-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }
@@ -28,12 +28,15 @@ class HostActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.fetched-one',
-        data
+        data: {
+          data,
+          slug
+        }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.fetch-one-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

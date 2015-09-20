@@ -3,25 +3,28 @@ import Registry from 'records/registry';
 import { OrderedMap } from 'immutable';
 
 class RegistryStore extends Store {
-  _registries = OrderedMap();
-  _registryUrlsByHostSlug = OrderedMap();
+  _registries = OrderedMap(); // <K: RegistryUrl, V: Registry>
+  _registryUrlsByHostSlug = OrderedMap(); // <K: HostSlug, V: OrderedSet<RegistryUrl>>
 
   handleAction(action) {
     switch (action.type) {
       case 'registry.fetched-all-by-host-slug': {
-        const registries = OrderedMap(action.data.registries.map(function(d) {
+        const { data, hostSlug } = action.data;
+
+        const registries = OrderedMap(data.registries.map(function(d) {
           const r = Registry.deserialize(d);
           return [r.url, r];
         }));
+
         this._registries = this._registries.merge(registries);
         this._registryUrlsByHostSlug = this._registryUrlsByHostSlug.merge(OrderedMap({
-          [action.hostSlug]: registries.keySeq().toOrderedSet() // list of keys == list of registry urls
+          [hostSlug]: registries.keySeq().toOrderedSet() // list of keys == list of registry urls
         }));
         this._lastError = null;
         break;
       }
       case 'registry.fetch-all-by-host-slug-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;

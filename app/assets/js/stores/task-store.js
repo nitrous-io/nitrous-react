@@ -3,7 +3,7 @@ import { OrderedMap } from 'immutable';
 import Task from 'records/task';
 
 class TaskStore extends Store {
-  _tasks = OrderedMap(); // <K: id, V: Task>
+  _tasks = OrderedMap(); // <K: TaskId, V: Task>
 
   handleAction(action) {
     switch (action.type) {

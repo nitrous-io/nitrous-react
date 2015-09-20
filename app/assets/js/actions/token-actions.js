@@ -15,12 +15,12 @@ class TokenActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'token.fetched',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'token.fetch-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

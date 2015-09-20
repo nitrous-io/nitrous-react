@@ -13,12 +13,12 @@ class PlanActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'plan.fetched-all',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'plan.fetch-all-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

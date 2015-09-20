@@ -10,12 +10,12 @@ class RegionActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'region.fetched-all',
-        data
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'region.fetch-all-failed',
-        data: jqxhr
+        data: { jqxhr }
       });
     });
   }

@@ -3,12 +3,13 @@ import Org from 'records/org';
 import { OrderedMap } from 'immutable';
 
 class OrgStore extends Store {
-  _orgs = OrderedMap();
+  _orgs = OrderedMap(); // <K: OrgSlug, V: Org>
 
   handleAction(action) {
     switch (action.type) {
       case 'org.fetched-all': {
-        this._orgs = OrderedMap(action.data.orgs.map(function(d) {
+        const { data } = action.data;
+        this._orgs = OrderedMap(data.orgs.map(function(d) {
           const o = Org.deserialize(d);
           return [o.slug, o];
         }));
@@ -16,7 +17,7 @@ class OrgStore extends Store {
         break;
       }
       case 'org.fetch-all-failed': {
-        this._lastError = action.data.errorMessage;
+        this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
       default: return;
