@@ -1,5 +1,6 @@
 import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
+import ContainerCreation from 'lib/container-creation';
 
 class ContainerActions {
   fetchAllByHostSlug(hostSlug) {
@@ -89,6 +90,13 @@ class ContainerActions {
         }
       });
     });
+  }
+
+  create(name, imageRepo, template, host, updateImage, privileged, publishAll) {
+    const containerCreation = new ContainerCreation(
+      name, imageRepo, template, host, updateImage, privileged, publishAll
+    );
+    return containerCreation.begin();
   }
 }
 

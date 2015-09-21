@@ -62,7 +62,7 @@ export default class EtaProgressBar extends React.Component {
   render() {
     return (
       <div className={classNames('eta-progress-bar-component', { animated: this.state.animated })}>
-        <ProgressBar ref='progressBar' now={this.state.now} />
+        <ProgressBar ref='progressBar' now={this.state.now} active />
       </div>
     );
   }

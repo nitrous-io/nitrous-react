@@ -5,6 +5,7 @@ import templateStore from 'stores/template-store';
 import templateActions from 'actions/template-actions';
 import imageStore from 'stores/image-store';
 import imageActions from 'actions/image-actions';
+import containerActions from 'actions/container-actions';
 import TemplateListItem from 'components/template-list-item';
 import ImageListItem from 'components/image-list-item';
 import Registries from 'components/registries';
@@ -21,6 +22,7 @@ export default class NewContainer extends React.Component {
   displayName = 'NewContainer';
 
   static contextTypes = {
+    router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
     host: PropTypes.instanceOf(Host).isRequired
   };
 
@@ -120,6 +122,32 @@ export default class NewContainer extends React.Component {
     });
   };
 
+  handleClickCreateBtn = () => {
+    this.setState({ creating: true});
+
+    const { projectName, selectedImage } = this.state,
+          { host } = this.context,
+          publishAll = true,
+          updateImage = (this.state.selectedImageType !== imageTypeImage);
+
+    let template = null;
+    if (this.state.selectedImageType === imageTypeTemplate) {
+      template = templateStore.templates.find((t) => {
+        return t.image === selectedImage;
+      });
+    }
+
+    const privileged = template ? template.privileged : false;
+
+    containerActions.create(
+      projectName, selectedImage, template, host, updateImage, privileged, publishAll
+    ).then(() => {
+      this.context.router.transitionTo('container-creating', { hostSlug: host.slug }, { name: projectName });
+    }).catch(() => {
+      this.setState({ creating: false });
+    });
+  };
+
   get isValid() {
     return !!(this.state.projectName && this.state.selectedImageType && this.state.selectedImage);
   }
@@ -206,7 +234,7 @@ export default class NewContainer extends React.Component {
                 </Tab>
               </Tabs>
             </Tab>
-            <Tab eventKey='registries' title='Docker Repositories'>
+            <Tab eventKey='registries' title='Docker Repositories' disabled>
               <Registries host={this.context.host} />
               <div className='custom-repo'>
                 <Input ref='repoRadioBtn' type='radio' label='Use Image from Docker Repo:'
@@ -216,7 +244,7 @@ export default class NewContainer extends React.Component {
               </div>
             </Tab>
           </Tabs>
-          <Button disabled={!this.isValid} className='create-btn' bsStyle='success'>Create Project</Button>
+          <Button disabled={!this.isValid || creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>Create Project</Button>
         </div>
       </div>
     );

@@ -33,6 +33,13 @@
     height: 6px
     margin-bottom: 5px
 
+    .progress-bar
+      transition: width 0s linear
+
+    &.animated
+      .progress-bar
+        transition: width .2s linear
+
   &.hidden
     display: block !important
     right: -290px

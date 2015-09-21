@@ -42,4 +42,8 @@ export default class Image extends Record({
   get isPulledImage() {
     return !this.isSnapshot;
   }
+
+  get isBlank() {
+    return this.actualSize === 0 && this.virtualSize === 0;
+  }
 }

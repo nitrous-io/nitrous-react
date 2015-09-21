@@ -1,11 +1,11 @@
 export default class Notification {
-  static notificationId = 0;
+  static _nextId = 0;
 
   _id = null;
   _content = null;
 
   constructor(content) {
-    this._id = this.constructor.notificationId ++;
+    this._id = this.constructor._nextId ++;
     this._content = content || 'Blank notification';
   }
 

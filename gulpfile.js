@@ -214,6 +214,7 @@ function browserifyBundler(options) {
 
   var bundler = browserify(appJS, options);
   bundler.add(require.resolve("babel/polyfill"));
+  bundler.add(require.resolve("promise.prototype.finally"));
   bundler.transform(coffeeify);
   bundler.transform(babelify.configure({
     extensions: jsExtensions,

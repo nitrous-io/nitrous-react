@@ -32,16 +32,17 @@ export default class TaskListItem extends React.Component {
       barStyle = 'danger';
     }
 
-    const barProgress = task.progress === -1 ? 100 : task.progress,
-          indeterminate = task.progress == null;
+    const indeterminate = task.progress == null,
+          barProgress = (task.progress === -1) || indeterminate ? 100 : task.progress,
+          animated = task.progress > 0;
 
     return (
       <li className={classNames('task-list-item-component', 'popover', { hidden })}
         style={{ bottom: (itemHeight + margin) * this.props.index }}
         onClick={this.handleClick}>
-        <div className='popover-content'>
+        <div className='popover-content' title={task.description}>
           <p className='task-description'>{task.description}</p>
-          <ProgressBar now={barProgress} bsStyle={barStyle} active={indeterminate} />
+          <ProgressBar className={classNames({ animated })} now={barProgress} bsStyle={barStyle} active={indeterminate} />
         </div>
       </li>
     );

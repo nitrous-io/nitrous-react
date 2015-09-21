@@ -8,7 +8,10 @@ export default class Store extends EventEmitter {
 
   constructor() {
     super();
-    this._dispatchToken = dispatcher.register(this.handleAction.bind(this));
+    this._dispatchToken = dispatcher.register((action) => {
+      this.handleAction(action);
+      return true;
+    });
   }
 
   // override me
@@ -35,6 +38,8 @@ export default class Store extends EventEmitter {
   offChange(fn) {
     this.removeListener('change', fn);
   }
+
+  off = this.removeListener;
 
   get dispatchToken() {
     return this._dispatchToken;
