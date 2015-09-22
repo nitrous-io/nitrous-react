@@ -24,7 +24,9 @@ export default class Store extends EventEmitter {
 
   handleErrorJqxhr(jqxhr) {
     const err = this._lastError = jqxhr.errorMessage;
-    snackbarActions.post(err);
+    if (err) {
+      snackbarActions.post(err);
+    }
   }
 
   notifyChange() {
