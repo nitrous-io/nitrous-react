@@ -4,6 +4,7 @@ import { Navbar, Nav, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'rea
 import userStore from 'stores/user-store';
 import tokenActions from 'actions/token-actions';
 import $ from 'jquery';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class TopNav extends React.Component {
   displayName = 'TopNav';
@@ -48,8 +49,8 @@ export default class TopNav extends React.Component {
               <OverlayTrigger placement='left' rootClose overlay={<Tooltip>View Account and More</Tooltip>}>
                 <NavDropdown className='account-menu'
                   title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}</span></span>}>
-                  <MenuItem disabled>Account Settings</MenuItem>
-                  <MenuItem disabled>Billing</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Account Settings')}>Account Settings</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Billing')}>Billing</MenuItem>
                   <MenuItem divider />
                   <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
                   <MenuItem divider />

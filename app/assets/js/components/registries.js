@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import Host from 'records/host';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class Registries extends React.Component {
   displayName = 'Registries';
@@ -25,19 +26,19 @@ export default class Registries extends React.Component {
               <td>DockerHub</td>
               <td>Not Connected</td>
               <td>
-                <Button>Connect</Button>
+                <Button onClick={notImplementedFn('connect to registry')}>Connect</Button>
               </td>
             </tr>
             <tr>
               <td>Quay.io</td>
               <td>Not Connected</td>
               <td>
-                <Button>Connect</Button>
+                <Button onClick={notImplementedFn('connect to registry')}>Connect</Button>
               </td>
             </tr>
             <tr>
               <td colSpan={3}>
-                <Button>Add Custom Registry</Button>
+                <Button onClick={notImplementedFn('add custom registry')}>Add Custom Registry</Button>
               </td>
             </tr>
           </tbody>

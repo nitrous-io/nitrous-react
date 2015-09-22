@@ -37,7 +37,9 @@ class EventsSocket {
     const event = `events:${msg.name.replace(/_/g, '-')}`,
           data = msg.data;
 
+    /* eslint-disable no-console */
     console.log(event, data);
+    /* eslint-enable no-console */
 
     dispatcher.dispatch({
       type: event,

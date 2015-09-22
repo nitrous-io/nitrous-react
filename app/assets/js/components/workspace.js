@@ -5,6 +5,7 @@ import Host from 'records/host';
 import hostActions from 'actions/host-actions';
 import hostStore from 'stores/host-store';
 import ContextSwitcher from 'components/context-switcher';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class Workspace extends React.Component {
   displayName = 'Workspace';
@@ -67,8 +68,8 @@ export default class Workspace extends React.Component {
             <ContextSwitcher selectedHost={host} />
             <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
               <NavItem href={makeHref('containers', { hostSlug: host.slug })} eventKey='containers'>Projects</NavItem>
-              <NavItem href={makeHref('images', { hostSlug: host.slug })} eventKey='images'>Images</NavItem>
-              <NavItem href={makeHref('system', { hostSlug: host.slug })} eventKey='system'>System</NavItem>
+              <NavItem onSelect={notImplementedFn('Images Tab', 'image/snapshots management: push, pull, delete etc.')} eventKey='images'>Images</NavItem>
+              <NavItem onSelect={notImplementedFn('System Tab', 'show host info, resource usage, network info etc.')} eventKey='system'>System</NavItem>
             </Nav>
           </div>
         ) : ''}

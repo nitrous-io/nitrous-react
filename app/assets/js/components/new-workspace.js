@@ -8,6 +8,7 @@ import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class NewWorkspace extends React.Component {
   displayName = 'NewWorkspace';
@@ -107,7 +108,7 @@ export default class NewWorkspace extends React.Component {
               })}
             </Row>
           </Grid>
-          <Button className='create-btn' bsStyle='success'>Create Workspace</Button>
+          <Button className='create-btn' bsStyle='success' onClick={notImplementedFn('Create Host', 'Use username as name of host')}>Create Workspace</Button>
         </div>
       </div>
     );

@@ -3,6 +3,7 @@ import { ButtonToolbar, Button } from 'react-bootstrap';
 import EtaProgressBar from 'components/eta-progress-bar';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
+import { notImplemented } from 'lib/not-implemented';
 
 export default class ContainerCreating extends React.Component {
   displayName = 'ContainerCreating';
@@ -59,7 +60,7 @@ export default class ContainerCreating extends React.Component {
   };
 
   handleOpenIdeBtn = () => {
-    window.alert('Not Implemented!');
+    notImplemented('Open IDE', 'For MVP, have a proxy to avoid problems with localStorage domain.');
   };
 
   render() {

@@ -7,6 +7,7 @@ import ContainerState from 'components/container-state';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -78,13 +79,13 @@ export default class ContainerListItem extends React.Component {
                   ] : ''}
                 </DropdownButton>
                 <DropdownButton title='Settings'>
-                  <MenuItem>Snapshot...</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
                   <MenuItem divider />
-                  <MenuItem>Manage Collaborators...</MenuItem>
-                  <MenuItem>Manage SSH Keys...</MenuItem>
-                  <MenuItem>Manage Ports...</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Manage Collaborators', 'view, invite, remove collaborators')}>Manage Collaborators...</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Manage SSH Keys', 'view, invite, remove ssh keys')}>Manage SSH Keys...</MenuItem>
+                  <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
                 </DropdownButton>
-                <Button>Open IDE</Button>
+                <Button onClick={notImplementedFn('Open IDE', 'For MVP, have a proxy to avoid problems with localStorage domain.')}>Open IDE</Button>
               </ButtonToolbar>
             ) : (
               <ButtonToolbar className='buttons'>

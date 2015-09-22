@@ -7,6 +7,7 @@ import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
 import containerStore from 'stores/container-store';
 import $ from 'jquery';
+import { notImplementedFn } from 'lib/not-implemented';
 
 export default class ContextSwitcher extends React.Component {
   displayName = 'ContextSwitcher';
@@ -124,8 +125,8 @@ export default class ContextSwitcher extends React.Component {
             ) : ''}
           </MenuItem>
           <MenuItem divider />
-          <MenuItem eventKey='manage-orgs' disabled>Manage Organizations...</MenuItem>
-          <MenuItem eventKey='create-org' disabled>Create Organization...</MenuItem>
+          <MenuItem onSelect={notImplementedFn('Manage Orgs', 'GitHub-like org management interface')} eventKey='manage-orgs'>Manage Organizations...</MenuItem>
+          <MenuItem onSelect={notImplementedFn('Create Org')} eventKey='create-org'>Create Organization...</MenuItem>
         </DropdownButton>
       </OverlayTrigger>
     );

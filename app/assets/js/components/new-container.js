@@ -234,7 +234,7 @@ export default class NewContainer extends React.Component {
                 </Tab>
               </Tabs>
             </Tab>
-            <Tab eventKey='registries' title='Docker Repositories' disabled>
+            <Tab eventKey='registries' title='Docker Repositories'>
               <Registries host={this.context.host} />
               <div className='custom-repo'>
                 <Input ref='repoRadioBtn' type='radio' label='Use Image from Docker Repo:'

@@ -33,8 +33,6 @@ export default (
       <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
         <DefaultRoute handler={redirectTo('containers')} />
         <Route name='containers' path='projects' handler={Containers} />
-        <Route name='images' handler={Containers} />
-        <Route name='system' handler={Containers} />
         <Route name='new-container' path='projects/new' handler={NewContainer} />
         <Route name='container-creating' path='projects/creating' handler={ContainerCreating} />
       </Route>
