@@ -26,7 +26,7 @@ export PATH="node_modules/.bin:$PATH"
 
 ```
 server {
-  listen 8000 ssl default_server;
+  listen 9010 ssl default_server;
 
   ssl_certificate /etc/nginx/certs/n2odev.crt;
   ssl_certificate_key /etc/nginx/certs/n2odev.key;
