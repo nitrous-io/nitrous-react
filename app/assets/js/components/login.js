@@ -1,8 +1,9 @@
 import React from 'react';
 import LeftBar from 'components/left-bar';
-import { Alert, Panel, Input, ButtonInput } from 'react-bootstrap';
+import { Alert, Input, ButtonInput } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import classNames from 'classnames';
 
 export default class Login extends React.Component {
   displayName = 'Login';
@@ -56,12 +57,11 @@ export default class Login extends React.Component {
     const loggingIn = this.state.loggingIn,
           loginLabel = loggingIn ? 'Logging In...' : 'Log In';
 
-    var cx = React.addons.classSet;
-    var formPanelClasses = cx('form-panel');
+    var formPanelClasses = classNames('form-panel');
 
     let error;
     if (this.state.errorMessage) {
-      formPanelClasses = cx('shake', 'form-panel');
+      formPanelClasses = classNames('shake', 'form-panel');
       error = (
         <Alert bsStyle='default'>{this.state.errorMessage}</Alert>
       );
