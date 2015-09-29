@@ -1,7 +1,9 @@
 import React from 'react';
-import { Alert, Panel, Input, ButtonInput } from 'react-bootstrap';
+import LeftBar from 'components/left-bar';
+import { Alert, Input, ButtonInput } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import classNames from 'classnames';
 
 export default class Login extends React.Component {
   displayName = 'Login';
@@ -54,25 +56,35 @@ export default class Login extends React.Component {
   render() {
     const loggingIn = this.state.loggingIn,
           loginLabel = loggingIn ? 'Logging In...' : 'Log In';
+
+    var formPanelClasses = classNames('form-panel');
+
     let error;
     if (this.state.errorMessage) {
+      formPanelClasses = classNames('shake', 'form-panel');
       error = (
-        <Alert bsStyle='danger'>{this.state.errorMessage}</Alert>
+        <Alert bsStyle='default'>{this.state.errorMessage}</Alert>
       );
     }
 
     return (
-      <div className='login-component'>
-        <Panel header={<h3>Login</h3>}>
-          {error}
+      <div className='login-component dark'>
+        <LeftBar />
+        <div className={formPanelClasses}>
+          <h2 className="nitrous-logo"></h2>
           <form onSubmit={this.handleSubmit}>
-            <Input ref="username" type='text' label='Username or Email' required disabled={loggingIn} />
-            <Input ref="password" type='password' label='Password' required disabled={loggingIn} />
+            <Input ref="username" type='text' placeholder='Username or Email' required disabled={loggingIn} />
+            <Input ref="password" type='password' placeholder='Password' required disabled={loggingIn} />
             <div className='actions'>
               <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={loggingIn} />
+              <a href="#" className="btn github">Log in with GitHub</a>
             </div>
           </form>
-        </Panel>
+          <p>No account? <a href="/#/signup">Sign Up</a></p>
+        </div>
+        <div className="form-notifications">
+          {error}
+        </div>
       </div>
     );
   }
