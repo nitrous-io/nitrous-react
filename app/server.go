@@ -70,7 +70,15 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if err := tmpls.ExecuteTemplate(b, "index.html.tmpl", nil); err != nil {
+		data := struct {
+			CssHref string
+			JsHref  string
+		}{
+			md5Path("/assets/css/app.css"),
+			md5Path("/assets/js/app.js"),
+		}
+
+		if err := tmpls.ExecuteTemplate(b, "index.html.tmpl", data); err != nil {
 			log.Println("Error: Could not render template:", err)
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
@@ -114,13 +122,11 @@ func mustString(s string, err error) string {
 	return s
 }
 
-func compileTemplates() (*template.Template, error) {
-	funcMap := template.FuncMap{
-		"appendMD5": func(path string) string {
-			m, _ := fileMd5(filepath.Join(__dirname, path))
-			return fmt.Sprintf("%s?v=%x", path, m)
-		},
-	}
+func md5Path(s string) string {
+	m, _ := fileMd5(filepath.Join(__dirname, s))
+	return fmt.Sprintf("%s?v=%x", s, m)
+}
 
-	return template.New("main").Funcs(funcMap).ParseGlob(filepath.Join(__dirname, "templates", "*.html.tmpl"))
+func compileTemplates() (*template.Template, error) {
+	return template.New("main").ParseGlob(filepath.Join(__dirname, "templates", "index.html.tmpl"))
 }
