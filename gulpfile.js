@@ -27,7 +27,7 @@ var appJS = 'app/assets/js/app.js',
     vendorJSPath = 'vendor/assets/js';
 
 // for the index.html.tmpl
-var cdnAddress = '';
+var cdnAddress = process.env.CDN_ADDRESS || '';
 
 gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
