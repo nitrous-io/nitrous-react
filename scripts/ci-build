@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+upload_private_s3() {
+  if [[ "$UPLOAD_S3" == "true" ]]; then
+    s3cmd --access_key=$ACCESS_KEY --secret_key=$SECRET_KEY \
+      put $1 s3://$PRIVATE_BUCKET/$2
+  fi
+}
+
+# get sha commit
+sha=$(git rev-list --max-count=1 --abbrev-commit HEAD)
+
+# Get the build number from jenkins (default 0)
+TAG=build${BUILD_NUMBER:-0}
+IMAGE_NAME=nitrous-io/nitrous-react-release:$TAG
+
+BUILD_DIR=$(pwd)/build
+mkdir -p "$BUILD_DIR"
+
+echo "Creating image"
+docker build -t $IMAGE_NAME .
+
+echo "Building"
+docker run -v $BUILD_DIR/:/opt/nitrous/nitrous-react/build/ -e CDN_ADDRESS=$CDN_ADDRESS --rm $IMAGE_NAME ./scripts/build
+
+if [ "$UPLOAD_S3" == "true" ]; then
+  echo "Doing release to S3"
+  VERSION="`cat $BUILD_DIR/VERSION`-$sha"
+  upload_private_s3 $BUILD_DIR/nitrous-react.tar.gz nitrous-react-$VERSION.tar.gz
+  upload_private_s3 $BUILD_DIR/nitrous-react.tar.gz nitrous-react-latest.tar.gz
+  upload_private_s3 $BUILD_DIR/nitrous-react.md5 nitrous-react-$VERSION.md5
+  upload_private_s3 $BUILD_DIR/nitrous-react.md5 nitrous-react-latest.md5
+fi
