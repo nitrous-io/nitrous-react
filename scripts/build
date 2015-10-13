@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+# Required variables
+if [ -z "$CDN_ADDRESS" ]; then
+  echo "Need to set CDN_ADDRESS"
+  exit 1
+fi
+
+npm test
+./node_modules/.bin/gulp dist
+
+# Get version from package.json
+version=`node -e "console.log(require('./package.json').version)"`
+
+# Generated tar will be at /opt/nitrous/nitrous-react/build/nitrous-react.tar.gz
+(
+  cd build/
+  echo "Creating build/nitrous-react.tar.gz"
+  tar czvf nitrous-react.tar.gz -C dist .
+  md5sum nitrous-react.tar.gz > nitrous-react.md5
+  echo $version > VERSION
+)
