@@ -14,15 +14,24 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     chalk = require('chalk'),
     del = require('del'),
-    path = require('path');
+    path = require('path')
+    rev = require('gulp-rev'),
+    debug = require('gulp-debug'),
+    sequence = require('gulp-sequence'),
+    fingerprint = require('gulp-fingerprint'),
+    replace = require('gulp-replace'),
+    rename = require('gulp-rename');
 
 var appJS = 'app/assets/js/app.js',
     appCSS = 'app/assets/css/app.sass',
     vendorJSPath = 'vendor/assets/js';
 
+// for the index.html.tmpl
+var cdnAddress = process.env.CDN_ADDRESS || '';
+
 gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
-gulp.task('dist', ['clean-dist', 'js-dist', 'css-dist', 'templates-dist', 'images-dist', 'server-dist']);
+gulp.task('dist', sequence('clean-dist', 'images-dist', 'js-dist', 'css-dist', 'templates-dist', 'hash-dist', 'fingerprint-dist', 'template-replace-dist'));
 
 gulp.task('lint', function() {
   return lintJS();
@@ -176,6 +185,35 @@ gulp.task('css-dist', function() {
     compress: true
   });
 });
+
+gulp.task('hash-dist', function() {
+  return gulp.src(['build/dist/assets/css/app.css', 'build/dist/assets/js/app.js', 'build/dist/assets/images/*'], {base: 'build/dist/assets'})
+        .pipe(rev())
+        .pipe(gulp.dest('build/dist/assets'))  // write rev'd assets to build dir
+        .pipe(rev.manifest())
+        .pipe(gulp.dest('build/dist/assets'));
+})
+
+gulp.task('fingerprint-dist', function() {
+  var manifest = require(__dirname+'/build/dist/assets/rev-manifest');
+  var options = {
+    prefix: '/assets/',
+    base: 'assets/',
+  };
+
+  return gulp.src(['build/dist/assets/css/app-*.css'], {base: 'build/dist/assets'})
+        .pipe(fingerprint(manifest, options))
+        .pipe(gulp.dest('build/dist/assets'));
+})
+
+gulp.task('template-replace-dist', function() {
+  var manifest = require(__dirname+'/build/dist/assets/rev-manifest');
+  return gulp.src(['build/dist/templates/index.html.tmpl'], {base: 'build/dist/templates'})
+        .pipe(replace('{{ .CssHref }}', cdnAddress+manifest['css/app.css']))
+        .pipe(replace('{{ .JsHref }}', cdnAddress+manifest['js/app.js']))
+        .pipe(rename("index.html"))
+        .pipe(gulp.dest('build/dist/publish')).pipe(debug());
+})
 
 function buildServer(dest, run) {
   dest = dest || 'build/dev/server';
