@@ -3,6 +3,8 @@ import { ButtonToolbar, Button } from 'react-bootstrap';
 import EtaProgressBar from 'components/eta-progress-bar';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
+import imageStore from 'stores/image-store';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class ContainerCreating extends React.Component {
   displayName = 'ContainerCreating';
@@ -14,7 +16,8 @@ export default class ContainerCreating extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
-      name: PropTypes.string.isRequired
+      name: PropTypes.string.isRequired,
+      imageId: PropTypes.string.isRequired
     })
   };
 
@@ -26,10 +29,13 @@ export default class ContainerCreating extends React.Component {
   componentDidMount() {
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
+    imageStore.on('pull-failed', this.onImagePullFailed);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    if ((this.props.query.name !== nextProps.query.name) || (this.context.host !== nextContext.host)) {
+    if ((this.props.query.name !== nextProps.query.name)
+      || (this.props.query.imageId !== nextProps.query.imageId)
+      || (this.context.host !== nextContext.host)) {
       this.setState({ done: false });
     }
   }
@@ -37,6 +43,7 @@ export default class ContainerCreating extends React.Component {
   componentWillUnmount() {
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
+    imageStore.off('pull-failed', this.onImagePullFailed);
   }
 
   onContainerCreated = (data) => {
@@ -51,6 +58,15 @@ export default class ContainerCreating extends React.Component {
   onContainerCreateFailed = (data) => {
     const { name, hostSlug } = data;
     if ((this.props.query.name === name) && (this.context.host.slug === hostSlug)) {
+      this.context.router.transitionTo('containers', { hostSlug: this.context.host.slug });
+    }
+  };
+
+  onImagePullFailed = (data) => {
+    const { id, repo } = data;
+    if (this.props.query.imageId === id.toString()) {
+      const msg = `Failed to create container “${this.props.query.name}”: there was an error downloading the “${repo}” image.`;
+      snackbarActions.post(msg);
       this.context.router.transitionTo('containers', { hostSlug: this.context.host.slug });
     }
   };
