@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, DefaultRoute } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
 import Application from 'components/application';
 import Login from 'components/login';
 import Dashboard from 'components/dashboard';
@@ -13,31 +13,31 @@ import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 
 export default (
-  <Route name='application' path='/' handler={Application}>
-    <DefaultRoute handler={redirectTo('dashboard')} />
-    <Route name='login' handler={Login} />
+  <Route name='application' path='/' component={Application}>
+    <IndexRoute component={redirectTo('dashboard')} />
+    <Route name='login' component={Login} />
 
-    <Route name='dashboard' handler={Dashboard}>
-      <DefaultRoute handler={redirectTo('user-workspace')} />
+    <Route name='dashboard' component={Dashboard}>
+      <IndexRoute component={redirectTo('user-workspace')} />
 
-      <Route name='user-workspace' path='workspaces' handler={UserWorkspace}>
-        <DefaultRoute handler={redirectTo('new-user-workspace')} />
-        <Route name='new-user-workspace' path='new' handler={NewWorkspace} />
+      <Route name='user-workspace' path='workspaces' component={UserWorkspace}>
+        <IndexRoute component={redirectTo('new-user-workspace')} />
+        <Route name='new-user-workspace' path='new' component={NewWorkspace} />
       </Route>
 
-      <Route name='org-workspace' path='orgs/:orgSlug/workspaces' handler={OrgWorkspace}>
-        <DefaultRoute handler={redirectTo('new-org-workspace')} />
-        <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+      <Route name='org-workspace' path='orgs/:orgSlug/workspaces' component={OrgWorkspace}>
+        <IndexRoute component={redirectTo('new-org-workspace')} />
+        <Route name='new-org-workspace' path='new' component={NewWorkspace} />
       </Route>
 
-      <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
-        <DefaultRoute handler={redirectTo('containers')} />
-        <Route name='containers' path='projects' handler={Containers} />
-        <Route name='new-container' path='projects/new' handler={NewContainer} />
-        <Route name='container-creating' path='projects/creating' handler={ContainerCreating} />
+      <Route name='workspace' path='workspaces/:hostSlug' component={Workspace}>
+        <IndexRoute component={redirectTo('containers')} />
+        <Route name='containers' path='projects' component={Containers} />
+        <Route name='new-container' path='projects/new' component={NewContainer} />
+        <Route name='container-creating' path='projects/creating' component={ContainerCreating} />
       </Route>
 
-      <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
+      <Route name='shared-containers' path='shared-projects' component={SharedContainers} />
     </Route>
   </Route>
 );
