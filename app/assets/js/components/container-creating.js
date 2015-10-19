@@ -3,7 +3,6 @@ import { ButtonToolbar, Button } from 'react-bootstrap';
 import EtaProgressBar from 'components/eta-progress-bar';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
-import { notImplemented } from 'lib/not-implemented';
 
 export default class ContainerCreating extends React.Component {
   displayName = 'ContainerCreating';
@@ -20,6 +19,7 @@ export default class ContainerCreating extends React.Component {
   };
 
   state = {
+    container: null,
     done: false
   }
 
@@ -40,11 +40,11 @@ export default class ContainerCreating extends React.Component {
   }
 
   onContainerCreated = (data) => {
-    const { name, hostSlug } = data;
-    if ((this.props.query.name === name) && (this.context.host.slug === hostSlug)) {
+    const { container, hostSlug } = data;
+    if ((this.props.query.name === container.name) && (this.context.host.slug === hostSlug)) {
       // this can trip up if there is another container created with the same name,
       // but we should really make container names unique (scoped to host) anyway
-      this.setState({ done: true });
+      this.setState({ container, done: true });
     }
   };
 
@@ -60,12 +60,12 @@ export default class ContainerCreating extends React.Component {
   };
 
   handleOpenIdeBtn = () => {
-    notImplemented('Open IDE', 'For MVP, have a proxy to avoid problems with localStorage domain.');
+
   };
 
   render() {
     const { name } = this.props.query,
-          { done } = this.state;
+          { container, done } = this.state;
 
     return (
       <div className='container-creating-component'>
@@ -74,7 +74,7 @@ export default class ContainerCreating extends React.Component {
             <h2>Your container &ldquo;{name}&rdquo; is ready!</h2>
             <ButtonToolbar>
               <Button onClick={this.handleBackBtn}>Back to Project List</Button>
-              <Button bsStyle='primary' onClick={this.handleOpenIdeBtn}>Open IDE</Button>
+              <a href={`/ide/#/${container.slug}`} className='btn btn-primary' target='_blank'>Open IDE</a>
             </ButtonToolbar>
           </div>
         ) : (
