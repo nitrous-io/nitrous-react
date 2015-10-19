@@ -2,11 +2,11 @@
 
 ### Setup
 
-1. Install iojs v3.3.0 (jsdom only supports iojs atm)
+1. Install NodeJS
 
 ```
-nvm install iojs-v3.3.0
-nvm alias default iojs-v3.3.0
+nvm install v4.2.1
+nvm alias default v4.2.1
 ```
 
 2. Install dependencies
@@ -31,7 +31,7 @@ server {
   ssl_certificate /etc/nginx/certs/n2odev.crt;
   ssl_certificate_key /etc/nginx/certs/n2odev.key;
 
-  server_name pro.n2odev.com;
+  server_name www.n2odev.com;
 
   location / {
     proxy_pass http://127.0.0.1:4000;
