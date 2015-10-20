@@ -20,9 +20,9 @@ export default (
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={redirectTo('user-workspace')} />
 
+      <Route name='new-user-workspace' path='workspaces/new' handler={NewWorkspace} />
       <Route name='user-workspace' path='workspaces' handler={UserWorkspace}>
         <DefaultRoute handler={redirectTo('new-user-workspace')} />
-        <Route name='new-user-workspace' path='new' handler={NewWorkspace} />
       </Route>
 
       <Route name='org-workspace' path='orgs/:orgSlug/workspaces' handler={OrgWorkspace}>
