@@ -104,9 +104,10 @@ export default class NewWorkspace extends React.Component {
     this.setState({ creating: true });
 
     const { user, selectedPlan, selectedRegion } = this.state,
+          org = this.context.org,
           name = user.username; // use username for name of host
 
-    hostActions.create({ name, plan: selectedPlan, region: selectedRegion });
+    hostActions.create({ name, org, plan: selectedPlan, region: selectedRegion });
   };
 
   render() {

@@ -42,17 +42,21 @@ class HostActions {
   }
 
   create(options) {
-    const { name, plan, region } = options;
+    const { name, org, plan, region } = options;
+    const params = {
+      async: true,
+      name,
+      size: plan.slug,
+      region: region.slug
+    };
+    if (org) {
+      params.org = org.slug;
+    }
 
     return authedAjax({
       type: 'POST',
       url: '/api/v0/hosts',
-      data: {
-        async: true,
-        name,
-        size: plan.slug,
-        region: region.slug
-      }
+      data: params
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.create-initiated',
