@@ -20,7 +20,8 @@ var gulp = require('gulp'),
     sequence = require('gulp-sequence'),
     fingerprint = require('gulp-fingerprint'),
     replace = require('gulp-replace'),
-    rename = require('gulp-rename');
+    rename = require('gulp-rename'),
+    livereload = require('gulp-livereload');
 
 var appJS = 'app/assets/js/app.js',
     appCSS = 'app/assets/css/app.sass',
@@ -29,9 +30,13 @@ var appJS = 'app/assets/js/app.js',
 // for the index.html.tmpl
 var cdnAddress = process.env.CDN_ADDRESS || '';
 
-gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
+gulp.task('default', ['livereload', 'clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
 gulp.task('dist', sequence('clean-dist', 'images-dist', 'js-dist', 'css-dist', 'templates-dist', 'hash-dist', 'fingerprint-dist', 'template-replace-dist'));
+
+gulp.task('livereload', function() {
+  livereload.listen();
+});
 
 gulp.task('lint', function() {
   return lintJS();
@@ -97,7 +102,8 @@ gulp.task('js-dev', function() {
     dest: dest,
     sourcemaps: true,
     compress: false,
-    bundler: b
+    bundler: b,
+    dev: true
   };
 
   var onBuild = function() {
@@ -130,7 +136,8 @@ gulp.task('css-dev', function() {
   var cssOptions = {
     dest: dest,
     sourcemaps: true,
-    compress: false
+    compress: false,
+    dev: true
   };
 
   buildCSS(cssOptions);
@@ -295,6 +302,10 @@ function buildJS(options) {
       .pipe(gulp.dest(options.dest));
   }
 
+  if (options.dev) {
+    js = js.pipe(livereload());
+  }
+
   return js;
 }
 
@@ -320,7 +331,11 @@ function buildCSS(options) {
     css = css.pipe(sourcemaps.write());
   }
 
-  return css.pipe(gulp.dest(options.dest));
+  css = css.pipe(gulp.dest(options.dest));
+  if (options.dev) {
+    css = css.pipe(livereload());
+  }
+  return css;
 }
 
 function mapError(err) {
