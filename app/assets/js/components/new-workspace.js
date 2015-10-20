@@ -1,27 +1,32 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Button } from 'react-bootstrap';
 import Org from 'records/org';
+import hostStore from 'stores/host-store';
 import planStore from 'stores/plan-store';
-import planActions from 'actions/plan-actions';
 import regionStore from 'stores/region-store';
+import userStore from 'stores/user-store';
+import hostActions from 'actions/host-actions';
+import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
-import { notImplementedFn } from 'lib/not-implemented';
 
 export default class NewWorkspace extends React.Component {
   displayName = 'NewWorkspace';
 
   static contextTypes = {
+    router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
     org: PropTypes.instanceOf(Org)
   };
 
   state = {
+    user: userStore.user,
     plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
     regions: regionStore.regions,
     selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
-    selectedRegion: regionStore.regions.first()
+    selectedRegion: regionStore.regions.first(),
+    creating: false
   };
 
   componentDidMount() {
@@ -29,6 +34,10 @@ export default class NewWorkspace extends React.Component {
     regionStore.onChange(this.regionStoreDidChange);
     planActions.fetchAll();
     regionActions.fetchAll();
+
+    hostStore.on('create-initiated', this.onHostCreateInitiated);
+    hostStore.on('created', this.onHostCreated);
+    hostStore.on('create-failed', this.onHostCreateFailed);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -40,7 +49,24 @@ export default class NewWorkspace extends React.Component {
   componentWillUnmount() {
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
+
+    hostStore.off('create-initiated', this.onHostCreateInitiated);
+    hostStore.off('created', this.onHostCreated);
+    hostStore.off('create-failed', this.onHostCreateFailed);
   }
+
+  onHostCreateInitiated = () => {
+    // Do nothing.
+  };
+
+  onHostCreated = (data) => {
+    const host = data.host;
+    this.context.router.transitionTo('new-container', { hostSlug: host.slug });
+  };
+
+  onHostCreateFailed = () => {
+    this.setState({ creating: false });
+  };
 
   setPlans(context=this.context) {
     const plans = context.org ? planStore.orgPlans : planStore.personalPlans;
@@ -49,6 +75,10 @@ export default class NewWorkspace extends React.Component {
       selectedPlan: this.state.selectedPlan || plans.first()
     });
   }
+
+  userStoreDidChange = () => {
+    this.setState({ user: userStore.user });
+  };
 
   planStoreDidChange = () => {
     this.setPlans();
@@ -70,10 +100,18 @@ export default class NewWorkspace extends React.Component {
     this.setState({ selectedRegion: region });
   };
 
+  handleClickCreateBtn = () => {
+    this.setState({ creating: true });
+
+    const { user, selectedPlan, selectedRegion } = this.state,
+          name = user.username; // use username for name of host
+
+    hostActions.create({ name, plan: selectedPlan, region: selectedRegion });
+  };
+
   render() {
     const org = this.context.org,
-          plans = this.state.plans,
-          regions = this.state.regions,
+          { plans, regions, creating } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
           selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
 
@@ -108,7 +146,7 @@ export default class NewWorkspace extends React.Component {
               })}
             </Row>
           </Grid>
-          <Button className='create-btn' bsStyle='success' onClick={notImplementedFn('Create Host', 'Use username as name of host')}>Create Workspace</Button>
+          <Button disabled={creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>Create Workspace</Button>
         </div>
       </div>
     );

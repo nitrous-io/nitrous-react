@@ -1,6 +1,7 @@
 import Store from 'stores/store';
 import Host from 'records/host';
 import { OrderedMap } from 'immutable';
+import taskActions from 'actions/task-actions';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
@@ -27,6 +28,43 @@ class HostStore extends Store {
       case 'host.fetch-one-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
+      }
+      case 'host.create-initiated': {
+        const { data } = action.data,
+              host = Host.deserialize(data.host),
+              { id } = data.host;
+        taskActions.update(`host-create-${id}`, 'Creating workspace...');
+        this.emit('create-initiated', { host });
+        break;
+      }
+      case 'host.create-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('create-failed');
+        break;
+      }
+      // from events-socket
+      case 'events:host.creating': {
+        const { id } = action.data,
+              progress = JSON.parse(action.data.progress);
+        if (!id) {
+          break;
+        }
+
+        let progressMessage = 'Creating workspace';
+        if (progress.stream) {
+          progressMessage += ` - ${progress.stream}`;
+        }
+        progressMessage += '...';
+
+        taskActions.update(`host-create-${id}`, progressMessage);
+        break;
+      }
+      case 'events:host.created': {
+        const host = Host.deserialize(action.data.host),
+              { id, slug } = host;
+        this._hosts = this._hosts.set(slug, host);
+        taskActions.done(`host-create-${id}`);
+        this.emit('created', { host });
       }
       default: return;
     }

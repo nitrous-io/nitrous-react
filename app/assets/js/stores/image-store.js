@@ -45,6 +45,7 @@ class ImageStore extends Store {
       case 'image.fetch-all-by-host-slug-failed':
       case 'image.pull-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
+        break;
       }
       // from events-socket
       case 'events:image.pulling': {
