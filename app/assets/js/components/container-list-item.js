@@ -52,7 +52,8 @@ export default class ContainerListItem extends React.Component {
 
   render() {
     const { container } = this.props,
-          shared = !this.context.host;
+          shared = !this.context.host,
+          ideURL = `/ide/#/${container.slug}`;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -85,7 +86,7 @@ export default class ContainerListItem extends React.Component {
                   <MenuItem onSelect={notImplementedFn('Manage SSH Keys', 'view, invite, remove ssh keys')}>Manage SSH Keys...</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
                 </DropdownButton>
-                <Button onClick={notImplementedFn('Open IDE', 'For MVP, have a proxy to avoid problems with localStorage domain.')}>Open IDE</Button>
+                <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
               </ButtonToolbar>
             ) : (
               <ButtonToolbar className='buttons'>

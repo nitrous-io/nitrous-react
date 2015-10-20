@@ -86,7 +86,7 @@ class ContainerStore extends Store {
 
         if (action.type === 'events:container.created') {
           snackbarActions.post(`Your project container “${c.displayName}” was created successfully.`);
-          this.emit('created', { name: c.name, hostSlug });
+          this.emit('created', { container: c, hostSlug });
         }
 
         if (action.type === 'events:container.destroyed') {
