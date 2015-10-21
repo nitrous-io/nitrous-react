@@ -44,12 +44,9 @@ export default class TopNav extends React.Component {
     tokenActions.invalidate();
   };
 
-  handleAccountSettings = () => {
-    this.context.router.transitionTo('account-settings', { });
-  };
-
   render() {
-    const user = this.state.user;
+    const user = this.state.user,
+          { makeHref } = this.context.router;
 
     return (
       <div className='top-nav-component'>
@@ -59,7 +56,7 @@ export default class TopNav extends React.Component {
               <OverlayTrigger placement='left' rootClose overlay={<Tooltip>View Account and More</Tooltip>}>
                 <NavDropdown className='account-menu'
                   title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}</span></span>}>
-                  <MenuItem onSelect={this.handleAccountSettings}>Account Settings</MenuItem>
+                  <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Billing')}>Billing</MenuItem>
                   <MenuItem divider />
                   <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
