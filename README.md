@@ -59,5 +59,17 @@ Run `gulp` to start a dev server and watch file system changes. ESLint is run au
 
 Run `npm test` to run Jest tests.
 
+#### LiveReload support
+
+[LiveReload](http://livereload.com/) is supported. To get this to work:
+
+1. Install a [LiveReload extension for your browser](http://livereload.com/extensions/).
+2. Assuming you're using Nitrous, you'll need to be able to access port 35729
+of your container locally. You can do this by forwarding port 35729 or by
+opening port 35729 on your container.
+3. Your browser will probably block access to the LiveReload server with a mixed
+content warning (i.e. trying to load a http:// URI from a https:// page). To get
+around this in Google Chrome, click the shield icon in the address bar.
+
 - - -
 Copyright (c) 2015 Nitrous, Inc. All Rights Reserved.
