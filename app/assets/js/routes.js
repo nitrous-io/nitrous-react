@@ -15,6 +15,8 @@ import ContainerKeys from 'components/container-keys';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
+import Billing from 'components/billing';
+import BillingPaymentMethod from 'components/billing-payment-method';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -34,6 +36,9 @@ export default (
           <DefaultRoute handler={redirectTo('new-org-workspace')} />
           <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
         </Route>
+        
+        <Route name='org-billing' path='billing' handler={Billing} />
+        <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
       </Route>
 
       <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
@@ -50,6 +55,9 @@ export default (
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
 
       <Route name='account-settings' path='settings' handler={AccountSettings} />
+
+      <Route name='billing' path='billing' handler={Billing} />
+      <Route name='payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
     </Route>
   </Route>
 );

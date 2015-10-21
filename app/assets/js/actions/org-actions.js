@@ -12,6 +12,18 @@ class OrgActions {
         type: 'org.fetched-all',
         data: { data }
       });
+      
+      const orgsBps = [];
+      data.orgs.forEach(function(org) {
+        if (org.billing_profile) {
+          orgsBps.push(org.billing_profile);
+        }
+      });
+      const bpData = { billing_profiles: orgsBps };
+      dispatcher.dispatch({
+        type: 'billing-profile.fetched-all',
+        data: { data: bpData }
+      });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'org.fetch-all-failed',

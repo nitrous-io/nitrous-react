@@ -11,7 +11,6 @@ export default class User extends Record({
   phone: null,
   phoneAuthed: false,
   phoneCountryCode: null,
-  billingProfile: null,
   userProfile: null,
   createdAt: null,
   updatedAt: null
@@ -27,7 +26,6 @@ export default class User extends Record({
       phone: p.phone,
       phoneAuthed: !!p.phone_authed,
       phoneCountryCode: p.phone_country_code,
-      billingProfile: p.billing_profile,
       userProfile: p.user_profile,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null

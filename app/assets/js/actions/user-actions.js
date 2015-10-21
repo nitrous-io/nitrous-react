@@ -8,9 +8,17 @@ class UserActions {
       url: '/api/v0/user',
       dataType: 'json'
     }).then((data) => {
+      const bp = data.user.billing_profile;
+      delete data.user.billing_profile;
       dispatcher.dispatch({
         type: 'user.fetched',
         data: { data }
+      });
+
+      const bpData = { billing_profile: bp };
+      dispatcher.dispatch({
+        type: 'billing-profile.fetched',
+        data: { data: bpData }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({

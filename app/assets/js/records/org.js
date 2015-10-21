@@ -6,7 +6,6 @@ export default class Org extends Record({
   slug: null,
   email: null,
   name: null,
-  billingProfile: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -16,7 +15,6 @@ export default class Org extends Record({
       slug: p.slug,
       email: p.email,
       name: p.name,
-      billingProfile: p.billing_profile,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });

@@ -2,10 +2,10 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { Navbar, Nav, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import userStore from 'stores/user-store';
+import billingStore from 'stores/billing-store';
 import User from 'records/user';
 import tokenActions from 'actions/token-actions';
 import $ from 'jquery';
-import { notImplementedFn } from 'lib/not-implemented';
 
 export default class TopNav extends React.Component {
   displayName = 'TopNav';
@@ -16,11 +16,13 @@ export default class TopNav extends React.Component {
   };
 
   state = {
-    user: userStore.user
+    user: userStore.user,
+    billingProfile: billingStore.userBillingProfile
   };
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    billingStore.onChange(this.billingStoreDidChange);
 
     // hack to dismiss overlay tooltip after clicking menu
     $(React.findDOMNode(this)).on('click', '.dropdown-menu a[href]', function() {
@@ -32,6 +34,7 @@ export default class TopNav extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    billingStore.offChange(this.billingStoreDidChange);
 
     $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
@@ -40,12 +43,17 @@ export default class TopNav extends React.Component {
     this.setState({ user: userStore.user });
   };
 
+  billingStoreDidChange = () => {
+    this.setState({ billingProfile: billingStore.userBillingProfile });
+  };
+
   handleLogOut = () => {
     tokenActions.invalidate();
   };
 
   render() {
     const user = this.state.user,
+          free = this.state.billingProfile.free,
           { makeHref } = this.context.router;
 
     return (
@@ -55,9 +63,9 @@ export default class TopNav extends React.Component {
             {user ? (
               <OverlayTrigger placement='left' rootClose overlay={<Tooltip id='account-menu-tooltip'>View Account and More</Tooltip>}>
                 <NavDropdown className='account-menu' id='account-menu-nav'
-                  title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}</span></span>}>
+                  title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}{free ? '(free)' : ''}</span></span>}>
                   <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
-                  <MenuItem onSelect={notImplementedFn('Billing')}>Billing</MenuItem>
+                  <MenuItem href={makeHref('billing')}>Billing</MenuItem>
                   <MenuItem divider />
                   <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
                   <MenuItem divider />
