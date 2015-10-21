@@ -11,6 +11,7 @@ import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
+import AccountSettings from 'components/account-settings';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -38,6 +39,8 @@ export default (
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
+
+      <Route name='account-settings' path='settings' handler={AccountSettings} />
     </Route>
   </Route>
 );
