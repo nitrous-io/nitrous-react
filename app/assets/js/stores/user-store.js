@@ -21,7 +21,7 @@ class UserStore extends Store {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
         this._lastError = null;
-        this.emit('updated', { user: this.user });
+        this.emit('updated');
         break;
       }
       case 'user.update-failed': {

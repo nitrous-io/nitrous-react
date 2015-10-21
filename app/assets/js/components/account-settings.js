@@ -1,6 +1,7 @@
 import React from 'react';
 import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import { Input, Button } from 'react-bootstrap';
 
 export default class AccountSettings extends React.Component {
@@ -35,23 +36,22 @@ export default class AccountSettings extends React.Component {
       newPassword: null,
       newPasswordConfirm: null
     });
+    snackbarActions.post('Account details updated successfully.');
   }
 
   onUserUpdateFailed = () => {
-    this.setState({
-      updating: false
-    });
+    this.setState({ updating: false });
   }
 
-  handleChangeNameField = () => {
+  handleChangeNameField = (event) => {
     this.setState({ name: event.target.value });
   };
 
-  handleChangeEmailField = () => {
+  handleChangeEmailField = (event) => {
     this.setState({ email: event.target.value });
   };
 
-  handleChangeNewPasswordField = () => {
+  handleChangeNewPasswordField = (event) => {
     var val = event.target.value;
     if (val === "") {
       val = null;
@@ -59,7 +59,7 @@ export default class AccountSettings extends React.Component {
     this.setState({ newPassword: val });
   };
 
-  handleChangeNewPasswordConfirmField = () => {
+  handleChangeNewPasswordConfirmField = (event) => {
     var val = event.target.value;
     if (val === "") {
       val = null;
@@ -67,7 +67,9 @@ export default class AccountSettings extends React.Component {
     this.setState({ newPasswordConfirm: val });
   };
 
-  handleClickSaveBtn = () => {
+  handleSubmit = (event) => {
+    event.preventDefault();
+
     const { newPassword, newPasswordConfirm } = this.state;
     if (newPassword !== newPasswordConfirm) {
       return;
@@ -90,6 +92,7 @@ export default class AccountSettings extends React.Component {
 
     const { unconfirmedEmail } = this.state.user,
           newPasswordMatch = (newPassword === newPasswordConfirm),
+          showPasswordConfirmError = newPasswordConfirm && !newPasswordMatch,
           emailEmpty = (email === ""),
           saveButtonDisabled = emailEmpty || updating || !newPasswordMatch;
 
@@ -97,28 +100,30 @@ export default class AccountSettings extends React.Component {
       <div className='account-settings'>
         <div className='container'>
           <h3>Account Settings</h3>
-          <div className='name'>
-            <Input label="Name" ref='nameField' type='text' placeholder='Your name...'
-              required disabled={updating} value={name} onChange={this.handleChangeNameField} />
-          </div>
-          {unconfirmedEmail ? (
-            <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime email will be sent to the email {user.email}.</i></p>
-          ) : ''}
-          <div className='email'>
-            <Input label="Email" ref='emailField' type='text' placeholder='Email...'
-              help={(emailEmpty ? 'An email must be provided' : null)}
-              required disabled={updating} value={email} onChange={this.handleChangeEmailField} />
-          </div>
-          <div className='new-password'>
-            <Input label="New Password" ref='newPasswordField' type='password' placeholder='New password...'
-              required disabled={updating} value={newPassword} onChange={this.handleChangeNewPasswordField} />
-            {newPassword ? (
-              <Input label="Confirm Password" ref='newPasswordConfirmField' type='password' placeholder='Confirm password...'
-                help={(newPasswordMatch ? null : 'Passwords do not match')}
-                required disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
+          <form onSubmit={this.handleSubmit}>
+            <div className='name'>
+              <Input label="Name" type='text' placeholder='Your name...'
+                required disabled={updating} value={name} onChange={this.handleChangeNameField} />
+            </div>
+            {unconfirmedEmail ? (
+              <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime email will be sent to the email {user.email}.</i></p>
             ) : ''}
-          </div>
-          <Button disabled={saveButtonDisabled} className='save-btn' bsStyle='success' onClick={this.handleClickSaveBtn}>{updating ? "Saving" : "Save"}</Button>
+            <div className='email'>
+              <Input label="Email" type='text' placeholder='Email...'
+                help={(emailEmpty ? 'An email must be provided' : null)}
+                required disabled={updating} value={email} onChange={this.handleChangeEmailField} />
+            </div>
+            <div className='new-password'>
+              <Input label="New Password" type='password' placeholder='New password...'
+                disabled={updating} value={newPassword} onChange={this.handleChangeNewPasswordField} />
+              {newPassword ? (
+                <Input label="Confirm Password" type='password' placeholder='Confirm password...'
+                  help={(showPasswordConfirmError ? 'Passwords do not match' : null)}
+                  disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
+              ) : ''}
+            </div>
+            <Button disabled={saveButtonDisabled} type='submit' bsStyle='primary'>{updating ? "Saving..." : "Save"}</Button>
+          </form>
         </div>
       </div>
     );
