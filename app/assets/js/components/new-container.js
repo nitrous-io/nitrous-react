@@ -141,8 +141,10 @@ export default class NewContainer extends React.Component {
 
     containerActions.create(
       projectName, selectedImage, template, host, updateImage, privileged, publishAll
-    ).then(() => {
-      this.context.router.transitionTo('container-creating', { hostSlug: host.slug }, { name: projectName });
+    ).then((imageId) => {
+      this.context.router.transitionTo('container-creating',
+        { hostSlug: host.slug },
+        { name: projectName, imageId });
     }).catch(() => {
       this.setState({ creating: false });
     });

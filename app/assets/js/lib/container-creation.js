@@ -23,24 +23,17 @@ export default class ContainerCreation {
     return new Promise((resolve, reject) => {
       this._checkCreateAllowed((createAllowed, jqxhr) => {
         if (createAllowed) {
-          resolve();
           let imageId, onPulled, onPullFailed;
 
           onPulled = (id) => {
             if (id === imageId) {
               imageStore.off('pulled', onPulled);
               imageStore.off('pull-failed', onPullFailed);
-            }
 
-            this._create().then((data) => {
-              dispatcher.dispatch({
-                type: 'container.created',
-                data: { data }
+              this._create().catch((jqxhr) => {
+                this._fail(jqxhr);
               });
-
-            }).catch((jqxhr) => {
-              this._fail(jqxhr);
-            });
+            }
           };
 
           onPullFailed = (id) => {
@@ -48,14 +41,16 @@ export default class ContainerCreation {
               imageStore.off('pulled', onPulled);
               imageStore.off('pull-failed', onPullFailed);
             }
-
-            this._fail();
           };
 
           imageActions.pull(this._host.slug, this._imageRepo, this._updateImage).then((id) => {
+            resolve(id);
+
             imageId = id;
             imageStore.on('pulled', onPulled);
             imageStore.on('pull-failed', onPullFailed);
+          }).catch((jqxhr) => {
+            reject(jqxhr);
           });
         } else {
           this._fail(jqxhr);

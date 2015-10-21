@@ -78,14 +78,14 @@ class ImageStore extends Store {
       }
       case 'events:image.pull-failed': {
         const image = Image.deserialize(action.data.image),
-              id = image.id;
+              { id, repo }  = image;
         if (image.isBlank) {
           this._images = this._images.delete(id);
         } else {
           this._images = this._images.set(id, image);
         }
         taskActions.fail(`image-pull-${id}`);
-        this.emit('pull-failed', id);
+        this.emit('pull-failed', { id, repo });
         break;
       }
       default: return;
