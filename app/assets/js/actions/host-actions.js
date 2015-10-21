@@ -40,6 +40,40 @@ class HostActions {
       });
     });
   }
+
+  create(options) {
+    const { name, org, plan, region } = options;
+    const params = {
+      async: true,
+      name,
+      size: plan.slug,
+      region: region.slug
+    };
+    if (org) {
+      params.org = org.slug;
+    }
+
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/hosts',
+      data: params
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'host.create-initiated',
+        data: {
+          data,
+          hostId: data.host.id
+        }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.create-failed',
+        data: {
+          jqxhr
+        }
+      });
+    });
+  }
 }
 
 export default new HostActions();

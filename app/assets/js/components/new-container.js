@@ -123,7 +123,7 @@ export default class NewContainer extends React.Component {
   };
 
   handleClickCreateBtn = () => {
-    this.setState({ creating: true});
+    this.setState({ creating: true });
 
     const { projectName, selectedImage } = this.state,
           { host } = this.context,
