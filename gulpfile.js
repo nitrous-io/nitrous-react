@@ -27,7 +27,8 @@ var appJS = 'app/assets/js/app.js',
     vendorJSPath = 'vendor/assets/js';
 
 // for the index.html.tmpl
-var cdnAddress = process.env.CDN_ADDRESS || '';
+// CDN_ADDRESS should include final /. Example: https://randomstring.cloudfront.net/
+var assetsUrl = (process.env.CDN_ADDRESS || '') + "assets/";
 
 gulp.task('default', ['clean-dev', 'js-dev', 'lint-dev', 'css-dev', 'templates-dev', 'images-dev', 'server-dev']);
 
@@ -209,8 +210,8 @@ gulp.task('fingerprint-dist', function() {
 gulp.task('template-replace-dist', function() {
   var manifest = require(__dirname+'/build/dist/assets/rev-manifest');
   return gulp.src(['build/dist/templates/index.html.tmpl'], {base: 'build/dist/templates'})
-        .pipe(replace('{{ .CssHref }}', cdnAddress+manifest['css/app.css']))
-        .pipe(replace('{{ .JsHref }}', cdnAddress+manifest['js/app.js']))
+        .pipe(replace('{{ .CssHref }}', assetsUrl + manifest['css/app.css']))
+        .pipe(replace('{{ .JsHref }}', assetsUrl + manifest['js/app.js']))
         .pipe(rename("index.html"))
         .pipe(gulp.dest('build/dist/publish')).pipe(debug());
 })
