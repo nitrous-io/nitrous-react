@@ -75,10 +75,6 @@ export default class ContainerCreating extends React.Component {
     this.context.router.transitionTo('containers', { hostSlug: this.context.host.slug });
   };
 
-  handleOpenIdeBtn = () => {
-
-  };
-
   render() {
     const { name } = this.props.query,
           { container, done } = this.state;

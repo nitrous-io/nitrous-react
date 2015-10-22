@@ -48,6 +48,27 @@ class ContainerActions {
     });
   }
 
+  fetchOne(slug) {
+    return authedAjax({
+      type: 'GET',
+      url: `/api/v0/containers/${slug}`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'container.fetched-one',
+        data: {
+          data,
+          slug
+        }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.fetch-one-failed',
+        data: { jqxhr }
+      });
+    });
+  }
+
   postAction(container, action) {
     return authedAjax({
       type: 'POST',
