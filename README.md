@@ -71,5 +71,9 @@ opening port 35729 on your container.
 content warning (i.e. trying to load a http:// URI from a https:// page). To get
 around this in Google Chrome, click the shield icon in the address bar.
 
+#### Design
+
+If you are ever lost trying to design something, take a look at Max's draft designs in https://www.dropbox.com/sh/ryk5id3sd4bg5pj/AACzq51FLy5Pyxq42A1VQzEya?dl=0. And [React-Bootstrap](http://react-bootstrap.github.io/components.html) has some useful components that come with default styling.
+
 - - -
 Copyright (c) 2015 Nitrous, Inc. All Rights Reserved.
