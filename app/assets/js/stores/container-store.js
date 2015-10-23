@@ -45,8 +45,16 @@ class ContainerStore extends Store {
         this._lastError = null;
         break;
       }
+      case 'container.fetched-one': {
+        const { data, slug } = action.data,
+              c = Container.deserialize(data.container);
+        this._containers = this._containers.set(slug, c);
+        this._lastError = null;
+        break;
+      }
       case 'container.fetch-all-by-host-slug-failed':
       case 'container.fetch-all-shared-failed':
+      case 'container.fetched-one-failed':
       case 'container.start-failed':
       case 'container.stop-failed':
       case 'container.restart-failed':
@@ -121,6 +129,10 @@ class ContainerStore extends Store {
     return containers == null ? null : containers.filter(function(c) {
       return c.id && !c.terminatedAt && c.state !== 'terminated';
     });
+  }
+
+  containerBySlug(slug) {
+    return this._containers.get(slug);
   }
 }
 
