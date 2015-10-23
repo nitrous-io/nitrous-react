@@ -105,24 +105,24 @@ export default class ContainerKeys extends React.Component {
 
             {container.state === 'running' ? (
               <div>
-                <Panel header='Container Public Keys'>
-                  <p className='hint'> <Fa icon='info-circle' /> Public keys on your container. Add these to external services to allow access to them from your container.</p>
+                <Panel header='Project Public Keys'>
+                  <p className='hint'> <Fa icon='info-circle' /> Public keys on your project. Add these to external services to allow access to them from your project.</p>
 
                   {containerKeys && containerKeys.size > 0 ?
                     containerKeys.map((key) => {
                       return (<div key={`container-key-${key.fingerprint}`}>
                         <p>{key.displayName}</p>
-                        <SelectableTextarea readOnly className='key-field' rows='4'
+                        <SelectableTextarea readOnly className='key-field' rows='5'
                           value={key.key} />
                       </div>);
                     })
                   : (
-                    <Alert bsStyle='warning'><p>There are no public keys on your container.</p></Alert>
+                    <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
                   )}
                 </Panel>
 
                 <Panel header='User Public Keys'>
-                  <UserKeyList userKeys={userKeys} container={container} />
+                  <UserKeyList userKeys={userKeys} />
                 </Panel>
               </div>
             ) : (

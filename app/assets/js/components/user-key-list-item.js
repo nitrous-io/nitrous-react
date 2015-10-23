@@ -87,7 +87,7 @@ export default class UserKeyListItem extends React.Component {
             <Modal.Title>Delete User Public Key</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>Are you sure you want to remove the following public key from your container?</p>
+            <p>Are you sure you want to remove the following public key from your project?</p>
             <p><strong>{userKey.displayName}</strong></p>
           </Modal.Body>
           <Modal.Footer>

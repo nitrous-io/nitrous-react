@@ -25,7 +25,8 @@ export default class UserKeyList extends React.Component {
   state = {
     newUserKey: null,
     showModal: false,
-    registering: false
+    registering: false,
+    registerFailed: false
   };
 
   componentDidMount() {
@@ -52,12 +53,15 @@ export default class UserKeyList extends React.Component {
     const { container, key } = data;
     if ((this.context.container.slug === container.slug)
       && (this.state.newUserKey === key)) {
-      this.setState({ registering: false });
+      this.setState({ registering: false, registerFailed: true });
     }
   }
 
   handleNewUserKeyChanged = () => {
-    this.setState({ newUserKey: this.refs.newUserKeyField.getValue() });
+    this.setState({
+      newUserKey: this.refs.newUserKeyField.getValue(),
+      registerFailed: false
+    });
   }
 
   handleRegisterModalCancel = () => {
@@ -82,15 +86,15 @@ export default class UserKeyList extends React.Component {
   render() {
     const { userKeys } = this.props,
           { host } = this.context,
-          { newUserKey, showModal, registering } = this.state;
+          { newUserKey, showModal, registering, registerFailed } = this.state;
 
     return (
       <div className='user-key-list-component'>
         {host.free ? (
-          <Alert bsStyle='info'><Fa icon='info-circle' /> SSH access to your container is only available to paid users. If you are sharing a container, the owner of the container has to be a paying user.</Alert>
+          <Alert bsStyle='info'><Fa icon='info-circle' /> SSH access to your project is only available to paid users. If you are sharing a project, the owner of the project has to be a paying user.</Alert>
         ) : (
           <div>
-            <p className='hint'> <Fa icon='info-circle' /> Register public keys from your machine so you can access your container via SSH.</p>
+            <p className='hint'> <Fa icon='info-circle' /> Register public keys from your machine so you can access your project via SSH.</p>
             {userKeys && userKeys.size > 0 ? (
               <ListGroup>
                 {userKeys.map((key) => {
@@ -102,7 +106,7 @@ export default class UserKeyList extends React.Component {
                 })}
               </ListGroup>
             ) : (
-              <Alert bsStyle='warning'><p>There are no public keys registered with your container.</p></Alert>
+              <Alert bsStyle='warning'><p>There are no public keys registered with your project.</p></Alert>
             )}
 
             <Button bsStyle='default' onClick={this.handleClickRegister}>
@@ -114,7 +118,13 @@ export default class UserKeyList extends React.Component {
                 <Modal.Title>Register New User Public Key</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <Input ref='newUserKeyField' type='textarea' rows='4' disabled={registering} value={newUserKey} onChange={this.handleNewUserKeyChanged} />
+                <label htmlFor='new-user-key-field'>Public Key</label>
+                <Input ref='newUserKeyField' id='new-user-key-field'
+                  type='textarea' rows='5'
+                  disabled={registering}
+                  value={newUserKey}
+                  bsStyle={registerFailed ? 'error' : ''}
+                  onChange={this.handleNewUserKeyChanged} />
               </Modal.Body>
               <Modal.Footer>
                 <Button ref='modalCancel' onClick={this.handleRegisterModalCancel}>Cancel</Button>
