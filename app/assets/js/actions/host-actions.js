@@ -74,6 +74,25 @@ class HostActions {
       });
     });
   }
+
+  fetchStats(slug) {
+    return authedAjax({
+      type: 'GET',
+      url: `/api/v0/hosts/${slug}/stats`,
+      data: { period: '1s' },
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'host.fetched-stats',
+        data: { data, hostSlug: slug }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.fetch-stats-failed',
+        data: { jqxhr, hostSlug: slug }
+      });
+    });
+  }
 }
 
 export default new HostActions();
