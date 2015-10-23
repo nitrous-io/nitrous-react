@@ -68,7 +68,7 @@ export default class ContainerListItem extends React.Component {
             </div>
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
-                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState}>
+                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState} id={`container-actions-${container.id}`}>
                   {container.state === 'running' ? [
                     <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
                     <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
@@ -81,7 +81,7 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title='Settings'>
+                <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
                   <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
                   <MenuItem divider />
                   <MenuItem onSelect={notImplementedFn('Manage Collaborators', 'view, invite, remove collaborators')}>Manage Collaborators...</MenuItem>
