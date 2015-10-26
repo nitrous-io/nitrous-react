@@ -18,7 +18,7 @@ class BillingStore extends Store {
       case 'billing-profile.fetch-failed': {
         this._billingProfile = null;
         this.handleErrorJqxhr(action.data.jqxhr);
-        break;
+        return; // do not notify of change
       }
       case 'billing-profile.fetched-all': {
         const { data } = action.data;
@@ -39,7 +39,7 @@ class BillingStore extends Store {
       case 'billing-profile.update-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         this.emit('update-failed');
-        break;
+        return; // do not notify of change
       }
       default: return;
     }

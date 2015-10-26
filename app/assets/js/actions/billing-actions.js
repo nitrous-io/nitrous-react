@@ -20,11 +20,14 @@ class BillingActions {
       }, (status, response) => {
         if (response.error) {
           dispatcher.dispatch({
-            type: 'billing.card-update-failed',
+            type: 'billing-profile.update-failed',
             data: {
-              error: response.error
+              jqxhr: {
+                errorMessage: response.error.message || 'Failed to send card token'
+              }
             }
           });
+          return reject();
         }
 
         authedAjax({
