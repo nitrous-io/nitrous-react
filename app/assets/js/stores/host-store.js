@@ -18,9 +18,9 @@ class HostStore extends Store {
         break;
       }
       case 'host.fetched-one': {
-        const { data, slug } = action.data,
+        const { data } = action.data,
               h = Host.deserialize(data.host);
-        this._hosts = this._hosts.set(slug, h);
+        this._hosts = this._hosts.set(h.slug, h);
         this._lastError = null;
         break;
       }
