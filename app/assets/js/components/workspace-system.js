@@ -7,6 +7,7 @@ import hostActions from 'actions/host-actions';
 import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
+import numberUtil from 'lib/number-util';
 
 export default class WorkspaceSystem extends React.Component {
   displayName = 'WorkspaceSystem';
@@ -119,11 +120,11 @@ export default class WorkspaceSystem extends React.Component {
                 </tr>
                 <tr>
                   <th>Memory Used</th>
-                  <td>{(stats.memoryUsage / (1024*1024)).toFixed(2)} of {(stats.memoryTotal / (1024*1024)).toFixed(2)} MiB</td>
+                  <td>{numberUtil.mebibytes(stats.memoryUsage)} of {numberUtil.mebibytes(stats.memoryTotal)} MiB</td>
                 </tr>
                 <tr>
                   <th>Storage Used</th>
-                  <td>{(stats.storageUsage / (1024*1024*1024)).toFixed(2)} of {(stats.storageTotal / (1024*1024*1024)).toFixed(2)} of GiB</td>
+                  <td>{numberUtil.gibibytes(stats.storageUsage)} of {numberUtil.gibibytes(stats.storageTotal)} of GiB</td>
                 </tr>
               </tbody>
             ) : (
