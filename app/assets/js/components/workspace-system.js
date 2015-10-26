@@ -7,6 +7,7 @@ import hostActions from 'actions/host-actions';
 import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
+import WorkspaceNav from 'components/workspace-nav';
 import numberUtil from 'lib/number-util';
 
 export default class WorkspaceSystem extends React.Component {
@@ -64,6 +65,7 @@ export default class WorkspaceSystem extends React.Component {
 
     return (
       <div className='workspace-system-component'>
+        <WorkspaceNav host={host} activeTab='system' />
         <div className='container'>
           <div>
             <Table responsive striped bordered condensed hover id='workspace-system-info'>

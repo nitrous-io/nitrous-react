@@ -1,11 +1,8 @@
 import React, { PropTypes } from 'react';
 import { RouteHandler } from 'react-router';
-import { Nav, NavItem } from 'react-bootstrap';
 import Host from 'records/host';
 import hostActions from 'actions/host-actions';
 import hostStore from 'stores/host-store';
-import ContextSwitcher from 'components/context-switcher';
-import { notImplementedFn } from 'lib/not-implemented';
 
 export default class Workspace extends React.Component {
   displayName = 'Workspace';
@@ -58,21 +55,8 @@ export default class Workspace extends React.Component {
   }
 
   render() {
-    const host = this.state.host,
-          makeHref = this.context.router.makeHref;
-
     return (
       <div className='workspace-component'>
-        {host ? (
-          <div className='container'>
-            <ContextSwitcher selectedHost={host} />
-            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
-              <NavItem href={makeHref('containers', { hostSlug: host.slug })} eventKey='containers'>Projects</NavItem>
-              <NavItem onSelect={notImplementedFn('Images Tab', 'image/snapshots management: push, pull, delete etc.')} eventKey='images'>Images</NavItem>
-              <NavItem href={makeHref('workspace-system', { hostSlug: host.slug })} eventKey='system'>System</NavItem>
-            </Nav>
-          </div>
-        ) : ''}
         <RouteHandler />
       </div>
     );
