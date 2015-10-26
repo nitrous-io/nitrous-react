@@ -3,6 +3,7 @@ import { Route, DefaultRoute } from 'react-router';
 import Application from 'components/application';
 import Login from 'components/login';
 import Dashboard from 'components/dashboard';
+import OrgRoot from 'components/org-root';
 import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
@@ -28,9 +29,11 @@ export default (
         <DefaultRoute handler={redirectTo('new-user-workspace')} />
       </Route>
 
-      <Route name='org-workspace' path='orgs/:orgSlug/workspaces' handler={OrgWorkspace}>
-        <DefaultRoute handler={redirectTo('new-org-workspace')} />
-        <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+      <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
+        <Route name='org-workspace' path='workspaces' handler={OrgWorkspace}>
+          <DefaultRoute handler={redirectTo('new-org-workspace')} />
+          <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+        </Route>
       </Route>
 
       <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
