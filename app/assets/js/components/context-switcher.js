@@ -103,8 +103,8 @@ export default class ContextSwitcher extends React.Component {
     }
 
     const contextMenu = (
-      <OverlayTrigger placement='top' rootClose overlay={(<Tooltip>Switch Dashboard Context</Tooltip>)}>
-        <DropdownButton title={buttonTitle}>
+      <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
+        <DropdownButton title={buttonTitle} id='context-switcher-dropdown'>
           <MenuItem header>Personal</MenuItem>
           <MenuItem href={makeHref('user-workspace')}>{withGravatar(user)}</MenuItem>
           <MenuItem divider />
@@ -133,8 +133,8 @@ export default class ContextSwitcher extends React.Component {
 
     const buildHostsMenu = () => {
       return (
-        <OverlayTrigger placement='top' rootClose overlay={(<Tooltip>Switch Workspace</Tooltip>)}>
-          <DropdownButton title={selectedHost.name}>
+        <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='workspace-switcher-tooltip'>Switch Workspace</Tooltip>)}>
+          <DropdownButton title={selectedHost.name} id='workspace-switcher-dropdown'>
             <MenuItem header>Workspaces</MenuItem>
             {hosts.size > 1 ? hosts.map((host) => {
               return (

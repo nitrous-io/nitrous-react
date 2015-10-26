@@ -53,8 +53,8 @@ export default class TopNav extends React.Component {
         <Navbar brand={<Link to="application"><span>Nitrous</span></Link>} className='navbar'>
           <Nav right>
             {user ? (
-              <OverlayTrigger placement='left' rootClose overlay={<Tooltip>View Account and More</Tooltip>}>
-                <NavDropdown className='account-menu'
+              <OverlayTrigger placement='left' rootClose overlay={<Tooltip id='account-menu-tooltip'>View Account and More</Tooltip>}>
+                <NavDropdown className='account-menu' id='account-menu-nav'
                   title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}</span></span>}>
                   <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Billing')}>Billing</MenuItem>

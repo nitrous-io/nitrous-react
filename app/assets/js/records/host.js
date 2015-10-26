@@ -73,4 +73,16 @@ export default class Host extends Record({
   get displayName() {
     return this.name || this.slug;
   }
+
+  get displayState() {
+    switch (this.state) {
+      case 'respeccing': {
+        return 'upgrade in progress';
+      }
+      case 'respec_failed': {
+        return 'upgrade failed';
+      }
+    }
+    return this.state;
+  }
 }

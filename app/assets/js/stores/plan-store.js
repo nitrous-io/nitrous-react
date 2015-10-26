@@ -38,6 +38,12 @@ class PlanStore extends Store {
   get orgPlans() {
     return this.plans.filter((p) => p.org);
   }
+
+  planById(id) {
+    return this._plans.find((p) => {
+      return p.id === id;
+    });
+  }
 }
 
 export default new PlanStore();

@@ -28,6 +28,12 @@ class RegionStore extends Store {
   get regions() {
     return this._regions;
   }
+
+  regionById(id) {
+    return this._regions.find((r) => {
+      return r.id === id;
+    });
+  }
 }
 
 export default new RegionStore();

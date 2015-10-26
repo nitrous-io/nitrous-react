@@ -13,7 +13,7 @@ export default class ContainerState extends React.Component {
     const state = this.props.state;
 
     return (
-      <OverlayTrigger placement='top' overlay={<Tooltip>{state}</Tooltip>}>
+      <OverlayTrigger placement='top' overlay={<Tooltip id='container-state-tooltip'>{state}</Tooltip>}>
         <div className={classNames('container-state-component', state)} />
       </OverlayTrigger>
     );

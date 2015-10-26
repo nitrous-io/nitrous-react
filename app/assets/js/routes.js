@@ -7,6 +7,7 @@ import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
 import Workspace from 'components/workspace';
+import WorkspaceSystem from 'components/workspace-system';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerKeys from 'components/container-keys';
@@ -39,6 +40,8 @@ export default (
         <Route name='container-creating' path='projects/creating' handler={ContainerCreating} />
 
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
+
+        <Route name='workspace-system' path='system' handler={WorkspaceSystem} />
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
