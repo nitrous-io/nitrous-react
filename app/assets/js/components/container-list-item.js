@@ -13,12 +13,12 @@ export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
 
   static contextTypes = {
-    router: PropTypes.func.isRequired,
-    host: PropTypes.instanceOf(Host)
+    router: PropTypes.func.isRequired
   };
 
   static propTypes = {
-    container: PropTypes.instanceOf(Container).isRequired
+    container: PropTypes.instanceOf(Container).isRequired,
+    host: PropTypes.instanceOf(Host)
   };
 
   state = {
@@ -52,10 +52,13 @@ export default class ContainerListItem extends React.Component {
   };
 
   render() {
-    const { container } = this.props,
-          shared = !this.context.host,
+    const { container, host } = this.props,
+          shared = !host,
           ideURL = `/ide/#/${container.slug}`,
-          { makeHref } = this.context.router;
+          { makeHref } = this.context.router,
+          containerKeysUrl = (shared ?
+            makeHref('shared-container-keys', { containerSlug: container.slug }) :
+            makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug }));
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -85,7 +88,7 @@ export default class ContainerListItem extends React.Component {
                   <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
                   <MenuItem divider />
                   <MenuItem onSelect={notImplementedFn('Manage Collaborators', 'view, invite, remove collaborators')}>Manage Collaborators...</MenuItem>
-                  <MenuItem href={makeHref('container-keys', { hostSlug: this.context.host.slug, containerSlug: container.slug })}>Manage SSH Keys...</MenuItem>
+                  <MenuItem href={containerKeysUrl}>Manage SSH Keys...</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
                 </DropdownButton>
                 <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>

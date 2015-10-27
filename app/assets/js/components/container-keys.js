@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
+import { Nav, NavItem } from 'react-bootstrap';
 import Container from 'records/container';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -11,7 +12,9 @@ import userKeyStore from 'stores/user-key-store';
 import { Alert, Panel } from 'react-bootstrap';
 import SelectableTextarea from 'components/selectable-textarea';
 import Fa from 'components/fa';
+import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
+import WorkspaceNav from 'components/workspace-nav';
 import UserKeyList from 'components/user-key-list';
 
 export default class ContainerKeys extends React.Component {
@@ -19,7 +22,7 @@ export default class ContainerKeys extends React.Component {
 
   static contextTypes = {
     router: PropTypes.func.isRequired,
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(Host)
   };
 
   static childContextTypes = {
@@ -89,10 +92,23 @@ export default class ContainerKeys extends React.Component {
   render() {
     const { container, containerKeys, userKeys } = this.state,
           { host } = this.context,
-          loading = (container == null || containerKeys == null || userKeys == null);
+          shared = !host,
+          loading = (container == null || containerKeys == null || userKeys == null),
+          { makeHref } = this.context.router;
 
     return (
-      <div className='container-keys-component'>
+      <div className='container-keys-component container'>
+        {!shared ? (
+          <WorkspaceNav host={host} activeTab='containers' />
+        ) : (
+          <div>
+            <ContextSwitcher shared />
+            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
+              <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
+            </Nav>
+          </div>
+        )}
+
         {loading ? (
           <LoadingIndicator />
         ) : (
@@ -122,13 +138,17 @@ export default class ContainerKeys extends React.Component {
                 </Panel>
 
                 <Panel header='User Public Keys'>
-                  <UserKeyList userKeys={userKeys} />
+                  <UserKeyList userKeys={userKeys} host={host} shared={shared} />
                 </Panel>
               </div>
             ) : (
               <Alert bsStyle='warning'>
                 <p>Please start this project to view its keys.</p>
-                <p><Link to='containers' className='btn btn-default' params={{ hostSlug: host.slug }}>Back to Projects List</Link></p>
+                {!shared ? (
+                  <p><Link to='containers' className='btn btn-default' params={{ hostSlug: host.slug }}>Back to Projects List</Link></p>
+                ): (
+                  <p><Link to='shared-containers' className='btn btn-default'>Back to Projects List</Link></p>
+                )}
               </Alert>
             )}
           </div>

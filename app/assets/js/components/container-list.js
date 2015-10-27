@@ -11,21 +11,21 @@ export default class ContainerList extends React.Component {
   displayName = 'ContainerList';
 
   static contextTypes = {
-    host: PropTypes.instanceOf(Host),
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
   static propTypes = {
-    containers: ImmutablePropTypes.listOf(PropTypes.instanceOf(Container))
+    containers: ImmutablePropTypes.listOf(PropTypes.instanceOf(Container)),
+    host: PropTypes.instanceOf(Host)
   };
 
   handleClickNewContainer = () => {
-    this.context.router.transitionTo('new-container', { hostSlug: this.context.host.slug });
+    this.context.router.transitionTo('new-container', { hostSlug: this.props.host.slug });
   };
 
   render() {
-    const { containers } = this.props,
-          shared = !this.context.host;
+    const { containers, host } = this.props,
+          shared = !this.props.host;
 
     return (
       <div className='container-list-component'>
@@ -35,7 +35,10 @@ export default class ContainerList extends React.Component {
           <Grid className='ui-card-grid'>
             <Row>
               {containers.map((container) => {
-                return <ContainerListItem key={`container-${container.slug}`} container={container} />;
+                return (<ContainerListItem
+                  key={`container-${container.slug}`}
+                  container={container}
+                  host={host} />);
               })}
               {!shared ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>

@@ -45,6 +45,7 @@ export default (
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
+      <Route name='shared-container-keys' path='shared-projects/:containerSlug/keys' handler={ContainerKeys} />
 
       <Route name='account-settings' path='settings' handler={AccountSettings} />
     </Route>
