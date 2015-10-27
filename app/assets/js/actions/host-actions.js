@@ -20,18 +20,18 @@ class HostActions {
     });
   }
 
-  fetchOne(slug) {
+  /**
+   * @param {string} identifier The host's slug or ID
+   */
+  fetchOne(identifier) {
     return authedAjax({
       type: 'GET',
-      url: `/api/v0/hosts/${slug}`,
+      url: `/api/v0/hosts/${identifier}`,
       dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.fetched-one',
-        data: {
-          data,
-          slug
-        }
+        data: { data }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
