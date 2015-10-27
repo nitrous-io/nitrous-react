@@ -6,6 +6,7 @@ import billingActions from 'actions/billing-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import Org from 'records/org';
 import classNames from 'classnames';
+import $ from 'jquery';
 
 export default class BillingPaymentMethod extends React.Component {
   displayName = 'BillingPaymentMethod';
@@ -72,7 +73,13 @@ export default class BillingPaymentMethod extends React.Component {
   }
 
   handleChangeExpirationMonthField = (event) => {
-    this.setState({ expirationMonth: event.target.value });
+    const { value } = event.target;
+    this.setState({ expirationMonth: value });
+
+    const parsed = expiration.month.parse(value);
+    if (expiration.month.isValid(parsed) && value.toString().length === 2) {
+      $("#expiration-year").focus();
+    }
   }
 
   handleChangeExpirationYearField = (event) => {
@@ -101,7 +108,7 @@ export default class BillingPaymentMethod extends React.Component {
   }
 
   cardholderNameValid = () => {
-    return (this.state.cardholderName && this.state.cardholderName.length > 0);
+    return (this.state.cardholderName && this.state.cardholderName.trim().length > 0);
   }
 
   ccNumberValid = () => {
@@ -113,27 +120,56 @@ export default class BillingPaymentMethod extends React.Component {
   }
 
   expirationMonthValid = () => {
-    const parsed = expiration.month.parse(this.state.expirationMonth);
-    return expiration.month.isValid(parsed);
+    const { expirationMonth } = this.state,
+          parsed = expiration.month.parse(expirationMonth);
+
+    return expiration.month.isValid(parsed) && expirationMonth.toString().length === 2;
   }
 
   expirationYearValid = () => {
-    const parsed = expiration.year.parse(this.state.expirationYear);
-    return expiration.year.isValid(parsed);
+    const { expirationYear } = this.state,
+          parsed = expiration.year.parse(expirationYear);
+
+    return expiration.year.isValid(parsed) && expirationYear.toString().length === 4;
   }
 
   expirationValidationMessage = () => {
-    if (!this.expirationMonthValid()) {
+    const { expirationMonth, expirationYear } = this.state;
+    if ((expirationMonth || expirationYear) && !this.expirationMonthValid()) {
       return "Please enter a valid month";
     }
 
-    if (!this.expirationYearValid()) {
+    if ((expirationMonth || expirationYear) && !this.expirationYearValid()) {
       return "Please enter a valid year";
     }
   }
 
   zipCodeValid = () => {
     return this.state.zipCode && this.state.zipCode.length > 0;
+  }
+
+  validationStyle = (value, validTest) => {
+    if (value === null) {
+      return null;
+    }
+
+    if (validTest) {
+      return 'success';
+    } else {
+      return 'error';
+    }
+  }
+
+  validationMessage = (value, validTest, failureMessage) => {
+    if (value === null) {
+      return null;
+    }
+
+    if (validTest) {
+      return '';
+    } else {
+      return failureMessage;
+    }
   }
 
   render() {
@@ -169,6 +205,7 @@ export default class BillingPaymentMethod extends React.Component {
 
     var expirationClasses = classNames({
       'form-group': true,
+      'has-success': expirationMonthValid && expirationYearValid,
       'has-error': !!expirationValidationMessage
     });
 
@@ -182,8 +219,8 @@ export default class BillingPaymentMethod extends React.Component {
                 id='cardholder-name'
                 type='text'
                 placeholder='Name'
-                bsStyle={cardholderNameValid ? 'success' : 'error'}
-                help={cardholderNameValid ? '' : 'Please enter a name'}
+                bsStyle={this.validationStyle(cardholderName, cardholderNameValid)}
+                help={this.validationMessage(cardholderName, cardholderNameValid, 'Please enter a name')}
                 required
                 disabled={saving}
                 value={cardholderName}
@@ -194,8 +231,8 @@ export default class BillingPaymentMethod extends React.Component {
                 id='cc-number'
                 type='text'
                 placeholder='Number'
-                bsStyle={ccNumberValid ? 'success' : 'error'}
-                help={ccNumberValid ? '' : 'Please enter a valid number'}
+                bsStyle={this.validationStyle(ccNumber, ccNumberValid)}
+                help={this.validationMessage(ccNumber, ccNumberValid, 'Please enter a valid number')}
                 required
                 disabled={saving}
                 value={ccNumberDisplay}
@@ -207,22 +244,22 @@ export default class BillingPaymentMethod extends React.Component {
                 id='cvc'
                 type='password'
                 placeholder='CVC'
-                bsStyle={cvcValid ? 'success' : 'error'}
-                help={cvcValid ? '' : 'Please enter your CVC'}
+                bsStyle={this.validationStyle(cvc, cvcValid)}
+                help={this.validationMessage(cvc, cvcValid, 'Please enter your CVC')}
                 required
                 disabled={saving}
                 value={cvc}
                 onChange={this.handleChangeCvcField} />
             </div>
-            <label htmlFor='expiration-month'>Expiration (MM/YYYY)</label>
             <div className='expiration'>
-              <div className='form-inline'>
-                <div className={expirationClasses}>
+              <div className={expirationClasses}>
+                <label className='control-label' htmlFor='expiration-month'>Expiration (MM/YYYY)</label>
+                <div className='form-inline'>
                   <Input type='text'
                     id='expiration-month'
                     placeholder='MM'
                     pattern="[0-9]{2}"
-                    bsStyle={expirationMonthValid ? 'success' : 'error'}
+                    bsStyle={this.validationStyle(expirationMonth, expirationMonthValid)}
                     required
                     disabled={saving}
                     value={expirationMonth}
@@ -232,7 +269,7 @@ export default class BillingPaymentMethod extends React.Component {
                     id='expiration-year'
                     placeholder='YYYY'
                     pattern="20[0-9]{2}"
-                    bsStyle={expirationYearValid ? 'success' : 'error'}
+                    bsStyle={this.validationStyle(expirationYear, expirationYearValid)}
                     required
                     disabled={saving}
                     value={expirationYear}
@@ -249,14 +286,14 @@ export default class BillingPaymentMethod extends React.Component {
                 id='zip-code'
                 type='text'
                 placeholder='Code'
-                bsStyle={zipCodeValid ? 'success' : 'error'}
-                help={zipCodeValid ? '' : 'Please enter a zip/postal code'}
+                bsStyle={this.validationStyle(zipCode, zipCodeValid)}
+                help={this.validationMessage(zipCode, zipCodeValid, 'Please enter a zip/postal code')}
                 required
                 disabled={saving}
                 value={zipCode}
                 onChange={this.handleChangeZipCodeField} />
             </div>
-            <Button disabled={submitDisabled} type='submit' bsStyle='primary'>{saving ? "Saving..." : "Save"}</Button>
+            <Button disabled={submitDisabled} type='submit' bsStyle='primary'>{saving ? "Updating..." : "Update"}</Button>
           </form>
          </div>
       </div>
