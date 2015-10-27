@@ -50,8 +50,9 @@ class ImageStore extends Store {
       // from events-socket
       case 'events:image.pulling': {
         const { id } = action.data,
-              image = this._images.get(id),
               progress = JSON.parse(action.data.progress);
+
+        const image = (this._images.get(id) || { repo: action.data.slug });
 
         let progressPercentage;
         const { current, total } = progress.progressDetail || {};
