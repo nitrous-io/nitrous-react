@@ -19,13 +19,15 @@ export default class ImageListItem extends React.Component {
   };
 
   render() {
-    const { image, selected } = this.props;
+    const { image, selected, onSelect } = this.props;
 
     return (
       <tr className={classNames('image-list-item-component', { selected })}>
-        <td>
-          <Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'}>Select</Button>
-        </td>
+        {onSelect ? (
+          <td>
+            <Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'}>Select</Button>
+          </td>
+        ) : ''}
         <td>{image.displayName}</td>
         <td><TimeAgo date={image.createdAt} /></td>
         <td>{prettyBytes(image.virtualSize)}</td>
