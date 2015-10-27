@@ -30,11 +30,6 @@ class CollaboratorActions {
       url: `/api/v0/containers/${container.slug}/collaborators`,
       data: { user: collaborator },
       dataType: 'json'
-    }).then((data) => {
-      dispatcher.dispatch({
-        type: 'collaborator.added',
-        data: { data, container, collaborator }
-      });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'collaborator.add-failed',
@@ -48,11 +43,6 @@ class CollaboratorActions {
       type: 'DELETE',
       url: `/api/v0/containers/${container.slug}/collaborators/${collaboratorId}`,
       dataType: 'json'
-    }).then((data) => {
-      dispatcher.dispatch({
-        type: 'collaborator.removed',
-        data: { data, container, collaboratorId }
-      });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'collaborator.remove-failed',

@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
-import TimeAgo from 'react-timeago';
 import Container from 'records/container';
 import UserKey from 'records/user-key';
 import userKeyStore from 'stores/user-key-store';
 import userKeyActions from 'actions/user-key-actions';
 import { Grid, Row, Col, Button, Modal } from 'react-bootstrap';
+import TimeAgo from 'react-timeago';
 import Fa from 'components/fa';
 
 export default class UserKeyListItem extends React.Component {

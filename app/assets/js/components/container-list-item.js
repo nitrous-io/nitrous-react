@@ -56,7 +56,10 @@ export default class ContainerListItem extends React.Component {
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
           { makeHref } = this.context.router,
-          containerKeysUrl = (shared ?
+          collaboratorsUrl = (shared ?
+            makeHref('shared-container-collaborators', { containerSlug: container.slug }) :
+            makeHref('container-collaborators', { hostSlug: host.slug, containerSlug: container.slug })),
+          keysUrl = (shared ?
             makeHref('shared-container-keys', { containerSlug: container.slug }) :
             makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug }));
 
@@ -87,8 +90,10 @@ export default class ContainerListItem extends React.Component {
                 <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
                   <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
                   <MenuItem divider />
-                  <MenuItem onSelect={notImplementedFn('Manage Collaborators', 'view, invite, remove collaborators')}>Manage Collaborators...</MenuItem>
-                  <MenuItem href={containerKeysUrl}>Manage SSH Keys...</MenuItem>
+                  <MenuItem href={collaboratorsUrl}>
+                    {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
+                  </MenuItem>
+                  <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
                 </DropdownButton>
                 <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>

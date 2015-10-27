@@ -5,6 +5,8 @@ export default class Collaborator extends Record({
   containerId: null,
   userId: null,
   username: null,
+  pendingEmail: null,
+  pending: false,
   gravatarHash: null,
   createdAt: null,
   updatedAt: null
@@ -15,6 +17,8 @@ export default class Collaborator extends Record({
       containerId: p.container_id,
       userId: p.user_id,
       username: p.username,
+      pendingEmail: p.pending_email,
+      pending: !!p.pending_email,
       gravatarHash: p.gravatar_hash,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
@@ -25,5 +29,9 @@ export default class Collaborator extends Record({
     if (this.gravatarHash) {
       return `https://secure.gravatar.com/avatar/${this.gravatarHash}?default=retro&secure=true&size=${size}`;
     }
+  }
+
+  get displayName() {
+    return this.username || this.pendingEmail;
   }
 }

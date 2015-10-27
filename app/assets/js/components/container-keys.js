@@ -110,7 +110,7 @@ export default class ContainerKeys extends React.Component {
           { makeHref } = this.context.router;
 
     return (
-      <div className='container-keys-component container'>
+      <div className='container-keys-component container-subpage container'>
         {!shared ? (
           <WorkspaceNav host={host} activeTab='containers' />
         ) : (
