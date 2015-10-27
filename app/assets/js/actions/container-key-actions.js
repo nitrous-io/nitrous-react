@@ -10,15 +10,12 @@ class ContainerKeyActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'container-key.fetched-all-by-container-slug',
-        data: {
-          data,
-          containerSlug
-        }
+        data: { data, containerSlug }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container-key.fetch-all-by-container-slug-failed',
-        data: { jqxhr }
+        data: { jqxhr, containerSlug }
       });
     });
   }

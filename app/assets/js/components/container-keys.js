@@ -38,13 +38,15 @@ export default class ContainerKeys extends React.Component {
   state = {
     container: containerStore.containerBySlug(this.props.params.containerSlug),
     containerKeys: null,
-    userKeys: null
+    userKeys: null,
+    containerKeysFailed: false
   };
 
   componentDidMount() {
     const containerSlug = this.props.params.containerSlug;
     containerStore.onChange(this.containerStoreDidChange);
     containerKeyStore.onChange(this.containerKeyStoreDidChange);
+    containerKeyStore.on('fetch-failed', this.onContainerKeyFetchFailed);
     userKeyStore.onChange(this.userKeyStoreDidChange);
     this.fetchData(containerSlug);
   }
@@ -61,6 +63,7 @@ export default class ContainerKeys extends React.Component {
   componentWillUnmount() {
     containerStore.offChange(this.containerStoreDidChange);
     containerKeyStore.offChange(this.containerKeyStoreDidChange);
+    containerKeyStore.off('fetch-failed', this.onContainerKeyFetchFailed);
     userKeyStore.offChange(this.userKeyStoreDidChange);
   }
 
@@ -78,6 +81,16 @@ export default class ContainerKeys extends React.Component {
   containerKeyStoreDidChange = () => {
     const containerKeys = containerKeyStore.keysByContainerSlug(this.props.params.containerSlug);
     this.setState({ containerKeys });
+    if (containerKeys) {
+      this.setState({ containerKeysFailed: false });
+    }
+  }
+
+  onContainerKeyFetchFailed = (data) => {
+    const { containerSlug } = data;
+    if (containerSlug === this.props.params.containerSlug) {
+      this.setState({ containerKeysFailed: true });
+    }
   }
 
   userKeyStoreDidChange = () => {
@@ -90,10 +103,10 @@ export default class ContainerKeys extends React.Component {
   }
 
   render() {
-    const { container, containerKeys, userKeys } = this.state,
+    const { container, containerKeys, userKeys, containerKeysFailed } = this.state,
           { host } = this.context,
           shared = !host,
-          loading = (container == null || containerKeys == null || userKeys == null),
+          loading = (container == null || (containerKeys == null && !containerKeysFailed) || userKeys == null),
           { makeHref } = this.context.router;
 
     return (
@@ -133,7 +146,11 @@ export default class ContainerKeys extends React.Component {
                       </div>);
                     })
                   : (
-                    <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
+                    containerKeysFailed ? (
+                      <Alert bsStyle='danger'><p>There was an error fetching the public keys on your project.</p></Alert>
+                    ) : (
+                      <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
+                    )
                   )}
                 </Panel>
 

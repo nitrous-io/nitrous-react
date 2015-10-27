@@ -19,7 +19,9 @@ class ContainerKeyStore extends Store {
         break;
       }
       case 'container-key.fetch-all-by-container-slug-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
+        const { jqxhr, containerSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('fetch-failed', { containerSlug });
         break;
       }
       default: return;
