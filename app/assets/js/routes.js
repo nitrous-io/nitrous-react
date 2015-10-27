@@ -3,6 +3,7 @@ import { Route, DefaultRoute } from 'react-router';
 import Application from 'components/application';
 import Login from 'components/login';
 import Dashboard from 'components/dashboard';
+import OrgRoot from 'components/org-root';
 import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
@@ -14,6 +15,8 @@ import ContainerKeys from 'components/container-keys';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
+import Billing from 'components/billing';
+import BillingPaymentMethod from 'components/billing-payment-method';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -28,9 +31,14 @@ export default (
         <DefaultRoute handler={redirectTo('new-user-workspace')} />
       </Route>
 
-      <Route name='org-workspace' path='orgs/:orgSlug/workspaces' handler={OrgWorkspace}>
-        <DefaultRoute handler={redirectTo('new-org-workspace')} />
-        <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+      <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
+        <Route name='org-workspace' path='workspaces' handler={OrgWorkspace}>
+          <DefaultRoute handler={redirectTo('new-org-workspace')} />
+          <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+        </Route>
+        
+        <Route name='org-billing' path='billing' handler={Billing} />
+        <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
       </Route>
 
       <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
@@ -47,6 +55,9 @@ export default (
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
 
       <Route name='account-settings' path='settings' handler={AccountSettings} />
+
+      <Route name='billing' path='billing' handler={Billing} />
+      <Route name='payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
     </Route>
   </Route>
 );
