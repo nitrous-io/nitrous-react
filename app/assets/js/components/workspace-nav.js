@@ -13,6 +13,10 @@ export default class WorkspaceNav extends React.Component {
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
+    activeTab: PropTypes.string
+  };
+
+  static defaultProps = {
     activeTab: 'containers'
   };
 
