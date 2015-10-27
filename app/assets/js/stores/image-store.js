@@ -67,6 +67,7 @@ class ImageStore extends Store {
         progressMessage += '...';
 
         taskActions.update(`image-pull-${id}`, progressMessage, progressPercentage);
+        this.emit('pulling', { id, repo: image.repo });
         break;
       }
       case 'events:image.pulled': {

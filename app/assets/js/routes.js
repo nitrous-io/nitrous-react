@@ -13,6 +13,8 @@ import NewWorkspace from 'components/new-workspace';
 import Workspace from 'components/workspace';
 import WorkspaceCreating from 'components/workspace-creating';
 import WorkspaceSystem from 'components/workspace-system';
+import WorkspaceImages from 'components/workspace-images';
+import PullImage from 'components/pull-image';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerKeys from 'components/container-keys';
@@ -60,6 +62,8 @@ export default (
         <Route name='container-collaborators' path='projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
 
+        <Route name='workspace-images' path='images' handler={WorkspaceImages} />
+        <Route name='pull-image' path='images/pull' handler={PullImage} />
         <Route name='workspace-system' path='system' handler={WorkspaceSystem} />
       </Route>
 
