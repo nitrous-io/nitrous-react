@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import LeftBar from 'components/left-bar';
 import { Alert, Input, ButtonInput } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
@@ -68,19 +69,20 @@ export default class Login extends React.Component {
     }
 
     return (
-      <div className='login-component dark'>
+      <div className='login-component login-screen dark'>
         <LeftBar />
         <div className={formPanelClasses}>
-          <h2 className="nitrous-logo"></h2>
+          <h2 className='nitrous-logo'></h2>
           <form onSubmit={this.handleSubmit}>
-            <Input ref="username" type='text' placeholder='Username or Email' required disabled={loggingIn} />
-            <Input ref="password" type='password' placeholder='Password' required disabled={loggingIn} />
+            <Input ref='username' type='text' placeholder='Username or Email' required disabled={loggingIn} />
+            <Input ref='password' type='password' placeholder='Password' required disabled={loggingIn} />
             <div className='actions'>
               <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={loggingIn} />
               <a href="#" className="btn github">Log in with GitHub</a>
             </div>
           </form>
           <p>No account? <a href="/#/signup">Sign Up</a></p>
+          <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
         </div>
         <div className="form-notifications">
           {error}
