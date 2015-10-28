@@ -12,6 +12,7 @@ import WorkspaceSystem from 'components/workspace-system';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerKeys from 'components/container-keys';
+import ContainerCollaborators from 'components/container-collaborators';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
@@ -36,7 +37,7 @@ export default (
           <DefaultRoute handler={redirectTo('new-org-workspace')} />
           <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
         </Route>
-        
+
         <Route name='org-billing' path='billing' handler={Billing} />
         <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
       </Route>
@@ -47,12 +48,14 @@ export default (
         <Route name='new-container' path='projects/new' handler={NewContainer} />
         <Route name='container-creating' path='projects/creating' handler={ContainerCreating} />
 
+        <Route name='container-collaborators' path='projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
 
         <Route name='workspace-system' path='system' handler={WorkspaceSystem} />
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
+      <Route name='shared-container-collaborators' path='shared-projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
       <Route name='shared-container-keys' path='shared-projects/:containerSlug/keys' handler={ContainerKeys} />
 
       <Route name='account-settings' path='settings' handler={AccountSettings} />
