@@ -64,93 +64,91 @@ export default class WorkspaceSystem extends React.Component {
           { host } = this.context;
 
     return (
-      <div className='workspace-system-component'>
+      <div className='workspace-system-component container'>
         <WorkspaceNav host={host} activeTab='system' />
         <div className='container'>
-          <div>
-            <Table responsive striped bordered condensed hover id='workspace-system-info'>
-              <colgroup>
-                <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
-                <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />
-              </colgroup>
+          <Table responsive striped bordered condensed hover id='workspace-system-info'>
+            <colgroup>
+              <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
+              <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />
+            </colgroup>
+            <tr>
+              <th>Slug</th>
+              <td>{host.slug}</td>
+            </tr>
+            <tr>
+              <th>State</th>
+              <td>{host.displayState}</td>
+            </tr>
+            {region ? (
               <tr>
-                <th>Slug</th>
-                <td>{host.slug}</td>
+                <th>Region</th>
+                <td>{region.name}</td>
               </tr>
+            ) : ''}
+            {plan ? (
               <tr>
-                <th>State</th>
-                <td>{host.displayState}</td>
+                <th>Plan</th>
+                <td>{plan.name}</td>
               </tr>
-              {region ? (
-                <tr>
-                  <th>Region</th>
-                  <td>{region.name}</td>
-                </tr>
-              ) : ''}
-              {plan ? (
-                <tr>
-                  <th>Plan</th>
-                  <td>{plan.name}</td>
-                </tr>
-              ) : ''}
-              <tr>
-                <th>Hostname</th>
-                <td>{host.hostname}</td>
-              </tr>
-              <tr>
-                <th>Created</th>
-                <td><TimeAgo date={host.createdAt} /></td>
-              </tr>
-            </Table>
+            ) : ''}
+            <tr>
+              <th>Hostname</th>
+              <td>{host.hostname}</td>
+            </tr>
+            <tr>
+              <th>Created</th>
+              <td><TimeAgo date={host.createdAt} /></td>
+            </tr>
+          </Table>
 
-            <Table responsive striped bordered condensed hover id='workspace-system-stats'>
-              <colgroup>
-                <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
-                <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />
-              </colgroup>
-            {stats ? (
-              <tbody>
-                <tr>
-                  <th>Uptime</th>
-                  <td>Up since <TimeAgo date={Date.now() - stats.uptime * 1000} /></td>
-                </tr>
-                <tr>
-                  <th>CPU Usage</th>
-                  <td>{stats.perCPUUsage.map((usage, idx) => {
-                    return `CPU ${idx+1}: ${usage.toFixed(1)}%`;
-                  }).join(', ')}</td>
-                </tr>
-                <tr>
-                  <th>Memory Used</th>
-                  <td>{numberUtil.mebibytes(stats.memoryUsage)} of {numberUtil.mebibytes(stats.memoryTotal)} MiB</td>
-                </tr>
-                <tr>
-                  <th>Storage Used</th>
-                  <td>{numberUtil.gibibytes(stats.storageUsage)} of {numberUtil.gibibytes(stats.storageTotal)} of GiB</td>
-                </tr>
-              </tbody>
-            ) : (
-              <tbody>
-                <tr>
-                  <th>Uptime</th>
-                  <td><LoadingIndicator /></td>
-                </tr>
-                <tr>
-                  <th>CPU Usage</th>
-                  <td><LoadingIndicator /></td>
-                </tr>
-                <tr>
-                  <th>Memory Used</th>
-                  <td><LoadingIndicator /></td>
-                </tr>
-                <tr>
-                  <th>Storage Used</th>
-                  <td><LoadingIndicator /></td>
-                </tr>
-              </tbody>
-            )}
-            </Table>
-          </div>
+          <Table responsive striped bordered condensed hover id='workspace-system-stats'>
+            <colgroup>
+              <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
+              <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />
+            </colgroup>
+          {stats ? (
+            <tbody>
+              <tr>
+                <th>Uptime</th>
+                <td>Up since <TimeAgo date={Date.now() - stats.uptime * 1000} /></td>
+              </tr>
+              <tr>
+                <th>CPU Usage</th>
+                <td>{stats.perCPUUsage.map((usage, idx) => {
+                  return `CPU ${idx+1}: ${usage.toFixed(1)}%`;
+                }).join(', ')}</td>
+              </tr>
+              <tr>
+                <th>Memory Used</th>
+                <td>{numberUtil.mebibytes(stats.memoryUsage)} of {numberUtil.mebibytes(stats.memoryTotal)} MiB</td>
+              </tr>
+              <tr>
+                <th>Storage Used</th>
+                <td>{numberUtil.gibibytes(stats.storageUsage)} of {numberUtil.gibibytes(stats.storageTotal)} of GiB</td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody>
+              <tr>
+                <th>Uptime</th>
+                <td><LoadingIndicator /></td>
+              </tr>
+              <tr>
+                <th>CPU Usage</th>
+                <td><LoadingIndicator /></td>
+              </tr>
+              <tr>
+                <th>Memory Used</th>
+                <td><LoadingIndicator /></td>
+              </tr>
+              <tr>
+                <th>Storage Used</th>
+                <td><LoadingIndicator /></td>
+              </tr>
+            </tbody>
+          )}
+          </Table>
         </div>
       </div>
     );

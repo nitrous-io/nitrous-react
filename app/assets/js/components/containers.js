@@ -38,12 +38,13 @@ export default class Containers extends React.Component {
   };
 
   render() {
-    const containers = this.state.containers ? this.state.containers.toList() : null;
+    const host = this.context.host,
+          containers = this.state.containers ? this.state.containers.toList() : null;
 
     return (
       <div className='containers-component container'>
-        <WorkspaceNav host={this.context.host} activeTab='containers' />
-        <ContainerList containers={containers} />
+        <WorkspaceNav host={host} activeTab='containers' />
+        <ContainerList containers={containers} host={host} />
       </div>
     );
   }

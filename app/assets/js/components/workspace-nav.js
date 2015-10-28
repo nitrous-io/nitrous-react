@@ -33,14 +33,12 @@ export default class WorkspaceNav extends React.Component {
 
     return (
       <div className='workspace-nav-component'>
-        <div className='container'>
-          <ContextSwitcher selectedHost={host} />
-          <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
-            <NavItem onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
-            <NavItem onSelect={notImplementedFn('Images Tab', 'image/snapshots management: push, pull, delete etc.')} eventKey='images'>Images</NavItem>
-            <NavItem onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
-          </Nav>
-        </div>
+        <ContextSwitcher selectedHost={host} />
+        <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
+          <NavItem onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
+          <NavItem onSelect={notImplementedFn('Images Tab', 'image/snapshots management: push, pull, delete etc.')} eventKey='images'>Images</NavItem>
+          <NavItem onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
+        </Nav>
       </div>
     );
   }

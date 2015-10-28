@@ -93,10 +93,14 @@ class HostStore extends Store {
     });
   }
 
-  hostSlugByHostId(hostId) {
-    const host = this._hosts.find((h) => {
+  hostByHostId(hostId) {
+    return this._hosts.find((h) => {
       return h.id === hostId;
     });
+  }
+
+  hostSlugByHostId(hostId) {
+    const host = this.hostByHostId(hostId);
     return host ? host.slug : null;
   }
 }

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
+import { Nav, NavItem } from 'react-bootstrap';
 import Container from 'records/container';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -11,7 +12,9 @@ import userKeyStore from 'stores/user-key-store';
 import { Alert, Panel } from 'react-bootstrap';
 import SelectableTextarea from 'components/selectable-textarea';
 import Fa from 'components/fa';
+import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
+import WorkspaceNav from 'components/workspace-nav';
 import UserKeyList from 'components/user-key-list';
 
 export default class ContainerKeys extends React.Component {
@@ -19,7 +22,7 @@ export default class ContainerKeys extends React.Component {
 
   static contextTypes = {
     router: PropTypes.func.isRequired,
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(Host)
   };
 
   static childContextTypes = {
@@ -35,13 +38,15 @@ export default class ContainerKeys extends React.Component {
   state = {
     container: containerStore.containerBySlug(this.props.params.containerSlug),
     containerKeys: null,
-    userKeys: null
+    userKeys: null,
+    containerKeysFailed: false
   };
 
   componentDidMount() {
     const containerSlug = this.props.params.containerSlug;
     containerStore.onChange(this.containerStoreDidChange);
     containerKeyStore.onChange(this.containerKeyStoreDidChange);
+    containerKeyStore.on('fetch-failed', this.onContainerKeyFetchFailed);
     userKeyStore.onChange(this.userKeyStoreDidChange);
     this.fetchData(containerSlug);
   }
@@ -58,6 +63,7 @@ export default class ContainerKeys extends React.Component {
   componentWillUnmount() {
     containerStore.offChange(this.containerStoreDidChange);
     containerKeyStore.offChange(this.containerKeyStoreDidChange);
+    containerKeyStore.off('fetch-failed', this.onContainerKeyFetchFailed);
     userKeyStore.offChange(this.userKeyStoreDidChange);
   }
 
@@ -75,6 +81,16 @@ export default class ContainerKeys extends React.Component {
   containerKeyStoreDidChange = () => {
     const containerKeys = containerKeyStore.keysByContainerSlug(this.props.params.containerSlug);
     this.setState({ containerKeys });
+    if (containerKeys) {
+      this.setState({ containerKeysFailed: false });
+    }
+  }
+
+  onContainerKeyFetchFailed = (data) => {
+    const { containerSlug } = data;
+    if (containerSlug === this.props.params.containerSlug) {
+      this.setState({ containerKeysFailed: true });
+    }
   }
 
   userKeyStoreDidChange = () => {
@@ -87,12 +103,25 @@ export default class ContainerKeys extends React.Component {
   }
 
   render() {
-    const { container, containerKeys, userKeys } = this.state,
+    const { container, containerKeys, userKeys, containerKeysFailed } = this.state,
           { host } = this.context,
-          loading = (container == null || containerKeys == null || userKeys == null);
+          shared = !host,
+          loading = (container == null || (containerKeys == null && !containerKeysFailed) || userKeys == null),
+          { makeHref } = this.context.router;
 
     return (
-      <div className='container-keys-component'>
+      <div className='container-keys-component container'>
+        {!shared ? (
+          <WorkspaceNav host={host} activeTab='containers' />
+        ) : (
+          <div>
+            <ContextSwitcher shared />
+            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
+              <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
+            </Nav>
+          </div>
+        )}
+
         {loading ? (
           <LoadingIndicator />
         ) : (
@@ -117,18 +146,26 @@ export default class ContainerKeys extends React.Component {
                       </div>);
                     })
                   : (
-                    <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
+                    containerKeysFailed ? (
+                      <Alert bsStyle='danger'><p>There was an error fetching the public keys on your project.</p></Alert>
+                    ) : (
+                      <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
+                    )
                   )}
                 </Panel>
 
                 <Panel header='User Public Keys'>
-                  <UserKeyList userKeys={userKeys} />
+                  <UserKeyList userKeys={userKeys} host={host} shared={shared} />
                 </Panel>
               </div>
             ) : (
               <Alert bsStyle='warning'>
                 <p>Please start this project to view its keys.</p>
-                <p><Link to='containers' className='btn btn-default' params={{ hostSlug: host.slug }}>Back to Projects List</Link></p>
+                {!shared ? (
+                  <p><Link to='containers' className='btn btn-default' params={{ hostSlug: host.slug }}>Back to Projects List</Link></p>
+                ): (
+                  <p><Link to='shared-containers' className='btn btn-default'>Back to Projects List</Link></p>
+                )}
               </Alert>
             )}
           </div>
