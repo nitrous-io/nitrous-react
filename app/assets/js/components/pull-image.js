@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Input, Button } from 'react-bootstrap';
+import { Input, Button, Modal } from 'react-bootstrap';
 import Host from 'records/host';
 import imageActions from 'actions/image-actions';
 import imageStore from 'stores/image-store';
@@ -7,9 +7,10 @@ import imageStore from 'stores/image-store';
 export default class PullImage extends React.Component {
   displayName = 'PullImage';
 
-  static contextTypes = {
-    router: PropTypes.func.isRequired,
-    host: PropTypes.instanceOf(Host).isRequired
+  static propTypes = {
+    host: PropTypes.instanceOf(Host).isRequired,
+    showModal: PropTypes.bool.isRequired,
+    onHideModal: PropTypes.func.isRequired
   };
 
   state = {
@@ -25,13 +26,17 @@ export default class PullImage extends React.Component {
   }
 
   handleImagePulling = (event) => {
+    if (!this.props.showModal) {
+      return;
+    }
+
     const { pendingPullName } = this.state;
     if (!pendingPullName) {
       return;
     }
 
     if (event.repo && event.repo.indexOf(pendingPullName) !== -1) {
-      this.context.router.transitionTo('workspace-images', { hostSlug: this.context.host.slug });
+      this.props.onHideModal();
     }
   }
 
@@ -48,26 +53,30 @@ export default class PullImage extends React.Component {
     }
 
     this.setState({ pendingPullName: name });
-    imageActions.pull(this.context.host.slug, name, true);
+    imageActions.pull(this.props.host.slug, name, true);
   }
 
   render() {
     const { name } = this.state,
+          { showModal, onHideModal } = this.props,
           canPull = name && name.length > 0;
 
     return (
-      <div className='pull-image-component'>
-        <div className='container'>
-          <h3>Pull Image from a Docker repository</h3>
-          <form onSubmit={this.handleSubmit}>
-            <div className='name'>
-              <Input label="Image Repository" type='text' placeholder='e.g: centos or quay.io/mycompany/rails'
-                required value={name} onChange={this.handleChangeNameField} />
-            </div>
+      <Modal show={showModal} onHide={onHideModal}>
+        <Modal.Header>
+          <Modal.Title>Pull Image from a Docker repository</Modal.Title>
+        </Modal.Header>
+        <form onSubmit={this.handleSubmit}>
+          <Modal.Body>
+            <Input label="Image Repository" type='text' placeholder='e.g: centos or quay.io/mycompany/rails'
+              required value={name} onChange={this.handleChangeNameField} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button ref='modalCancel' onClick={onHideModal}>Cancel</Button>
             <Button type='submit' disabled={!canPull} bsStyle='primary'>Pull</Button>
-          </form>
-        </div>
-      </div>
+          </Modal.Footer>
+        </form>
+      </Modal>
     );
   }
 }

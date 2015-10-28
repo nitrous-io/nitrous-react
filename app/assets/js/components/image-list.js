@@ -4,12 +4,15 @@ import imageStore from 'stores/image-store';
 import imageActions from 'actions/image-actions';
 import { Table, Tabs, Tab } from 'react-bootstrap';
 import ImageListItem from 'components/image-list-item';
+import classNames from 'classnames';
 
 export default class ImageList extends React.Component {
   displayName = 'ImageList';
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
+    showSnapshots: PropTypes.bool.isOptional,
+    showImages: PropTypes.bool.isOptional,
     selectedImage: PropTypes.string.isOptional,
     onSelect: PropTypes.func.isOptional
   };
@@ -47,64 +50,83 @@ export default class ImageList extends React.Component {
 
   render() {
     const { snapshots, otherImages } = this.state,
-          { selectedImage, onSelect } = this.props;
+          { selectedImage, onSelect, showSnapshots, showImages } = this.props;
+
+    let snapshotsContent = '',
+        imagesContent = '',
+        defaultActiveKey = 'other-images';
+
+    if (showSnapshots !== false) {
+      defaultActiveKey = 'snapshots';
+      snapshotsContent = (<Tab eventKey='snapshots' title='My Snapshots'>
+        <Table className='image-table' striped>
+          <thead>
+            <tr>
+              {onSelect ? (
+                <th className='btn-column' />
+              ) : ''}
+              <th>Name</th>
+              <th className='created-column'>Created</th>
+              <th className='size-column'>Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            {snapshots && snapshots.size > 0 ? snapshots.toList().map((snapshot) => {
+              return (
+                <ImageListItem key={`snapshot-${snapshot.id}`} image={snapshot}
+                  selected={selectedImage === snapshot.repo}
+                  onSelect={onSelect} />
+              );
+            }) : (
+              <tr>
+                <td colSpan={4}>&nbsp;</td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+        </Tab>);
+    }
+
+    if (showImages !== false) {
+      imagesContent = (<Tab eventKey='other-images' title='Other Images'>
+        <Table className='image-table' striped>
+          <thead>
+            <tr>
+              {onSelect ? (
+                <th className='btn-column' />
+              ) : ''}
+              <th>Name</th>
+              <th className='created-column'>Created</th>
+              <th className='size-column'>Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            {otherImages && otherImages.size > 0 ? otherImages.toList().map((image) => {
+              return (
+                <ImageListItem key={`image-${image.id}`} image={image}
+                  selected={selectedImage === image.repo}
+                  onSelect={onSelect} />
+              );
+            }) : (
+              <tr>
+                <td colSpan={4}>&nbsp;</td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+        </Tab>);
+    }
+
+    const classes = classNames({
+      'ui-segmented-pill': true,
+      'images-tab': true,
+      'no-tabs': snapshotsContent === '' || imagesContent === ''
+    });
 
     return (
-      <Tabs defaultActiveKey='snapshots' bsStyle='pills' className='ui-segmented-pill images-tab'>
-        <Tab eventKey='snapshots' title='My Snapshots'>
-          <Table className='image-table' striped>
-            <thead>
-              <tr>
-                {onSelect ? (
-                  <th className='btn-column' />
-                ) : ''}
-                <th>Name</th>
-                <th className='created-column'>Created</th>
-                <th className='size-column'>Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              {snapshots && snapshots.size > 0 ? snapshots.toList().map((snapshot) => {
-                return (
-                  <ImageListItem key={`snapshot-${snapshot.id}`} image={snapshot}
-                    selected={selectedImage === snapshot.repo}
-                    onSelect={onSelect} />
-                );
-              }) : (
-                <tr>
-                  <td colSpan={4}>&nbsp;</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </Tab>
-        <Tab eventKey='other-images' title='Other Images'>
-          <Table className='image-table' striped>
-            <thead>
-              <tr>
-                {onSelect ? (
-                  <th className='btn-column' />
-                ) : ''}
-                <th>Name</th>
-                <th className='created-column'>Created</th>
-                <th className='size-column'>Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              {otherImages && otherImages.size > 0 ? otherImages.toList().map((image) => {
-                return (
-                  <ImageListItem key={`image-${image.id}`} image={image}
-                    selected={selectedImage === image.repo}
-                    onSelect={onSelect} />
-                );
-              }) : (
-                <tr>
-                  <td colSpan={4}>&nbsp;</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </Tab>
+      <Tabs defaultActiveKey={defaultActiveKey} bsStyle='pills' className={classes}>
+        {snapshotsContent}
+        {imagesContent}
       </Tabs>
     );
   }
