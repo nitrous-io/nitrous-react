@@ -44,7 +44,7 @@ export default class WorkspaceImages extends React.Component {
           <ImageList host={host} showSnapshots={false} />
 
           <h4>Docker Registries</h4>
-          <Registries host={this.context.host} />
+          <Registries showDisconnect host={this.context.host} />
         </div>
 
         <PullImage host={host} showModal={showModal} onHideModal={this.handlePullImageModalHide} />
