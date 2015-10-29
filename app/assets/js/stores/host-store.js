@@ -29,8 +29,8 @@ class HostStore extends Store {
         break;
       }
       case 'host.create-initiated': {
-        const { data } = action.data,
-              host = Host.deserialize(data.host);
+        const host = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(host.slug, host);
         this.emit('create-initiated', { host });
         break;
       }
@@ -59,6 +59,13 @@ class HostStore extends Store {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
         this.emit('created', { host });
+        break;
+      }
+      case 'events:host.create-failed': {
+        const host = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(host.slug, host);
+        this.emit('create-failed', { host });
+        break;
       }
       default: return;
     }
