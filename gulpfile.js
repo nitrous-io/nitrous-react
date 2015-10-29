@@ -1,7 +1,6 @@
 var gulp = require('gulp'),
     browserify = require('browserify'),
     watchify = require('watchify'),
-    coffeeify = require('coffeeify'),
     babelify = require('babelify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
@@ -21,6 +20,7 @@ var gulp = require('gulp'),
     fingerprint = require('gulp-fingerprint'),
     replace = require('gulp-replace'),
     rename = require('gulp-rename'),
+    cache = require('gulp-cached')
     livereload = require('gulp-livereload');
 
 var appJS = 'app/assets/js/app.js',
@@ -109,7 +109,6 @@ gulp.task('js-dev', function() {
 
   var onBuild = function() {
     gutil.log('Built ' + chalk.cyan('JS'));
-    //gulp.start('lint');
   };
 
   var build = function() {
@@ -250,18 +249,18 @@ function copyImages(dest) {
 }
 
 function browserifyBundler(options) {
-  var jsExtensions = ['.js', '.jsx', '.es6', '.coffee', '.json'];
+  var jsExtensions = ['.js', '.jsx', '.es6', '.json'];
   options = merge({
     extensions: jsExtensions,
     paths: [path.dirname(appJS), vendorJSPath],
     cache: {},
     packageCache: {},
+    noParse: ['jquery']
   }, options || {});
 
   var bundler = browserify(appJS, options);
   bundler.add(require.resolve("babel/polyfill"));
   bundler.add(require.resolve("promise.prototype.finally"));
-  bundler.transform(coffeeify);
   bundler.transform(babelify.configure({
     extensions: jsExtensions,
     compact: false,
@@ -272,6 +271,7 @@ function browserifyBundler(options) {
 
 function lintJS() {
   return gulp.src(['app/assets/js/**/*.+(js|jsx|es6)', 'tests/**/*.+(js|jsx|es6)'])
+    .pipe(cache('lint'))
     .pipe(eslint())
     .pipe(eslint.format());
 }
