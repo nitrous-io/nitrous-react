@@ -20,6 +20,7 @@ var gulp = require('gulp'),
     fingerprint = require('gulp-fingerprint'),
     replace = require('gulp-replace'),
     rename = require('gulp-rename'),
+    cache = require('gulp-cached')
     livereload = require('gulp-livereload');
 
 var appJS = 'app/assets/js/app.js',
@@ -108,7 +109,6 @@ gulp.task('js-dev', function() {
 
   var onBuild = function() {
     gutil.log('Built ' + chalk.cyan('JS'));
-    //gulp.start('lint');
   };
 
   var build = function() {
@@ -254,7 +254,7 @@ function browserifyBundler(options) {
     extensions: jsExtensions,
     paths: [path.dirname(appJS), vendorJSPath],
     cache: {},
-    packageCache: {}
+    packageCache: {},
   }, options || {});
 
   var bundler = browserify(appJS, options);
@@ -270,6 +270,7 @@ function browserifyBundler(options) {
 
 function lintJS() {
   return gulp.src(['app/assets/js/**/*.+(js|jsx|es6)', 'tests/**/*.+(js|jsx|es6)'])
+    .pipe(cache('lint'))
     .pipe(eslint())
     .pipe(eslint.format());
 }
