@@ -2,6 +2,7 @@ import Store from 'stores/store';
 
 class PasswordStore extends Store {
   _sendResetSucceeded = false;
+  _resetSucceeded = false;
 
   handleAction(action) {
     switch (action.type) {
@@ -16,6 +17,17 @@ class PasswordStore extends Store {
         this.sendResetSucceeded = false;
         break;
       }
+      case 'password.reset': {
+        this._resetSucceeded = true;
+        this._lastError = null;
+        break;
+      }
+      case 'password.reset-failed': {
+        const { jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this._resetSucceeded = false;
+        break;
+      }
       default: return;
     }
     this.notifyChange();
@@ -23,6 +35,10 @@ class PasswordStore extends Store {
 
   get sendResetSucceeded() {
     return this._sendResetSucceeded;
+  }
+
+  get resetSucceeded() {
+    return this._resetSucceeded;
   }
 }
 

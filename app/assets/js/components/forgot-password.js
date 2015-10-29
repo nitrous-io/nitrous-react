@@ -30,6 +30,10 @@ export default class ForgotPassword extends React.Component {
   }
 
   passwordStoreDidChange = () => {
+    if (!this.state.processing) {
+      return;
+    }
+
     if (passwordStore.sendResetSucceeded) {
       snackbarActions.post(`An email with password reset instructions has been sent to ${this.state.email}.`);
       this.setState({ processing: false });

@@ -50,7 +50,7 @@ export default class Login extends React.Component {
 
   handleSubmit = (evt) => {
     evt.preventDefault();
-    this.setState({loggingIn: true, errorMessage: null});
+    this.setState({ loggingIn: true, errorMessage: null });
     tokenActions.fetch(this.refs.username.getValue(), this.refs.password.getValue());
   };
 

@@ -3,6 +3,7 @@ import { Route, DefaultRoute } from 'react-router';
 import Application from 'components/application';
 import Login from 'components/login';
 import ForgotPassword from 'components/forgot-password';
+import ResetPassword from 'components/reset-password';
 import Dashboard from 'components/dashboard';
 import OrgRoot from 'components/org-root';
 import UserWorkspace from 'components/user-workspace';
@@ -25,6 +26,7 @@ export default (
     <DefaultRoute handler={redirectTo('dashboard')} />
     <Route name='login' handler={Login} />
     <Route name='forgot-password' handler={ForgotPassword} />
+    <Route name='reset-password' handler={ResetPassword} />
 
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={redirectTo('user-workspace')} />
