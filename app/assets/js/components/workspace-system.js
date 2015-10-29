@@ -8,7 +8,7 @@ import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
 import WorkspaceNav from 'components/workspace-nav';
-import numberUtil from 'lib/number-util';
+import prettyBytes from 'pretty-bytes';
 
 export default class WorkspaceSystem extends React.Component {
   displayName = 'WorkspaceSystem';
@@ -121,11 +121,11 @@ export default class WorkspaceSystem extends React.Component {
               </tr>
               <tr>
                 <th>Memory Used</th>
-                <td>{numberUtil.mebibytes(stats.memoryUsage)} of {numberUtil.mebibytes(stats.memoryTotal)} MiB</td>
+                <td>{prettyBytes(stats.memoryUsage)} of {prettyBytes(stats.memoryTotal)}</td>
               </tr>
               <tr>
                 <th>Storage Used</th>
-                <td>{numberUtil.gibibytes(stats.storageUsage)} of {numberUtil.gibibytes(stats.storageTotal)} of GiB</td>
+                <td>{prettyBytes(stats.storageUsage)} of {prettyBytes(stats.storageTotal)}</td>
               </tr>
             </tbody>
           ) : (
