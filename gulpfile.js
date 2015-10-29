@@ -255,6 +255,7 @@ function browserifyBundler(options) {
     paths: [path.dirname(appJS), vendorJSPath],
     cache: {},
     packageCache: {},
+    noParse: ['jquery']
   }, options || {});
 
   var bundler = browserify(appJS, options);
