@@ -19,6 +19,10 @@ class SnackbarStore extends Store {
         });
         break;
       }
+      case 'snackbar.clear': {
+        this._notifications = List();
+        break;
+      }
       default: return;
     }
     this.notifyChange();

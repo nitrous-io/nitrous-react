@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
 import LeftBar from 'components/left-bar';
-import { Alert, Input, ButtonInput } from 'react-bootstrap';
+import { Input, ButtonInput } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import classNames from 'classnames';
 
 export default class Login extends React.Component {
@@ -35,12 +36,11 @@ export default class Login extends React.Component {
 
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
+      snackbarActions.clear();
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
-      this.setState({
-        loggingIn: false,
-        errorMessage: tokenStore.lastError
-      }, () => {
+      snackbarActions.post(tokenStore.lastError);
+      this.setState({ loggingIn: false }, () => {
         const usernameInput = this.refs.username.getInputDOMNode();
         usernameInput.select();
         usernameInput.focus();
@@ -59,13 +59,8 @@ export default class Login extends React.Component {
           loginLabel = loggingIn ? 'Logging In...' : 'Log In';
 
     var formPanelClasses = classNames('form-panel');
-
-    let error;
     if (this.state.errorMessage) {
       formPanelClasses = classNames('shake', 'form-panel');
-      error = (
-        <Alert bsStyle='default'>{this.state.errorMessage}</Alert>
-      );
     }
 
     return (
@@ -83,9 +78,6 @@ export default class Login extends React.Component {
           </form>
           <p>No account? <a href="/#/signup">Sign Up</a></p>
           <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
-        </div>
-        <div className="form-notifications">
-          {error}
         </div>
       </div>
     );
