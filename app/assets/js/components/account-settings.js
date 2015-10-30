@@ -13,7 +13,8 @@ export default class AccountSettings extends React.Component {
     name: userStore.user.name,
     email: userStore.user.unconfirmedEmail || userStore.user.email,
     newPassword: null,
-    newPasswordConfirm: null
+    newPasswordConfirm: null,
+    existingPassword: null
   };
 
   componentDidMount() {
@@ -34,7 +35,8 @@ export default class AccountSettings extends React.Component {
       name: user.name,
       email: user.unconfirmedEmail || user.email,
       newPassword: null,
-      newPasswordConfirm: null
+      newPasswordConfirm: null,
+      existingPassword: null
     });
     snackbarActions.post('Account details updated successfully.');
   }
@@ -67,6 +69,14 @@ export default class AccountSettings extends React.Component {
     this.setState({ newPasswordConfirm: val });
   }
 
+  handleChangeExistingPasswordField = (event) => {
+    var val = event.target.value;
+    if (val === '') {
+      val = null;
+    }
+    this.setState({ existingPassword: val });
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.submitDisabled()) {
@@ -75,13 +85,13 @@ export default class AccountSettings extends React.Component {
 
     this.setState({ updating: true });
 
-    const { name, email } = this.state;
-    userActions.update({ name, email, password: this.state.newPassword });
+    const { name, email, existingPassword } = this.state;
+    userActions.update({ name, email, password: this.state.newPassword, existingPassword });
   }
 
   submitDisabled = () => {
-    const { updating, email, newPassword, newPasswordConfirm } = this.state;
-    return updating || !email || (newPassword !== newPasswordConfirm);
+    const { updating, email, newPassword, newPasswordConfirm, existingPassword } = this.state;
+    return updating || !email || (newPassword !== newPasswordConfirm) || (newPassword && !existingPassword);
   }
 
   render() {
@@ -90,11 +100,14 @@ export default class AccountSettings extends React.Component {
            name,
            email,
            newPassword,
-           newPasswordConfirm
+           newPasswordConfirm,
+           existingPassword
           } = this.state;
 
     const { unconfirmedEmail } = this.state.user,
-          showPasswordConfirmError = newPasswordConfirm && (newPassword !== newPasswordConfirm);
+          newPasswordMatch = (newPassword === newPasswordConfirm),
+          showPasswordConfirmError = newPasswordConfirm && !newPasswordMatch,
+          showExistingPasswordError = newPasswordMatch && !existingPassword;
 
     return (
       <div className='account-settings'>
@@ -116,10 +129,15 @@ export default class AccountSettings extends React.Component {
             <div className='new-password'>
               <Input label="New Password" type='password' placeholder='New password...'
                 disabled={updating} value={newPassword} onChange={this.handleChangeNewPasswordField} />
-              {newPassword ? (
+              {(newPassword || newPasswordConfirm) ? (
                 <Input label="Confirm Password" type='password' placeholder='Confirm password...'
                   help={(showPasswordConfirmError ? 'Passwords do not match' : null)}
                   disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
+              ) : ''}
+              {(newPassword || existingPassword) ? (
+                <Input label="Existing Password" type='password' placeholder='Your existing password...'
+                  help={(showExistingPasswordError ? 'Please enter your existing password' : null)}
+                  disabled={updating} value={existingPassword} onChange={this.handleChangeExistingPasswordField} />
               ) : ''}
             </div>
             <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? "Saving..." : "Save"}</Button>
