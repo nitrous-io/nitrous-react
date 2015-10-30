@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router';
-import LeftBar from 'components/left-bar';
 import { Input, ButtonInput } from 'react-bootstrap';
+import classNames from 'classnames';
+
+import LeftBar from 'components/left-bar';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import classNames from 'classnames';
 
 export default class Login extends React.Component {
   displayName = 'Login';
@@ -72,7 +73,7 @@ export default class Login extends React.Component {
               <a href="#" className="btn github">Log in with GitHub</a>
             </div>
           </form>
-          <p>No account? <a href="/#/signup">Sign Up</a></p>
+          <p>No account? <Link to='signup'>Sign Up</Link></p>
           <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
         </div>
       </div>

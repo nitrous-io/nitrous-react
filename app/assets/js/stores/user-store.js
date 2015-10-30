@@ -17,6 +17,17 @@ class UserStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'user.created': {
+        const { data } = action.data;
+        this._user = User.deserialize(data.user);
+        this._lastError = null;
+        break;
+      }
+      case 'user.create-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('create-failed');
+        break;
+      }
       case 'user.updated': {
         const { data } = action.data;
         this._user = User.deserialize(data.user);

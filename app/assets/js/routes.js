@@ -4,6 +4,7 @@ import Application from 'components/application';
 import Login from 'components/login';
 import ForgotPassword from 'components/forgot-password';
 import ResetPassword from 'components/reset-password';
+import Signup from 'components/signup';
 import Dashboard from 'components/dashboard';
 import OrgRoot from 'components/org-root';
 import UserWorkspace from 'components/user-workspace';
@@ -28,6 +29,7 @@ export default (
     <Route name='login' handler={Login} />
     <Route name='forgot-password' handler={ForgotPassword} />
     <Route name='reset-password' handler={ResetPassword} />
+    <Route name='signup' handler={Signup} />
 
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={redirectTo('user-workspace')} />
