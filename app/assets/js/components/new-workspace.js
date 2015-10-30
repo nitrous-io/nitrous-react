@@ -36,7 +36,6 @@ export default class NewWorkspace extends React.Component {
     regionActions.fetchAll();
 
     hostStore.on('create-initiated', this.onHostCreateInitiated);
-    hostStore.on('created', this.onHostCreated);
     hostStore.on('create-failed', this.onHostCreateFailed);
   }
 
@@ -51,17 +50,12 @@ export default class NewWorkspace extends React.Component {
     regionStore.offChange(this.regionStoreDidChange);
 
     hostStore.off('create-initiated', this.onHostCreateInitiated);
-    hostStore.off('created', this.onHostCreated);
     hostStore.off('create-failed', this.onHostCreateFailed);
   }
 
-  onHostCreateInitiated = () => {
-    // Do nothing.
-  };
-
-  onHostCreated = (data) => {
-    const host = data.host;
-    this.context.router.transitionTo('new-container', { hostSlug: host.slug });
+  onHostCreateInitiated = (data) => {
+    const { host } = data;
+    this.context.router.transitionTo('workspace-creating', {}, { hostSlug: host.slug });
   };
 
   onHostCreateFailed = () => {

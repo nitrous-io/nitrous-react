@@ -8,6 +8,7 @@ import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
 import Workspace from 'components/workspace';
+import WorkspaceCreating from 'components/workspace-creating';
 import WorkspaceSystem from 'components/workspace-system';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
@@ -28,6 +29,7 @@ export default (
       <DefaultRoute handler={redirectTo('user-workspace')} />
 
       <Route name='new-user-workspace' path='workspaces/new' handler={NewWorkspace} />
+      <Route name='workspace-creating' path='workspaces/creating' handler={WorkspaceCreating} />
       <Route name='user-workspace' path='workspaces' handler={UserWorkspace}>
         <DefaultRoute handler={redirectTo('new-user-workspace')} />
       </Route>

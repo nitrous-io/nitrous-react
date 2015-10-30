@@ -60,17 +60,12 @@ class HostActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.create-initiated',
-        data: {
-          data,
-          hostId: data.host.id
-        }
+        data: { data, host: data.host }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.create-failed',
-        data: {
-          jqxhr
-        }
+        data: { jqxhr }
       });
     });
   }

@@ -1,7 +1,6 @@
 import Store from 'stores/store';
 import Host from 'records/host';
 import { OrderedMap } from 'immutable';
-import taskActions from 'actions/task-actions';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
@@ -30,10 +29,8 @@ class HostStore extends Store {
         break;
       }
       case 'host.create-initiated': {
-        const { data } = action.data,
-              host = Host.deserialize(data.host),
-              { id } = data.host;
-        taskActions.update(`host-create-${id}`, 'Creating workspace...');
+        const host = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(host.slug, host);
         this.emit('create-initiated', { host });
         break;
       }
@@ -44,27 +41,31 @@ class HostStore extends Store {
       }
       // from events-socket
       case 'events:host.creating': {
-        const { id } = action.data,
-              progress = JSON.parse(action.data.progress);
-        if (!id) {
-          break;
+        const { id, slug, progress } = action.data;
+        if (!id || !slug || !progress) {
+          return;
         }
 
-        let progressMessage = 'Creating workspace';
-        if (progress.stream) {
-          progressMessage += ` - ${progress.stream}`;
+        const progressObj = JSON.parse(action.data.progress),
+              { stream } = progressObj;
+        if (!stream) {
+          return;
         }
-        progressMessage += '...';
 
-        taskActions.update(`host-create-${id}`, progressMessage);
+        this.emit('creating', { hostSlug: slug, stream });
         break;
       }
       case 'events:host.created': {
-        const host = Host.deserialize(action.data.host),
-              { id, slug } = host;
-        this._hosts = this._hosts.set(slug, host);
-        taskActions.done(`host-create-${id}`);
+        const host = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(host.slug, host);
         this.emit('created', { host });
+        break;
+      }
+      case 'events:host.create-failed': {
+        const host = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(host.slug, host);
+        this.emit('create-failed', { host });
+        break;
       }
       default: return;
     }

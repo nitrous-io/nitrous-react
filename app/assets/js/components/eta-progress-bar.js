@@ -60,9 +60,11 @@ export default class EtaProgressBar extends React.Component {
   }
 
   render() {
+    const { eta, done, ...transferredProps } = this.props;
+
     return (
       <div className={classNames('eta-progress-bar-component', { animated: this.state.animated })}>
-        <ProgressBar ref='progressBar' now={this.state.now} active />
+        <ProgressBar {...transferredProps} ref='progressBar' now={this.state.now} active />
       </div>
     );
   }
