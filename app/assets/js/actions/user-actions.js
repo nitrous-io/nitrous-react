@@ -29,7 +29,7 @@ class UserActions {
   }
 
   update(options) {
-    const { name, email, password } = options;
+    const { name, email, password, existingPassword } = options;
     const params = {
       name,
       email,
@@ -37,6 +37,9 @@ class UserActions {
     };
     if (password) {
       params.password = password;
+    }
+    if (existingPassword) {
+      params.existing_password = existingPassword;
     }
     return authedAjax({
       type: 'PUT',
