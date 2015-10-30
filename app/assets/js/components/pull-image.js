@@ -14,15 +14,29 @@ export default class PullImage extends React.Component {
   };
 
   state = {
-    name: null
+    name: null,
+    pulling: false,
+    pendingPullName: null
   };
 
   componentDidMount() {
     imageStore.on('pulling', this.handleImagePulling);
+    imageStore.on('pull-failed', this.handleImagePullFailed);
+    imageStore.on('pulled', this.handleImagePulling);
   }
 
   componentWillUnmount() {
     imageStore.off('pulling', this.handleImagePulling);
+    imageStore.off('pull-failed', this.handleImagePullFailed);
+    imageStore.off('pulled', this.handleImagePulling);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ pulling: false }, () => {
+      if (nextProps.showModal) {
+        this.refs.name.getInputDOMNode().focus();
+      }
+    });
   }
 
   handleImagePulling = (event) => {
@@ -35,8 +49,24 @@ export default class PullImage extends React.Component {
       return;
     }
 
-    if (event.repo && event.repo.indexOf(pendingPullName) !== -1) {
+    if (event.repository && event.repository.startsWith(pendingPullName)) {
+      this.setState({ name: null, pulling: false });
       this.props.onHideModal();
+    }
+  }
+
+  handleImagePullFailed = (event) => {
+    if (!this.props.showModal) {
+      return;
+    }
+
+    const { pendingPullName } = this.state;
+    if (!pendingPullName) {
+      return;
+    }
+
+    if (event.repository && event.repository.startsWith(pendingPullName)) {
+      this.setState({ pulling: false });
     }
   }
 
@@ -44,22 +74,27 @@ export default class PullImage extends React.Component {
     this.setState({ name: event.target.value });
   }
 
+  submitDisabled = () => {
+    const { name, pulling } = this.state;
+
+    return pulling || !name;
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
 
-    const { name } = this.state;
-    if (!name) {
+    if (this.submitDisabled()) {
       return;
     }
 
-    this.setState({ pendingPullName: name });
+    const { name } = this.state;
+    this.setState({ pulling: true, pendingPullName: name });
     imageActions.pull(this.props.host.slug, name, true);
   }
 
   render() {
-    const { name } = this.state,
-          { showModal, onHideModal } = this.props,
-          canPull = name && name.length > 0;
+    const { name, pulling } = this.state,
+          { showModal, onHideModal } = this.props;
 
     return (
       <Modal show={showModal} onHide={onHideModal}>
@@ -68,12 +103,12 @@ export default class PullImage extends React.Component {
         </Modal.Header>
         <form onSubmit={this.handleSubmit}>
           <Modal.Body>
-            <Input label="Image Repository" type='text' placeholder='e.g: centos or quay.io/mycompany/rails'
+            <Input ref='name' label="Image Repository" type='text' placeholder='e.g: centos or quay.io/mycompany/rails'
               required value={name} onChange={this.handleChangeNameField} />
           </Modal.Body>
           <Modal.Footer>
             <Button ref='modalCancel' onClick={onHideModal}>Cancel</Button>
-            <Button type='submit' disabled={!canPull} bsStyle='primary'>Pull</Button>
+            <Button type='submit' disabled={this.submitDisabled()} bsStyle='primary'>{pulling ? 'Pulling' : 'Pull'}</Button>
           </Modal.Footer>
         </form>
       </Modal>

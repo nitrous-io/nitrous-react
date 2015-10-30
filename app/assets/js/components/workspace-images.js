@@ -36,15 +36,13 @@ export default class WorkspaceImages extends React.Component {
         <div className='container'>
           <ButtonGroup>
             <Button onClick={this.handlePullImageButton}>
-              <Fa icon='cloud-download' />
-              &nbsp;
-              Pull Image
+              <Fa icon='cloud-download' /> Pull Image
             </Button>
           </ButtonGroup>
-          <ImageList host={host} showSnapshots={false} />
+          <ImageList manageImages host={host} showSnapshots={false} />
 
           <h4>Docker Registries</h4>
-          <Registries showDisconnect host={this.context.host} />
+          <Registries showDisconnect host={host} />
         </div>
 
         <PullImage host={host} showModal={showModal} onHideModal={this.handlePullImageModalHide} />

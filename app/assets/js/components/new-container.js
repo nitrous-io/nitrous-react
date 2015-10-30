@@ -165,7 +165,7 @@ export default class NewContainer extends React.Component {
                 onSelect={this.handleImageSelection} />
             </Tab>
             <Tab eventKey='registries' title='Docker Repositories'>
-              <Registries host={this.context.host} />
+              <Registries showDisconnect={false} host={this.context.host} />
               <div className='custom-repo'>
                 <Input ref='repoRadioBtn' type='radio' label='Use Image from Docker Repo:'
                   checked={selectedImageType === imageTypeRepo} onChange={this.handleClickRepoRadioBtn} />
