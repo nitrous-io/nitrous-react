@@ -55,13 +55,9 @@ export default class Login extends React.Component {
   };
 
   render() {
-    const loggingIn = this.state.loggingIn,
-          loginLabel = loggingIn ? 'Logging In...' : 'Log In';
-
-    var formPanelClasses = classNames('form-panel');
-    if (this.state.errorMessage) {
-      formPanelClasses = classNames('shake', 'form-panel');
-    }
+    const { loggingIn, errorMessage } = this.state,
+          loginLabel = loggingIn ? 'Logging In...' : 'Log In',
+          formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
       <div className='login-component login-screen dark'>

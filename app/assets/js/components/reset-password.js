@@ -31,6 +31,7 @@ export default class ResetPassword extends React.Component {
     if (!this.props.query.token) {
       snackbarActions.post('The link to reset your password was invalid. Please try again.');
       this.context.router.transitionTo('forgot-password');
+      return;
     }
     passwordStore.onChange(this.passwordStoreDidChange);
     this.refs.passwordField.getInputDOMNode().focus();
@@ -83,7 +84,7 @@ export default class ResetPassword extends React.Component {
   render() {
     const { password, passwordConfirmation, processing, errorMessage } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
-          formPanelClasses = (errorMessage ? classNames('shake', 'form-panel') : classNames('form-panel'));
+          formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
       <div className='reset-password-component login-screen dark'>

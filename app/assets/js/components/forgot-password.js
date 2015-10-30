@@ -55,7 +55,7 @@ export default class ForgotPassword extends React.Component {
 
   render() {
     const { email, processing, errorMessage } = this.state,
-          formPanelClasses = (errorMessage ? classNames('shake', 'form-panel') : classNames('form-panel'));
+          formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
       <div className='forgot-password-component login-screen dark'>
