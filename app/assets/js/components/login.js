@@ -1,8 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router';
 import LeftBar from 'components/left-bar';
-import { Alert, Input, ButtonInput } from 'react-bootstrap';
+import { Input, ButtonInput } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import classNames from 'classnames';
 
 export default class Login extends React.Component {
@@ -34,12 +36,11 @@ export default class Login extends React.Component {
 
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
+      snackbarActions.clear();
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
-      this.setState({
-        loggingIn: false,
-        errorMessage: tokenStore.lastError
-      }, () => {
+      snackbarActions.post(tokenStore.lastError);
+      this.setState({ loggingIn: false }, () => {
         const usernameInput = this.refs.username.getInputDOMNode();
         usernameInput.select();
         usernameInput.focus();
@@ -49,41 +50,30 @@ export default class Login extends React.Component {
 
   handleSubmit = (evt) => {
     evt.preventDefault();
-    this.setState({loggingIn: true, errorMessage: null});
+    this.setState({ loggingIn: true, errorMessage: null });
     tokenActions.fetch(this.refs.username.getValue(), this.refs.password.getValue());
   };
 
   render() {
-    const loggingIn = this.state.loggingIn,
-          loginLabel = loggingIn ? 'Logging In...' : 'Log In';
-
-    var formPanelClasses = classNames('form-panel');
-
-    let error;
-    if (this.state.errorMessage) {
-      formPanelClasses = classNames('shake', 'form-panel');
-      error = (
-        <Alert bsStyle='default'>{this.state.errorMessage}</Alert>
-      );
-    }
+    const { loggingIn, errorMessage } = this.state,
+          loginLabel = loggingIn ? 'Logging In...' : 'Log In',
+          formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
-      <div className='login-component dark'>
+      <div className='login-component login-screen dark'>
         <LeftBar />
         <div className={formPanelClasses}>
-          <h2 className="nitrous-logo"></h2>
+          <h2 className='nitrous-logo'></h2>
           <form onSubmit={this.handleSubmit}>
-            <Input ref="username" type='text' placeholder='Username or Email' required disabled={loggingIn} />
-            <Input ref="password" type='password' placeholder='Password' required disabled={loggingIn} />
+            <Input ref='username' type='text' placeholder='Username or Email' required disabled={loggingIn} />
+            <Input ref='password' type='password' placeholder='Password' required disabled={loggingIn} />
             <div className='actions'>
               <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={loggingIn} />
               <a href="#" className="btn github">Log in with GitHub</a>
             </div>
           </form>
           <p>No account? <a href="/#/signup">Sign Up</a></p>
-        </div>
-        <div className="form-notifications">
-          {error}
+          <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
         </div>
       </div>
     );

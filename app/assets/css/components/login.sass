@@ -1,4 +1,4 @@
-.login-component
+.login-screen
   display: flex
   position: fixed
   width: 100%
@@ -6,9 +6,6 @@
   justify-content: center
   align-items: center
   user-select: none
-
-  .panel
-    width: 300px
 
   .form-panel
     width: 250px
@@ -18,16 +15,8 @@
       animation: shake .75s
 
   .actions
-    text-align: right
-
     .form-group
       margin: 0
-
-
-  .form-notifications
-    position: fixed
-    top: 18px
-    right: 18px
 
   &.dark
     .alert-default
@@ -46,7 +35,7 @@
         background-size: 155px 18px
         margin: 0 auto 40px auto
 
-      input[type='text'], [type='password']
+      input[type='text'], [type='password'], [type='email']
         background: #3D464D
         border-radius: 2px
         border: 0
@@ -55,8 +44,8 @@
         box-shadow: 0
         color: #FFF
 
-      input[type='text']:active, [type='password']:active,
-      input[type='text']:focus, [type='password']:focus
+      input[type='text']:active, [type='password']:active, [type='email']:active,
+      input[type='text']:focus, [type='password']:focus, [type='email']:focus
         border: 0
         box-shadow: 0 0 4px rgba(255,255,255,.65)
         border-radius: 2px
@@ -111,9 +100,3 @@
         display: block
         text-align: center
         cursor: default
-
-
-@media (min-width: 768px)
-  .login-component
-    .panel
-      width: 400px

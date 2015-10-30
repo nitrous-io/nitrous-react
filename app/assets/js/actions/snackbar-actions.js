@@ -18,6 +18,14 @@ class SnackbarActions {
       });
     }, 1);
   }
+
+  clear() {
+    window.setTimeout(function() {
+      dispatcher.dispatch({
+        type: 'snackbar.clear'
+      });
+    }, 1);
+  }
 }
 
 export default new SnackbarActions();

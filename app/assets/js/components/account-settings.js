@@ -45,11 +45,11 @@ export default class AccountSettings extends React.Component {
 
   handleChangeNameField = (event) => {
     this.setState({ name: event.target.value });
-  };
+  }
 
   handleChangeEmailField = (event) => {
     this.setState({ email: event.target.value });
-  };
+  }
 
   handleChangeNewPasswordField = (event) => {
     var val = event.target.value;
@@ -57,7 +57,7 @@ export default class AccountSettings extends React.Component {
       val = null;
     }
     this.setState({ newPassword: val });
-  };
+  }
 
   handleChangeNewPasswordConfirmField = (event) => {
     var val = event.target.value;
@@ -65,21 +65,24 @@ export default class AccountSettings extends React.Component {
       val = null;
     }
     this.setState({ newPasswordConfirm: val });
-  };
+  }
 
   handleSubmit = (event) => {
     event.preventDefault();
-
-    const { newPassword, newPasswordConfirm } = this.state;
-    if (newPassword !== newPasswordConfirm) {
+    if (this.submitDisabled()) {
       return;
     }
 
     this.setState({ updating: true });
 
     const { name, email } = this.state;
-    userActions.update({ name, email, password: newPassword });
-  };
+    userActions.update({ name, email, password: this.state.newPassword });
+  }
+
+  submitDisabled = () => {
+    const { updating, email, newPassword, newPasswordConfirm } = this.state;
+    return updating || !email || (newPassword !== newPasswordConfirm);
+  }
 
   render() {
     const { updating,
@@ -91,10 +94,7 @@ export default class AccountSettings extends React.Component {
           } = this.state;
 
     const { unconfirmedEmail } = this.state.user,
-          newPasswordMatch = (newPassword === newPasswordConfirm),
-          showPasswordConfirmError = newPasswordConfirm && !newPasswordMatch,
-          emailEmpty = (email === ""),
-          saveButtonDisabled = emailEmpty || updating || !newPasswordMatch;
+          showPasswordConfirmError = newPasswordConfirm && (newPassword !== newPasswordConfirm);
 
     return (
       <div className='account-settings'>
@@ -110,7 +110,7 @@ export default class AccountSettings extends React.Component {
             ) : ''}
             <div className='email'>
               <Input label="Email" type='text' placeholder='Email...'
-                help={(emailEmpty ? 'An email must be provided' : null)}
+                help={(!email ? 'An email must be provided' : null)}
                 required disabled={updating} value={email} onChange={this.handleChangeEmailField} />
             </div>
             <div className='new-password'>
@@ -122,7 +122,7 @@ export default class AccountSettings extends React.Component {
                   disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
               ) : ''}
             </div>
-            <Button disabled={saveButtonDisabled} type='submit' bsStyle='primary'>{updating ? "Saving..." : "Save"}</Button>
+            <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? "Saving..." : "Save"}</Button>
           </form>
         </div>
       </div>
