@@ -32,7 +32,7 @@ export default class PullImage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ pulling: false }, () => {
+    this.setState({ pendingPullName: null, pulling: false }, () => {
       if (nextProps.showModal) {
         this.refs.name.getInputDOMNode().focus();
       }
