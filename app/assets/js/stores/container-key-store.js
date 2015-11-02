@@ -4,6 +4,7 @@ import { OrderedMap, OrderedSet } from 'immutable';
 
 class ContainerKeyStore extends Store {
   _keysByContainerSlug = OrderedMap(); // <K: ContainerSlug, V: OrderedSet<ContainerKey>>
+  _keyAddedToGitHubByContainerSlug = OrderedMap(); // <K: ContainerSlug, V: bool>
 
   handleAction(action) {
     switch (action.type) {
@@ -24,6 +25,41 @@ class ContainerKeyStore extends Store {
         this.emit('fetch-failed', { containerSlug });
         break;
       }
+      case 'container-key.fetched-status-by-container-slug': {
+        const { data, containerSlug } = action.data;
+        if (data.added_to_github) {
+          this._keyAddedToGitHubByContainerSlug = this._keyAddedToGitHubByContainerSlug.set(containerSlug, true);
+        }
+        this._lastError = null;
+        break;
+      }
+      case 'container-key.fetch-status-by-container-slug-failed': {
+        const { containerSlug } = action.data;
+        this.emit('fetch-status-failed', { containerSlug });
+        break;
+      }
+      case 'container-key.added-to-github': {
+        const { containerSlug } = action.data;
+        this._keyAddedToGitHubByContainerSlug = this._keyAddedToGitHubByContainerSlug.set(containerSlug, true);
+        this._lastError = null;
+        break;
+      }
+      case 'container-key.add-to-github-failed': {
+        const { jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        break;
+      }
+      case 'container-key.removed-from-github': {
+        const { containerSlug } = action.data;
+        this._keyAddedToGitHubByContainerSlug = this._keyAddedToGitHubByContainerSlug.set(containerSlug, false);
+        this._lastError = null;
+        break;
+      }
+      case 'container-key.remove-from-github-failed': {
+        const { jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        break;
+      }
       default: return;
     }
     this.notifyChange();
@@ -31,6 +67,10 @@ class ContainerKeyStore extends Store {
 
   keysByContainerSlug(containerSlug) {
     return this._keysByContainerSlug.get(containerSlug);
+  }
+
+  keyAddedToGitHubByContainerSlug(containerSlug) {
+    return this._keyAddedToGitHubByContainerSlug.get(containerSlug);
   }
 }
 
