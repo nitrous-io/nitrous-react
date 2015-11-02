@@ -24,6 +24,9 @@ export default class Store extends EventEmitter {
 
   handleErrorJqxhr(jqxhr) {
     const err = this._lastError = jqxhr.errorMessage;
+    if (err === "internal_server_error") {
+      return;
+    }
     if (err) {
       snackbarActions.post(err);
     }
