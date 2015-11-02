@@ -1,4 +1,4 @@
-import { authedAjax }  from 'lib/ajax';
+import { ajax, authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
 
 class UserActions {
@@ -23,6 +23,25 @@ class UserActions {
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'user.fetch-failed',
+        data: { jqxhr }
+      });
+    });
+  }
+
+  create(options) {
+    const { username, email, password } = options;
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/users',
+      data: { username, email, password }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.created',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.create-failed',
         data: { jqxhr }
       });
     });

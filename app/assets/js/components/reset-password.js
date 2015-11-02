@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import LeftBar from 'components/left-bar';
 import { Input, ButtonInput } from 'react-bootstrap';
+import classNames from 'classnames';
+
+import LeftBar from 'components/left-bar';
 import passwordStore from 'stores/password-store';
 import passwordActions from 'actions/password-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import classNames from 'classnames';
 
 export default class ResetPassword extends React.Component {
   displayName = 'ResetPassword';
