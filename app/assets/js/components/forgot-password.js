@@ -16,14 +16,14 @@ export default class ForgotPassword extends React.Component {
   };
 
   state = {
-    email: null,
+    identifier: null,
     processing: false,
     errorMessage: null
   }
 
   componentDidMount() {
     passwordStore.onChange(this.passwordStoreDidChange);
-    this.refs.email.getInputDOMNode().focus();
+    this.refs.identifier.getInputDOMNode().focus();
   }
 
   componentWillUnmount() {
@@ -36,7 +36,12 @@ export default class ForgotPassword extends React.Component {
     }
 
     if (passwordStore.sendResetSucceeded) {
-      snackbarActions.post(`An email with password reset instructions has been sent to ${this.state.email}.`);
+      const { identifier } = this.state,
+            msg = identifier.includes('@') ?
+              `An email with password reset instructions has been sent to ${identifier}.` :
+              `An email with password reset instructions has been sent to the email address
+                associated with the account "${identifier}".`;
+      snackbarActions.post(msg);
       this.setState({ processing: false });
       this.context.router.transitionTo('login');
     } else if (passwordStore.lastError) {
@@ -44,18 +49,18 @@ export default class ForgotPassword extends React.Component {
     }
   }
 
-  handleEmailChanged = (event) => {
-    this.setState({ email: event.target.value });
+  handleIdentifierChanged = (event) => {
+    this.setState({ identifier: event.target.value });
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
     this.setState({ processing: true });
-    passwordActions.sendResetPassword(this.state.email);
+    passwordActions.sendResetPassword(this.state.identifier);
   }
 
   render() {
-    const { email, processing, errorMessage } = this.state,
+    const { identifier, processing, errorMessage } = this.state,
           formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
@@ -64,10 +69,10 @@ export default class ForgotPassword extends React.Component {
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
           <form onSubmit={this.handleSubmit}>
-            <Input ref='email' type='email' placeholder='Email Address' required
+            <Input ref='identifier' type='text' placeholder='Email Address or Username' required
               disabled={processing}
-              value={email}
-              onChange={this.handleEmailChanged} />
+              value={identifier}
+              onChange={this.handleIdentifierChanged} />
             <div className='actions'>
               <ButtonInput type='submit' bsStyle='primary' disabled={processing}>
                 {processing ? 'Processing...' : 'Send Reset Instructions'}
