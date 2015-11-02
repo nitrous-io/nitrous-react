@@ -1,6 +1,10 @@
 import React, { PropTypes } from 'react';
+import { Panel } from 'react-bootstrap';
+
 import billingStore from 'stores/billing-store';
 import Org from 'records/org';
+import ContextSwitcher from 'components/context-switcher';
+import Fa from 'components/fa';
 
 export default class Billing extends React.Component {
   displayName = 'Billing';
@@ -23,13 +27,9 @@ export default class Billing extends React.Component {
   };
 
   render() {
-    const { cardType,
-           expMonth,
-           expYear,
-           lastFour
-          } = this.state.billingProfile;
-
-    const { makeHref } = this.context.router;
+    const { billingProfile } = this.state,
+          { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
+          { makeHref } = this.context.router;
 
     var href = makeHref('payment-method');
     const { org } = this.context;
@@ -40,16 +40,26 @@ export default class Billing extends React.Component {
     return (
       <div className='billing-component'>
         <div className='container'>
-          <h3>Payment Method</h3>
-          <div>
-            <p>
-              <b>{cardType}</b> - {lastFour}
-            </p>
-            <p>
-              Expires {expMonth}/{expYear}
-            </p>
-            <p><a href={href}>Change Payment Method</a></p>
-          </div>
+          <ContextSwitcher selectedOrg={org} />
+
+          <Panel header='Payment Method' className='payment-method'>
+            {hasCard ? (
+              <div>
+                <p>
+                  <b>{cardType}</b> - {lastFour}
+                </p>
+                <p>
+                  Expires {expMonth}/{expYear}
+                </p>
+                <p><a href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</a></p>
+              </div>
+            ) : (
+              <div>
+                <p>No payment method on file.</p>
+                <p><a href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</a></p>
+              </div>
+            )}
+          </Panel>
         </div>
       </div>
     );

@@ -26,4 +26,8 @@ export default class BillingProfile extends Record({
   get free() {
     return this.state === "free";
   }
+
+  get hasCard() {
+    return this.cardType && this.lastFour && this.expMonth && this.expYear;
+  }
 }
