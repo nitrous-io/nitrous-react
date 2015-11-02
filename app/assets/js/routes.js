@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, DefaultRoute } from 'react-router';
+import { Route, DefaultRoute, NotFoundRoute } from 'react-router';
 import Application from 'components/application';
 import Login from 'components/login';
 import ForgotPassword from 'components/forgot-password';
@@ -21,6 +21,7 @@ import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
 import Billing from 'components/billing';
 import BillingPaymentMethod from 'components/billing-payment-method';
+import NotFound from 'components/not-found';
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -68,6 +69,8 @@ export default (
 
       <Route name='billing' path='billing' handler={Billing} />
       <Route name='payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
+
+      <NotFoundRoute handler={NotFound} />
     </Route>
   </Route>
 );
