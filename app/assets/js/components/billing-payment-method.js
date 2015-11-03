@@ -36,7 +36,7 @@ export default class BillingPaymentMethod extends React.Component {
           ) : (
             <h2>{org ? `Add Payment Method for ${org.name}` : 'Add Payment Method'}</h2>
           )}
-          <PaymentMethod />
+          <PaymentMethod standalone />
         </div>
       </div>
     );

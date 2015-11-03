@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import Org from 'records/org';
 import billingStore from 'stores/billing-store';
 import billingActions from 'actions/billing-actions';
+import paymentStore from 'stores/payment-store';
 import snackbarActions from 'actions/snackbar-actions';
 
 export default class PaymentMethod extends React.Component {
@@ -15,6 +16,12 @@ export default class PaymentMethod extends React.Component {
     org: PropTypes.instanceOf(Org),
     router: PropTypes.func.isRequired
   }
+
+  static propTypes = {
+    standalone: PropTypes.bool,
+    onSuccess: PropTypes.func,
+    onFailure: PropTypes.func
+  };
 
   findBillingProfile = () => {
     const org = this.context.org;
@@ -39,27 +46,51 @@ export default class PaymentMethod extends React.Component {
   componentDidMount() {
     billingStore.onChange(this.billingStoreDidChange);
     billingStore.on('update-failed', this.onBillingUpdateFailed);
+
+    paymentStore.on('submit-requested', this.paymentSubmitRequested);
   }
 
   componentWillUnmount() {
     billingStore.offChange(this.billingStoreDidChange);
     billingStore.off('update-failed', this.onBillingUpdateFailed);
+
+    paymentStore.off('submit-requested', this.paymentSubmitRequested);
   }
 
   billingStoreDidChange = () => {
-    snackbarActions.post('Payment updated successfully');
     this.setState({ saving: false });
-    const { org } = this.context;
-    if (org) {
-      this.context.router.transitionTo('org-billing', { orgSlug: org.slug });
-    } else {
-      this.context.router.transitionTo('billing');
+
+    if (this.props.standalone) {
+      snackbarActions.post('Payment updated successfully');
+      const { org } = this.context;
+      if (org) {
+        this.context.router.transitionTo('org-billing', { orgSlug: org.slug });
+      } else {
+        this.context.router.transitionTo('billing');
+      }
+      return;
+    }
+
+    if (this.props.onSuccess) {
+      this.props.onSuccess();
     }
   }
 
   onBillingUpdateFailed = () => {
-    snackbarActions.post('Payment update failed');
     this.setState({ saving: false });
+
+    if (this.props.standalone) {
+      snackbarActions.post('Payment update failed');
+      return;
+    }
+
+    if (this.props.onFailure) {
+      this.props.onFailure();
+    }
+  }
+
+  paymentSubmitRequested = () => {
+    this.updateCard();
   }
 
   handleChangecardholderNameField = (event) => {
@@ -101,7 +132,25 @@ export default class PaymentMethod extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
+
+    this.updateCard();
+  }
+
+  submitDisabled = () => {
+    return (this.state.saving
+      || !this.cardholderNameValid()
+      || !this.ccNumberValid()
+      || !this.cvcValid()
+      || !this.expirationMonthValid()
+      || !this.expirationYearValid()
+      || !this.zipCodeValid());
+  }
+
+  updateCard = () => {
     if (this.submitDisabled()) {
+      if (!this.props.standalone && this.props.onFailure) {
+        this.props.onFailure();
+      }
       return;
     }
 
@@ -117,16 +166,6 @@ export default class PaymentMethod extends React.Component {
       zipCode,
       orgSlug: this.context.org && this.context.org.slug
     });
-  }
-
-  submitDisabled = () => {
-    return (this.state.saving
-      || !this.cardholderNameValid()
-      || !this.ccNumberValid()
-      || !this.cvcValid()
-      || !this.expirationMonthValid()
-      || !this.expirationYearValid()
-      || !this.zipCodeValid());
   }
 
   cardholderNameValid = () => {
@@ -167,7 +206,7 @@ export default class PaymentMethod extends React.Component {
 
     if (expirationMonth && expirationYear
       && expiration.isPast(expirationMonth, expirationYear)) {
-      return 'Please use a card that has not expired'
+      return 'Please use a card that has not expired';
     }
   }
 
@@ -189,24 +228,20 @@ export default class PaymentMethod extends React.Component {
     return failureMessage;
   }
 
-  render() {
-    const {
-      billingProfile,
-      saving,
-      cardholderName,
-      ccNumber,
-      cardType,
-      cvc,
-      expirationMonth,
-      expirationYear,
-      zipCode
-    } = this.state;
-
-    let ccNumberDisplay = card.format(ccNumber);
-    // if people type longer than format displays, we fallback
-    if (ccNumberDisplay && ccNumberDisplay.replace(/\s+/g, "") !== ccNumber) {
-      ccNumberDisplay = ccNumber;
+  formatCardNumber = () => {
+    const { ccNumber } = this.state;
+    let formatted = card.format(ccNumber);
+    // if people type longer than format displays, don't try to format
+    if (formatted && formatted.replace(/\s+/g, "") !== ccNumber) {
+      formatted = ccNumber;
     }
+    return formatted;
+  }
+
+  render() {
+    const { standalone } = this.props,
+          { billingProfile, saving, cardholderName, ccNumber, cvc,
+            expirationMonth, expirationYear, zipCode } = this.state;
 
     const cardholderNameValid = this.cardholderNameValid();
     const ccNumberValid = this.ccNumberValid();
@@ -247,9 +282,8 @@ export default class PaymentMethod extends React.Component {
               help={this.validationMessage(ccNumber, ccNumberValid, 'Please enter a valid number')}
               required
               disabled={saving}
-              value={ccNumberDisplay}
-              onChange={this.handleChangeCcNumberField}
-              addonAfter={cardType || 'Card Type'} />
+              value={this.formatCardNumber()}
+              onChange={this.handleChangeCcNumberField} />
           </div>
           <div className='cvc'>
             <Input label='CVC'
@@ -306,13 +340,16 @@ export default class PaymentMethod extends React.Component {
               value={zipCode}
               onChange={this.handleChangeZipCodeField} />
           </div>
-          <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>
-            {billingProfile.hasCard ? (
-              saving ? 'Updating...' : 'Update'
-            ) : (
-              saving ? 'Saving...' : 'Save'
-            )}
-          </Button>
+
+          {standalone ? (
+            <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>
+              {billingProfile.hasCard ? (
+                saving ? 'Updating...' : 'Update'
+              ) : (
+                saving ? 'Saving...' : 'Save'
+              )}
+            </Button>
+          ) : ''}
         </form>
        </div>
     );
