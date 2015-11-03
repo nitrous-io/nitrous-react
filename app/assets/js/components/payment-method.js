@@ -30,7 +30,7 @@ export default class PaymentMethod extends React.Component {
     saving: false,
     cardholderName: null,
     ccNumber: null,
-    type: null,
+    cardType: null,
     cvc: null,
     expirationMonth: null,
     expirationYear: null,
@@ -71,10 +71,10 @@ export default class PaymentMethod extends React.Component {
     const num = event.target.value;
     if (num) {
       const parsed = card.parse(num);
-      const type = card.type(parsed, true);
-      this.setState({ ccNumber: parsed, type });
+      const cardType = card.type(parsed, true);
+      this.setState({ ccNumber: parsed, cardType });
     } else {
-      this.setState({ ccNumber: num, type: null });
+      this.setState({ ccNumber: num, cardType: null });
     }
   }
 
@@ -159,11 +159,11 @@ export default class PaymentMethod extends React.Component {
   expirationValidationMessage = () => {
     const { expirationMonth, expirationYear } = this.state;
     if ((expirationMonth || expirationYear) && !this.expirationMonthValid()) {
-      return "Please enter a valid month";
+      return 'Please enter a valid month';
     }
 
     if ((expirationMonth || expirationYear) && !this.expirationYearValid()) {
-      return "Please enter a valid year";
+      return 'Please enter a valid year';
     }
   }
 
@@ -175,24 +175,14 @@ export default class PaymentMethod extends React.Component {
     if (value === null) {
       return null;
     }
-
-    if (valid) {
-      return 'success';
-    } else {
-      return 'error';
-    }
+    return valid ? 'success' : 'error';
   }
 
   validationMessage = (value, valid, failureMessage) => {
-    if (value === null) {
+    if (value === null || valid) {
       return null;
     }
-
-    if (valid) {
-      return '';
-    } else {
-      return failureMessage;
-    }
+    return failureMessage;
   }
 
   render() {
@@ -201,14 +191,12 @@ export default class PaymentMethod extends React.Component {
       saving,
       cardholderName,
       ccNumber,
-      type,
+      cardType,
       cvc,
       expirationMonth,
       expirationYear,
       zipCode
     } = this.state;
-
-    const { org } = this.context;
 
     let ccNumberDisplay = card.format(ccNumber);
     // if people type longer than format displays, we fallback
@@ -247,7 +235,7 @@ export default class PaymentMethod extends React.Component {
               onChange={this.handleChangecardholderNameField} />
           </div>
           <div className='ccNumber'>
-            <Input label="Card Number"
+            <Input label='Card Number'
               id='cc-number'
               type='text'
               placeholder='Number'
@@ -256,11 +244,11 @@ export default class PaymentMethod extends React.Component {
               required
               disabled={saving}
               value={ccNumberDisplay}
-              onChange={this.handleChangeCcNumberField} />
-            {type}
+              onChange={this.handleChangeCcNumberField}
+              addonAfter={cardType || 'Card Type'} />
           </div>
           <div className='cvc'>
-            <Input label="CVC"
+            <Input label='CVC'
               id='cvc'
               type='password'
               placeholder='CVC'
@@ -302,7 +290,7 @@ export default class PaymentMethod extends React.Component {
             </div>
           </div>
           <div className='zipcode'>
-            <Input label="Zip/Postal Code"
+            <Input label='Zip/Postal Code'
               id='zip-code'
               type='text'
               placeholder='Code'
