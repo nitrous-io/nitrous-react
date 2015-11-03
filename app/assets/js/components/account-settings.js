@@ -58,7 +58,7 @@ export default class AccountSettings extends React.Component {
 
   handleChangeNewPasswordField = (event) => {
     var val = event.target.value;
-    if (val === "") {
+    if (val === '') {
       val = null;
     }
     this.setState({ newPassword: val });
@@ -66,7 +66,7 @@ export default class AccountSettings extends React.Component {
 
   handleChangeNewPasswordConfirmField = (event) => {
     var val = event.target.value;
-    if (val === "") {
+    if (val === '') {
       val = null;
     }
     this.setState({ newPasswordConfirm: val });
@@ -143,32 +143,32 @@ export default class AccountSettings extends React.Component {
           <Panel header={(<h3>Account</h3>)}>
             <form onSubmit={this.handleSubmit}>
               <div className='name'>
-                <Input label="Name" type='text' placeholder='Your name...'
+                <Input label='Name' type='text' placeholder='Your name...'
                   required disabled={updating} value={name} onChange={this.handleChangeNameField} />
               </div>
               {unconfirmedEmail ? (
                 <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime email will be sent to the email {user.email}.</i></p>
               ) : ''}
               <div className='email'>
-                <Input label="Email" type='text' placeholder='Email...'
+                <Input label='Email' type='text' placeholder='Email...'
                   help={(!email ? 'An email must be provided' : null)}
                   required disabled={updating} value={email} onChange={this.handleChangeEmailField} />
               </div>
               <div className='new-password'>
-                <Input label="New Password" type='password' placeholder='New password...'
+                <Input label='New Password' type='password' placeholder='New password...'
                   disabled={updating} value={newPassword} onChange={this.handleChangeNewPasswordField} />
                 {(newPassword || newPasswordConfirm) ? (
-                  <Input label="Confirm Password" type='password' placeholder='Confirm password...'
+                  <Input label='Confirm Password' type='password' placeholder='Confirm password...'
                     help={(showPasswordConfirmError ? 'Passwords do not match' : null)}
                     disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
                 ) : ''}
                 {(newPassword || existingPassword) ? (
-                  <Input label="Existing Password" type='password' placeholder='Your existing password...'
+                  <Input label='Existing Password' type='password' placeholder='Your existing password...'
                     help={(showExistingPasswordError ? 'Please enter your existing password' : null)}
                     disabled={updating} value={existingPassword} onChange={this.handleChangeExistingPasswordField} />
                 ) : ''}
               </div>
-              <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? "Saving..." : "Save"}</Button>
+              <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? 'Saving...' : 'Save'}</Button>
             </form>
           </Panel>
 
