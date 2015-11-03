@@ -25,7 +25,8 @@ export default class ContainerCreation {
         if (createAllowed) {
           let imageId, onPulled, onPullFailed;
 
-          onPulled = (id) => {
+          onPulled = (data) => {
+            const { id } = data;
             if (id === imageId) {
               imageStore.off('pulled', onPulled);
               imageStore.off('pull-failed', onPullFailed);
@@ -36,7 +37,8 @@ export default class ContainerCreation {
             }
           };
 
-          onPullFailed = (id) => {
+          onPullFailed = (data) => {
+            const { id } = data;
             if (id === imageId) {
               imageStore.off('pulled', onPulled);
               imageStore.off('pull-failed', onPullFailed);
