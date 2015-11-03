@@ -13,6 +13,7 @@ export default class User extends Record({
   phoneAuthed: false,
   phoneCountryCode: null,
   userProfile: null,
+  maxContainers: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -28,6 +29,7 @@ export default class User extends Record({
       phoneAuthed: !!p.phone_authed,
       phoneCountryCode: p.phone_country_code,
       userProfile: UserProfile.deserialize(p.user_profile),
+      maxContainers: p.max_containers,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });

@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
+import userStore from 'stores/user-store';
 import Container from 'records/container';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
@@ -19,13 +20,50 @@ export default class ContainerList extends React.Component {
     host: PropTypes.instanceOf(Host)
   };
 
+  state = {
+    user: userStore.user
+  }
+
+  componentDidMount() {
+    userStore.on('updated', this.onUserUpdated);
+  }
+
+  componentWillUnmount() {
+    userStore.off('updated', this.onUserUpdated);
+  }
+
+  onUserUpdated = () => {
+    this.setState({ user: userStore.user });
+  }
+
+  canCreateContainer = () => {
+    const { containers, host } = this.props,
+          { user } = this.state;
+
+    if (!host) {
+      return false;
+    }
+
+    let containerLimit = host.maxContainers;
+    if (!containerLimit || (user && user.maxContainers && containerLimit < user.maxContainers)) {
+      containerLimit = user.maxContainers;
+    }
+
+    // no limits exist
+    if (containerLimit === null) {
+      return true;
+    }
+
+
+    return containers.size < containerLimit;
+  }
+
   handleClickNewContainer = () => {
     this.context.router.transitionTo('new-container', { hostSlug: this.props.host.slug });
   };
 
   render() {
-    const { containers, host } = this.props,
-          shared = !this.props.host;
+    const { containers, host } = this.props;
 
     return (
       <div className='container-list-component'>
@@ -40,7 +78,7 @@ export default class ContainerList extends React.Component {
                   container={container}
                   host={host} />);
               })}
-              {!shared ? (
+              {this.canCreateContainer() ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
                   <Button className='ui-card' onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
