@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Input, Button } from 'react-bootstrap';
 import { card, expiration } from 'creditcards';
 import classNames from 'classnames';
-import $ from 'jquery';
 
 import Org from 'records/org';
 import billingStore from 'stores/billing-store';
@@ -88,7 +87,7 @@ export default class PaymentMethod extends React.Component {
 
     const parsed = expiration.month.parse(value);
     if (expiration.month.isValid(parsed) && value.toString().length === 2) {
-      $("#expiration-year").focus();
+      this.refs.expirationYear.getInputDOMNode().focus();
     }
   }
 
@@ -266,7 +265,7 @@ export default class PaymentMethod extends React.Component {
                 <Input type='text'
                   id='expiration-month'
                   placeholder='MM'
-                  pattern="[0-9]{2}"
+                  pattern='[0-9]{2}'
                   bsStyle={this.validationStyle(expirationMonth, expirationMonthValid)}
                   required
                   disabled={saving}
@@ -275,8 +274,9 @@ export default class PaymentMethod extends React.Component {
                 /
                 <Input type='text'
                   id='expiration-year'
+                  ref='expirationYear'
                   placeholder='YYYY'
-                  pattern="20[0-9]{2}"
+                  pattern='20[0-9]{2}'
                   bsStyle={this.validationStyle(expirationYear, expirationYearValid)}
                   required
                   disabled={saving}
