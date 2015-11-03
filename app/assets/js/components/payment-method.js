@@ -164,6 +164,11 @@ export default class PaymentMethod extends React.Component {
     if ((expirationMonth || expirationYear) && !this.expirationYearValid()) {
       return 'Please enter a valid year';
     }
+
+    if (expirationMonth && expirationYear
+      && expiration.isPast(expirationMonth, expirationYear)) {
+      return 'Please use a card that has not expired'
+    }
   }
 
   zipCodeValid = () => {
