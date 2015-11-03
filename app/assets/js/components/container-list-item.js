@@ -61,7 +61,10 @@ export default class ContainerListItem extends React.Component {
             makeHref('container-collaborators', { hostSlug: host.slug, containerSlug: container.slug })),
           keysUrl = (shared ?
             makeHref('shared-container-keys', { containerSlug: container.slug }) :
-            makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug }));
+            makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug })),
+          portsURL = (shared ?
+            makeHref('shared-container-ports', { containerSlug: container.slug }) :
+            makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug }));
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -94,7 +97,7 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
                   </MenuItem>
                   <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
-                  <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
+                  <MenuItem href={portsURL}>Manage Ports...</MenuItem>
                 </DropdownButton>
                 {container.canOpenIDE ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>

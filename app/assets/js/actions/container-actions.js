@@ -69,6 +69,24 @@ class ContainerActions {
     });
   }
 
+  fetchConfig(slug) {
+    return authedAjax({
+      type: 'GET',
+      url: `/api/v0/containers/${slug}/config`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'container.fetched-config',
+        data: { data, slug }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.fetch-config-failed',
+        data: { jqxhr, slug }
+      });
+    });
+  }
+
   postAction(container, action) {
     return authedAjax({
       type: 'POST',

@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react';
+import { Nav, NavItem, Panel } from 'react-bootstrap';
+
 import Host from 'records/host';
 import collaboratorActions from 'actions/collaborator-actions';
 import containerActions from 'actions/container-actions';
 import collaboratorStore from 'stores/collaborator-store';
 import containerStore from 'stores/container-store';
-import { Nav, NavItem, Panel } from 'react-bootstrap';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
 import WorkspaceNav from 'components/workspace-nav';

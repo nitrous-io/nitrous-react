@@ -139,7 +139,7 @@ export default class CollaboratorList extends React.Component {
                 </Col>
 
                 <Col lg={8} md={8} sm={6} xs={12}>
-                  <Button bsStyle='default' type='submit' onClick={this.handleAddCollaborator}>
+                  <Button bsStyle='default' type='submit'>
                     {adding ? 'Adding...' : 'Add'}
                   </Button>
                 </Col>
