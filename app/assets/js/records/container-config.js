@@ -75,8 +75,8 @@ export class PortBinding extends Record({
     return new this({
       preview: previewPort && previewPort === containerPort,
       public: visibility === 'public',
-      hostPort,
-      containerPort,
+      hostPort: hostPort || null,
+      containerPort: containerPort || null,
       tcp: protocol === 'tcp',
       udp: protocol === 'udp'
     });

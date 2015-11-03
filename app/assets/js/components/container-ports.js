@@ -29,7 +29,7 @@ export default class ContainerPorts extends React.Component {
   configuredPortBindings = () => {
     const containerConfig = containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug);
     if (!containerConfig) {
-      return [];
+      return null;
     }
     let bindings = containerConfig.configuredPortBindings;
 
@@ -56,7 +56,6 @@ export default class ContainerPorts extends React.Component {
     containerConfig: containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug),
     configuredPortBindings: this.configuredPortBindings(),
     processing: false,
-    dirty: false, // To indicate that there are unsaved port changes.
     newPort: null,
     newPortInvalid: false
   }
@@ -106,7 +105,7 @@ export default class ContainerPorts extends React.Component {
     const newPort = event.target.value,
           parsedPort = parseInt(newPort, 10),
           invalid = !(parsedPort >= 1 && parsedPort <= 65535);
-    this.setState({ newPort: parsedPort, newPortInvalid: invalid });
+    this.setState({ newPort: parsedPort.toString(), newPortInvalid: invalid });
   }
 
   handleAddPort = (event) => {
@@ -130,12 +129,21 @@ export default class ContainerPorts extends React.Component {
     // TODO Actually send a reconfigure API request.
   }
 
+  isDirty = () => {
+    const { configuredPortBindings } = this.state;
+    if (!configuredPortBindings) {
+      return false;
+    }
+    return !configuredPortBindings.equals(this.configuredPortBindings());
+  }
+
   render() {
     const { container, containerConfig, configuredPortBindings,
-            dirty, processing, newPort, newPortInvalid } = this.state,
+            processing, newPort, newPortInvalid } = this.state,
           { host } = this.context,
           shared = !host,
           loading = (container == null || containerConfig == null),
+          dirty = this.isDirty(),
           { makeHref } = this.context.router;
 
     return (
