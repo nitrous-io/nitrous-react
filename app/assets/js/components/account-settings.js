@@ -147,7 +147,7 @@ export default class AccountSettings extends React.Component {
                   required disabled={updating} value={name} onChange={this.handleChangeNameField} />
               </div>
               {unconfirmedEmail ? (
-                <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime email will be sent to the email {user.email}.</i></p>
+                <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime emails will be sent to {user.email}.</i></p>
               ) : ''}
               <div className='email'>
                 <Input label='Email' type='text' placeholder='Email...'
