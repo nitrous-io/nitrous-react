@@ -116,7 +116,12 @@ export default class ImageList extends React.Component {
   }
 
   handlePushButton = (image) => {
-    this.setState({ showPushModal: true, targetImage: image, pushRepository: image.repo });
+    let { repo } = image;
+    if (image.isSnapshot) {
+      repo = repo.replace(/__snapshot__/, "");
+    }
+
+    this.setState({ showPushModal: true, targetImage: image, pushRepository: repo });
   }
 
   handleChangePushRepositoryField = (event) => {
@@ -196,6 +201,7 @@ export default class ImageList extends React.Component {
                 <th>Name</th>
                 <th className='created-column'>Created</th>
                 <th className='size-column'>Size</th>
+                <th className='actions-column'></th>
               </tr>
             </thead>
             <tbody>
@@ -204,13 +210,12 @@ export default class ImageList extends React.Component {
                   <ImageListItem key={`snapshot-${snapshot.id}`} image={snapshot}
                     selected={selectedImage === snapshot.repo}
                     onSelect={onSelect}
-                    onRefresh={this.bindToImage(onRefresh, snapshot)}
                     onPush={this.bindToImage(onPush, snapshot)}
                     onDelete={this.bindToImage(onDelete, snapshot)}/>
                 );
               }) : (
                 <tr>
-                  <td colSpan={4}>&nbsp;</td>
+                  <td className="text-center" colSpan={4}>No Snapshots</td>
                 </tr>
               )}
             </tbody>
@@ -245,7 +250,7 @@ export default class ImageList extends React.Component {
                 );
               }) : (
                 <tr>
-                  <td colSpan={4}>No Images</td>
+                  <td className="text-center" colSpan={4}>No Images</td>
                 </tr>
               )}
             </tbody>
@@ -291,7 +296,7 @@ export default class ImageList extends React.Component {
             </Modal.Header>
             <form onSubmit={this.handleDeleteSubmit}>
               <Modal.Body>
-                <p>Do you want to delete the image {targetImage.repo}?</p>
+                <p>Do you want to delete the {targetImage.isSnapshot ? 'snapshot' : 'image'} {targetImage.repo}?</p>
               </Modal.Body>
               <Modal.Footer>
                 <Button ref='modalCancel' onClick={this.hideDeleteModal}>Cancel</Button>

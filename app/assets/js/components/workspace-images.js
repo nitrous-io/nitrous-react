@@ -39,7 +39,7 @@ export default class WorkspaceImages extends React.Component {
               <Fa icon='cloud-download' /> Pull Image
             </Button>
           </ButtonGroup>
-          <ImageList manageImages host={host} showSnapshots={false} />
+          <ImageList manageImages host={host} />
 
           <h4>Docker Registries</h4>
           <Registries showDisconnect host={host} />
