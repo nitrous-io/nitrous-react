@@ -42,7 +42,8 @@ export default class ContainerKeys extends React.Component {
     userKeys: null,
     containerKeysFailed: false,
     containerKeyStatusFailed: false,
-    processingGitHubActions: false
+    processingGitHubActions: false,
+    fetchingKeyStatus: true
   };
 
   componentDidMount() {
@@ -51,6 +52,7 @@ export default class ContainerKeys extends React.Component {
     containerKeyStore.onChange(this.containerKeyStoreDidChange);
     containerKeyStore.on('fetch-failed', this.onContainerKeyFetchFailed);
     containerKeyStore.on('fetch-status-failed', this.onContainerKeyFetchStatusFailed);
+    containerKeyStore.on('fetched-status', this.onContainerKeyFetchedStatus);
     userKeyStore.onChange(this.userKeyStoreDidChange);
     this.fetchData(containerSlug);
   }
@@ -68,10 +70,13 @@ export default class ContainerKeys extends React.Component {
     containerStore.offChange(this.containerStoreDidChange);
     containerKeyStore.offChange(this.containerKeyStoreDidChange);
     containerKeyStore.off('fetch-failed', this.onContainerKeyFetchFailed);
+    containerKeyStore.off('fetch-status-failed', this.onContainerKeyFetchStatusFailed);
+    containerKeyStore.off('fetched-status', this.onContainerKeyFetchedStatus);
     userKeyStore.offChange(this.userKeyStoreDidChange);
   }
 
   fetchData = (containerSlug) => {
+    this.setState({ fetchingKeyStatus: true });
     containerActions.fetchOne(containerSlug);
     containerKeyActions.fetchAllByContainerSlug(containerSlug);
     containerKeyActions.fetchStatusByContainerSlug(containerSlug);
@@ -109,7 +114,14 @@ export default class ContainerKeys extends React.Component {
   onContainerKeyFetchStatusFailed = (data) => {
     const { containerSlug } = data;
     if (containerSlug === this.props.params.containerSlug) {
-      this.setState({ containerKeyStatusFailed: true });
+      this.setState({ fetchingKeyStatus: false, containerKeyStatusFailed: true });
+    }
+  }
+
+  onContainerKeyFetchedStatus = (data) => {
+    const { containerSlug } = data;
+    if (containerSlug === this.props.params.containerSlug) {
+      this.setState({ fetchingKeyStatus: false });
     }
   }
 
@@ -133,10 +145,38 @@ export default class ContainerKeys extends React.Component {
     containerKeyActions.removeFromGitHub(this.props.params.containerSlug);
   }
 
+  renderContainerKeyActionButton = () => {
+    const { fetchingKeyStatus, processingGitHubActions, containerKeyStatusFailed, containerKeyOnGitHub } = this.state;
+    if (fetchingKeyStatus) {
+      return (
+        <Button className='pull-right' disabled>Loading...</Button>
+      );
+    }
+
+    if (containerKeyStatusFailed) {
+      return '';
+    }
+
+    return (containerKeyOnGitHub ? (
+        <Button
+          className='pull-right'
+          onClick={this.handleRemoveFromGitHub}
+          disabled={processingGitHubActions}>
+          {processingGitHubActions ? 'Removing from GitHub...' : 'Remove from GitHub'}
+        </Button>
+      ) : (
+        <Button
+          className='pull-right'
+          onClick={this.handleAddToGitHub}
+          disabled={processingGitHubActions}>
+          {processingGitHubActions ? 'Adding to GitHub...' : 'Add to GitHub'}
+        </Button>
+      )
+    );
+  }
+
   render() {
-    const { container, containerKeys, containerKeyOnGitHub, userKeys,
-            containerKeysFailed, containerKeyStatusFailed,
-            processingGitHubActions } = this.state,
+    const { container, containerKeys, userKeys, containerKeysFailed } = this.state,
           { host } = this.context,
           shared = !host,
           loading = (container == null || (containerKeys == null && !containerKeysFailed) || userKeys == null),
@@ -176,22 +216,7 @@ export default class ContainerKeys extends React.Component {
                         <p>{key.displayName}</p>
                         <SelectableTextarea readOnly className='key-field' rows='5'
                           value={key.key} />
-                        {!containerKeyStatusFailed ? (containerKeyOnGitHub ? (
-                            <Button
-                              className='pull-right'
-                              onClick={this.handleRemoveFromGitHub}
-                              disabled={processingGitHubActions}>
-                              {processingGitHubActions ? 'Removing from GitHub...' : 'Remove from GitHub'}
-                            </Button>
-                          ): (
-                            <Button
-                              className='pull-right'
-                              onClick={this.handleAddToGitHub}
-                              disabled={processingGitHubActions}>
-                              {processingGitHubActions ? 'Adding to GitHub...' : 'Add to GitHub'}
-                            </Button>
-                          )
-                        ) : ''}
+                        {this.renderContainerKeyActionButton(key)}
                       </div>);
                     })
                   : (

@@ -30,6 +30,7 @@ class ContainerKeyStore extends Store {
         if (data.added_to_github) {
           this._keyAddedToGitHubByContainerSlug = this._keyAddedToGitHubByContainerSlug.set(containerSlug, true);
         }
+        this.emit('fetched-status', { containerSlug });
         this._lastError = null;
         break;
       }
