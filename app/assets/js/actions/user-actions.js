@@ -76,6 +76,17 @@ class UserActions {
       });
     });
   }
+
+  connectToGitHub() {
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/github/authorize',
+      dataType: 'json',
+      data: {
+        beta: true
+      }
+    });
+  }
 }
 
 export default new UserActions();

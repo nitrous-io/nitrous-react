@@ -1,5 +1,6 @@
 import { Record } from 'immutable';
 import md5 from 'md5';
+import UserProfile from 'records/user-profile';
 
 export default class User extends Record({
   id: null,
@@ -26,7 +27,7 @@ export default class User extends Record({
       phone: p.phone,
       phoneAuthed: !!p.phone_authed,
       phoneCountryCode: p.phone_country_code,
-      userProfile: p.user_profile,
+      userProfile: UserProfile.deserialize(p.user_profile),
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
