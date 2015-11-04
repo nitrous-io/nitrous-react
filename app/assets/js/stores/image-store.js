@@ -27,7 +27,14 @@ class ImageStore extends Store {
       }
       case 'image.pull-initiated': {
         const { data } = action.data,
-              image = Image.deserialize(data.image),
+              existingImage = this._images.get(id);
+
+        if (existingImage) {
+          data.image.actual_size = existingImage.actualSize;
+          data.image.virtial_size = existingImage.virtualSize;
+        }
+
+        const image = Image.deserialize(data.image),
               { id, repo } = image;
 
         this._images = this._images.set(id, image);
