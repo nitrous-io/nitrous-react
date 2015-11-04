@@ -28,7 +28,7 @@ export default class User extends Record({
       phone: p.phone,
       phoneAuthed: !!p.phone_authed,
       phoneCountryCode: p.phone_country_code,
-      userProfile: UserProfile.deserialize(p.user_profile),
+      userProfile: p.user_profile && UserProfile.deserialize(p.user_profile),
       maxContainers: p.max_containers,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
