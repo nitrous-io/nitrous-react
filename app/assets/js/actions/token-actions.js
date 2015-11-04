@@ -30,6 +30,14 @@ class TokenActions {
       type: 'token.invalidate'
     });
   }
+
+  setToken(token) {
+    const data = { access_token: token };
+    dispatcher.dispatch({
+      type: 'token.fetched',
+      data: { data }
+    });
+  }
 }
 
 export default new TokenActions();
