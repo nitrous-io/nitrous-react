@@ -26,23 +26,20 @@ export default class Signup extends React.Component {
   };
 
   componentDidMount() {
-    userStore.onChange(this.userStoreDidChange);
+    userStore.on('created', this.onUserCreated);
     userStore.on('create-failed', this.onUserCreateFailed);
     tokenStore.onChange(this.tokenStoreDidChange);
   }
 
   componentWillUnmount() {
-    userStore.offChange(this.userStoreDidChange);
+    userStore.off('created', this.onUserCreated);
     userStore.off('create-failed', this.onUserCreateFailed);
     tokenStore.offChange(this.tokenStoreDidChange);
   }
 
-  userStoreDidChange = () => {
-    const user = userStore.user;
-    if (!user) {
-      return;
-    }
-    tokenActions.fetch(user.username, this.state.password);
+  onUserCreated = (data) => {
+    const { username } = data;
+    tokenActions.fetch(username, this.state.password);
   }
 
   onUserCreateFailed = () => {
