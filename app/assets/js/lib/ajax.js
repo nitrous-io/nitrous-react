@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import dispatcher from 'app-dispatcher';
 import tokenStore from 'stores/token-store';
 
 function ajax(options={}) {
@@ -22,7 +23,15 @@ function authedAjax(options={}) {
   options = Object.assign({}, options);
   options.headers = options.headers || {};
   options.headers.Authorization = `Bearer ${tokenStore.token}`;
-  return ajax(options);
+  const promise = ajax(options);
+  promise.catch((jqxhr) => {
+    if (jqxhr.status === 401) {
+      dispatcher.dispatch({
+        type: 'token.invalidate'
+      });
+    }
+  });
+  return promise;
 }
 
 export default {
