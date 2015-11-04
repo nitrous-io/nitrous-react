@@ -30,14 +30,20 @@ export default class ContainerConfig extends Record({
 
   // Returns a new ContainerConfig record with the given env var set.
   withEnv(key, value) {
-    const newMap = this.envMap.set(key, value);
-    return this.merge({ envMap: newMap });
+    const newEnv = this.envMap.set(key, value);
+    return this.merge({ envMap: newEnv });
   }
 
   // Returns a new ContainerConfig with the preview port env var set to the
   // given port.
   withPreviewPort(port) {
     return this.withEnv('NITROUS_PREVIEW_PORT', port);
+  }
+
+  // Returns a new ContainerConfig without the preview port env var.
+  withoutPreviewPort() {
+    const newEnv = this.envMap.delete('NITROUS_PREVIEW_PORT');
+    return this.merge({ envMap: newEnv });
   }
 
   // Returns a new ContainerConfig with the "editable" port bindings set to the

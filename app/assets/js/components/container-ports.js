@@ -136,6 +136,8 @@ export default class ContainerPorts extends React.Component {
     const previewPortBinding = portBindings.find((v) => v.preview);
     if (previewPortBinding) {
       newConfig = newConfig.withPreviewPort(previewPortBinding.containerPort);
+    } else {
+      newConfig = newConfig.withoutPreviewPort();
     }
 
     containerActions.reconfigure(container, newConfig);
