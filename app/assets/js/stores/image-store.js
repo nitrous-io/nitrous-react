@@ -113,6 +113,7 @@ class ImageStore extends Store {
         }
         break;
       }
+      case 'events:image.created':
       case 'events:image.pulled': {
         const image = Image.deserialize(action.data.image),
               id = image.id;
