@@ -56,7 +56,9 @@ export default class Dashboard extends React.Component {
     return (
       <div className='dashboard-component'>
         <TopNav />
-        <RouteHandler />
+        <div className='main-content-wrapper'>
+          <RouteHandler />
+        </div>
       </div>
     );
   }

@@ -137,15 +137,14 @@ export default class NewContainer extends React.Component {
     return (
       <div className='new-container-component'>
         <div className='container'>
-          <h2>Create New Project</h2>
           <h3>Project Name</h3>
           <div className='project-name'>
             <Input ref='projectNameField' type='text' placeholder='Name your Project...'
               required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
               buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
           </div>
-          <h3>Select Image</h3>
-          <Tabs defaultActiveKey='templates'>
+          <h3>Select an Image</h3>
+          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'>
             <Tab eventKey='templates' title='Nitrous Templates'>
               <Grid className='ui-card-grid'>
                 <Row>
@@ -174,7 +173,7 @@ export default class NewContainer extends React.Component {
               </div>
             </Tab>
           </Tabs>
-          <Button disabled={!this.isValid || creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>Create Project</Button>
+          <Button disabled={!this.isValid || creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>Create Project</Button>
         </div>
       </div>
     );

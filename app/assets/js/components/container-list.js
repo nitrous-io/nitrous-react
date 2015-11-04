@@ -68,7 +68,7 @@ export default class ContainerList extends React.Component {
     return (
       <div className='container-list-component'>
         {containers == null ? (
-          <LoadingIndicator />
+          <LoadingIndicator large />
         ) : (
           <Grid className='ui-card-grid'>
             <Row>

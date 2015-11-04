@@ -1,0 +1,115 @@
+.ui-component
+
+  .container
+    padding-left: 15px
+    padding-right: 15px
+
+  .anchor,
+  .anchor:hover,
+  .anchor:active,
+  .anchor:focus
+    color: black
+    text-decoration: none
+    position: relative
+
+  .anchor-icon
+    font-size: 90%
+    padding-top: 0.1em
+    position: absolute
+    left: -0.8em
+    opacity: 0
+
+
+  h1:hover .anchor-icon,
+  h1 a:focus .anchor-icon,
+  h2:hover .anchor-icon,
+  h2 a:focus .anchor-icon,
+  h3:hover .anchor-icon,
+  h3 a:focus .anchor-icon,
+  h4:hover .anchor-icon,
+  h4 a:focus .anchor-icon
+    opacity: 0.5
+
+  h1.page-header
+    margin-top: 80px
+
+  h2.docs-title, h3.docs-title
+    margin-top: 54px
+    font-size: 20px
+
+  .bs-docs-section:first-of-type
+    padding-top: 50px
+
+  .bs-docs-section p
+    font-size: 16px
+
+  .btn-toolbar + .btn-toolbar
+    margin-top: 10px
+
+  .btn-toolbar > .btn,
+  .btn-toolbar > .btn-group,
+  .btn-toolbar > .input-group
+    margin-left: 5px
+
+  .btn-group-justified + .btn-group-justified
+    margin-top: 10px
+
+  .dropdown-menu.open
+    position: static
+    display: block
+    margin-bottom: 5px
+    clear: left
+
+  .modal
+    position: relative
+    top: auto
+    right: auto
+    left: auto
+    bottom: auto
+    z-index: 1
+    display: block
+
+  .modal-dialog
+    width: 600px
+    position: relative
+    margin: 30px auto
+
+  .tooltip
+    position: relative
+    display: inline-block
+    margin: 5px 10px
+
+  .popover-wrapper
+    height: 120px
+    position: relative
+
+  .well
+    border-radius: 0
+    background: rgb(252,252,252)
+
+  .docs-demo-wrapper
+    padding: 20px 0
+    position: relative
+
+  .tab-content > .tab-pane
+    padding: 20px
+
+  .popover, .tooltip
+    z-index: 10
+
+  .navbar-right
+    margin-right: 0
+
+  // from top-nav.sass
+  .navbar-brand
+    width: 150px
+    background: url(/assets/images/nitrous-logo.svg) no-repeat center center
+
+    span
+      display: none
+
+  .account-menu
+    .gravatar
+      width: 20px
+      height: 20px
+      margin-right: 5px

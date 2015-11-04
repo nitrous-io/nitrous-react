@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
+import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge, Navbar } from 'react-bootstrap';
 import Host from 'records/host';
 import Org from 'records/org';
 import userStore from 'stores/user-store';
@@ -104,7 +104,7 @@ export default class ContextSwitcher extends React.Component {
 
     const contextMenu = (
       <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
-        <DropdownButton title={buttonTitle} id='context-switcher-dropdown'>
+        <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle="link">
           <MenuItem header>Personal</MenuItem>
           <MenuItem href={makeHref('user-workspace')}>{withGravatar(user)}</MenuItem>
           <MenuItem divider />
@@ -150,16 +150,18 @@ export default class ContextSwitcher extends React.Component {
     };
 
     return (
-      <div className='context-switcher-component'>
-        {selectedHost && hosts.size > 1 ? (
-          <ButtonGroup>
-            {contextMenu}
-            {buildHostsMenu()}
-          </ButtonGroup>
-        ) : (
-          contextMenu
-        )}
-      </div>
+      <Navbar className="context-nav" fixedTop>
+        <div className='context-switcher-component'>
+          {selectedHost && hosts.size > 1 ? (
+            <ButtonGroup>
+              {contextMenu}
+              {buildHostsMenu()}
+            </ButtonGroup>
+          ) : (
+            contextMenu
+          )}
+        </div>
+      </Navbar>
     );
   }
 }

@@ -170,7 +170,6 @@ export default class NewWorkspace extends React.Component {
       <div className='new-workspace-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
-          <h2>Create New Workspace</h2>
           <h3>Select Plan</h3>
           <p className='hint'>All plans are standard with solid state drives (SSD)</p>
           <Grid className='ui-card-grid'>
@@ -210,7 +209,7 @@ export default class NewWorkspace extends React.Component {
             </div>
           ) : ''}
 
-          <Button disabled={creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workspace...' : 'Create Workspace'}</Button>
+          <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workspace...' : 'Create Workspace'}</Button>
         </div>
       </div>
     );

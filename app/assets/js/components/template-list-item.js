@@ -21,7 +21,7 @@ export default class TemplateListItem extends React.Component {
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='template-list-item-component'>
-        <Button className={classNames('ui-card', { selected })} onClick={this.handleClick}>
+        <Button className={classNames('ui-card nopadding', { selected })} onClick={this.handleClick}>
           <div className='ui-card-body'>
             <div className='template'>
               <div className='template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}>

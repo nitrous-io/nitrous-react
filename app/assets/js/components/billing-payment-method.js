@@ -31,11 +31,13 @@ export default class BillingPaymentMethod extends React.Component {
     return (
       <div className='billing-payment-method-component'>
         <div className='container'>
-          {billingProfile.hasCard ? (
-            <h2>{org ? `Update Payment Method for ${org.name}` : 'Update Payment Method'}</h2>
-          ) : (
-            <h2>{org ? `Add Payment Method for ${org.name}` : 'Add Payment Method'}</h2>
-          )}
+          <h2>
+            {billingProfile.hasCard ? (
+              org ? `Update Payment Method for ${org.name}` : 'Update Payment Method'
+            ) : (
+              org ? `Add Payment Method for ${org.name}` : 'Add Payment Method'
+            )}
+          </h2>
           <PaymentMethod standalone />
         </div>
       </div>

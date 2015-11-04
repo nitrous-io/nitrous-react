@@ -1,11 +1,14 @@
 import dispatcher from 'app-dispatcher';
 
 class SnackbarActions {
-  post(content) {
+  post(content, kind='info') {
     window.setTimeout(function() {
       dispatcher.dispatch({
         type: 'snackbar.post',
-        data: { content }
+        data: {
+          content,
+          kind
+        }
       });
     }, 1);
   }

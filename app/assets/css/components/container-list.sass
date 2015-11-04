@@ -3,7 +3,7 @@
     height: 144px
 
   .container-list-item
-    height: 160px
+    height: 185px
 
     .ui-card
       width: 100%
@@ -14,6 +14,7 @@
 
     h4
       margin-top: 0
+      font-weight: 400
 
     .info
       white-space: nowrap
@@ -23,6 +24,7 @@
     .slug
       margin-left: 6px
       font-size: 13px
+      color: rgba($gray,.8)
 
     .buttons
       position: absolute
@@ -32,11 +34,13 @@
   .new-container-btn
     .ui-card
       border-style: dashed
+      border-color: #D8D8D8
       font-size: 30px
-      color: #ccc
+      color: rgba($gray-light,.25)
+      background-color: rgba(#D8D8D8,.10)
 
       &:focus, &:active
-        background-color: #fff
+        background-color: rgba(#D8D8D8,.10)
 
       &:hover
         background-color: #f9f9f9

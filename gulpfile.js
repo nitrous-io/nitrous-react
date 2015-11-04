@@ -142,7 +142,7 @@ gulp.task('css-dev', function() {
 
   buildCSS(cssOptions);
 
-  gulp.watch('app/assets/css/**/*.sass').on('change', function() {
+  gulp.watch(['app/assets/css/**/*.sass', 'app/assets/css/**/*.scss']).on('change', function() {
     gutil.log('Building ' + chalk.cyan('CSS') + '...');
     buildCSS(cssOptions).on('end', function() {
       gutil.log('Built ' + chalk.cyan('CSS'));

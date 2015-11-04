@@ -8,8 +8,8 @@ class SnackbarStore extends Store {
   handleAction(action) {
     switch (action.type) {
       case 'snackbar.post': {
-        const { content } = action.data;
-        this._notifications = this._notifications.push(new Notification(content));
+        const { content, kind } = action.data;
+        this._notifications = this._notifications.push(new Notification(content, kind));
         break;
       }
       case 'snackbar.remove': {

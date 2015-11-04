@@ -33,5 +33,5 @@ export default class Template extends Record({
 }
 
 function makeIconUrl(slug='nitrous') {
-  return `https://nitrous-image-icons.s3.amazonaws.com/${slug}.png`;
+  return `https://nitrous-image-icons-update.s3.amazonaws.com/${slug}.png`;
 }

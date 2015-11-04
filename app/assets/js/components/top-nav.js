@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Navbar, Nav, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Nav, NavDropdown, MenuItem } from 'react-bootstrap';
+import LeftNavbar from 'components/left-navbar';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
 import User from 'records/user';
@@ -58,27 +59,25 @@ export default class TopNav extends React.Component {
 
     return (
       <div className='top-nav-component'>
-        <Navbar brand={<Link to="application"><span>Nitrous</span></Link>} className='navbar'>
+        <LeftNavbar brand={<Link to="application"><span>Nitrous</span></Link>} className='navbar'>
           <Nav right>
             {user ? (
-              <OverlayTrigger placement='left' rootClose overlay={<Tooltip id='account-menu-tooltip'>View Account and More</Tooltip>}>
-                <NavDropdown className='account-menu' id='account-menu-nav'
-                  title={<span><img className='gravatar' src={user.gravatar(40)} /><span className='username'>{user.username}{free ? '(free)' : ''}</span></span>}>
-                  <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
-                  <MenuItem href={makeHref('billing')}>Billing</MenuItem>
-                  <MenuItem divider />
-                  <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
-                  <MenuItem divider />
-                  <MenuItem href='https://community.nitrous.io/docs' target='_blank'>Documentation</MenuItem>
-                  <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
-                  <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
-                  <MenuItem divider />
-                  <MenuItem onSelect={this.handleLogOut}>Log Out</MenuItem>
-                </NavDropdown>
-              </OverlayTrigger>
+              <NavDropdown className='account-menu' id='account-menu-nav'
+                title={<img className='gravatar' src={user.gravatar(40)} />} noCaret dropup>
+                <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
+                <MenuItem href={makeHref('billing')}>Billing</MenuItem>
+                <MenuItem divider />
+                <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
+                <MenuItem divider />
+                <MenuItem href='https://community.nitrous.io/docs' target='_blank'>Documentation</MenuItem>
+                <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
+                <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
+                <MenuItem divider />
+                <MenuItem onSelect={this.handleLogOut}>Log Out</MenuItem>
+              </NavDropdown>
             ) : ''}
           </Nav>
-        </Navbar>
+        </LeftNavbar>
       </div>
     );
   }

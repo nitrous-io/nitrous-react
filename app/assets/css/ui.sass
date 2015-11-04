@@ -1,3 +1,135 @@
+// Contect Switcher
+.context-nav
+  height: 32px
+  min-height: 32px
+  max-height: 32px
+  padding: 0
+  z-index: 90
+
+  .context-switcher-component > .dropdown
+    display: flex
+
+    &.open
+      background: rgba(0,0,0,.025)
+      background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 20%,rgba(0,0,0,.025) 50%,rgba(0,0,0,0) 80%,rgba(0,0,0,0) 100%)
+
+    > button
+      margin-left: 40px
+      flex-grow: 1
+
+      & + .dropdown-menu
+        left: 50%
+        margin-left: -76px
+
+
+// Left Bar
+.left-navbar-component
+  background: #F7F7F7
+
+  .container, .navbar
+    width: 42px
+    height: 100%
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    padding: 0
+    margin: 0
+    border: 0
+    background: transparent
+    display: flex
+    flex-direction: column
+
+  .container
+    .navbar-header
+      margin: 0
+      padding: 0
+
+    .navbar-brand
+      width: 42px
+      height: 32px
+      margin: 0
+      float: none
+      display: block
+      position: relative
+      background: #03A9F4 url('/assets/images/left-bar-nitrous.svg') center center no-repeat
+      background-size: 16px 12px
+      border-right: 1px solid rgba(0,0,0,.1)
+
+      &:hover
+        background-color: darken( #03A9F4, 5% )
+
+    .navbar-right
+      float: none !important
+      display: flex
+      padding: 0
+      margin: 0
+      flex-direction: column
+      justify-content: space-between
+      flex-grow: 1
+
+      li.account-menu
+        flex-grow: 1
+        display: flex
+        float: none
+
+        a.dropdown-toggle
+          width: 42px
+          height: 32px
+          padding: 0
+          margin: 0
+          text-align: center
+          align-self: flex-end
+          border-top: 1px solid #DADADA
+
+          img.gravatar
+            margin: 6px 0 0 0
+
+        .dropdown-menu
+          float: none
+          left: 42px
+          right: 0
+          bottom: -2px
+
+  @media (min-width: $grid-float-breakpoint)
+    width: 42px
+    position: fixed
+    display: flex
+    flex-direction: column
+    top: 0
+    left: 0
+    bottom: 0
+    overflow: visible
+    z-index: 100
+    border-right: 1px solid #DADADA
+
+  @media (max-device-width: $screen-xs-min)
+    background: red
+
+// Main Content
+.main-content-wrapper
+
+  @media (min-width: $grid-float-breakpoint)
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 42px
+    padding-top:40px
+    overflow: hidden
+    overflow-y: auto
+
+    .workspace-component
+      padding-top: 20px
+
+      .container-list-component
+        padding-top: 20px
+
+    h3 + form, h2 + form
+      margin: 40px 0 0 0
+
+// UI Card
 .ui-card-grid
   width: 100%
   padding: 8px 0
@@ -15,12 +147,16 @@
 .ui-card
   display: block
   padding: 16px
-  border: 1px solid #ddd
-  border-radius: 4px
+  background-color: #FFF
+  border: 1px solid $gray-lighter
+  border-radius: $border-radius-base
   transition: border-color .1s
 
   &.btn
     transition: background-color .1s, border-color .1s, color .1s, box-shadow .1s, opacity .1s
+
+  &.nopadding
+    padding: 0
 
   .ui-card-body
     position: relative
@@ -30,10 +166,14 @@
     margin-top: 0
 
   &.selected
-    border-color: #337ab7
+    color: $brand-primary
+    border-color: $brand-primary
+
+    ul
+      color: $gray
 
     h4
-      color: #2e6da4
+      color: $brand-primary
 
 .ui-segmented-pill
   .nav-pills

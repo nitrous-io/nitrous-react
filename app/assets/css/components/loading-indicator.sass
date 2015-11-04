@@ -5,19 +5,13 @@
   align-items: center
 
   .graphic
-    width: 21px
+    width: 32px
     height: 16px
-    background: url(/assets/images/n-logo.svg) no-repeat center center
-    animation: loading-indicator 2s infinite
+    background: url(/assets/images/loading-bubbles.svg) no-repeat center center
+    background-size: 32px 32px
 
-@keyframes loading-indicator
-  0%
-    transform: rotateX(0deg) rotateY(0deg)
-  25%
-    transform: rotateX(0deg) rotateY(180deg)
-  50%
-    transform: rotateX(180deg) rotateY(180deg)
-  75%
-    transform: rotateX(180deg) rotateY(0deg)
-  100%
-    transform: rotateX(0deg) rotateY(0deg)
+  &.large
+    .graphic
+      width: 64px
+      height: 64px
+      background-size: 64px 64px

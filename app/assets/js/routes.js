@@ -27,6 +27,8 @@ import Billing from 'components/billing';
 import BillingPaymentMethod from 'components/billing-payment-method';
 import NotFound from 'components/not-found';
 
+import DocsUI from 'components/docs-ui';
+
 export default (
   <Route name='application' path='/' handler={Application}>
     <DefaultRoute handler={redirectTo('dashboard')} />
@@ -34,6 +36,8 @@ export default (
     <Route name='forgot-password' handler={ForgotPassword} />
     <Route name='reset-password' handler={ResetPassword} />
     <Route name='signup' handler={Signup} />
+
+    <Route name='ui' path='ui' handler={DocsUI} />
 
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={redirectTo('user-workspace')} />

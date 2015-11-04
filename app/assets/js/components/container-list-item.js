@@ -90,7 +90,7 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
+                <DropdownButton title="Settings" id={`container-settings-${container.id}`}>
                   <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
                   <MenuItem divider />
                   <MenuItem href={collaboratorsUrl}>
