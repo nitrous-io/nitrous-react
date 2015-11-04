@@ -18,9 +18,10 @@ class UserStore extends Store {
         break;
       }
       case 'user.created': {
-        const { data } = action.data;
-        this._user = User.deserialize(data.user);
+        const { data } = action.data,
+              { username } = data.user;
         this._lastError = null;
+        this.emit('created', { username });
         break;
       }
       case 'user.create-failed': {
