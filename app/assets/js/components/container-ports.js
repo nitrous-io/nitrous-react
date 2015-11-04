@@ -87,7 +87,7 @@ export default class ContainerPorts extends React.Component {
   handleNewPortChanged = (event) => {
     const newPort = event.target.value,
           parsedPort = parseInt(newPort, 10),
-          invalid = !(parsedPort >= 1 && parsedPort <= 65535);
+          invalid = newPort && !(parsedPort >= 1 && parsedPort <= 65535);
     this.setState({ newPort: parsedPort.toString(), newPortInvalid: invalid });
   }
 
@@ -166,23 +166,30 @@ export default class ContainerPorts extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {portBindings.map((binding) => {
+                {portBindings.size > 0 ? portBindings.map((binding) => {
                   return (
                     <tr key={`binding-${binding.containerPort}`}>
                       <td>{binding.containerPort}</td>
                       <td>
                         <Input type='radio' name='previewPort'
                           checked={binding.preview}
+                          disabled={processing}
                           onChange={this.handlePreviewChanged.bind(this, binding)} />
                       </td>
                       <td>
-                        <Button bsStyle='warning' onClick={this.handleRemove.bind(this, binding)}>
+                        <Button bsStyle='warning'
+                          disabled={processing}
+                          onClick={this.handleRemove.bind(this, binding)}>
                           <Fa icon='trash' />
                         </Button>
                       </td>
                     </tr>
                   );
-                })}
+                }) : (
+                  <tr>
+                    <td colSpan='3' className='text-center'>No open ports</td>
+                  </tr>
+                )}
               </tbody>
             </Table>
 
@@ -191,15 +198,17 @@ export default class ContainerPorts extends React.Component {
                 <Row>
                   <Col lg={2} md={2} sm={6} xs={12}>
                     <Input
-                      type='number' required placeholder='New container port'
+                      type='number' min='1' max='65535' required
+                      placeholder='New port'
                       value={newPort}
                       bsStyle={newPortInvalid ? 'error' : null}
                       help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
+                      disabled={processing}
                       onChange={this.handleNewPortChanged} />
                   </Col>
 
                   <Col lg={10} md={10} sm={6} xs={12}>
-                    <Button bsStyle='default' type='submit' disabled={newPortInvalid}>Add</Button>
+                    <Button bsStyle='default' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
                   </Col>
                 </Row>
               </Grid>
