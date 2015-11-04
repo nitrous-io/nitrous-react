@@ -5,6 +5,7 @@ import { Button, Input, Nav, NavItem, OverlayTrigger, Tooltip, Table,
 import { PortBinding } from 'records/container-config';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
 import containerConfigStore from 'stores/container-config-store';
 import ContextSwitcher from 'components/context-switcher';
@@ -47,6 +48,8 @@ export default class ContainerPorts extends React.Component {
     const containerSlug = this.props.params.containerSlug;
 
     containerStore.onChange(this.containerStoreDidChange);
+    containerStore.on('reconfigured', this.onContainerReconfigured);
+    containerStore.on('reconfigure-failed', this.onContainerReconfigFailed);
     containerActions.fetchOne(containerSlug);
 
     containerConfigStore.onChange(this.containerConfigStoreDidChange);
@@ -55,12 +58,30 @@ export default class ContainerPorts extends React.Component {
 
   componentWillUnmount() {
     containerStore.offChange(this.containerStoreDidChange);
+    containerStore.off('reconfigured', this.onContainerReconfigured);
+    containerStore.off('reconfigure-failed', this.onContainerReconfigFailed);
     containerConfigStore.offChange(this.containerConfigStoreDidChange);
   }
 
   containerStoreDidChange = () => {
     const container = containerStore.containerBySlug(this.props.params.containerSlug);
     this.setState({ container });
+  }
+
+  onContainerReconfigured = (data) => {
+    const { container } = data;
+    if (container.slug === this.props.params.containerSlug) {
+      snackbarActions.post(`Your project container “${container.displayName}” has been successfully reconfigured.`);
+      this.setState({ processing: false });
+      containerActions.fetchConfig(this.props.params.containerSlug);
+    }
+  }
+
+  onContainerReconfigFailed = (data) => {
+    const { containerSlug } = data;
+    if (containerSlug === this.props.params.containerSlug) {
+      this.setState({ processing: false });
+    }
   }
 
   containerConfigStoreDidChange = () => {
@@ -109,7 +130,15 @@ export default class ContainerPorts extends React.Component {
   handleApplyChanges = () => {
     this.setState({ processing: true });
 
-    // TODO Actually send a reconfigure API request.
+    const { container, containerConfig, portBindings } = this.state;
+    let newConfig = containerConfig.withEditedPortBindings(portBindings);
+
+    const previewPortBinding = portBindings.find((v) => v.preview);
+    if (previewPortBinding) {
+      newConfig = newConfig.withPreviewPort(previewPortBinding.containerPort);
+    }
+
+    containerActions.reconfigure(container, newConfig);
   }
 
   isDirty = () => {

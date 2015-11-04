@@ -1,5 +1,6 @@
 import Store from 'stores/store';
 import Container from 'records/container';
+import ContainerConfig from 'records/container-config';
 import { OrderedMap, OrderedSet } from 'immutable';
 import snackbarActions from 'actions/snackbar-actions';
 import hostStore from 'stores/host-store';
@@ -69,7 +70,36 @@ class ContainerStore extends Store {
         this.emit('create-failed', { name, hostSlug });
         break;
       }
+      case 'container.reconfigure-failed': {
+        const { containerSlug, jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('reconfigure-failed', { containerSlug });
+        break;
+      }
       // from events-socket
+      case 'events:container.reconfigured': {
+        const { config, container } = action.data,
+              c = Container.deserialize(container),
+              containerConfig = ContainerConfig.deserialize(config);
+        this.emit('reconfigured', { container: c, containerConfig });
+        break;
+      }
+      case 'events:container.reconfigure-failed': {
+        const { container, error } = action.data,
+              c = Container.deserialize(container);
+
+        this._containers = this._containers.set(c.slug, c);
+
+        if (error) {
+          if (error.includes('freighter')) {
+            snackbarActions.post(`Failed to reconfigure “${c.displayName}”!`);
+          } else {
+            snackbarActions.post(error);
+          }
+        }
+        this.emit('reconfigure-failed', { containerSlug: c.slug });
+        break;
+      }
       case 'events:container.starting':
       case 'events:container.started':
       case 'events:container.stopping':
@@ -78,7 +108,8 @@ class ContainerStore extends Store {
       case 'events:container.restarted':
       case 'events:container.created':
       case 'events:container.destroying':
-      case 'events:container.destroyed': {
+      case 'events:container.destroyed':
+      case 'events:container.reconfiguring': {
         const c = Container.deserialize(action.data.container);
 
         // replace the old container object in the global container map with newly updated object
