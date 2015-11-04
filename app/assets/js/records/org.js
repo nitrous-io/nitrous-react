@@ -6,6 +6,7 @@ export default class Org extends Record({
   slug: null,
   email: null,
   name: null,
+  role: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -15,6 +16,7 @@ export default class Org extends Record({
       slug: p.slug,
       email: p.email,
       name: p.name,
+      role: p.role,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
@@ -28,5 +30,9 @@ export default class Org extends Record({
 
   get displayName() {
     return this.name || this.slug;
+  }
+
+  get roleAllowsBillingProfileAdmin() {
+    return this.role === 'owner' || this.role === 'admin';
   }
 }

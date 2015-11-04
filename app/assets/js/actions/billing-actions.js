@@ -4,9 +4,9 @@ const Stripe = window.Stripe;
 
 class BillingActions {
   updateCard(data) {
-    let url = '/user/billing_profile';
+    let url = '/api/v0/user/billing_profile';
     if (data.orgSlug) {
-      url = "/orgs/"+data.orgSlug+"/billing_profile";
+      url = `/api/v0/orgs/${data.orgSlug}/billing_profile`;
     }
 
     return new Promise(function(resolve, reject) {
@@ -32,25 +32,19 @@ class BillingActions {
 
         authedAjax({
           type: 'POST',
-          url: '/api/v0'+url,
+          url,
           dataType: 'json',
-          data: {
-            card_token: response.id
-          }
+          data: { card_token: response.id }
         }).then((data) => {
           dispatcher.dispatch({
             type: 'billing-profile.updated',
-            data: {
-              data
-            }
+            data: { data }
           });
           resolve();
         }).catch((jqxhr) => {
           dispatcher.dispatch({
             type: 'billing-profile.update-failed',
-            data: {
-              jqxhr
-            }
+            data: { jqxhr }
           });
           reject();
         });

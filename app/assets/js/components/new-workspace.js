@@ -1,16 +1,20 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Button } from 'react-bootstrap';
+import { Alert, Grid, Row, Button } from 'react-bootstrap';
+
 import Org from 'records/org';
+import billingStore from 'stores/billing-store';
 import hostStore from 'stores/host-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
 import userStore from 'stores/user-store';
 import hostActions from 'actions/host-actions';
+import paymentActions from 'actions/payment-actions';
 import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
+import PaymentMethod from 'components/payment-method';
 
 export default class NewWorkspace extends React.Component {
   displayName = 'NewWorkspace';
@@ -20,13 +24,23 @@ export default class NewWorkspace extends React.Component {
     org: PropTypes.instanceOf(Org)
   };
 
+  findBillingProfile = () => {
+    const org = this.context.org;
+    if (org) {
+      return billingStore.orgBillingProfiles.get(org.id);
+    }
+    return billingStore.userBillingProfile;
+  }
+
   state = {
     user: userStore.user,
+    billingProfile: this.findBillingProfile(),
     plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
     regions: regionStore.regions,
     selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
     selectedRegion: regionStore.regions.first(),
-    creating: false
+    creating: false,
+    paymentFailed: false
   };
 
   componentDidMount() {
@@ -41,6 +55,7 @@ export default class NewWorkspace extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     if (this.context.org !== nextContext.org) {
+      this.setBillingProfile(nextContext);
       this.setPlans(nextContext);
     }
   }
@@ -61,6 +76,13 @@ export default class NewWorkspace extends React.Component {
   onHostCreateFailed = () => {
     this.setState({ creating: false });
   };
+
+  setBillingProfile(context=this.context) {
+    const billingProfile = context.org ?
+      billingStore.orgBillingProfiles.get(context.org.id) :
+      billingStore.userBillingProfile;
+    this.setState({ billingProfile });
+  }
 
   setPlans(context=this.context) {
     const plans = context.org ? planStore.orgPlans : planStore.personalPlans;
@@ -97,16 +119,50 @@ export default class NewWorkspace extends React.Component {
   handleClickCreateBtn = () => {
     this.setState({ creating: true });
 
-    const { user, selectedPlan, selectedRegion } = this.state,
-          org = this.context.org,
-          name = user.username; // use username for name of host
+    // If payment is required, we have to wait for payment to be successful
+    // before proceeding to create the workspace.
+    if (this.requiresPayment()) {
+      paymentActions.requestSubmit();
+      return;
+    }
 
+    this.createHost();
+  };
+
+  handlePaymentSuccess = () => {
+    this.createHost();
+  };
+
+  handlePaymentFailure = () => {
+    this.setState({ creating: false, paymentFailed: true });
+  };
+
+  createHost = () => {
+    const { user, selectedPlan, selectedRegion } = this.state,
+          { org } = this.context,
+          name = user.username; // use username for name of host
     hostActions.create({ name, org, plan: selectedPlan, region: selectedRegion });
+  };
+
+  // Whether user is allowed to add a payment method.
+  // Individual context: always allowed.
+  // Org context: only admins are allowed to add a payment method.
+  canAddPayment = () => {
+    const { org } = this.context;
+    if (org) {
+      return org.roleAllowsBillingProfileAdmin;
+    }
+    return true;
+  };
+
+  requiresPayment = () => {
+    const { billingProfile } = this.state;
+    return billingProfile && !billingProfile.hasCard;
   };
 
   render() {
     const org = this.context.org,
-          { plans, regions, creating } = this.state,
+          { plans, regions, creating, paymentFailed } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
           selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
 
@@ -141,7 +197,20 @@ export default class NewWorkspace extends React.Component {
               })}
             </Row>
           </Grid>
-          <Button disabled={creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>Create Workspace</Button>
+
+          {this.canAddPayment() && this.requiresPayment() ? (
+            <div>
+              <h3>Pay with</h3>
+              {paymentFailed ? (
+                <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
+              ) : ''}
+              <PaymentMethod standalone={false}
+                onSuccess={this.handlePaymentSuccess}
+                onFailure={this.handlePaymentFailure} />
+            </div>
+          ) : ''}
+
+          <Button disabled={creating} className='create-btn' bsStyle='success' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workspace...' : 'Create Workspace'}</Button>
         </div>
       </div>
     );

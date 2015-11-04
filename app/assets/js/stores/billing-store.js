@@ -20,7 +20,7 @@ class BillingStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
-      case 'billing-profile.fetched-all': {
+      case 'billing-profile.fetched-all-orgs': {
         const { data } = action.data;
         this._orgBillingProfiles = OrderedMap(data.billing_profiles.map(function(d) {
           const b = BillingProfile.deserialize(d);
