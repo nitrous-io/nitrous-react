@@ -55,6 +55,7 @@ export default class NewWorkspace extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     if (this.context.org !== nextContext.org) {
+      this.setBillingProfile(nextContext);
       this.setPlans(nextContext);
     }
   }
@@ -75,6 +76,13 @@ export default class NewWorkspace extends React.Component {
   onHostCreateFailed = () => {
     this.setState({ creating: false });
   };
+
+  setBillingProfile(context=this.context) {
+    const billingProfile = context.org ?
+      billingStore.orgBillingProfiles.get(context.org.id) :
+      billingStore.userBillingProfile;
+    this.setState({ billingProfile });
+  }
 
   setPlans(context=this.context) {
     const plans = context.org ? planStore.orgPlans : planStore.personalPlans;
@@ -136,9 +144,20 @@ export default class NewWorkspace extends React.Component {
     hostActions.create({ name, org, plan: selectedPlan, region: selectedRegion });
   };
 
+  // Whether user is allowed to add a payment method.
+  // Individual context: always allowed.
+  // Org context: only admins are allowed to add a payment method.
+  canAddPayment = () => {
+    const { org } = this.context;
+    if (org) {
+      return org.roleAllowsBillingProfileAdmin;
+    }
+    return true;
+  };
+
   requiresPayment = () => {
     const { billingProfile } = this.state;
-    return !billingProfile.hasCard;
+    return billingProfile && !billingProfile.hasCard;
   };
 
   render() {
@@ -179,7 +198,7 @@ export default class NewWorkspace extends React.Component {
             </Row>
           </Grid>
 
-          {this.requiresPayment() ? (
+          {this.canAddPayment() && this.requiresPayment() ? (
             <div>
               <h3>Pay with</h3>
               {paymentFailed ? (

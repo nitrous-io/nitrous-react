@@ -3,7 +3,6 @@ import { Panel } from 'react-bootstrap';
 
 import billingStore from 'stores/billing-store';
 import Org from 'records/org';
-import ContextSwitcher from 'components/context-switcher';
 import Fa from 'components/fa';
 
 export default class Billing extends React.Component {
@@ -40,8 +39,6 @@ export default class Billing extends React.Component {
     return (
       <div className='billing-component'>
         <div className='container'>
-          <ContextSwitcher selectedOrg={org} />
-
           <Panel header='Payment Method' className='payment-method'>
             {hasCard ? (
               <div>

@@ -12,7 +12,7 @@ class OrgActions {
         type: 'org.fetched-all',
         data: { data }
       });
-      
+
       const orgsBps = [];
       data.orgs.forEach(function(org) {
         if (org.billing_profile) {
@@ -21,7 +21,7 @@ class OrgActions {
       });
       const bpData = { billing_profiles: orgsBps };
       dispatcher.dispatch({
-        type: 'billing-profile.fetched-all',
+        type: 'billing-profile.fetched-all-orgs',
         data: { data: bpData }
       });
     }).catch((jqxhr) => {
