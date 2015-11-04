@@ -50,6 +50,27 @@ export default class ContainerConfig extends Record({
     });
     return List(arr);
   }
+
+
+  // Configured port bindings that are editable by users. We only want users to
+  // edit port bindings that are:
+  //  1. public,
+  //  2. TCP,
+  //  3. container port is not the SSH port (i.e. port 22).
+  get editableConfiguredPortBindings() {
+    let bindings = this.configuredPortBindings;
+
+    bindings = bindings.filter((v) => {
+      return v.public && v.tcp && v.containerPort !== '22';
+    });
+    bindings = bindings.sort((a, b) => {
+      const aInt = parseInt(a.containerPort, 10),
+            bInt = parseInt(b.containerPort, 10);
+      return aInt - bInt;
+    });
+
+    return bindings;
+  }
 }
 
 export class PortBinding extends Record({

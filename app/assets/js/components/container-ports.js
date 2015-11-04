@@ -26,35 +26,18 @@ export default class ContainerPorts extends React.Component {
     })
   };
 
-  configuredPortBindings = () => {
+  findPortBindings = () => {
     const containerConfig = containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug);
     if (!containerConfig) {
       return null;
     }
-    let bindings = containerConfig.configuredPortBindings;
-
-    // We only want users to edit port bindings that are:
-    //  1. public,
-    //  2. TCP,
-    //  3. container port is not the SSH port (i.e. port 22).
-    bindings = bindings.filter((v) => {
-      return v.public && v.tcp && v.containerPort !== '22';
-    });
-    bindings = bindings.sort((a, b) => {
-      if (a.containerPort < b.containerPort) {
-        return -1;
-      } else if (a.containerPort > b.containerPort) {
-        return 1;
-      }
-      return 0;
-    });
-    return bindings;
+    return containerConfig.editableConfiguredPortBindings;
   }
 
   state = {
     container: containerStore.containerBySlug(this.props.params.containerSlug),
     containerConfig: containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug),
-    configuredPortBindings: this.configuredPortBindings(),
+    portBindings: this.findPortBindings(),
     processing: false,
     newPort: null,
     newPortInvalid: false
@@ -82,23 +65,23 @@ export default class ContainerPorts extends React.Component {
 
   containerConfigStoreDidChange = () => {
     const containerConfig = containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug);
-    this.setState({ containerConfig, configuredPortBindings: this.configuredPortBindings() });
+    this.setState({ containerConfig, portBindings: this.findPortBindings() });
   }
 
   handlePreviewChanged = (binding) => {
-    let { configuredPortBindings } = this.state;
-    configuredPortBindings = configuredPortBindings.map((v) => {
+    let { portBindings } = this.state;
+    portBindings = portBindings.map((v) => {
       return v.merge({ preview: (v === binding) });
     });
-    this.setState({ configuredPortBindings });
+    this.setState({ portBindings });
   }
 
   handleRemove = (binding) => {
-    let { configuredPortBindings } = this.state;
-    configuredPortBindings = configuredPortBindings.filterNot((v) => {
+    let { portBindings } = this.state;
+    portBindings = portBindings.filterNot((v) => {
       return v === binding;
     });
-    this.setState({ configuredPortBindings });
+    this.setState({ portBindings });
   }
 
   handleNewPortChanged = (event) => {
@@ -112,15 +95,15 @@ export default class ContainerPorts extends React.Component {
     event.preventDefault();
 
     const { newPort } = this.state;
-    let { configuredPortBindings } = this.state;
+    let { portBindings } = this.state;
 
-    configuredPortBindings = configuredPortBindings.push(new PortBinding({
+    portBindings = portBindings.push(new PortBinding({
       public: true,
       containerPort: newPort,
       tcp: true
     }));
 
-    this.setState({ newPort: null, configuredPortBindings });
+    this.setState({ newPort: null, portBindings });
   }
 
   handleApplyChanges = () => {
@@ -130,15 +113,15 @@ export default class ContainerPorts extends React.Component {
   }
 
   isDirty = () => {
-    const { configuredPortBindings } = this.state;
-    if (!configuredPortBindings) {
+    const { portBindings } = this.state;
+    if (!portBindings) {
       return false;
     }
-    return !configuredPortBindings.equals(this.configuredPortBindings());
+    return !portBindings.equals(this.findPortBindings());
   }
 
   render() {
-    const { container, containerConfig, configuredPortBindings,
+    const { container, containerConfig, portBindings,
             processing, newPort, newPortInvalid } = this.state,
           { host } = this.context,
           shared = !host,
@@ -183,7 +166,7 @@ export default class ContainerPorts extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {configuredPortBindings.map((binding) => {
+                {portBindings.map((binding) => {
                   return (
                     <tr key={`binding-${binding.containerPort}`}>
                       <td>{binding.containerPort}</td>
