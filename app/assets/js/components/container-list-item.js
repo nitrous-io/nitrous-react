@@ -96,7 +96,9 @@ export default class ContainerListItem extends React.Component {
                   <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
                   <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
                 </DropdownButton>
-                <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
+                {container.canOpenIDE ? (
+                  <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
+                ) : ''}
               </ButtonToolbar>
             ) : (
               <ButtonToolbar className='buttons'>

@@ -69,4 +69,8 @@ export default class Container extends Record({
   get isInIntermediateState() {
     return !['running', 'stopped'].includes(this.state);
   }
+
+  get canOpenIDE() {
+    return this.state === 'running';
+  }
 }
