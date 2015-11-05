@@ -97,7 +97,9 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
                   </MenuItem>
                   <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
-                  <MenuItem href={portsURL}>Manage Ports...</MenuItem>
+                  <MenuItem href={portsURL}>
+                    {shared ? 'View Ports...' : 'Manage Ports...'}
+                  </MenuItem>
                 </DropdownButton>
                 {container.canOpenIDE ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>

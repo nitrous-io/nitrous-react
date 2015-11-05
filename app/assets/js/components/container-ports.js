@@ -151,13 +151,128 @@ export default class ContainerPorts extends React.Component {
     return !portBindings.equals(this.findPortBindings());
   }
 
+  renderPortEditor = () => {
+    const { portBindings, processing, newPort, newPortInvalid } = this.state,
+          dirty = this.isDirty();
+
+    return (
+      <div>
+        <Table responsive striped hover>
+          <thead>
+            <tr>
+              <th>Open Ports</th>
+              <th>
+                <OverlayTrigger placement='top'
+                  overlay={<Tooltip id='primary-port-tooltip'>Accessible from port 80</Tooltip>}>
+                  <span>Primary <Fa icon='question-circle' /></span>
+                </OverlayTrigger>
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {portBindings.size > 0 ? portBindings.map((binding) => {
+              return (
+                <tr key={`binding-${binding.containerPort}`}>
+                  <td className='col-port'>{binding.containerPort}</td>
+                  <td className='col-preview'>
+                    <Input type='radio' name='previewPort'
+                      checked={binding.preview}
+                      disabled={processing}
+                      onChange={this.handlePreviewChanged.bind(this, binding)} />
+                  </td>
+                  <td>
+                    <Button bsStyle='warning'
+                      disabled={processing}
+                      onClick={this.handleRemove.bind(this, binding)}>
+                      <Fa icon='trash' />
+                    </Button>
+                  </td>
+                </tr>
+              );
+            }) : (
+              <tr>
+                <td colSpan='3' className='text-center'>No open ports</td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+
+        <form onSubmit={this.handleAddPort}>
+          <Grid>
+            <Row>
+              <Col lg={2} md={2} sm={6} xs={12}>
+                <Input
+                  type='number' min='1' max='65535' required
+                  placeholder='New port'
+                  value={newPort}
+                  bsStyle={newPortInvalid ? 'error' : null}
+                  help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
+                  disabled={processing}
+                  onChange={this.handleNewPortChanged} />
+              </Col>
+
+              <Col lg={10} md={10} sm={6} xs={12}>
+                <Button bsStyle='default' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
+              </Col>
+            </Row>
+          </Grid>
+        </form>
+
+        {dirty ? (
+          <Button className='pull-right'
+            bsStyle='primary'
+            disabled={processing}
+            onClick={this.handleApplyChanges}>
+            {processing ? 'Applying Changes...' : 'Apply Changes'}
+          </Button>
+        ) : ''}
+      </div>
+    );
+  }
+
+  renderShared = () => {
+    const { portBindings } = this.state;
+
+    return (
+      <Table responsive striped hover>
+        <thead>
+          <tr>
+            <th>Open Ports</th>
+            <th>
+              <OverlayTrigger placement='top'
+                overlay={<Tooltip id='primary-port-tooltip'>Accessible from port 80</Tooltip>}>
+                <span>Primary <Fa icon='question-circle' /></span>
+              </OverlayTrigger>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {portBindings.size > 0 ? portBindings.map((binding) => {
+            return (
+              <tr key={`binding-${binding.containerPort}`}>
+                <td className='col-port'>{binding.containerPort}</td>
+                <td className='col-preview'>
+                  <Input type='radio' name='previewPort' disabled
+                    checked={binding.preview} />
+                </td>
+              </tr>
+            );
+          }) : (
+            <tr>
+              <td colSpan='3' className='text-center'>No open ports</td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
+    );
+  }
+
   render() {
-    const { container, containerConfig, portBindings,
-            processing, newPort, newPortInvalid } = this.state,
+    const { container, containerConfig } = this.state,
           { host } = this.context,
           shared = !host,
           loading = (container == null || containerConfig == null),
-          dirty = this.isDirty(),
           { makeHref } = this.context.router;
 
     return (
@@ -180,79 +295,10 @@ export default class ContainerPorts extends React.Component {
             <h4>
               {container.displayName}
               <span className='divider'><Fa icon='angle-right' /></span>
-              Manage Ports
+              {shared ? 'View Ports' : 'Manage Ports'}
             </h4>
 
-            <Table responsive striped hover>
-              <thead>
-                <tr>
-                  <th>Open Ports</th>
-                  <th>
-                    <OverlayTrigger placement='top'
-                      overlay={<Tooltip id='primary-port-tooltip'>Accessible from port 80</Tooltip>}>
-                      <span>Primary <Fa icon='question-circle' /></span>
-                    </OverlayTrigger>
-                  </th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {portBindings.size > 0 ? portBindings.map((binding) => {
-                  return (
-                    <tr key={`binding-${binding.containerPort}`}>
-                      <td>{binding.containerPort}</td>
-                      <td>
-                        <Input type='radio' name='previewPort'
-                          checked={binding.preview}
-                          disabled={processing}
-                          onChange={this.handlePreviewChanged.bind(this, binding)} />
-                      </td>
-                      <td>
-                        <Button bsStyle='warning'
-                          disabled={processing}
-                          onClick={this.handleRemove.bind(this, binding)}>
-                          <Fa icon='trash' />
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                }) : (
-                  <tr>
-                    <td colSpan='3' className='text-center'>No open ports</td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
-
-            <form onSubmit={this.handleAddPort}>
-              <Grid>
-                <Row>
-                  <Col lg={2} md={2} sm={6} xs={12}>
-                    <Input
-                      type='number' min='1' max='65535' required
-                      placeholder='New port'
-                      value={newPort}
-                      bsStyle={newPortInvalid ? 'error' : null}
-                      help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
-                      disabled={processing}
-                      onChange={this.handleNewPortChanged} />
-                  </Col>
-
-                  <Col lg={10} md={10} sm={6} xs={12}>
-                    <Button bsStyle='default' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
-                  </Col>
-                </Row>
-              </Grid>
-            </form>
-
-            {dirty ? (
-              <Button className='pull-right'
-                bsStyle='primary'
-                disabled={processing}
-                onClick={this.handleApplyChanges}>
-                {processing ? 'Applying Changes...' : 'Apply Changes'}
-              </Button>
-            ) : ''}
+            {shared ? this.renderShared() : this.renderPortEditor()}
           </div>
         )}
       </div>

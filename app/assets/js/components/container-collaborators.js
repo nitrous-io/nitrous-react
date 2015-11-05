@@ -83,7 +83,7 @@ export default class ContainerCollaborators extends React.Component {
             <h4>
               {container.displayName}
               <span className='divider'><Fa icon='angle-right' /></span>
-              Manage Collaborators
+              {shared ? 'View Collaborators' : 'Manage Collaborators'}
             </h4>
 
             <Panel>
