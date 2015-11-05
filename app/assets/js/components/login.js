@@ -8,7 +8,6 @@ import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import { ajax }  from 'lib/ajax';
 
 export default class Login extends React.Component {
   displayName = 'Login';
@@ -92,12 +91,7 @@ export default class Login extends React.Component {
   handleLoginWithGithub = () => {
     this.setState({ loggingInWithGithub: true });
 
-    ajax({
-      type: 'POST',
-      url: '/api/v0/github/authorize_to_login',
-      cache: false,
-      data: { beta: true }
-    }).then((json) => {
+    userActions.loginViaGithub().then((json) => {
       window.location.href = json.redirect_url;
     }).catch(() => {
       snackbarActions.post('Unable to connect to GitHub. Please try again.');

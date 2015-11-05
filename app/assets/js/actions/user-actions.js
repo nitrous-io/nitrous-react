@@ -82,9 +82,25 @@ class UserActions {
       type: 'POST',
       url: '/api/v0/github/authorize',
       dataType: 'json',
-      data: {
-        beta: true
-      }
+      data: { beta: true }
+    });
+  }
+
+  loginViaGithub() {
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/github/authorize_to_login',
+      cache: false,
+      data: { beta: true }
+    });
+  }
+
+  signupViaGithub() {
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/github/authorize_to_signup',
+      cache: false,
+      data: { beta: true }
     });
   }
 }

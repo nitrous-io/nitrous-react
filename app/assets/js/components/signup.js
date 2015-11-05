@@ -9,7 +9,6 @@ import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import tokenStore from 'stores/token-store';
 import userStore from 'stores/user-store';
-import { ajax }  from 'lib/ajax';
 import { randomPassword } from 'lib/random';
 import snackbarActions from 'actions/snackbar-actions';
 
@@ -114,12 +113,7 @@ export default class Signup extends React.Component {
   handleSignupWithGithub = () => {
     this.setState({ authorizing: true });
 
-    ajax({
-      type: 'POST',
-      url: '/api/v0/github/authorize_to_signup',
-      cache: false,
-      data: { beta: true }
-    }).then((json) => {
+    userActions.signupViaGithub().then((json) => {
       window.location.href = json.redirect_url;
     }).catch(() => {
       snackbarActions.post('Unable to connect to GitHub. Please try again.');
