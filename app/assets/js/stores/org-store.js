@@ -20,6 +20,19 @@ class OrgStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'org.created': {
+        const { data } = action.data,
+              org = Org.deserialize(data.org);
+        this._orgs = this._orgs.set(org.slug, org);
+        this._lastError = null;
+        break;
+      }
+      case 'org.create-failed': {
+        const { slug, jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('create-failed', { slug });
+        break;
+      }
       default: return;
     }
     this.notifyChange();
@@ -27,6 +40,10 @@ class OrgStore extends Store {
 
   get orgs() {
     return this._orgs;
+  }
+
+  orgByOrgSlug(slug) {
+    return this._orgs.find((org) => org.slug === slug);
   }
 }
 

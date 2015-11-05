@@ -31,6 +31,26 @@ class OrgActions {
       });
     });
   }
+
+  create(options) {
+    const { slug, name, email } = options;
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/orgs',
+      dataType: 'json',
+      data: { slug, name, email }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'org.created',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'org.create-failed',
+        data: { jqxhr, slug }
+      });
+    });
+  }
 }
 
 export default new OrgActions();

@@ -6,6 +6,7 @@ import ForgotPassword from 'components/forgot-password';
 import ResetPassword from 'components/reset-password';
 import Signup from 'components/signup';
 import Dashboard from 'components/dashboard';
+import NewOrg from 'components/new-org';
 import OrgRoot from 'components/org-root';
 import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
@@ -41,6 +42,8 @@ export default (
       <Route name='user-workspace' path='workspaces' handler={UserWorkspace}>
         <DefaultRoute handler={redirectTo('new-user-workspace')} />
       </Route>
+
+      <Route name='new-org' path='orgs/new' handler={NewOrg} />
 
       <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
         <Route name='org-workspace' path='workspaces' handler={OrgWorkspace}>
