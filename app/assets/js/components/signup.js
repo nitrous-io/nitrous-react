@@ -1,29 +1,58 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { ButtonInput, Input } from 'react-bootstrap';
+import { Alert, ButtonInput, Input, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import LeftBar from 'components/left-bar';
+import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import tokenStore from 'stores/token-store';
 import userStore from 'stores/user-store';
+import { ajax }  from 'lib/ajax';
+import { randomPassword } from 'lib/random';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class Signup extends React.Component {
   displayName = 'Signup';
+
+  static propTypes = {
+    query: PropTypes.shape({
+      gitHubUserName: PropTypes.string,
+      gitHubUserEmail: PropTypes.string
+    })
+  };
 
   static contextTypes = {
     router: React.PropTypes.func.isRequired
   };
 
-  state = {
-    username: null,
-    email: null,
-    password: null,
-    passwordConfirmation: null,
-    processing: false,
-    errorMessage: null
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    const isViaGitHub = props.query.gitHubUserName &&
+                        props.query.gitHubUserEmail;
+    let password = null,
+        username = null,
+        email = null;
+    if (isViaGitHub) {
+      password = randomPassword();
+      username = props.query.gitHubUserName;
+      email = props.query.gitHubUserEmail;
+    }
+
+    this.state = {
+      username,
+      email,
+      password,
+      passwordConfirmation: password,
+      processing: false,
+      authorizing: false,
+      errorMessage: null,
+      isViaGitHub,
+      gitHubUserName: (isViaGitHub && props.query.gitHubUserName || null)
+    };
+  }
 
   componentDidMount() {
     userStore.on('created', this.onUserCreated);
@@ -78,12 +107,31 @@ export default class Signup extends React.Component {
 
     this.setState({ processing: true });
 
-    const { username, email, password } = this.state;
-    userActions.create({ username, email, password });
+    const { username, email, password, gitHubUserName } = this.state;
+    userActions.create({ username, email, password, gitHubUserName });
+  }
+
+  handleSignupWithGithub = () => {
+    this.setState({ authorizing: true });
+
+    ajax({
+      type: 'POST',
+      url: '/api/v0/github/authorize_to_signup',
+      cache: false,
+      data: { beta: true }
+    }).then((json) => {
+      window.location.href = json.redirect_url;
+    }).catch(() => {
+      snackbarActions.post('Unable to connect to GitHub. Please try again.');
+    });
   }
 
   submitDisabled = () => {
-    const { processing, username, email, password, passwordConfirmation } = this.state;
+    const { authorizing, processing, username, email, password, passwordConfirmation } = this.state;
+    if (authorizing) {
+      return true;
+    }
+
     const missing = ![username, email, password, passwordConfirmation].every((elem) => {
       return elem;
     });
@@ -91,7 +139,7 @@ export default class Signup extends React.Component {
   }
 
   render() {
-    const { username, email, password, passwordConfirmation, processing, errorMessage } = this.state,
+    const { isViaGitHub, username, email, password, passwordConfirmation, authorizing, processing, errorMessage } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
@@ -100,6 +148,11 @@ export default class Signup extends React.Component {
         <LeftBar />
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
+          {isViaGitHub ? (
+            <Alert bsStyle="success">
+              <strong>Awesome!</strong> Check your information below.
+            </Alert>
+          ) : ''}
           <form onSubmit={this.handleSubmit}>
             <Input type='text' placeholder='Username' required
               value={username}
@@ -107,13 +160,17 @@ export default class Signup extends React.Component {
             <Input type='email' placeholder='Email' required
               value={email}
               onChange={this.handleEmailChanged} />
-            <Input type='password' placeholder='Password' required
-              value={password}
-              onChange={this.handlePasswordChanged} />
-            <Input type='password' placeholder='Password, again' required
-              value={passwordConfirmation}
-              help={showPasswordConfirmError ? 'Passwords do not match' : null}
-              onChange={this.handlePasswordConfirmationChanged} />
+            {isViaGitHub ? '' : (
+              <Input type='password' placeholder='Password' required
+                value={password}
+                onChange={this.handlePasswordChanged} />
+            )}
+            {isViaGitHub ? '' : (
+              <Input type='password' placeholder='Password, again' required
+                value={passwordConfirmation}
+                help={showPasswordConfirmError ? 'Passwords do not match' : null}
+                onChange={this.handlePasswordConfirmationChanged} />
+            )}
 
             <div className='actions'>
               <ButtonInput type='submit' bsStyle='primary'
@@ -122,6 +179,16 @@ export default class Signup extends React.Component {
               </ButtonInput>
             </div>
           </form>
+
+          {isViaGitHub ? '' : (
+            <div className='github-signup actions'>
+              <div className='form-group'>
+                <Button className='primary-btn' onClick={this.handleSignupWithGithub} type='button' disabled={processing}>
+                  <Fa icon='github' /> {authorizing ? 'Connecting....' : 'Signup with GitHub'}
+                </Button>
+              </div>
+            </div>
+          )}
 
           <p>By creating an account, you agree to the Nitrous <a href='https://community.nitrous.io/docs/terms-of-use'>Terms of Service</a> and <a href='https://community.nitrous.io/docs/privacy-policy'>Privacy Policy</a>.</p>
           <p>Already have an account? <Link to='login'>Log in</Link></p>

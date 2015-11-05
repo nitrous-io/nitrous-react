@@ -101,7 +101,7 @@ export default class Login extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <Input ref='username' type='text' placeholder='Username or Email' required disabled={disabled} />
             <Input ref='password' type='password' placeholder='Password' required disabled={disabled} />
-            <div className='actions'>
+            <div className='actions inline'>
               <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={disabled} />
               <Button onClick={this.handleLoginWithGithub} className='github' type='button' value='Log in with GitHub' disabled={disabled} />
             </div>

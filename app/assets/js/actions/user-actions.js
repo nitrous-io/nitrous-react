@@ -29,11 +29,11 @@ class UserActions {
   }
 
   create(options) {
-    const { username, email, password } = options;
+    const { username, email, password, gitHubUserName } = options;
     return ajax({
       type: 'POST',
       url: '/api/v0/users',
-      data: { username, email, password }
+      data: { username, email, password, github_username: gitHubUserName }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.created',
