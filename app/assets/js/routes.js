@@ -16,8 +16,9 @@ import WorkspaceSystem from 'components/workspace-system';
 import WorkspaceImages from 'components/workspace-images';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
-import ContainerKeys from 'components/container-keys';
 import ContainerCollaborators from 'components/container-collaborators';
+import ContainerKeys from 'components/container-keys';
+import ContainerPorts from 'components/container-ports';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
@@ -60,6 +61,7 @@ export default (
 
         <Route name='container-collaborators' path='projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
+        <Route name='container-ports' path='projects/:containerSlug/ports' handler={ContainerPorts} />
 
         <Route name='workspace-images' path='images' handler={WorkspaceImages} />
         <Route name='workspace-system' path='system' handler={WorkspaceSystem} />
@@ -68,6 +70,7 @@ export default (
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
       <Route name='shared-container-collaborators' path='shared-projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
       <Route name='shared-container-keys' path='shared-projects/:containerSlug/keys' handler={ContainerKeys} />
+      <Route name='shared-container-ports' path='shared-projects/:containerSlug/ports' handler={ContainerPorts} />
 
       <Route name='account-settings' path='settings' handler={AccountSettings} />
 

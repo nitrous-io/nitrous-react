@@ -61,7 +61,10 @@ export default class ContainerListItem extends React.Component {
             makeHref('container-collaborators', { hostSlug: host.slug, containerSlug: container.slug })),
           keysUrl = (shared ?
             makeHref('shared-container-keys', { containerSlug: container.slug }) :
-            makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug }));
+            makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug })),
+          portsURL = (shared ?
+            makeHref('shared-container-ports', { containerSlug: container.slug }) :
+            makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug }));
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -94,7 +97,9 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
                   </MenuItem>
                   <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
-                  <MenuItem onSelect={notImplementedFn('Manage Ports', 'manage open ports')}>Manage Ports...</MenuItem>
+                  <MenuItem href={portsURL}>
+                    {shared ? 'View Ports...' : 'Manage Ports...'}
+                  </MenuItem>
                 </DropdownButton>
                 {container.canOpenIDE ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
@@ -110,7 +115,7 @@ export default class ContainerListItem extends React.Component {
                 okButtonDisabled={this.state.slugConfirmation !== container.slug} placeholder={container.slug}
                 onOK={this.handleTerminateModalOK} onTextInput={this.handleTerminateModalTextInput}>
                 <p>This action <strong>CANNOT</strong> be undone!</p>
-                <p>This will permanently delete the project &ldquo;{container.displayName}&rdquo; and all data stored within the project container.</p>
+                <p>This will permanently delete the project &ldquo;{container.displayName}&rdquo; and all data stored within the project.</p>
                 <p>
                   Please type in the slug of the project
                   (<SelectableText><strong>{container.slug}</strong></SelectableText>)

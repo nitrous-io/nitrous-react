@@ -8,24 +8,16 @@ class ContainerActions {
       type: 'GET',
       url: '/api/v0/containers',
       dataType: 'json',
-      data: {
-        host: hostSlug
-      }
+      data: { host: hostSlug }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'container.fetched-all-by-host-slug',
-        data: {
-          data,
-          hostSlug
-        }
+        data: { data, hostSlug }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.fetch-all-by-host-slug-failed',
-        data: {
-          jqxhr,
-          hostSlug
-        }
+        data: { jqxhr, hostSlug }
       });
     });
   }
@@ -56,15 +48,30 @@ class ContainerActions {
     }).then((data) => {
       dispatcher.dispatch({
         type: 'container.fetched-one',
-        data: {
-          data,
-          slug
-        }
+        data: { data, slug }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.fetch-one-failed',
         data: { jqxhr }
+      });
+    });
+  }
+
+  fetchConfig(slug) {
+    return authedAjax({
+      type: 'GET',
+      url: `/api/v0/containers/${slug}/config`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'container.fetched-config',
+        data: { data, slug }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.fetch-config-failed',
+        data: { jqxhr, slug }
       });
     });
   }
@@ -77,10 +84,7 @@ class ContainerActions {
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: `container.${action}-failed`,
-        data: {
-          jqxhr,
-          containerSlug: container.slug
-        }
+        data: { jqxhr, containerSlug: container.slug }
       });
     });
   }
@@ -105,10 +109,24 @@ class ContainerActions {
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.terminate-failed',
-        data: {
-          jqxhr,
-          containerSlug: container.slug
-        }
+        data: { jqxhr, containerSlug: container.slug }
+      });
+    });
+  }
+
+  reconfigure(container, newConfig) {
+    const formData = newConfig.toFormData();
+    formData.async = true;
+
+    return authedAjax({
+      type: 'POST',
+      url: `/api/v0/containers/${container.slug}/reconfig`,
+      dataType: 'json',
+      data: formData
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.reconfigure-failed',
+        data: { jqxhr, containerSlug: container.slug }
       });
     });
   }
