@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Input, ButtonInput, Button } from 'react-bootstrap';
+import { Alert, Input, ButtonInput, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import LeftBar from 'components/left-bar';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import { ajax }  from 'lib/ajax';
 
@@ -14,7 +15,8 @@ export default class Login extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
-      token: PropTypes.string
+      token: PropTypes.string,
+      existingGitHubEmail: PropTypes.string
     })
   };
 
@@ -38,6 +40,8 @@ export default class Login extends React.Component {
     tokenStore.onChange(this.tokenStoreDidChange);
     if (this.props.query.token) {
       tokenActions.setToken(this.props.query.token);
+    } else if (this.props.query.existingGitHubEmail) {
+      this.refs.password.getInputDOMNode().focus();
     } else {
       this.refs.username.getInputDOMNode().focus();
     }
@@ -50,6 +54,19 @@ export default class Login extends React.Component {
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
       snackbarActions.clear();
+
+      // we then automatically perform the connect for them
+      // if not connected but emails match
+      if (this.props.query.existingGitHubEmail) {
+        userActions.connectToGitHub().then((data) => {
+          window.location.href = data.redirect_url;
+        }).catch(() => {
+          snackbarActions.post('We were unable to connect you to GitHub');
+          this.context.router.transitionTo('dashboard');
+        });
+        return;
+      }
+
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
       snackbarActions.post(tokenStore.lastError);
@@ -89,6 +106,7 @@ export default class Login extends React.Component {
 
   render() {
     const { loggingIn, errorMessage } = this.state,
+          { existingGitHubEmail } = this.props.query,
           loginLabel = loggingIn ? 'Logging In...' : 'Log In',
           formPanelClasses = classNames('form-panel', { shake: errorMessage }),
           disabled = this.actionsDisabled();
@@ -98,8 +116,14 @@ export default class Login extends React.Component {
         <LeftBar />
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
+
+          {existingGitHubEmail ? (
+            <Alert bsStyle="warning">
+              Please login to connect with GitHub.
+            </Alert>
+          ) : ''}
           <form onSubmit={this.handleSubmit}>
-            <Input ref='username' type='text' placeholder='Username or Email' required disabled={disabled} />
+            <Input ref='username' value={existingGitHubEmail} type='text' placeholder='Username or Email' required disabled={disabled} />
             <Input ref='password' type='password' placeholder='Password' required disabled={disabled} />
             <div className='actions inline'>
               <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={disabled} />
