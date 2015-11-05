@@ -50,7 +50,7 @@
         box-shadow: 0 0 4px rgba(255,255,255,.65)
         border-radius: 2px
 
-      input[type="submit"], a.btn
+      input[type="submit"], .primary-btn
         height: 42px
         line-height: 42px
         border-radius: 4px
@@ -62,7 +62,7 @@
         color: #FFF
         transition: background-color .15s ease-in-out
 
-      input[type="submit"]
+      input[type="submit"], .primary-btn
         background: #0099ED
 
         &, &:hover
@@ -71,17 +71,17 @@
         &:hover
           background: rgba(0,0,0,.1), #0099ED
 
-      a.btn
-        &.github
-          width: 46px
-          overflow: hidden
-          text-indent: -999999px
-          background: #828E98 url('/assets/images/github-btn.png') 50% -1px no-repeat
-          background-size: 24px 84px
+      .github
+        width: 46px
+        overflow: hidden
+        text-indent: -999999px
+        border: 0
+        background: #828E98 url('/assets/images/github-btn.png') 50% -1px no-repeat
+        background-size: 24px 84px
 
-          &:hover
-            background-color: #0099ED
-            background-position: 50% -43px
+        &:hover
+          background-color: #0099ED
+          background-position: 50% -43px
 
       .actions
         display: flex
@@ -91,9 +91,13 @@
           flex-grow: 1
           padding: 0
 
-        input[type="submit"]
+        input[type="submit"], .primary-btn
           flex-grow: 1
-          margin-right: 6px
+
+        &.inline
+          .form-group
+            input[type="submit"], .primary-btn
+              margin-right: 6px
 
       p
         margin-top: 30px

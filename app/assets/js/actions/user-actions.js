@@ -29,11 +29,11 @@ class UserActions {
   }
 
   create(options) {
-    const { username, email, password } = options;
+    const { username, email, password, gitHubUserName } = options;
     return ajax({
       type: 'POST',
       url: '/api/v0/users',
-      data: { username, email, password }
+      data: { username, email, password, github_username: gitHubUserName }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.created',
@@ -82,9 +82,25 @@ class UserActions {
       type: 'POST',
       url: '/api/v0/github/authorize',
       dataType: 'json',
-      data: {
-        beta: true
-      }
+      data: { beta: true }
+    });
+  }
+
+  loginViaGithub() {
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/github/authorize_to_login',
+      cache: false,
+      data: { beta: true }
+    });
+  }
+
+  signupViaGithub() {
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/github/authorize_to_signup',
+      cache: false,
+      data: { beta: true }
     });
   }
 }

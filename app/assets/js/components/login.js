@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Input, ButtonInput } from 'react-bootstrap';
+import { Alert, Input, ButtonInput, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import LeftBar from 'components/left-bar';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
+import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
 
 export default class Login extends React.Component {
   displayName = 'Login';
+
+  static propTypes = {
+    query: PropTypes.shape({
+      token: PropTypes.string,
+      existingGitHubEmail: PropTypes.string
+    })
+  };
 
   static contextTypes = {
     router: React.PropTypes.func.isRequired // Router.PropTypes.router.isRequired
@@ -22,13 +30,20 @@ export default class Login extends React.Component {
   }
 
   state = {
-    loggingIn: false,
+    loggingIn: !!this.props.query.token,
+    loggingInWithGithub: false,
     errorMessage: null
   };
 
   componentDidMount() {
     tokenStore.onChange(this.tokenStoreDidChange);
-    this.refs.username.getInputDOMNode().focus();
+    if (this.props.query.token) {
+      tokenActions.setToken(this.props.query.token);
+    } else if (this.props.query.existingGitHubEmail) {
+      this.refs.password.getInputDOMNode().focus();
+    } else {
+      this.refs.username.getInputDOMNode().focus();
+    }
   }
 
   componentWillUnmount() {
@@ -38,6 +53,19 @@ export default class Login extends React.Component {
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
       snackbarActions.clear();
+
+      // we then automatically perform the connect for them
+      // if not connected but emails match
+      if (this.props.query.existingGitHubEmail) {
+        userActions.connectToGitHub().then((data) => {
+          window.location.href = data.redirect_url;
+        }).catch(() => {
+          snackbarActions.post('We were unable to connect you to GitHub');
+          this.context.router.transitionTo('dashboard');
+        });
+        return;
+      }
+
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
       snackbarActions.post(tokenStore.lastError);
@@ -49,28 +77,51 @@ export default class Login extends React.Component {
     }
   }
 
+  actionsDisabled = () => {
+    const { loggingInWithGithub, loggingIn } = this.state;
+    return loggingIn || loggingInWithGithub;
+  }
+
   handleSubmit = (evt) => {
     evt.preventDefault();
     this.setState({ loggingIn: true, errorMessage: null });
     tokenActions.fetch(this.refs.username.getValue(), this.refs.password.getValue());
   };
 
+  handleLoginWithGithub = () => {
+    this.setState({ loggingInWithGithub: true });
+
+    userActions.loginViaGithub().then((json) => {
+      window.location.href = json.redirect_url;
+    }).catch(() => {
+      snackbarActions.post('Unable to connect to GitHub. Please try again.');
+    });
+  }
+
   render() {
     const { loggingIn, errorMessage } = this.state,
+          { existingGitHubEmail } = this.props.query,
           loginLabel = loggingIn ? 'Logging In...' : 'Log In',
-          formPanelClasses = classNames('form-panel', { shake: errorMessage });
+          formPanelClasses = classNames('form-panel', { shake: errorMessage }),
+          disabled = this.actionsDisabled();
 
     return (
       <div className='login-component login-screen dark'>
         <LeftBar />
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
+
+          {existingGitHubEmail ? (
+            <Alert bsStyle="warning">
+              Please login to connect with GitHub.
+            </Alert>
+          ) : ''}
           <form onSubmit={this.handleSubmit}>
-            <Input ref='username' type='text' placeholder='Username or Email' required disabled={loggingIn} />
-            <Input ref='password' type='password' placeholder='Password' required disabled={loggingIn} />
-            <div className='actions'>
-              <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={loggingIn} />
-              <a href="#" className="btn github">Log in with GitHub</a>
+            <Input ref='username' value={existingGitHubEmail} type='text' placeholder='Username or Email' required disabled={disabled} />
+            <Input ref='password' type='password' placeholder='Password' required disabled={disabled} />
+            <div className='actions inline'>
+              <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={disabled} />
+              <Button onClick={this.handleLoginWithGithub} className='github' type='button' value='Log in with GitHub' disabled={disabled} />
             </div>
           </form>
           <p>No account? <Link to='signup'>Sign Up</Link></p>
