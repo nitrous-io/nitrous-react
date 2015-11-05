@@ -20,11 +20,12 @@ export default class PaymentMethod extends React.Component {
   static propTypes = {
     standalone: PropTypes.bool,
     onSuccess: PropTypes.func,
-    onFailure: PropTypes.func
+    onFailure: PropTypes.func,
+    org: PropTypes.instanceOf(Org) // Takes precedence over this.context.org.
   };
 
   findBillingProfile = () => {
-    const org = this.context.org;
+    const org = this.props.org || this.context.org;
     if (org) {
       return billingStore.orgBillingProfiles.get(org.id);
     }
@@ -62,7 +63,7 @@ export default class PaymentMethod extends React.Component {
 
     if (this.props.standalone) {
       snackbarActions.post('Payment updated successfully');
-      const { org } = this.context;
+      const org = this.props.org || this.context.org;
       if (org) {
         this.context.router.transitionTo('org-billing', { orgSlug: org.slug });
       } else {
@@ -156,7 +157,9 @@ export default class PaymentMethod extends React.Component {
 
     this.setState({ saving: true });
 
-    const { cardholderName, ccNumber, cvc, expirationMonth, expirationYear, zipCode } = this.state;
+    const { cardholderName, ccNumber, cvc, expirationMonth, expirationYear, zipCode } = this.state,
+          org = this.props.org || this.context.org;
+
     billingActions.updateCard({
       cardholderName,
       ccNumber,
@@ -164,7 +167,7 @@ export default class PaymentMethod extends React.Component {
       expirationMonth,
       expirationYear,
       zipCode,
-      orgSlug: this.context.org && this.context.org.slug
+      orgSlug: org && org.slug
     });
   }
 
