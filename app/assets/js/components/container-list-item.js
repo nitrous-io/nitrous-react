@@ -113,7 +113,7 @@ export default class ContainerListItem extends React.Component {
                 okButtonDisabled={this.state.slugConfirmation !== container.slug} placeholder={container.slug}
                 onOK={this.handleTerminateModalOK} onTextInput={this.handleTerminateModalTextInput}>
                 <p>This action <strong>CANNOT</strong> be undone!</p>
-                <p>This will permanently delete the project &ldquo;{container.displayName}&rdquo; and all data stored within the project container.</p>
+                <p>This will permanently delete the project &ldquo;{container.displayName}&rdquo; and all data stored within the project.</p>
                 <p>
                   Please type in the slug of the project
                   (<SelectableText><strong>{container.slug}</strong></SelectableText>)

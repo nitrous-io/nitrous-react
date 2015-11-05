@@ -71,7 +71,7 @@ export default class ContainerPorts extends React.Component {
   onContainerReconfigured = (data) => {
     const { container } = data;
     if (container.slug === this.props.params.containerSlug) {
-      snackbarActions.post(`Your project container “${container.displayName}” has been successfully reconfigured.`);
+      snackbarActions.post(`Your project “${container.displayName}” has been successfully reconfigured.`);
       this.setState({ processing: false });
       containerActions.fetchConfig(this.props.params.containerSlug);
     }

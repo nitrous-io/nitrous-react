@@ -66,7 +66,7 @@ class ContainerStore extends Store {
       case 'container.create-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         const { name, hostSlug } = action.data;
-        snackbarActions.post(`Failed to create container “${name}”!`);
+        snackbarActions.post(`Failed to create project “${name}”!`);
         this.emit('create-failed', { name, hostSlug });
         break;
       }
@@ -124,12 +124,12 @@ class ContainerStore extends Store {
         }
 
         if (action.type === 'events:container.created') {
-          snackbarActions.post(`Your project container “${c.displayName}” was created successfully.`);
+          snackbarActions.post(`Your project “${c.displayName}” was created successfully.`);
           this.emit('created', { container: c, hostSlug });
         }
 
         if (action.type === 'events:container.destroyed') {
-          snackbarActions.post(`Your project container “${c.displayName}” was terminated successfully.`);
+          snackbarActions.post(`Your project “${c.displayName}” was terminated successfully.`);
         }
         break;
       }
