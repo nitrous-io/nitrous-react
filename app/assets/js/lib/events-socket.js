@@ -15,7 +15,7 @@ class EventsSocket {
 
   disconnect() {
     if (this._socket) {
-      this._socket.close();
+      this._socket.disconnect();
     }
   }
 
