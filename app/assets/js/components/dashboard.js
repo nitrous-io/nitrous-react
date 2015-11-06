@@ -19,7 +19,7 @@ export default class Dashboard extends React.Component {
 
   static preloaded = false;
 
-  static willTransitionTo(transition, params, query, callback) {
+  static willTransitionTo = (transition, params, query, callback) => {
     if (!tokenStore.token) {
       transition.redirect('login');
       callback();
@@ -40,6 +40,8 @@ export default class Dashboard extends React.Component {
         callback();
         // does not have to be fetched synchronously
         containerActions.fetchAllShared();
+      }).catch(() => {
+        this.preloaded = false;
       });
     }
   }
@@ -50,6 +52,7 @@ export default class Dashboard extends React.Component {
 
   componentWillUnmount() {
     eventsSocket.disconnect();
+    this.constructor.preloaded = false;
   }
 
   render() {
