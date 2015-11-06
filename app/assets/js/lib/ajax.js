@@ -25,6 +25,15 @@ function authedAjax(options={}) {
   options.headers.Authorization = `Bearer ${tokenStore.token}`;
   const promise = ajax(options);
   promise.catch((jqxhr) => {
+    const { responseJSON } = jqxhr;
+    if (responseJSON && responseJSON.error === 'confirmation_lapsed') {
+      dispatcher.dispatch({
+        type: 'token.invalidate',
+        data: { type: 'confirmation_lapsed' }
+      });
+      return;
+    }
+
     if (jqxhr.status === 401) {
       dispatcher.dispatch({
         type: 'token.invalidate'
