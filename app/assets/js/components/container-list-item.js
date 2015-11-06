@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Col, ButtonToolbar, Button, DropdownButton, MenuItem } from 'react-bootstrap';
+
 import Host from 'records/host';
 import Container from 'records/container';
 import containerActions from 'actions/container-actions';
@@ -7,7 +8,7 @@ import ContainerState from 'components/container-state';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
-import { notImplementedFn } from 'lib/not-implemented';
+import SnapshotContainer from 'components/commit-container';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -22,7 +23,8 @@ export default class ContainerListItem extends React.Component {
   };
 
   state = {
-    slugConfirmation: null // slug entered by user in the termination confirmation dialog
+    slugConfirmation: null, // slug entered by user in the termination confirmation dialog
+    showSnapshotModal: false
   };
 
   handleStop = () => {
@@ -51,8 +53,17 @@ export default class ContainerListItem extends React.Component {
     this.setState({ slugConfirmation: text });
   };
 
+  handleShowSnapshot = () => {
+    this.setState({ showSnapshotModal: true });
+  }
+
+  handleHideSnapshot = () => {
+    this.setState({ showSnapshotModal: false });
+  }
+
   render() {
     const { container, host } = this.props,
+          { showSnapshotModal } = this.state,
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
           { makeHref } = this.context.router,
@@ -90,8 +101,8 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title="Settings" id={`container-settings-${container.id}`}>
-                  <MenuItem onSelect={notImplementedFn('Snapshot', 'Redirect to Snapshots section in Images Tab')}>Snapshot...</MenuItem>
+                <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
+                  <MenuItem onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
                   <MenuItem divider />
                   <MenuItem href={collaboratorsUrl}>
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
@@ -123,6 +134,8 @@ export default class ContainerListItem extends React.Component {
                 </p>
               </PromptModal>
             ) : ''}
+
+            <SnapshotContainer container={container} showModal={showSnapshotModal} onHideModal={this.handleHideSnapshot} />
           </div>
         </div>
       </Col>
