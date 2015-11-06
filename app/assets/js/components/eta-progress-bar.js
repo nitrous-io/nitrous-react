@@ -20,9 +20,19 @@ export default class EtaProgressBar extends React.Component {
     now: 0
   };
 
-  componentDidMount() {
-    if (this.props.done) {
-      this.setState({ now: 100, animated: true });
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      animated: false,
+      now: 0
+    };
+
+    if (props.done) {
+      this.state = {
+        animated: true,
+        now: 100
+      };
     } else {
       this.startTimer();
     }
@@ -33,6 +43,7 @@ export default class EtaProgressBar extends React.Component {
       window.clearInterval(this._timer);
       this.setState({ now: 100, animated: true });
     } else {
+      this.setState({ now: 0, animated: false });
       this.startTimer(nextProps.eta);
     }
   }
@@ -43,7 +54,6 @@ export default class EtaProgressBar extends React.Component {
 
   startTimer(eta=this.props.eta) {
     const percentagePerTick = 100 / eta;
-    this.setState({ now: 0, animated: false });
 
     window.clearInterval(this._timer);
     this._timer = window.setInterval(() => {
