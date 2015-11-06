@@ -134,7 +134,7 @@ export default class CollaboratorList extends React.Component {
                     type='text' required placeholder='Username or email'
                     value={newCollaborator}
                     disabled={adding}
-                    bsStyle={addFailed ? 'error' : ''}
+                    bsStyle={addFailed ? 'error' : null}
                     onChange={this.handleNewCollaboratorChanged} />
                 </Col>
 

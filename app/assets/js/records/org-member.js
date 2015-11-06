@@ -1,3 +1,5 @@
+import md5 from 'md5';
+
 import { Record } from 'immutable';
 
 export default class OrgMember extends Record({
@@ -6,6 +8,7 @@ export default class OrgMember extends Record({
   userId: null,
   username: null,
   name: null,
+  email: null,
   orgId: null,
   orgSlug: null,
   createdAt: null,
@@ -18,10 +21,24 @@ export default class OrgMember extends Record({
       userId: p.user_id,
       username: p.username,
       name: p.name,
+      email: p.email,
       orgId: p.org_id,
       orgSlug: p.org_slug,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
+  }
+
+  gravatar(size=72) {
+    if (this.email) {
+      return `https://secure.gravatar.com/avatar/${md5(this.email)}?default=retro&secure=true&size=${size}`;
+    }
+  }
+
+  get displayName() {
+    if (this.username && this.name) {
+      return `${this.username} (${this.name})`;
+    }
+    return this.username || this.email;
   }
 }

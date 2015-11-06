@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Col, Panel } from 'react-bootstrap';
+import { Link } from 'react-router';
 
 import Org from 'records/org';
 import Fa from 'components/fa';
@@ -31,12 +32,12 @@ export default class OrgInviteMembers extends React.Component {
           </Row>
 
           <Row>
-            <Col lg={5} lgOffset={2} md={5} mdOffset={1} sm={5} smOffset={1} xs={12}>
-              <h3>Invite members to “{org.name}”</h3>
+            <Col lg={5} lgOffset={2} md={5} mdOffset={1} sm={12} xs={12}>
               <OrgMembers org={org} />
+              <Link to='new-org-workspace' params={{ orgSlug: org.slug }} className='btn btn-success'>Finish</Link>
             </Col>
 
-            <Col lg={3} lgOffset={0} md={4} mdOffset={1} sm={4} smOffset={1} xs={12}>
+            <Col lg={3} md={4} sm={12} xs={12} className='sidebar'>
               <Panel header='Organization Members'>
                 <ul className='checklist'>
                   <li><Fa icon='check' /> Create workstations</li>
