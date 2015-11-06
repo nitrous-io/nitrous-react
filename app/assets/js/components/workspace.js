@@ -27,6 +27,19 @@ export default class Workspace extends React.Component {
     host: hostStore.liveHosts.get(this.props.params.hostSlug)
   };
 
+  static willTransitionTo(transition, params) {
+    const host = hostStore.liveHosts.get(params.hostSlug);
+    if (!host) {
+      transition.redirect('dashboard');
+      return;
+    }
+
+    if (host.state === 'born') {
+      transition.redirect('workspace-creating', null, {hostSlug: params.hostSlug});
+      return;
+    }
+  }
+
   componentDidMount() {
     hostStore.onChange(this.hostStoreDidChange);
     hostActions.fetchOne(this.props.params.hostSlug);
