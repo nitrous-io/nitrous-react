@@ -8,6 +8,7 @@ import Signup from 'components/signup';
 import Dashboard from 'components/dashboard';
 import NewOrg from 'components/new-org';
 import OrgRoot from 'components/org-root';
+import OrgInviteMembers from 'components/org-invite-members';
 import UserWorkspace from 'components/user-workspace';
 import OrgWorkspace from 'components/org-workspace';
 import NewWorkspace from 'components/new-workspace';
@@ -57,6 +58,8 @@ export default (
           <DefaultRoute handler={redirectTo('new-org-workspace')} />
           <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
         </Route>
+
+        <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
 
         <Route name='org-billing' path='billing' handler={Billing} />
         <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
