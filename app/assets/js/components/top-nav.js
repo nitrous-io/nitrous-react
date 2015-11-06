@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Nav, NavDropdown, MenuItem } from 'react-bootstrap';
+import { Nav, NavDropdown, MenuItem, Label } from 'react-bootstrap';
 import LeftNavbar from 'components/left-navbar';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
@@ -53,7 +53,8 @@ export default class TopNav extends React.Component {
   };
 
   render() {
-    const { user } = this.state,
+    const user = this.state.user,
+          free = this.state.billingProfile.free,
           { makeHref } = this.context.router;
 
     return (
@@ -63,6 +64,13 @@ export default class TopNav extends React.Component {
             {user ? (
               <NavDropdown className='account-menu' id='account-menu-nav'
                 title={<img className='gravatar' src={user.gravatar(40)} />} noCaret dropup>
+                <MenuItem disabled>
+                  Signed in as <strong>{user.username}</strong>
+                  {free ? (
+                    <Label className='free-label' bsStyle='primary'>FREE</Label>
+                  ) : ''}
+                </MenuItem>
+                <MenuItem divider />
                 <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
                 <MenuItem href={makeHref('billing')}>Billing</MenuItem>
                 <MenuItem divider />
