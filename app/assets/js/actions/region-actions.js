@@ -3,21 +3,24 @@ import dispatcher from 'app-dispatcher';
 
 class RegionActions {
   fetchAll() {
-    return authedAjax({
+    const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/regions',
       dataType: 'json'
-    }).then((data) => {
+    });
+    promise.then((data) => {
       dispatcher.dispatch({
         type: 'region.fetched-all',
         data: { data }
       });
-    }).catch((jqxhr) => {
+    });
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'region.fetch-all-failed',
         data: { jqxhr }
       });
     });
+    return promise;
   }
 }
 

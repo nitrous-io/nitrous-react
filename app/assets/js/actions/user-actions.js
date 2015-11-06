@@ -3,11 +3,12 @@ import dispatcher from 'app-dispatcher';
 
 class UserActions {
   fetch() {
-    return authedAjax({
+    const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/user',
       dataType: 'json'
-    }).then((data) => {
+    });
+    promise.then((data) => {
       const bp = data.user.billing_profile;
       delete data.user.billing_profile;
       dispatcher.dispatch({
@@ -20,12 +21,14 @@ class UserActions {
         type: 'billing-profile.fetched',
         data: { data: bpData }
       });
-    }).catch((jqxhr) => {
+    });
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'user.fetch-failed',
         data: { jqxhr }
       });
     });
+    return promise;
   }
 
   create(options) {
@@ -101,6 +104,20 @@ class UserActions {
       url: '/api/v0/github/authorize_to_signup',
       cache: false,
       data: { beta: true }
+    });
+  }
+
+  resendConfirmation(options) {
+    const { appToken, confirmationToken } = options;
+    const params = {
+      token: confirmationToken,
+      app_token: appToken
+    };
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/user/resend_confirm',
+      cache: false,
+      data: params
     });
   }
 }

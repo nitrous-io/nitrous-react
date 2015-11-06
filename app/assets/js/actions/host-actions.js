@@ -3,21 +3,24 @@ import dispatcher from 'app-dispatcher';
 
 class HostActions {
   fetchAll() {
-    return authedAjax({
+    const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/hosts',
       dataType: 'json'
-    }).then((data) => {
+    });
+    promise.then((data) => {
       dispatcher.dispatch({
         type: 'host.fetched-all',
         data: { data }
       });
-    }).catch((jqxhr) => {
+    });
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.fetch-all-failed',
         data: { jqxhr }
       });
     });
+    return promise;
   }
 
   /**

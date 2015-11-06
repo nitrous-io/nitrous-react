@@ -3,11 +3,12 @@ import dispatcher from 'app-dispatcher';
 
 class OrgActions {
   fetchAll() {
-    return authedAjax({
+    const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/orgs',
       dataType: 'json'
-    }).then((data) => {
+    });
+    promise.then((data) => {
       dispatcher.dispatch({
         type: 'org.fetched-all',
         data: { data }
@@ -24,12 +25,14 @@ class OrgActions {
         type: 'billing-profile.fetched-all-orgs',
         data: { data: bpData }
       });
-    }).catch((jqxhr) => {
+    });
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'org.fetch-all-failed',
         data: { jqxhr }
       });
     });
+    return promise;
   }
 
   create(options) {
