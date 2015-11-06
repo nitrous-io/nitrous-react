@@ -59,7 +59,7 @@ export default class TopNav extends React.Component {
 
     return (
       <div className='top-nav-component'>
-        <LeftNavbar brand={<Link to="application"><span>Nitrous</span></Link>} className='navbar'>
+        <LeftNavbar brand={<Link to="application"><span>Nitrous</span></Link>}>
           <Nav right>
             {user ? (
               <NavDropdown className='account-menu' id='account-menu-nav'
