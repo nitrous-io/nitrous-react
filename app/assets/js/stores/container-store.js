@@ -76,6 +76,16 @@ class ContainerStore extends Store {
         this.emit('reconfigure-failed', { containerSlug });
         break;
       }
+      case 'container.committed': {
+        const { containerSlug } = action.data;
+        this.emit('committed', { containerSlug });
+        break;
+      }
+      case 'container.commit-failed': {
+        const { containerSlug } = action.data;
+        this.emit('commit-failed', { containerSlug });
+        break;
+      }
       // from events-socket
       case 'events:container.reconfigured': {
         const { config, container } = action.data,
