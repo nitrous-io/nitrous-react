@@ -53,8 +53,7 @@ export default class TopNav extends React.Component {
   };
 
   render() {
-    const user = this.state.user,
-          free = this.state.billingProfile.free,
+    const { user } = this.state,
           { makeHref } = this.context.router;
 
     return (
