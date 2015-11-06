@@ -104,7 +104,7 @@ export default class ContextSwitcher extends React.Component {
 
     const contextMenu = (
       <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
-        <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle="link">
+        <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle='link'>
           <MenuItem header>Personal</MenuItem>
           <MenuItem href={makeHref('user-workspace')}>{withGravatar(user)}</MenuItem>
           <MenuItem divider />
@@ -121,7 +121,7 @@ export default class ContextSwitcher extends React.Component {
           <MenuItem href={makeHref('shared-containers')}>
             Shared With Me
             {sharedContainerCount > 0 ? (
-              <Badge eventKey='shared' pullRight>1</Badge>
+              <Badge eventKey='shared'>1</Badge>
             ) : ''}
           </MenuItem>
           <MenuItem divider />
@@ -134,7 +134,7 @@ export default class ContextSwitcher extends React.Component {
     const buildHostsMenu = () => {
       return (
         <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='workspace-switcher-tooltip'>Switch Workspace</Tooltip>)}>
-          <DropdownButton title={selectedHost.name} id='workspace-switcher-dropdown'>
+          <DropdownButton title={selectedHost.name} id='workspace-switcher-dropdown' bsStyle='link'>
             <MenuItem header>Workspaces</MenuItem>
             {hosts.size > 1 ? hosts.map((host) => {
               return (
@@ -150,17 +150,17 @@ export default class ContextSwitcher extends React.Component {
     };
 
     return (
-      <Navbar className="context-nav" fixedTop>
-        <div className='context-switcher-component'>
-          {selectedHost && hosts.size > 1 ? (
-            <ButtonGroup>
-              {contextMenu}
-              {buildHostsMenu()}
-            </ButtonGroup>
-          ) : (
-            contextMenu
-          )}
-        </div>
+      <Navbar className="context-switcher-component" fixedTop>
+        {selectedHost && hosts.size > 1 ? (
+          <ButtonGroup>
+            {contextMenu}
+            {buildHostsMenu()}
+          </ButtonGroup>
+        ) : (
+          <ButtonGroup>
+            {contextMenu}
+          </ButtonGroup>
+        )}
       </Navbar>
     );
   }

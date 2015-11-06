@@ -603,7 +603,10 @@ export default class DocsUI extends React.Component {
             <ul className="dropdown-menu open">
               <MenuItem eventKey="1">Action</MenuItem>
               <MenuItem eventKey="2">Another action</MenuItem>
-              <MenuItem eventKey="3">Something else here</MenuItem>
+              <MenuItem eventKey="3">
+                Something else here
+                <Badge eventKey='shared' pullRight>1</Badge>
+              </MenuItem>
               <MenuItem divider />
               <MenuItem eventKey="4">Separated link</MenuItem>
             </ul>
