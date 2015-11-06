@@ -36,6 +36,7 @@ export default class Login extends React.Component {
   };
 
   componentDidMount() {
+    tokenStore.transitionedFromResendConfirmation();
     tokenStore.onChange(this.tokenStoreDidChange);
     if (this.props.query.token) {
       tokenActions.setToken(this.props.query.token);

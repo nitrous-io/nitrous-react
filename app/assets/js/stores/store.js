@@ -23,8 +23,13 @@ export default class Store extends EventEmitter {
   }
 
   handleErrorJqxhr(jqxhr) {
+    const { responseJSON } = jqxhr;
+    if (responseJSON && ['invalid_token', 'confirmation_lapsed'].includes(responseJSON.error)) {
+      return;
+    }
+
     const err = this._lastError = jqxhr.errorMessage;
-    if (err === "internal_server_error") {
+    if (err === 'internal_server_error') {
       return;
     }
     if (err) {
