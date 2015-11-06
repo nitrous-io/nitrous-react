@@ -112,12 +112,32 @@ export default class AccountSettings extends React.Component {
 
     if (!authorizedGitHubUserName) {
       return (
-        <Button onClick={this.handleClickGithHubConnect}>{connectingToGitHub ? 'Connecting...' : 'Connect to GitHub'}</Button>
+        <Button onClick={this.handleClickGithHubConnect}>
+          {connectingToGitHub ?
+            <span>
+              <Fa icon='github' /> Connecting...
+            </span>
+          :
+            <span>
+              <Fa icon='github' /> Connect to GitHub
+            </span>
+          }
+        </Button>
       );
     }
 
     return (
-      <Button bsStyle={canDeleteGitHubPublicKeys ? 'default' : 'warning'} onClick={this.handleClickGithHubConnect}>{connectingToGitHub ? 'Reconnecting...' : 'Reconnect'}</Button>
+      <Button bsStyle={canDeleteGitHubPublicKeys ? 'default' : 'warning'} onClick={this.handleClickGithHubConnect}>
+        {connectingToGitHub ?
+          <span>
+            <Fa icon='github' /> Connecting...
+          </span>
+        :
+          <span>
+            <Fa icon='github' /> Reconnect to GitHub
+          </span>
+        }
+      </Button>
     );
   }
 
@@ -140,7 +160,7 @@ export default class AccountSettings extends React.Component {
     return (
       <div className='account-settings-component'>
         <div className='container'>
-          <Panel header={(<h3>Account</h3>)}>
+          <Panel header={(<h4>Account</h4>)}>
             <form onSubmit={this.handleSubmit}>
               <div className='name'>
                 <Input label='Name' type='text' placeholder='Your name...'
@@ -172,7 +192,7 @@ export default class AccountSettings extends React.Component {
             </form>
           </Panel>
 
-          <Panel className='integration' header={(<h3><Fa icon='github-square' /> GitHub</h3>)}>
+          <Panel className='integration' header={(<h4>GitHub</h4>)}>
             {canDeleteGitHubPublicKeys ? '' : (
               <Alert bsSize='xsmall' bsStyle='warning'>
                 <Fa icon='warning' /> Please reconnect with GitHub to manage your public keys.

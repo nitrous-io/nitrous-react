@@ -83,6 +83,7 @@ export default class DocsUI extends React.Component {
             <Button bsStyle="info">Info</Button>
             <Button bsStyle="warning">Warning</Button>
             <Button bsStyle="danger">Danger</Button>
+            <Button><Fa icon="star" />Button With Icon</Button>
             <Button bsStyle="link">Link</Button>
           </ButtonToolbar>
 
@@ -93,6 +94,7 @@ export default class DocsUI extends React.Component {
             <Button bsStyle="info" active>Info</Button>
             <Button bsStyle="warning" active>Warning</Button>
             <Button bsStyle="danger" active>Danger</Button>
+            <Button active><Fa icon="star" />Button With Icon</Button>
             <Button bsStyle="link" active>Link</Button>
           </ButtonToolbar>
 
@@ -103,6 +105,7 @@ export default class DocsUI extends React.Component {
             <Button bsStyle="info" disabled>Info</Button>
             <Button bsStyle="warning" disabled>Warning</Button>
             <Button bsStyle="danger" disabled>Danger</Button>
+            <Button disabled><Fa icon="star" />Button With Icon</Button>
             <Button bsStyle="link" disabled>Link</Button>
           </ButtonToolbar>
         </div>
@@ -663,10 +666,10 @@ export default class DocsUI extends React.Component {
         <h3 className="docs-title"><DocsAnchor id="panels-heading">Panel with heading</DocsAnchor></h3>
         <div className="docs-demo-wrapper">
           <div>
-            <Panel header="Panel heading without title">
+            <Panel header={<h4>Panel heading without title</h4>}>
               Panel content
             </Panel>
-            <Panel header={<h3>Panel title</h3>}>
+            <Panel header={<h4>Panel title</h4>}>
               Panel content
             </Panel>
           </div>
@@ -682,27 +685,27 @@ export default class DocsUI extends React.Component {
         <h3 className="docs-title"><DocsAnchor id="panels-contextual">Contextual alternatives</DocsAnchor></h3>
         <div className="docs-demo-wrapper">
           <div>
-            <Panel header="Title">
+            <Panel header={<h4>Title</h4>}>
               Panel content
             </Panel>
 
-            <Panel header="Title" bsStyle="primary">
+            <Panel header={<h4>Title</h4>} bsStyle="primary">
               Panel content
             </Panel>
 
-            <Panel header="Title" bsStyle="success">
+            <Panel header={<h4>Title</h4>} bsStyle="success">
               Panel content
             </Panel>
 
-            <Panel header="Title" bsStyle="info">
+            <Panel header={<h4>Title</h4>} bsStyle="info">
               Panel content
             </Panel>
 
-            <Panel header="Title" bsStyle="warning">
+            <Panel header={<h4>Title</h4>} bsStyle="warning">
               Panel content
             </Panel>
 
-            <Panel header="Title" bsStyle="danger">
+            <Panel header={<h4>Title</h4>} bsStyle="danger">
               Panel content
             </Panel>
           </div>

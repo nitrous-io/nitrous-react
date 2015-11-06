@@ -39,7 +39,7 @@ export default class Billing extends React.Component {
     return (
       <div className='billing-component'>
         <div className='container'>
-          <Panel header='Payment Method' className='payment-method'>
+          <Panel header={<h4>Payment Method</h4>} className='payment-method'>
             {hasCard ? (
               <div>
                 <p>
