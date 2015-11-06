@@ -43,13 +43,15 @@ class TokenStore extends Store {
           return;
         }
 
-        let loc = '/#/login';
         if (action.data && action.data.type === 'confirmation_lapsed') {
           this._transitioningToResendConfirmation = true;
-          loc = `/#/resend-confirmation`;
+          location.hash = `#/resend-confirmation`;
+          return;
         }
 
-        location.href = loc;
+        // navigate to / to unload app to clear memory / stores
+        // that may have data from previous session
+        location.href = '/';
         return;
       }
       default: return;
