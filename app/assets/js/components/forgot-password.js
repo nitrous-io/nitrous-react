@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { Input, ButtonInput } from 'react-bootstrap';
-import classNames from 'classnames';
+import { Input, ButtonInput, ButtonToolbar, Panel } from 'react-bootstrap';
 
 import passwordStore from 'stores/password-store';
 import passwordActions from 'actions/password-actions';
@@ -59,24 +58,25 @@ export default class ForgotPassword extends React.Component {
   }
 
   render() {
-    const { identifier, processing, errorMessage } = this.state,
-          formPanelClasses = classNames('form-panel', { shake: errorMessage });
+    const { identifier, processing } = this.state;
 
     return (
       <div className='forgot-password-component login-screen'>
-        <div className={formPanelClasses}>
+        <Panel>
           <h2 className='nitrous-logo'></h2>
           <form onSubmit={this.handleSubmit}>
             <Input ref='identifier' type='text' placeholder='Email Address or Username' required
               disabled={processing}
               value={identifier}
               onChange={this.handleIdentifierChanged} />
-            <div className='actions'>
+            <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' disabled={processing}>
                 {processing ? 'Processing...' : 'Send Reset Instructions'}
               </ButtonInput>
-            </div>
+            </ButtonToolbar>
           </form>
+        </Panel>
+        <div className='misc-links'>
           <p>Already have an account? <Link to='login'>Log in</Link></p>
         </div>
       </div>
