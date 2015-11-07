@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Input, Tabs, Tab, Grid, Row, Button } from 'react-bootstrap';
 import Host from 'records/host';
+import userStore from 'stores/user-store';
 import templateStore from 'stores/template-store';
 import templateActions from 'actions/template-actions';
 import containerActions from 'actions/container-actions';
@@ -133,19 +134,14 @@ export default class NewContainer extends React.Component {
 
   render() {
     const { projectName, creating, templates, selectedImageType, selectedImage } = this.state,
-          { host } = this.context;
+          { host } = this.context,
+          advanced = userStore.userProfile && userStore.userProfile.advanced;
 
     return (
       <div className='new-container-component'>
         <ContextSwitcher selectedHost={host} />
         <div className='container'>
-          <h3>Project Name</h3>
-          <div className='project-name'>
-            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
-              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
-              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
-          </div>
-          <h3>Select an Image</h3>
+          <h2>New Project</h2>
           <Tabs defaultActiveKey='templates' className='ui-centered-tabs'>
             <Tab eventKey='templates' title='Nitrous Templates'>
               <Grid className='ui-card-grid'>
@@ -160,7 +156,7 @@ export default class NewContainer extends React.Component {
                 </Row>
               </Grid>
             </Tab>
-            <Tab eventKey='images' title='My Images'>
+            <Tab eventKey='images' title={advanced ? 'My Images' : 'My Snapshots'}>
               <ImageList host={host}
                 selectedImage={selectedImage}
                 onSelect={this.handleImageSelection} />
@@ -175,6 +171,13 @@ export default class NewContainer extends React.Component {
               </div>
             </Tab>
           </Tabs>
+          <hr />
+          <h3>Project Name</h3>
+          <div className='project-name'>
+            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
+              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
+              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
+          </div>
           <Button disabled={!this.isValid || creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>Create Project</Button>
         </div>
       </div>
