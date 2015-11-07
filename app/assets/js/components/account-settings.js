@@ -194,8 +194,8 @@ export default class AccountSettings extends React.Component {
 
           <Panel className='integration' header={(<h4>GitHub</h4>)}>
             {canDeleteGitHubPublicKeys ? '' : (
-              <Alert bsSize='xsmall' bsStyle='warning'>
-                <Fa icon='warning' /> Please reconnect with GitHub to manage your public keys.
+              <Alert bsSize='xsmall' bsStyle='info'>
+                <Fa icon='info-circle' /> Please connect with GitHub to manage your public keys
               </Alert>
             )}
             {authorizedGitHubUserName ? (

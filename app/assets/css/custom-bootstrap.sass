@@ -57,7 +57,6 @@ nav + .tab-content
   .dropdown-menu
     margin-top: 0
 
-
 .nav-pills,
 .nav-stacked
   color: $navbar-default-link-color
@@ -144,6 +143,11 @@ nav + .tab-content
     + span
       margin-left: 6px
 
+
+// Badges
+.badge
+  background-color: $brand-primary
+  font-size: 11px
 
 // Forms & Inputs
 label
@@ -378,3 +382,8 @@ select.form-control
     &.glyphicon-remove
       &:before
         content: "\f00d"
+
+// Tables
+.table
+  tbody > tr > td
+    vertical-align: middle

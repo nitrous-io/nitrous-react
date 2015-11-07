@@ -95,7 +95,7 @@ export default class SnapshotContainer extends React.Component {
     return (
       <Modal show={showModal} onHide={onHideModal}>
         <Modal.Header>
-          <Modal.Title>Snapshot Container</Modal.Title>
+          <Modal.Title>Snapshot Project</Modal.Title>
         </Modal.Header>
         <form onSubmit={this.handleSubmit}>
           <Modal.Body>
@@ -104,7 +104,7 @@ export default class SnapshotContainer extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <Button ref='modalCancel' onClick={onHideModal}>Cancel</Button>
-            <Button type='submit' disabled={this.submitDisabled()} bsStyle='primary'>{processing ? 'Saving...' : 'Save'}</Button>
+            <Button type='submit' disabled={this.submitDisabled()} bsStyle='primary'>{processing ? 'Creating...' : 'Create Snapshot'}</Button>
           </Modal.Footer>
         </form>
       </Modal>

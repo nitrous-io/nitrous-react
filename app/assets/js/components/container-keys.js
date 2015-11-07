@@ -207,7 +207,7 @@ export default class ContainerKeys extends React.Component {
 
             {container.state === 'running' ? (
               <div>
-                <Panel header='Project Public Keys'>
+                <Panel header={(<h4>Project Public Keys</h4>)}>
                   <p className='hint'> <Fa icon='info-circle' /> Public keys on your project. Add these to external services to allow access to them from your project.</p>
 
                   {containerKeys && containerKeys.size > 0 ?
@@ -228,7 +228,7 @@ export default class ContainerKeys extends React.Component {
                   )}
                 </Panel>
 
-                <Panel header='User Public Keys'>
+                <Panel header={(<h4>User Public Keys</h4>)}>
                   <UserKeyList userKeys={userKeys} host={host} shared={shared} />
                 </Panel>
               </div>
