@@ -39,15 +39,13 @@ export default class Login extends React.Component {
     tokenStore.transitionedFromResendConfirmation();
     tokenStore.onChange(this.tokenStoreDidChange);
 
-    if (this.props.query.token) {
-      tokenActions.setToken(this.props.query.token);
+    const { token, existingGitHubEmail } = this.props.query;
+
+    if (token) {
+      tokenActions.setToken(token);
     }
 
-    if (!this.props.query.existingGitHubEmail) {
-      this.refs.password.getInputDOMNode().focus();
-    } else {
-      this.refs.username.getInputDOMNode().focus();
-    }
+    (existingGitHubEmail ? this.refs.password : this.refs.username).getInputDOMNode().focus();
   }
 
   componentWillUnmount() {
