@@ -64,11 +64,13 @@ export default class NewOrg extends React.Component {
       return;
     }
 
-    this.setState({ createdOrg: org });
+    if (this.state.processing) {
+      this.setState({ createdOrg: org });
 
-    // If the org store contains the org, it means it was successfully created,
-    // so we proceed to save the payment method.
-    paymentActions.requestSubmit();
+      // If the org store contains the org, it means it was successfully created,
+      // so we proceed to save the payment method.
+      paymentActions.requestSubmit();
+    }
   }
 
   onOrgCreateFailed = (data) => {
