@@ -7,6 +7,7 @@ import ResetPassword from 'components/reset-password';
 import Signup from 'components/signup';
 import Dashboard from 'components/dashboard';
 import NewOrg from 'components/new-org';
+import Orgs from 'components/orgs';
 import OrgRoot from 'components/org-root';
 import OrgInviteMembers from 'components/org-invite-members';
 import UserHost from 'components/user-host';
@@ -51,6 +52,7 @@ export default (
         <DefaultRoute handler={redirectTo('new-user-host')} />
       </Route>
 
+      <Route name='orgs' path='orgs' handler={Orgs} />
       <Route name='new-org' path='orgs/new' handler={NewOrg} />
 
       <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
