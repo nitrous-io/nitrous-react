@@ -11,7 +11,7 @@ class ContainerKeyStore extends Store {
       case 'container-key.fetched-all-by-container-slug': {
         const { data, containerSlug } = action.data;
 
-        const keys = OrderedSet(data.keys.map(function(d) {
+        const keys = OrderedSet(data.keys.map((d) => {
           return ContainerKey.deserialize(d);
         }));
 

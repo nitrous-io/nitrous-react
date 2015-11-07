@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-
 import { Grid, Row, Col, Alert, Button, Input, Panel, Table } from 'react-bootstrap';
 import slug from 'slug';
 
@@ -7,7 +6,6 @@ import orgStore from 'stores/org-store';
 import planStore from 'stores/plan-store';
 import orgActions from 'actions/org-actions';
 import paymentActions from 'actions/payment-actions';
-import snackbarActions from 'actions/snackbar-actions';
 import planActions from 'actions/plan-actions';
 import Fa from 'components/fa';
 import PaymentMethod from 'components/payment-method';
@@ -129,7 +127,8 @@ export default class NewOrg extends React.Component {
   }
 
   handlePaymentSuccess = () => {
-    snackbarActions.post('Success! Now implement the "Invite Organization Members" page.');
+    const org = this.state.createdOrg;
+    this.context.router.transitionTo('org-invite-members', { orgSlug: org.slug });
   }
 
   handlePaymentFailure = () => {
@@ -152,7 +151,7 @@ export default class NewOrg extends React.Component {
             <Col lg={8} lgOffset={2} md={10} mdOffset={1} sm={10} smOffset={1} xs={12}>
               <h1>Create an Organization</h1>
               <ol>
-                <li><Fa icon='check' /> Completed: Create personal account</li>
+                <li className='active'><Fa icon='check' /> Completed: Create personal account</li>
                 <li>Step 2: Add organization info</li>
                 <li>Step 3: Invite organization members</li>
               </ol>

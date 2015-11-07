@@ -23,17 +23,10 @@ export default class EtaProgressBar extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {
-      animated: false,
-      now: 0
-    };
-
     if (props.done) {
-      this.state = {
-        animated: true,
-        now: 100
-      };
+      this.state = { animated: true, now: 100 };
     } else {
+      this.state = { animated: false, now: 0 };
       this.startTimer();
     }
   }
