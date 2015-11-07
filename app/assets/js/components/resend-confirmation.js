@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { Alert, ButtonInput } from 'react-bootstrap';
 
-import LeftBar from 'components/left-bar';
 import tokenStore from 'stores/token-store';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
@@ -60,8 +59,7 @@ export default class ResendConfirmation extends React.Component {
     const { processing, processed } = this.state;
 
     return (
-      <div className='forgot-password-component login-screen dark'>
-        <LeftBar />
+      <div className='forgot-password-component login-screen'>
         <div className='form-panel'>
           <h2 className='nitrous-logo'></h2>
           {!processed ? (

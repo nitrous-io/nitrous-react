@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Alert, Input, ButtonInput, Button } from 'react-bootstrap';
+import { Alert, Input, ButtonToolbar, ButtonInput, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Fa from 'components/fa';
 import classNames from 'classnames';
 
-import LeftBar from 'components/left-bar';
 import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
@@ -38,9 +38,12 @@ export default class Login extends React.Component {
   componentDidMount() {
     tokenStore.transitionedFromResendConfirmation();
     tokenStore.onChange(this.tokenStoreDidChange);
+
     if (this.props.query.token) {
       tokenActions.setToken(this.props.query.token);
-    } else if (this.props.query.existingGitHubEmail) {
+    }
+
+    if (!this.props.query.existingGitHubEmail) {
       this.refs.password.getInputDOMNode().focus();
     } else {
       this.refs.username.getInputDOMNode().focus();
@@ -61,7 +64,7 @@ export default class Login extends React.Component {
         userActions.connectToGitHub().then((data) => {
           window.location.href = data.redirect_url;
         }).catch(() => {
-          snackbarActions.post('We were unable to connect you to GitHub');
+          snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
           this.context.router.transitionTo('dashboard');
         });
         return;
@@ -69,18 +72,13 @@ export default class Login extends React.Component {
 
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
-      snackbarActions.post(tokenStore.lastError);
+      snackbarActions.post(tokenStore.lastError, 'warning');
       this.setState({ loggingIn: false }, () => {
         const usernameInput = this.refs.username.getInputDOMNode();
         usernameInput.select();
         usernameInput.focus();
       });
     }
-  }
-
-  actionsDisabled = () => {
-    const { loggingInWithGithub, loggingIn } = this.state;
-    return loggingIn || loggingInWithGithub;
   }
 
   handleSubmit = (evt) => {
@@ -95,39 +93,47 @@ export default class Login extends React.Component {
     userActions.loginViaGithub().then((json) => {
       window.location.href = json.redirect_url;
     }).catch(() => {
-      snackbarActions.post('Unable to connect to GitHub. Please try again.');
+      snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
     });
   }
 
   render() {
-    const { loggingIn, errorMessage } = this.state,
+    const { loggingIn, loggingInWithGithub, errorMessage } = this.state,
           { existingGitHubEmail } = this.props.query,
-          loginLabel = loggingIn ? 'Logging In...' : 'Log In',
-          formPanelClasses = classNames('form-panel', { shake: errorMessage }),
-          disabled = this.actionsDisabled();
+          disabled = loggingIn || loggingInWithGithub;
 
     return (
-      <div className='login-component login-screen dark'>
-        <LeftBar />
-        <div className={formPanelClasses}>
-          <h2 className='nitrous-logo'></h2>
+      <div className='login-component login-screen'>
+        <Panel className={classNames({ shake: errorMessage })}>
+          <h2 className='nitrous-logo'><span>Nitrous</span></h2>
 
           {existingGitHubEmail ? (
-            <Alert bsStyle="warning">
-              Please login to connect with GitHub.
+            <Alert bsStyle='warning'>
+              An account that is associated with your email address already exists.
+              <br /><br />
+              Please log in to the existing account to connect with GitHub.
             </Alert>
           ) : ''}
           <form onSubmit={this.handleSubmit}>
             <Input ref='username' value={existingGitHubEmail} type='text' placeholder='Username or Email' required disabled={disabled} />
             <Input ref='password' type='password' placeholder='Password' required disabled={disabled} />
-            <div className='actions inline'>
-              <ButtonInput type='submit' bsStyle='primary' value={loginLabel} disabled={disabled} />
-              <Button onClick={this.handleLoginWithGithub} className='github' type='button' value='Log in with GitHub' disabled={disabled} />
-            </div>
+            <ButtonToolbar>
+              <ButtonInput type='submit' bsStyle='primary' value={
+                loggingIn ? 'Logging In...' : 'Log In'
+              } disabled={disabled} />
+              <OverlayTrigger placement='bottom' overlay={<Tooltip id='container-state-tooltip'>Log in with GitHub account</Tooltip>}>
+                <Button onClick={this.handleLoginWithGithub} className='github-btn' disabled={disabled}>
+                  <Fa icon='github' />
+                  <span className='text'>Log in with GitHub</span>
+                </Button>
+              </OverlayTrigger>
+            </ButtonToolbar>
           </form>
-          <p>No account? <Link to='signup'>Sign Up</Link></p>
-          <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
-        </div>
+          <div className='links'>
+            <p>No account? <Link to='signup'>Sign Up</Link></p>
+            <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
+          </div>
+        </Panel>
       </div>
     );
   }

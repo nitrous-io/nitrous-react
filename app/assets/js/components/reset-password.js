@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { Input, ButtonInput } from 'react-bootstrap';
 import classNames from 'classnames';
 
-import LeftBar from 'components/left-bar';
 import passwordStore from 'stores/password-store';
 import passwordActions from 'actions/password-actions';
 import snackbarActions from 'actions/snackbar-actions';
@@ -88,8 +87,7 @@ export default class ResetPassword extends React.Component {
           formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
-      <div className='reset-password-component login-screen dark'>
-        <LeftBar />
+      <div className='reset-password-component login-screen'>
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
           <form onSubmit={this.handleSubmit}>

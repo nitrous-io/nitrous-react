@@ -1,106 +1,27 @@
-.login-screen
-  display: flex
-  position: fixed
-  width: 100%
-  height: 100%
-  justify-content: center
-  align-items: center
-  user-select: none
+.login-component
+  .btn-toolbar
+    display: flex
 
-  .form-panel
-    width: 250px
-    position: relative
-
-    &.shake
-      animation: shake .75s
-
-  .actions
     .form-group
-      margin: 0
+      flex-grow: 1
 
-  &.dark
-    .alert-default
-      background: rgba(255,255,255,.90)
-      text-transform: capitalize
-      cursor: default
-      color: #3D464D
-      user-select: none
+      .btn
+        width: 100%
 
-    .form-panel
-      h2.nitrous-logo
-        width: 155px
-        height: 18px
-        display: block
-        background: url('/assets/images/nitrous-logo-white.svg') center center no-repeat
-        background-size: 155px 18px
-        margin: 0 auto 40px auto
+  .github-btn
+    height: 33px
+    padding: 3px 12px
 
-      input[type='text'], [type='password'], [type='email']
-        background: #3D464D
-        border-radius: 2px
-        border: 0
-        height: 42px
-        font-size: 15px
-        box-shadow: 0
-        color: #FFF
+    span.text
+      display: none
 
-      input[type='text']:active, [type='password']:active, [type='email']:active,
-      input[type='text']:focus, [type='password']:focus, [type='email']:focus
-        border: 0
-        box-shadow: 0 0 4px rgba(255,255,255,.65)
-        border-radius: 2px
+    i.fa
+      opacity: 1
+      font-size: 26px
 
-      input[type="submit"], .primary-btn
-        height: 42px
-        line-height: 42px
-        border-radius: 4px
-        padding: 0 14px
-        font-size: 14px
-        font-weight: 500
-        text-transform: uppercase
-        box-shadow: 0 1px 0 rgba(0,0,0,.1)
-        color: #FFF
-        transition: background-color .15s ease-in-out
+  .links
+    text-align: center
+    margin-top: 32px
 
-      input[type="submit"], .primary-btn
-        background: #0099ED
-
-        &, &:hover
-          border: 0
-
-        &:hover
-          background: rgba(0,0,0,.1), #0099ED
-
-      .github
-        width: 46px
-        overflow: hidden
-        text-indent: -999999px
-        border: 0
-        background: #828E98 url('/assets/images/github-btn.png') 50% -1px no-repeat
-        background-size: 24px 84px
-
-        &:hover
-          background-color: #0099ED
-          background-position: 50% -43px
-
-      .actions
-        display: flex
-
-        .form-group
-          display: flex
-          flex-grow: 1
-          padding: 0
-
-        input[type="submit"], .primary-btn
-          flex-grow: 1
-
-        &.inline
-          .form-group
-            input[type="submit"], .primary-btn
-              margin-right: 6px
-
-      p
-        margin-top: 30px
-        display: block
-        text-align: center
-        cursor: default
+    p:last-of-type
+      margin-bottom: 0

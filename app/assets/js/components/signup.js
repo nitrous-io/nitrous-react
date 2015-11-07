@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { Alert, ButtonInput, Input, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
-import LeftBar from 'components/left-bar';
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
@@ -138,8 +137,7 @@ export default class Signup extends React.Component {
           formPanelClasses = classNames('form-panel', { shake: errorMessage });
 
     return (
-      <div className='signup-component login-screen dark'>
-        <LeftBar />
+      <div className='signup-component login-screen'>
         <div className={formPanelClasses}>
           <h2 className='nitrous-logo'></h2>
           {isViaGitHub ? (

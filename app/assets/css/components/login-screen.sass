@@ -1,0 +1,39 @@
+.login-screen
+  display: flex
+  position: fixed
+  width: 100%
+  height: 100%
+  justify-content: center
+  align-items: center
+  user-select: none
+
+  .panel
+    width: 320px
+    position: relative
+
+    &.shake
+      animation: shake .75s
+
+    .panel-body
+      padding: 32px
+
+    .btn-toolbar
+      margin: 0
+
+      .form-group
+        margin: 0
+
+    .alert
+      text-align: center
+      margin-bottom: 15px
+
+  h2.nitrous-logo
+    width: 153px
+    height: 18px
+    display: block
+    background: url('/assets/images/nitrous-logo.svg') center center no-repeat
+    background-size: 153px 18px
+    margin: 0 auto 32px auto
+
+    span
+      display: none
