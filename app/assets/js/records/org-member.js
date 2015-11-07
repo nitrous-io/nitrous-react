@@ -2,6 +2,13 @@ import md5 from 'md5';
 
 import { Record } from 'immutable';
 
+const allowedRolesMap = {
+  owner: ['owner', 'admin', 'member', 'limited'],
+  admin: ['admin', 'member', 'limited'],
+  member: [],
+  limited: []
+};
+
 export default class OrgMember extends Record({
   id: null,
   role: null,
@@ -41,4 +48,20 @@ export default class OrgMember extends Record({
     }
     return this.username || this.email;
   }
+
+  get allowedRoles() {
+    return Roles.allowedFor(this.role);
+  }
 }
+
+export const Roles = {
+  Owner: 'owner',
+  Admin: 'admin',
+  Member: 'member',
+  Limited: 'limited',
+  DefaultRole: 'member',
+
+  allowedFor(role) {
+    return allowedRolesMap[role];
+  }
+};

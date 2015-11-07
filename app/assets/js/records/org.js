@@ -35,4 +35,8 @@ export default class Org extends Record({
   get roleAllowsBillingProfileAdmin() {
     return this.role === 'owner' || this.role === 'admin';
   }
+
+  get roleAllowsMemberAdmin() {
+    return this.role === 'owner' || this.role === 'admin';
+  }
 }

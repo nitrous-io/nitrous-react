@@ -4,6 +4,7 @@ import { OrderedMap, OrderedSet } from 'immutable';
 
 class OrgMemberStore extends Store {
   MEMBER_NOT_FOUND = Symbol('MEMBER_NOT_FOUND');
+  NOT_ALLOWED = Symbol('NOT_ALLOWED');
 
   _membersByOrgSlug = OrderedMap(); // <K: OrgSlug, V: OrderedSet<OrgMember>>
 
@@ -47,10 +48,20 @@ class OrgMemberStore extends Store {
         const { jqxhr, orgSlug, member } = action.data;
 
         let errorMessage = this._lastError = jqxhr.errorMessage;
-        if (jqxhr.status === 404) {
-          // Because API returns a 404 with a error message that is not helpful
-          // to users when the member does not exist on Nitrous.
-          errorMessage = this.MEMBER_NOT_FOUND;
+        switch (jqxhr.status) {
+          case 403: {
+            // The API returns a 403 with an error message that is not always
+            // correct, e.g. when an admin tries to remove an owner, it says
+            // "you do not have permission to edit members". TODO Fix API.
+            errorMessage = this.NOT_ALLOWED;
+            break;
+          }
+          case 404: {
+            // The API returns a 404 with an error message that is not helpful
+            // to users when the member does not exist on Nitrous.
+            errorMessage = this.MEMBER_NOT_FOUND;
+            break;
+          }
         }
 
         let event = 'add-failed';

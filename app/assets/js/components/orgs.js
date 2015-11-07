@@ -55,9 +55,11 @@ export default class Orgs extends React.Component {
                     </Button>
                   ) : ''}
 
-                  <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
-                    <Fa icon='users' /> Members
-                  </Button>
+                  {org.roleAllowsMemberAdmin ? (
+                    <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
+                      <Fa icon='users' /> Members
+                    </Button>
+                  ) : ''}
                 </ButtonToolbar>
               </ListGroupItem>
             );

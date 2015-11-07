@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Grid, Row, Col, ListGroup, ListGroupItem, Button, Input, Label } from 'react-bootstrap';
 
 import Org from 'records/org';
+import { Roles } from 'records/org-member';
 import orgMemberActions from 'actions/org-member-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import orgMemberStore from 'stores/org-member-store';
@@ -24,11 +25,11 @@ export default class OrgMembers extends React.Component {
     members: orgMemberStore.orgMembersByOrgSlug(this.props.org.slug),
     user: userStore.user,
     newMember: null,
-    newMemberRole: 'member', // TODO Member roles should be constants somewhere.
+    newMemberRole: Roles.DefaultRole,
     adding: false,
     addFailed: false,
     updatingMember: false
-  }
+  };
 
   componentDidMount() {
     orgMemberStore.onChange(this.orgMemberStoreDidChange);
@@ -60,6 +61,7 @@ export default class OrgMembers extends React.Component {
       });
       if (added) {
         this.setState({ adding: false, addFailed: false, newMember: null });
+        this.refs.newMember.getInputDOMNode().focus();
       }
     }
 
@@ -79,6 +81,7 @@ export default class OrgMembers extends React.Component {
   onOrgMemberAddFailed = (data) => {
     this.setState({ adding: false, addFailed: true });
     this.postEditError(data);
+    this.refs.newMember.getInputDOMNode().focus();
   }
 
   onOrgMemberRemoveFailed = (data) => {
@@ -91,16 +94,23 @@ export default class OrgMembers extends React.Component {
 
   postEditError = (data) => {
     const { orgSlug, member, errorMessage } = data;
-    if (orgSlug !== this.props.org.slug || member !== this.state.newMember) {
+    if (orgSlug !== this.props.org.slug) {
       return;
     }
 
-    if (errorMessage === orgMemberStore.MEMBER_NOT_FOUND) {
-      snackbarActions.post(`${member} doesn't have a Nitrous account.`);
-      return;
+    switch (errorMessage) {
+      case orgMemberStore.NOT_ALLOWED: {
+        snackbarActions.post('You do not have sufficient privileges to perform this action.');
+        break;
+      }
+      case orgMemberStore.MEMBER_NOT_FOUND: {
+        snackbarActions.post(`${member} doesn't have a Nitrous account.`);
+        break;
+      }
+      default: {
+        snackbarActions.post(errorMessage);
+      }
     }
-
-    snackbarActions.post(errorMessage);
   }
 
   userStoreDidChange = () => {
@@ -149,11 +159,14 @@ export default class OrgMembers extends React.Component {
       );
     }
 
+    const allowedRoles = Roles.allowedFor(this.props.org.role);
+
     return (
       <div className='org-members-component'>
         <ListGroup>
           {members.map((member) => {
-            const isSelf = (user.id === member.userId);
+            const isSelf = (member.userId === user.id),
+                  canEditRole = !isSelf && allowedRoles.some((role) => role === member.role);
 
             return (
               <ListGroupItem key={`member-${member.id}`}>
@@ -164,25 +177,29 @@ export default class OrgMembers extends React.Component {
                       <span>{member.username}</span>
                     </Col>
                     <Col lg={4} md={4} sm={4} xs={4}>
-                      {isSelf ? (
-                        <div className='org-member-role'>
-                          <span>{member.role}</span>
-                          <Label bsStyle='success'>You</Label>
-                        </div>
-                      ) : (
-                        <select className='form-control'
+                      {canEditRole ? (
+                        <select className='form-control org-member-role'
                           value={member.role}
                           disabled={!!updatingMember}
                           onChange={(e) => this.handleMemberRoleChanged(e, member)}>
-                          <option value='owner'>Owner</option>
-                          <option value='admin'>Admin</option>
-                          <option value='member'>Member</option>
-                          <option value='limited'>Limited</option>
+                          {allowedRoles.map((role) => {
+                            return (
+                            <option value={role}
+                                key={`member-${member.id}-role-${role}`}>
+                                {role}
+                              </option>
+                            );
+                          })}
                         </select>
+                      ) : (
+                        <div className='org-member-role'>
+                          <span>{member.role}</span>
+                          {isSelf ? (<Label bsStyle='success'>You</Label>) : ''}
+                        </div>
                       )}
                     </Col>
                     <Col lg={2} md={2} sm={2} xs={2}>
-                      {!isSelf ? (
+                      {canEditRole ? (
                         <Button bsStyle='warning' className='pull-right'
                           onClick={this.handleRemoveMember.bind(this, member)}>
                           <Fa icon='trash' />
@@ -196,42 +213,45 @@ export default class OrgMembers extends React.Component {
           })}
         </ListGroup>
 
-        <form onSubmit={this.handleAddMember}>
-          <Grid>
-            <Row>
-              <Col lg={12}>
-                <label htmlFor='add-new-member'>Add New Member</label>
-              </Col>
-            </Row>
+        {allowedRoles.length > 0 ? (
+          <form onSubmit={this.handleAddMember}>
+            <Grid>
+              <Row>
+                <Col lg={12}>
+                  <label htmlFor='add-new-member'>Add New Member</label>
+                </Col>
+              </Row>
 
-            <Row>
-              <Col lg={6} md={6} sm={6} xs={6}>
-                <Input type='text' required placeholder='Username or email'
-                  id='add-new-member'
-                  value={newMember}
-                  disabled={adding}
-                  bsStyle={addFailed ? 'error' : null}
-                  onChange={this.handleNewMemberChanged} />
-              </Col>
+              <Row>
+                <Col lg={6} md={6} sm={6} xs={6}>
+                  <Input type='text' required placeholder='Username or email'
+                    ref='newMember'
+                    id='add-new-member'
+                    value={newMember}
+                    disabled={adding}
+                    bsStyle={addFailed ? 'error' : null}
+                    onChange={this.handleNewMemberChanged} />
+                </Col>
 
-              <Col lg={4} md={6} sm={6} xs={6}>
-                <select className='form-control' defaultValue='member'
-                  disabled={adding}
-                  value={newMemberRole}
-                  onChange={this.handleNewMemberRoleChanged}>
-                  <option value='owner'>Owner</option>
-                  <option value='admin'>Admin</option>
-                  <option value='member'>Member</option>
-                  <option value='limited'>Limited</option>
-                </select>
-              </Col>
+                <Col lg={4} md={6} sm={6} xs={6}>
+                  <select className='form-control org-member-role'
+                    defaultValue={Roles.DefaultRole}
+                    disabled={adding}
+                    value={newMemberRole}
+                    onChange={this.handleNewMemberRoleChanged}>
+                    {allowedRoles.map((role) => {
+                      return (<option value={role} key={`role-${role}`}>{role}</option>);
+                    })}
+                  </select>
+                </Col>
 
-              <Col lg={2} md={12} sm={12} xs={12}>
-                <Button type='submit' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
-              </Col>
-            </Row>
-          </Grid>
-        </form>
+                <Col lg={2} md={12} sm={12} xs={12}>
+                  <Button type='submit' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
+                </Col>
+              </Row>
+            </Grid>
+          </form>
+        ) : ''}
       </div>
     );
   }
