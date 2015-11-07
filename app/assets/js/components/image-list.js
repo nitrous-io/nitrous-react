@@ -1,9 +1,12 @@
 import React, { PropTypes } from 'react';
 import Host from 'records/host';
+import userStore from 'stores/user-store';
 import imageStore from 'stores/image-store';
 import imageActions from 'actions/image-actions';
-import { Table, Tabs, Tab, Modal, Input, Button } from 'react-bootstrap';
+import { Table, Tabs, Tab, Modal, Input, Button, ButtonGroup } from 'react-bootstrap';
 import ImageListItem from 'components/image-list-item';
+import PullImage from 'components/pull-image';
+import Fa from 'components/fa';
 import classNames from 'classnames';
 
 export default class ImageList extends React.Component {
@@ -16,6 +19,18 @@ export default class ImageList extends React.Component {
     selectedImage: PropTypes.string,
     onSelect: PropTypes.func,
     manageImages: PropTypes.bool
+  };
+
+  state = {
+    snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug),
+    otherImages: imageStore.otherImagesByHostSlug(this.props.host.slug),
+    showPushModal: false,
+    showPullModal: false,
+    pushRepository: null,
+    pushing: false,
+    showDeleteModal: false,
+    deleting: false,
+    targetImage: null
   };
 
   componentDidMount() {
@@ -100,16 +115,13 @@ export default class ImageList extends React.Component {
     }
   }
 
-  state = {
-    snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug),
-    otherImages: imageStore.otherImagesByHostSlug(this.props.host.slug),
-    showPushModal: false,
-    pushRepository: null,
-    pushing: false,
-    showDeleteModal: false,
-    deleting: false,
-    targetImage: null
-  };
+  handlePullImageButton = () => {
+    this.setState({ showPullModal: true });
+  }
+
+  handlePullImageModalHide = () => {
+    this.setState({ showPullModal: false });
+  }
 
   handleRefreshButton = (image) => {
     imageActions.pull(this.props.host.slug, image.repo, true);
@@ -172,10 +184,10 @@ export default class ImageList extends React.Component {
   }
 
   render() {
-    const { snapshots, otherImages, showPushModal, pushRepository, pushing, showDeleteModal, deleting, targetImage } = this.state,
-          { selectedImage, showSnapshots, showImages, onSelect, manageImages } = this.props;
-
-    const canSubmitPush = !pushing && (pushRepository && pushRepository.length > 0);
+    const { snapshots, otherImages, showPushModal, showPullModal, pushRepository, pushing, showDeleteModal, deleting, targetImage } = this.state,
+          { host, selectedImage, showSnapshots, showImages, onSelect, manageImages } = this.props,
+          advanced = userStore.userProfile && userStore.userProfile.advanced,
+          canSubmitPush = !pushing && (pushRepository && pushRepository.length > 0);
 
     let onRefresh, onPush, onDelete = null;
     if (manageImages) {
@@ -210,7 +222,7 @@ export default class ImageList extends React.Component {
                   <ImageListItem key={`snapshot-${snapshot.id}`} image={snapshot}
                     selected={selectedImage === snapshot.repo}
                     onSelect={onSelect}
-                    onPush={this.bindToImage(onPush, snapshot)}
+                    onPush={advanced ? this.bindToImage(onPush, snapshot) : null}
                     onDelete={this.bindToImage(onDelete, snapshot)}/>
                 );
               }) : (
@@ -255,20 +267,25 @@ export default class ImageList extends React.Component {
               )}
             </tbody>
           </Table>
+
+          <ButtonGroup>
+            <Button onClick={this.handlePullImageButton}>
+              <Fa icon='cloud-download' /> Pull Image
+            </Button>
+          </ButtonGroup>
+
         </Tab>);
     }
 
-    const classes = classNames({
-      'ui-segmented-pill': true,
-      'images-tab': true,
-      'no-tabs': snapshotsContent === '' || imagesContent === ''
+    const classes = classNames('ui-segmented-pill', 'images-tab', {
+      'no-tabs': !advanced || snapshotsContent === '' || imagesContent === ''
     });
 
     return (
       <div>
         <Tabs defaultActiveKey={defaultActiveKey} bsStyle='pills' className={classes}>
           {snapshotsContent}
-          {imagesContent}
+          {advanced ? imagesContent : ''}
         </Tabs>
 
         {showPushModal ?
@@ -305,6 +322,8 @@ export default class ImageList extends React.Component {
             </form>
           </Modal>
         : ''}
+
+        <PullImage host={host} showModal={showPullModal} onHideModal={this.handlePullImageModalHide} />
       </div>
     );
   }

@@ -60,6 +60,13 @@ class UserStore extends Store {
   get user() {
     return this._user;
   }
+
+  get userProfile() {
+    if (this._user && this._user.userProfile) {
+      return this._user.userProfile;
+    }
+    return null;
+  }
 }
 
 export default new UserStore();

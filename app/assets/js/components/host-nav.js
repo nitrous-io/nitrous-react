@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Nav, NavItem } from 'react-bootstrap';
 import Host from 'records/host';
 import ContextSwitcher from 'components/context-switcher';
+import userStore from 'stores/user-store';
 
 export default class HostNav extends React.Component {
   displayName = 'HostNav';
@@ -32,14 +33,17 @@ export default class HostNav extends React.Component {
   }
 
   render() {
-    const { host, activeTab } = this.props;
+    const { host, activeTab } = this.props,
+          advanced = userStore.userProfile && userStore.userProfile.advanced;
 
     return (
       <div className='host-nav-component'>
         <ContextSwitcher selectedHost={host} />
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
           <NavItem onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
-          <NavItem onSelect={this.handleSelectImagesTab} eventKey='images'>Images</NavItem>
+          <NavItem onSelect={this.handleSelectImagesTab} eventKey='images'>
+            {advanced ? 'Images' : 'Snapshots'}
+          </NavItem>
           <NavItem onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
         </Nav>
       </div>
