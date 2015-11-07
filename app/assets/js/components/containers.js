@@ -3,7 +3,7 @@ import Host from 'records/host';
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
 import ContainerList from 'components/container-list';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 
 export default class Containers extends React.Component {
   displayName = 'Containers';
@@ -43,7 +43,7 @@ export default class Containers extends React.Component {
 
     return (
       <div className='containers-component container'>
-        <WorkspaceNav host={host} activeTab='containers' />
+        <HostNav host={host} activeTab='containers' />
         <ContainerList containers={containers} host={host} />
       </div>
     );

@@ -6,8 +6,8 @@ import hostActions from 'actions/host-actions';
 import taskActions from 'actions/task-actions';
 import EtaProgressBar from 'components/eta-progress-bar';
 
-export default class WorkspaceCreating extends React.Component {
-  displayName = 'WorkspaceCreating';
+export default class HostCreating extends React.Component {
+  displayName = 'HostCreating';
 
   static contextTypes = {
     router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
@@ -54,7 +54,7 @@ export default class WorkspaceCreating extends React.Component {
     const host = hostStore.liveHosts.get(this.props.query.hostSlug);
     // Handle case where user goes back to this page after host was created.
     if (host && host.state !== 'born') {
-      this.context.router.transitionTo('workspace', { hostSlug: host.slug });
+      this.context.router.transitionTo('host', { hostSlug: host.slug });
     }
   }
 
@@ -75,7 +75,7 @@ export default class WorkspaceCreating extends React.Component {
     taskActions.update(this.taskId(), 'Done!');
     taskActions.done(this.taskId());
     this.setState({ host, done: true });
-    this.context.router.transitionTo('workspace', { hostSlug: host.slug });
+    this.context.router.transitionTo('host', { hostSlug: host.slug });
   }
 
   onHostCreateFailed = (data) => {
@@ -97,18 +97,18 @@ export default class WorkspaceCreating extends React.Component {
           { org } = this.context;
 
     return (
-      <div className='workspace-creating-component container'>
-        <h2>Your new workspace &ldquo;{hostSlug}&rdquo; is being created...</h2>
+      <div className='host-creating-component container'>
+        <h2>Your new workstation &ldquo;{hostSlug}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
         {!failed ? (
           <EtaProgressBar eta={200} done={done} />
         ) : (
           <div>
-            <EtaProgressBar eta={200} done bsStyle='danger' label='Failed to create workspace!' />
+            <EtaProgressBar eta={200} done bsStyle='danger' label='Failed to create workstation!' />
             {org ? (
-              <Link className='btn btn-default' to='new-org-workspace' params={{ orgSlug: org.slug }}>Try again</Link>
+              <Link className='btn btn-default' to='new-org-host' params={{ orgSlug: org.slug }}>Try again</Link>
             ) : (
-              <Link className='btn btn-default' to='new-user-workspace'>Try again</Link>
+              <Link className='btn btn-default' to='new-user-host'>Try again</Link>
             )}
           </div>
         )}

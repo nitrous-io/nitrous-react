@@ -9,13 +9,13 @@ import Dashboard from 'components/dashboard';
 import NewOrg from 'components/new-org';
 import OrgRoot from 'components/org-root';
 import OrgInviteMembers from 'components/org-invite-members';
-import UserWorkspace from 'components/user-workspace';
-import OrgWorkspace from 'components/org-workspace';
-import NewWorkspace from 'components/new-workspace';
-import Workspace from 'components/workspace';
-import WorkspaceCreating from 'components/workspace-creating';
-import WorkspaceSystem from 'components/workspace-system';
-import WorkspaceImages from 'components/workspace-images';
+import UserHost from 'components/user-host';
+import OrgHost from 'components/org-host';
+import NewHost from 'components/new-host';
+import Host from 'components/host';
+import HostCreating from 'components/host-creating';
+import HostSystem from 'components/host-system';
+import HostImages from 'components/host-images';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerCollaborators from 'components/container-collaborators';
@@ -43,20 +43,20 @@ export default (
     <Route name='ui' path='ui' handler={DocsUI} />
 
     <Route name='dashboard' handler={Dashboard}>
-      <DefaultRoute handler={redirectTo('user-workspace')} />
+      <DefaultRoute handler={redirectTo('user-host')} />
 
-      <Route name='new-user-workspace' path='workspaces/new' handler={NewWorkspace} />
-      <Route name='workspace-creating' path='workspaces/creating' handler={WorkspaceCreating} />
-      <Route name='user-workspace' path='workspaces' handler={UserWorkspace}>
-        <DefaultRoute handler={redirectTo('new-user-workspace')} />
+      <Route name='new-user-host' path='workstations/new' handler={NewHost} />
+      <Route name='host-creating' path='workstations/creating' handler={HostCreating} />
+      <Route name='user-host' path='workstations' handler={UserHost}>
+        <DefaultRoute handler={redirectTo('new-user-host')} />
       </Route>
 
       <Route name='new-org' path='orgs/new' handler={NewOrg} />
 
       <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
-        <Route name='org-workspace' path='workspaces' handler={OrgWorkspace}>
-          <DefaultRoute handler={redirectTo('new-org-workspace')} />
-          <Route name='new-org-workspace' path='new' handler={NewWorkspace} />
+        <Route name='org-host' path='workstations' handler={OrgHost}>
+          <DefaultRoute handler={redirectTo('new-org-host')} />
+          <Route name='new-org-host' path='new' handler={NewHost} />
         </Route>
 
         <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
@@ -65,7 +65,7 @@ export default (
         <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
       </Route>
 
-      <Route name='workspace' path='workspaces/:hostSlug' handler={Workspace}>
+      <Route name='host' path='workstations/:hostSlug' handler={Host}>
         <DefaultRoute handler={redirectTo('containers')} />
         <Route name='containers' path='projects' handler={Containers} />
         <Route name='new-container' path='projects/new' handler={NewContainer} />
@@ -75,8 +75,8 @@ export default (
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
         <Route name='container-ports' path='projects/:containerSlug/ports' handler={ContainerPorts} />
 
-        <Route name='workspace-images' path='images' handler={WorkspaceImages} />
-        <Route name='workspace-system' path='system' handler={WorkspaceSystem} />
+        <Route name='host-images' path='images' handler={HostImages} />
+        <Route name='host-system' path='system' handler={HostSystem} />
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />

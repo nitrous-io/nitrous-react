@@ -34,7 +34,7 @@ export default class OrgInviteMembers extends React.Component {
           <Row>
             <Col lg={5} lgOffset={2} md={5} mdOffset={1} sm={12} xs={12}>
               <OrgMembers org={org} />
-              <Link to='new-org-workspace' params={{ orgSlug: org.slug }} className='btn btn-success'>Finish</Link>
+              <Link to='new-org-host' params={{ orgSlug: org.slug }} className='btn btn-success'>Finish</Link>
             </Col>
 
             <Col lg={3} md={4} sm={12} xs={12} className='sidebar'>
@@ -48,7 +48,7 @@ export default class OrgInviteMembers extends React.Component {
 
                 <hr />
 
-                <p>As an organization <strong>owner</strong>, you'll have complete access to all of the organization's workspaces. You also have control of what members have access to using fine-grained permissions.</p>
+                <p>As an organization <strong>owner</strong>, you'll have complete access to all of the organization's workstations. You also have control of what members have access to using fine-grained permissions.</p>
               </Panel>
             </Col>
           </Row>

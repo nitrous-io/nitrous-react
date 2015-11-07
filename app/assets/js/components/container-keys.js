@@ -14,7 +14,7 @@ import SelectableTextarea from 'components/selectable-textarea';
 import Fa from 'components/fa';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 import UserKeyList from 'components/user-key-list';
 
 export default class ContainerKeys extends React.Component {
@@ -185,7 +185,7 @@ export default class ContainerKeys extends React.Component {
     return (
       <div className='container-keys-component container-subpage container'>
         {!shared ? (
-          <WorkspaceNav host={host} activeTab='containers' />
+          <HostNav host={host} activeTab='containers' />
         ) : (
           <div>
             <ContextSwitcher shared />

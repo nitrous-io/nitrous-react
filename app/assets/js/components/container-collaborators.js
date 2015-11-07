@@ -8,7 +8,7 @@ import collaboratorStore from 'stores/collaborator-store';
 import containerStore from 'stores/container-store';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 import Fa from 'components/fa';
 import CollaboratorList from 'components/collaborator-list';
 
@@ -65,15 +65,15 @@ export default class ContainerCollaborators extends React.Component {
 
     return (
       <div className='container-collaborators-component container-subpage container'>
-        {!shared ? (
-          <WorkspaceNav host={host} activeTab='containers' />
-        ) : (
+        {shared ? (
           <div>
             <ContextSwitcher shared />
             <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
               <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
             </Nav>
           </div>
+        ) : (
+          <HostNav host={host} activeTab='containers' />
         )}
 
         {loading ? (

@@ -3,8 +3,8 @@ import { Nav, NavItem } from 'react-bootstrap';
 import Host from 'records/host';
 import ContextSwitcher from 'components/context-switcher';
 
-export default class WorkspaceNav extends React.Component {
-  displayName = 'WorkspaceNav';
+export default class HostNav extends React.Component {
+  displayName = 'HostNav';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
@@ -24,18 +24,18 @@ export default class WorkspaceNav extends React.Component {
   }
 
   handleSelectSystemTab = () => {
-    this.context.router.transitionTo('workspace-system', { hostSlug: this.props.host.slug });
+    this.context.router.transitionTo('host-system', { hostSlug: this.props.host.slug });
   }
 
   handleSelectImagesTab = () => {
-    this.context.router.transitionTo('workspace-images', { hostSlug: this.props.host.slug });
+    this.context.router.transitionTo('host-images', { hostSlug: this.props.host.slug });
   }
 
   render() {
     const { host, activeTab } = this.props;
 
     return (
-      <div className='workspace-nav-component'>
+      <div className='host-nav-component'>
         <ContextSwitcher selectedHost={host} />
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
           <NavItem onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>

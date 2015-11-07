@@ -16,8 +16,8 @@ import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
 import PaymentMethod from 'components/payment-method';
 
-export default class NewWorkspace extends React.Component {
-  displayName = 'NewWorkspace';
+export default class NewHost extends React.Component {
+  displayName = 'NewHost';
 
   static contextTypes = {
     router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
@@ -70,7 +70,7 @@ export default class NewWorkspace extends React.Component {
 
   onHostCreateInitiated = (data) => {
     const { host } = data;
-    this.context.router.transitionTo('workspace-creating', {}, { hostSlug: host.slug });
+    this.context.router.transitionTo('host-creating', {}, { hostSlug: host.slug });
   };
 
   onHostCreateFailed = () => {
@@ -120,7 +120,7 @@ export default class NewWorkspace extends React.Component {
     this.setState({ creating: true });
 
     // If payment is required, we have to wait for payment to be successful
-    // before proceeding to create the workspace.
+    // before proceeding to create the host.
     if (this.requiresPayment()) {
       paymentActions.requestSubmit();
       return;
@@ -167,7 +167,7 @@ export default class NewWorkspace extends React.Component {
           selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
 
     return (
-      <div className='new-workspace-component'>
+      <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
           <h3>Select Plan</h3>
@@ -209,7 +209,7 @@ export default class NewWorkspace extends React.Component {
             </div>
           ) : ''}
 
-          <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workspace...' : 'Create Workspace'}</Button>
+          <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
         </div>
       </div>
     );

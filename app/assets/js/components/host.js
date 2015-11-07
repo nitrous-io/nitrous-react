@@ -1,18 +1,18 @@
 import React, { PropTypes } from 'react';
 import { RouteHandler } from 'react-router';
-import Host from 'records/host';
+import HostRecord from 'records/host';
 import hostActions from 'actions/host-actions';
 import hostStore from 'stores/host-store';
 
-export default class Workspace extends React.Component {
-  displayName = 'Workspace';
+export default class Host extends React.Component {
+  displayName = 'Host';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
   static childContextTypes = {
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(HostRecord).isRequired
   };
 
   static propTypes = {
@@ -35,7 +35,7 @@ export default class Workspace extends React.Component {
     }
 
     if (host.state === 'born') {
-      transition.redirect('workspace-creating', null, {hostSlug: params.hostSlug});
+      transition.redirect('host-creating', null, {hostSlug: params.hostSlug});
       return;
     }
   }
@@ -69,7 +69,7 @@ export default class Workspace extends React.Component {
 
   render() {
     return (
-      <div className='workspace-component'>
+      <div className='host-component'>
         <RouteHandler />
       </div>
     );

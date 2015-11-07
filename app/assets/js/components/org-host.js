@@ -3,8 +3,8 @@ import { RouteHandler } from 'react-router';
 import hostStore from 'stores/host-store';
 import Org from 'records/org';
 
-export default class OrgWorkspace extends React.Component {
-  displayName = 'OrgWorkspace';
+export default class OrgHost extends React.Component {
+  displayName = 'OrgHost';
 
   static contextTypes = {
     org: PropTypes.instanceOf(Org).isRequired,
@@ -18,10 +18,10 @@ export default class OrgWorkspace extends React.Component {
       const orgHosts = hostStore.hostsByOrgId(org.id);
 
       if (orgHosts.size > 0) {
-        router.transitionTo('workspace', { hostSlug: orgHosts.first().slug });
+        router.transitionTo('host', { hostSlug: orgHosts.first().slug });
       }
     } else {
-      router.transitionTo('user-workspace');
+      router.transitionTo('user-host');
     }
   }
 

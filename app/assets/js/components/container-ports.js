@@ -10,7 +10,7 @@ import containerStore from 'stores/container-store';
 import containerConfigStore from 'stores/container-config-store';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 import Fa from 'components/fa';
 
 export default class ContainerPorts extends React.Component {
@@ -277,15 +277,15 @@ export default class ContainerPorts extends React.Component {
 
     return (
       <div className='container-ports-component container-subpage container'>
-        {!shared ? (
-          <WorkspaceNav host={host} activeTab='containers' />
-        ) : (
+        {shared ? (
           <div>
             <ContextSwitcher shared />
             <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
               <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
             </Nav>
           </div>
+        ) : (
+          <HostNav host={host} activeTab='containers' />
         )}
 
         {loading ? (

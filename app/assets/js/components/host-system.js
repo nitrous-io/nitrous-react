@@ -7,11 +7,11 @@ import hostActions from 'actions/host-actions';
 import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 import prettyBytes from 'pretty-bytes';
 
-export default class WorkspaceSystem extends React.Component {
-  displayName = 'WorkspaceSystem';
+export default class HostSystem extends React.Component {
+  displayName = 'HostSystem';
 
   static contextTypes = {
     router: PropTypes.func.isRequired,
@@ -64,10 +64,10 @@ export default class WorkspaceSystem extends React.Component {
           { host } = this.context;
 
     return (
-      <div className='workspace-system-component container'>
-        <WorkspaceNav host={host} activeTab='system' />
+      <div className='host-system-component container'>
+        <HostNav host={host} activeTab='system' />
         <div className='container'>
-          <Table responsive striped bordered condensed hover id='workspace-system-info'>
+          <Table responsive striped bordered condensed hover id='host-system-info'>
             <colgroup>
               <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
               <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />
@@ -102,7 +102,7 @@ export default class WorkspaceSystem extends React.Component {
             </tr>
           </Table>
 
-          <Table responsive striped bordered condensed hover id='workspace-system-stats'>
+          <Table responsive striped bordered condensed hover id='host-system-stats'>
             <colgroup>
               <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
               <col className='col-lg-10 col-md-10 col-sm-8 col-xs-11' />

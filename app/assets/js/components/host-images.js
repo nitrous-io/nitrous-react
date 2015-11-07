@@ -2,13 +2,13 @@ import React, { PropTypes } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import ImageList from 'components/image-list';
 import Host from 'records/host';
-import WorkspaceNav from 'components/workspace-nav';
+import HostNav from 'components/host-nav';
 import Fa from 'components/fa';
 import PullImage from 'components/pull-image';
 import Registries from 'components/registries';
 
-export default class WorkspaceImages extends React.Component {
-  displayName = 'WorkspaceImages';
+export default class HostImages extends React.Component {
+  displayName = 'HostImages';
 
   static contextTypes = {
     router: PropTypes.func.isRequired,
@@ -31,8 +31,8 @@ export default class WorkspaceImages extends React.Component {
     const { host } = this.context,
           { showModal } = this.state;
     return (
-      <div className='workspace-images-component container'>
-        <WorkspaceNav host={host} activeTab='images' />
+      <div className='host-images-component container'>
+        <HostNav host={host} activeTab='images' />
         <div className='container'>
           <ButtonGroup>
             <Button onClick={this.handlePullImageButton}>

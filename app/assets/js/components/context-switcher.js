@@ -106,12 +106,12 @@ export default class ContextSwitcher extends React.Component {
       <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
         <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle='link'>
           <MenuItem header>Personal</MenuItem>
-          <MenuItem href={makeHref('user-workspace')}>{withGravatar(user)}</MenuItem>
+          <MenuItem href={makeHref('user-host')}>{withGravatar(user)}</MenuItem>
           <MenuItem divider />
           {orgs ? <MenuItem header>Organization</MenuItem> : ''}
           {orgs ? orgs.map((org) => {
             return (
-              <MenuItem key={`org-${org.id}`} href={makeHref('org-workspace', { orgSlug: org.slug })}>
+              <MenuItem key={`org-${org.id}`} href={makeHref('org-host', { orgSlug: org.slug })}>
                 <img className='gravatar' src={org.gravatar(40)} />
                 {org.displayName}
               </MenuItem>
@@ -133,13 +133,13 @@ export default class ContextSwitcher extends React.Component {
 
     const buildHostsMenu = () => {
       return (
-        <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='workspace-switcher-tooltip'>Switch Workspace</Tooltip>)}>
-          <DropdownButton title={selectedHost.name} id='workspace-switcher-dropdown' bsStyle='link'>
-            <MenuItem header>Workspaces</MenuItem>
+        <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='host-switcher-tooltip'>Switch Workstation</Tooltip>)}>
+          <DropdownButton title={selectedHost.name} id='host-switcher-dropdown' bsStyle='link'>
+            <MenuItem header>Workstations</MenuItem>
             {hosts.size > 1 ? hosts.map((host) => {
               return (
                 <MenuItem key={`host-${host.slug}`} eventKey={host.slug}
-                  href={makeHref('workspace', { hostSlug: host.slug })}>
+                  href={makeHref('host', { hostSlug: host.slug })}>
                   {host.displayName}
                 </MenuItem>
               );
