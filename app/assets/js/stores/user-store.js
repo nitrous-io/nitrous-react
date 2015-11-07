@@ -1,5 +1,6 @@
 import Store from 'stores/store';
 import User from 'records/user';
+import UserProfile from 'records/user-profile';
 
 class UserStore extends Store {
   _user = null; // <User>
@@ -33,13 +34,23 @@ class UserStore extends Store {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
         this._lastError = null;
-        this.emit('updated');
         break;
       }
       case 'user.update-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         this.emit('update-failed');
+        return;
+      }
+      case 'user.profile-updated': {
+        const { data } = action.data;
+        this._user = this._user.set('userProfile', UserProfile.deserialize(data.user_profile));
+        this._lastError = null;
         break;
+      }
+      case 'user.profile-update-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('profile-update-failed');
+        return;
       }
       default: return;
     }

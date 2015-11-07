@@ -80,6 +80,24 @@ class UserActions {
     });
   }
 
+  updateProfile(options) {
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/user/profile',
+      data: options
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.profile-updated',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.profile-update-failed',
+        data: { jqxhr }
+      });
+    });
+  }
+
   connectToGitHub() {
     return authedAjax({
       type: 'POST',

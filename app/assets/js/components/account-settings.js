@@ -11,41 +11,45 @@ export default class AccountSettings extends React.Component {
   state = {
     user: userStore.user,
     updating: false,
+    updatingProfile: false,
     name: userStore.user.name,
     email: userStore.user.unconfirmedEmail || userStore.user.email,
     newPassword: null,
     newPasswordConfirm: null,
     existingPassword: null,
-    connectingToGitHub: false
+    connectingToGitHub: false,
+    advanced: userStore.user.userProfile.advanced
   };
 
   componentDidMount() {
-    userStore.on('updated', this.onUserUpdated);
+    userStore.onChange(this.userStoreDidChange);
     userStore.on('update-failed', this.onUserUpdateFailed);
   }
 
   componentWillUnmount() {
-    userStore.off('updated', this.onUserUpdated);
+    userStore.offChange(this.userStoreDidChange);
     userStore.off('update-failed', this.onUserUpdateFailed);
   }
 
-  onUserUpdated = () => {
+  userStoreDidChange = () => {
     const user = userStore.user;
     this.setState({
       user,
       updating: false,
+      updatingProfile: false,
       name: user.name,
       email: user.unconfirmedEmail || user.email,
       newPassword: null,
       newPasswordConfirm: null,
       existingPassword: null,
-      connectingToGitHub: false
+      connectingToGitHub: false,
+      advanced: user.userProfile.advanced
     });
     snackbarActions.post('Account details updated successfully.');
   }
 
   onUserUpdateFailed = () => {
-    this.setState({ updating: false });
+    this.setState({ updating: false, updatingProfile: false });
   }
 
   handleChangeNameField = (event) => {
@@ -80,19 +84,27 @@ export default class AccountSettings extends React.Component {
     this.setState({ existingPassword: val });
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    if (this.submitDisabled()) {
-      return;
-    }
+  handleChangeAdvanced = (event) => {
+    this.setState({ advanced: this.refs.advanced.getChecked() });
+  }
 
+  handleSubmit = (evt) => {
+    evt.preventDefault();
     this.setState({ updating: true });
 
     const { name, email, existingPassword } = this.state;
     userActions.update({ name, email, password: this.state.newPassword, existingPassword });
   }
 
-  handleClickGithHubConnect = () => {
+  handleSubmitSettings = (evt) => {
+    evt.preventDefault();
+    const { advanced } = this.state;
+
+    this.setState({ updatingProfile: true });
+    userActions.updateProfile({ advanced });
+  }
+
+  handleClickGitHubConnect = () => {
     this.setState({ connectingToGitHub: true });
     userActions.connectToGitHub().then((data) => {
       window.location.href = data.redirect_url;
@@ -101,18 +113,18 @@ export default class AccountSettings extends React.Component {
     });
   }
 
-  submitDisabled = () => {
+  submitDisabled() {
     const { updating, email, newPassword, newPasswordConfirm, existingPassword } = this.state;
     return updating || !email || (newPassword !== newPasswordConfirm) || (newPassword && !existingPassword);
   }
 
-  renderGitHubConnectButton = () => {
+  renderGitHubConnectButton() {
     const { canDeleteGitHubPublicKeys, authorizedGitHubUserName } = this.state.user.userProfile,
           { connectingToGitHub } = this.state;
 
     if (!authorizedGitHubUserName) {
       return (
-        <Button onClick={this.handleClickGithHubConnect}>
+        <Button onClick={this.handleClickGitHubConnect}>
           {connectingToGitHub ?
             <span>
               <Fa icon='github' /> Connecting...
@@ -127,7 +139,7 @@ export default class AccountSettings extends React.Component {
     }
 
     return (
-      <Button bsStyle={canDeleteGitHubPublicKeys ? 'default' : 'warning'} onClick={this.handleClickGithHubConnect}>
+      <Button bsStyle={canDeleteGitHubPublicKeys ? 'default' : 'warning'} onClick={this.handleClickGitHubConnect}>
         {connectingToGitHub ?
           <span>
             <Fa icon='github' /> Connecting...
@@ -143,12 +155,14 @@ export default class AccountSettings extends React.Component {
 
   render() {
     const { updating,
-           user,
-           name,
-           email,
-           newPassword,
-           newPasswordConfirm,
-           existingPassword
+            updatingProfile,
+            user,
+            name,
+            email,
+            newPassword,
+            newPasswordConfirm,
+            existingPassword,
+            advanced
           } = this.state;
 
     const { unconfirmedEmail, userProfile } = this.state.user,
@@ -202,6 +216,15 @@ export default class AccountSettings extends React.Component {
               <p className='connected'>Connected as <strong>{authorizedGitHubUserName}</strong>.</p>
             ) : ''}
             {this.renderGitHubConnectButton()}
+          </Panel>
+
+          <Panel header={<h4>Settings</h4>}>
+            <form onSubmit={this.handleSubmitSettings}>
+              <div className='advanced-mode'>
+                <Input ref="advanced" type="checkbox" label="Show Advanced Features" checked={advanced} onChange={this.handleChangeAdvanced} />
+              </div>
+              <Button type='submit' bsStyle='primary' disabled={updatingProfile}>{updatingProfile ? 'Saving...' : 'Save'}</Button>
+            </form>
           </Panel>
         </div>
       </div>

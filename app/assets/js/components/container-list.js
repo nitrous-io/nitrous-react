@@ -25,14 +25,14 @@ export default class ContainerList extends React.Component {
   }
 
   componentDidMount() {
-    userStore.on('updated', this.onUserUpdated);
+    userStore.onChange(this.userStoreDidChange);
   }
 
   componentWillUnmount() {
-    userStore.off('updated', this.onUserUpdated);
+    userStore.offChange(this.userStoreDidChange);
   }
 
-  onUserUpdated = () => {
+  userStoreDidChange = () => {
     this.setState({ user: userStore.user });
   }
 
