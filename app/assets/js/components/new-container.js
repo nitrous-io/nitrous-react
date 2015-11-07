@@ -4,6 +4,7 @@ import Host from 'records/host';
 import templateStore from 'stores/template-store';
 import templateActions from 'actions/template-actions';
 import containerActions from 'actions/container-actions';
+import ContextSwitcher from 'components/context-switcher';
 import TemplateListItem from 'components/template-list-item';
 import ImageList from 'components/image-list';
 import Registries from 'components/registries';
@@ -136,6 +137,7 @@ export default class NewContainer extends React.Component {
 
     return (
       <div className='new-container-component'>
+        <ContextSwitcher selectedHost={host} />
         <div className='container'>
           <h3>Project Name</h3>
           <div className='project-name'>
