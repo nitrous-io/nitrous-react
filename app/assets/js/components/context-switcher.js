@@ -72,6 +72,7 @@ export default class ContextSwitcher extends React.Component {
     const { selectedHost } = this.props,
           { user, sharedContainerCount } = this.state,
           orgs = this.state.orgs.toList(),
+          showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
 
     let { selectedOrg } = this.props,
@@ -108,8 +109,8 @@ export default class ContextSwitcher extends React.Component {
           <MenuItem header>Personal</MenuItem>
           <MenuItem href={makeHref('user-host')}>{withGravatar(user)}</MenuItem>
           <MenuItem divider />
-          {orgs ? <MenuItem header>Organization</MenuItem> : ''}
-          {orgs ? orgs.map((org) => {
+          {showOrgs ? <MenuItem header>Organization</MenuItem> : ''}
+          {showOrgs ? orgs.map((org) => {
             return (
               <MenuItem key={`org-${org.id}`} href={makeHref('org-host', { orgSlug: org.slug })}>
                 <img className='gravatar' src={org.gravatar(40)} />
@@ -117,7 +118,7 @@ export default class ContextSwitcher extends React.Component {
               </MenuItem>
             );
           }) : ''}
-          {orgs ? <MenuItem divider /> : ''}
+          {showOrgs ? <MenuItem divider /> : ''}
           <MenuItem href={makeHref('shared-containers')}>
             Shared With Me
             {sharedContainerCount > 0 ? (
