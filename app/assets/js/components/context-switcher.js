@@ -126,7 +126,9 @@ export default class ContextSwitcher extends React.Component {
             ) : ''}
           </MenuItem>
           <MenuItem divider />
-          <MenuItem onSelect={notImplementedFn('Manage Orgs', 'GitHub-like org management interface')} eventKey='manage-orgs'>Manage Organizations...</MenuItem>
+          {showOrgs ? (
+            <MenuItem onSelect={notImplementedFn('Manage Orgs', 'GitHub-like org management interface')} eventKey='manage-orgs'>Manage Organizations...</MenuItem>
+          ) : ''}
           <MenuItem href={makeHref('new-org')} eventKey='create-org'>Create Organization...</MenuItem>
         </DropdownButton>
       </OverlayTrigger>
