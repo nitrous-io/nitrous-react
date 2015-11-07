@@ -129,11 +129,11 @@ export default class Login extends React.Component {
               </OverlayTrigger>
             </ButtonToolbar>
           </form>
-          <div className='links'>
-            <p>No account? <Link to='signup'>Sign Up</Link></p>
-            <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
-          </div>
         </Panel>
+        <div className='misc-links'>
+          <p>No account? <Link to='signup'>Sign Up</Link></p>
+          <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
+        </div>
       </div>
     );
   }

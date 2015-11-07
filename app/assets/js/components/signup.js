@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Alert, ButtonInput, Input, Button } from 'react-bootstrap';
-import classNames from 'classnames';
+import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
@@ -99,9 +98,6 @@ export default class Signup extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    if (this.submitDisabled()) {
-      return;
-    }
 
     this.setState({ processing: true });
 
@@ -119,26 +115,15 @@ export default class Signup extends React.Component {
     });
   }
 
-  submitDisabled = () => {
-    const { authorizing, processing, username, email, password, passwordConfirmation } = this.state;
-    if (authorizing) {
-      return true;
-    }
-
-    const missing = ![username, email, password, passwordConfirmation].every((elem) => {
-      return elem;
-    });
-    return missing || processing || (password !== passwordConfirmation);
-  }
-
   render() {
-    const { isViaGitHub, username, email, password, passwordConfirmation, authorizing, processing, errorMessage } = this.state,
+    const { isViaGitHub, username, email, password, passwordConfirmation, authorizing, processing } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
-          formPanelClasses = classNames('form-panel', { shake: errorMessage });
+          missing = !(username && email && password && passwordConfirmation),
+          submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
 
     return (
       <div className='signup-component login-screen'>
-        <div className={formPanelClasses}>
+        <Panel>
           <h2 className='nitrous-logo'></h2>
           {isViaGitHub ? (
             <Alert bsStyle="success">
@@ -158,30 +143,28 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordChanged} />
             )}
             {isViaGitHub ? '' : (
-              <Input type='password' placeholder='Password, again' required
+              <Input type='password' placeholder='Confirm password' required
                 value={passwordConfirmation}
                 help={showPasswordConfirmError ? 'Passwords do not match' : null}
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            <div className='actions'>
-              <ButtonInput type='submit' bsStyle='primary'
-                disabled={this.submitDisabled()}>
-                {processing ? 'Creating...' : 'Create Account'}
-              </ButtonInput>
-            </div>
+            <ButtonToolbar>
+              <ButtonInput type='submit' bsStyle='primary' value={
+                processing ? 'Creating...' : 'Create Account'
+              } disabled={submitDisabled} />
+              {isViaGitHub ? '' : (
+                <OverlayTrigger placement='bottom' overlay={<Tooltip id='container-state-tooltip'>Log in with GitHub account</Tooltip>}>
+                  <Button onClick={this.handleSignupWithGithub} className='github-btn' disabled={processing || authorizing}>
+                    <Fa icon='github' />
+                    <span className='text'>Log in with GitHub</span>
+                  </Button>
+                </OverlayTrigger>
+              )}
+            </ButtonToolbar>
           </form>
-
-          {isViaGitHub ? '' : (
-            <div className='github-signup actions'>
-              <div className='form-group'>
-                <Button className='primary-btn' onClick={this.handleSignupWithGithub} type='button' disabled={processing}>
-                  <Fa icon='github' /> {authorizing ? 'Connecting....' : 'Signup with GitHub'}
-                </Button>
-              </div>
-            </div>
-          )}
-
+        </Panel>
+        <div className='misc-links'>
           <p>By creating an account, you agree to the Nitrous <a href='https://community.nitrous.io/docs/terms-of-use'>Terms of Service</a> and <a href='https://community.nitrous.io/docs/privacy-policy'>Privacy Policy</a>.</p>
           <p>Already have an account? <Link to='login'>Log in</Link></p>
         </div>
