@@ -183,7 +183,8 @@ export default class OrgMembers extends React.Component {
                     </Col>
                     <Col lg={2} md={2} sm={2} xs={2}>
                       {!isSelf ? (
-                        <Button bsStyle='warning' onClick={this.handleRemoveMember.bind(this, member)}>
+                        <Button bsStyle='warning' className='pull-right'
+                          onClick={this.handleRemoveMember.bind(this, member)}>
                           <Fa icon='trash' />
                         </Button>
                       ) : ''}
