@@ -84,7 +84,7 @@ export default class AccountSettings extends React.Component {
     this.setState({ existingPassword: val });
   }
 
-  handleChangeAdvanced = (event) => {
+  handleChangeAdvanced = () => {
     this.setState({ advanced: this.refs.advanced.getChecked() });
   }
 
