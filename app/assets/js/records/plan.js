@@ -54,8 +54,4 @@ export default class Plan extends Record({
       org: !!p.org
     });
   }
-
-  get priceDollars() {
-    return this.price / 100.0;
-  }
 }
