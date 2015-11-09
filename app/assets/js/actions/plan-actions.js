@@ -6,10 +6,7 @@ class PlanActions {
     const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/plans',
-      dataType: 'json',
-      data: {
-        eligible: true
-      }
+      dataType: 'json'
     });
     promise.then((data) => {
       dispatcher.dispatch({
@@ -20,6 +17,27 @@ class PlanActions {
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'plan.fetch-all-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
+  fetchAllOrgPlans(orgSlug) {
+    const promise = authedAjax({
+      type: 'GET',
+      url: `/api/v0/orgs/${orgSlug}/plans`,
+      dataType: 'json'
+    });
+    promise.then((data) => {
+      dispatcher.dispatch({
+        type: 'plan.fetched-all-org-plans',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'plan.fetch-all-org-plans-failed',
         data: { jqxhr }
       });
     });

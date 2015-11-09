@@ -3,7 +3,9 @@ import Host from 'records/host';
 import hostStatsStore from 'stores/host-stats-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
+import orgStore from 'stores/org-store';
 import hostActions from 'actions/host-actions';
+import planActions from 'actions/plan-actions';
 import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
@@ -37,6 +39,13 @@ export default class HostSystem extends React.Component {
         plan: planStore.planById(nextContext.host.planId),
         region: regionStore.regionById(nextContext.host.regionId)
       });
+    }
+
+    if (this.context.host.orgId && !planStore.orgPlans) {
+      const orgSlug = orgStore.findById(this.context.host.orgId);
+      if (orgSlug) {
+        planActions.fetchAllOrgPlans(orgSlug);
+      }
     }
   }
 

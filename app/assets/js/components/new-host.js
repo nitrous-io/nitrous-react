@@ -46,7 +46,12 @@ export default class NewHost extends React.Component {
   componentDidMount() {
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
-    planActions.fetchAll();
+    if (this.context.org) {
+      planActions.fetchAllOrgPlans(this.context.org.slug);
+    } else {
+      planActions.fetchAll();
+    }
+
     regionActions.fetchAll();
 
     hostStore.on('create-initiated', this.onHostCreateInitiated);
