@@ -7,6 +7,7 @@ import Host from 'records/host';
 import containerActions from 'actions/container-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
+import hostStore from 'stores/host-store';
 import containerConfigStore from 'stores/container-config-store';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
@@ -54,6 +55,10 @@ export default class ContainerPorts extends React.Component {
 
     containerConfigStore.onChange(this.containerConfigStoreDidChange);
     containerActions.fetchConfig(containerSlug);
+
+    if (this.context.host) {
+      hostStore.on('started', this.onHostStarted);
+    }
   }
 
   componentWillUnmount() {
@@ -61,6 +66,10 @@ export default class ContainerPorts extends React.Component {
     containerStore.off('reconfigured', this.onContainerReconfigured);
     containerStore.off('reconfigure-failed', this.onContainerReconfigFailed);
     containerConfigStore.offChange(this.containerConfigStoreDidChange);
+
+    if (this.context.host) {
+      hostStore.off('started', this.onHostStarted);
+    }
   }
 
   containerStoreDidChange = () => {
@@ -87,6 +96,14 @@ export default class ContainerPorts extends React.Component {
   containerConfigStoreDidChange = () => {
     const containerConfig = containerConfigStore.containerConfigByContainerSlug(this.props.params.containerSlug);
     this.setState({ containerConfig, portBindings: this.findPortBindings() });
+  }
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.context.host.slug === host.slug) {
+      snackbarActions.clear();
+      containerActions.fetchConfig(this.props.params.containerSlug);
+    }
   }
 
   handlePreviewChanged = (binding) => {

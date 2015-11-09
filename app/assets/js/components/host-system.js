@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 import Host from 'records/host';
+import hostStore from 'stores/host-store';
 import hostStatsStore from 'stores/host-stats-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
 import hostActions from 'actions/host-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import { Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import LoadingIndicator from 'components/loading-indicator';
@@ -26,8 +28,10 @@ export default class HostSystem extends React.Component {
 
   componentDidMount() {
     hostStatsStore.onChange(this.hostStatsStoreDidChange);
+    hostStore.on('started', this.onHostStarted);
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
+
     hostActions.fetchStats(this.context.host.slug);
   }
 
@@ -42,6 +46,7 @@ export default class HostSystem extends React.Component {
 
   componentWillUnmount() {
     hostStatsStore.offChange(this.hostStatsStoreDidChange);
+    hostStore.off('started', this.onHostStarted);
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
   }
@@ -49,6 +54,14 @@ export default class HostSystem extends React.Component {
   hostStatsStoreDidChange = () => {
     const stats = hostStatsStore.hostStatsByHostSlug(this.context.host.slug);
     this.setState({ stats });
+  }
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.context.host.slug === host.slug) {
+      snackbarActions.clear();
+      hostActions.fetchStats(this.context.host.slug);
+    }
   }
 
   planStoreDidChange = () => {

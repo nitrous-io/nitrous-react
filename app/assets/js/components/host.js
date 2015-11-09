@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { RouteHandler } from 'react-router';
 import HostRecord from 'records/host';
 import hostActions from 'actions/host-actions';
+import taskActions from 'actions/task-actions';
 import hostStore from 'stores/host-store';
 
 export default class Host extends React.Component {
@@ -35,21 +36,34 @@ export default class Host extends React.Component {
     }
 
     if (host.state === 'born') {
-      transition.redirect('host-creating', null, {hostSlug: params.hostSlug});
+      transition.redirect('host-creating', null, { hostSlug: params.hostSlug });
       return;
     }
   }
 
   componentDidMount() {
     hostStore.onChange(this.hostStoreDidChange);
+    hostStore.on('started', this.onHostStarted);
     hostActions.fetchOne(this.props.params.hostSlug);
+
+    const host = hostStore.liveHosts.get(this.props.params.hostSlug);
+    if (host && host.state === 'stopped') {
+      hostActions.start(host.slug);
+      taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     const hostSlug = nextProps.params.hostSlug;
     if (this.props.params.hostSlug !== hostSlug) {
-      this.setState({ host: hostStore.liveHosts.get(hostSlug) });
+      const host = hostStore.liveHosts.get(hostSlug);
+      this.setState({ host });
       hostActions.fetchOne(hostSlug);
+
+      if (host && host.state === 'stopped') {
+        hostActions.start(host.slug);
+        taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
+      }
     }
   }
 
@@ -60,6 +74,13 @@ export default class Host extends React.Component {
   hostStoreDidChange = () => {
     if (hostStore.liveHosts) {
       this.setState({ host: hostStore.liveHosts.get(this.props.params.hostSlug) });
+    }
+  };
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.props.params.hostSlug === host.slug) {
+      taskActions.done(`host-starting-${host.slug}`);
     }
   };
 
