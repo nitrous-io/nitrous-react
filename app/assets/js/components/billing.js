@@ -2,8 +2,11 @@ import React, { PropTypes } from 'react';
 import { Panel } from 'react-bootstrap';
 
 import billingStore from 'stores/billing-store';
+import subscriptionStore from 'stores/subscription-store';
 import invoiceStore from 'stores/invoice-store';
+import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
+import SubscriptionListItem from 'components/subscription-list-item'; 
 import InvoiceListItem from 'components/invoice-list-item';
 import { Grid, Row, Col } from 'react-bootstrap';
 import Org from 'records/org';
@@ -27,24 +30,33 @@ export default class Billing extends React.Component {
 
   state = {
     billingProfile: this.findBillingProfile(),
+    subscriptions: subscriptionStore.subscriptions,
     invoices: invoiceStore.invoices
   };
 
   componentDidMount() {
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    subscriptionActions.fetchAll();
+
     invoiceStore.onChange(this.invoiceStoreDidChange);
     invoiceActions.fetchAll();
   }
 
   componentWillUnmount() {
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
     invoiceStore.offChange(this.invoiceStoreDidChange);
   }
+
+  subscriptionStoreDidChange = () => {
+    this.setState({ subscriptions: subscriptionStore.subscriptions });
+  };
 
   invoiceStoreDidChange = () => {
     this.setState({ invoices: invoiceStore.invoices });
   };
 
   render() {
-    const { billingProfile, invoices } = this.state,
+    const { billingProfile, subscriptions, invoices } = this.state,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router;
 
@@ -77,7 +89,23 @@ export default class Billing extends React.Component {
             )}
           </Panel>
 
-          <Panel header='Billing History' className='billing-history'>
+          <Panel header={<h4>Subscription</h4>} className='subscription'>
+            {subscriptions ? (
+              <div>
+                {subscriptions.toList().map((subscription) => {
+                  return (
+                    <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
+                  );
+                })}
+              </div>
+            ) : (
+              <div>
+                <p>You don&#39;t have any subscriptions.</p>
+              </div>
+            )}
+          </Panel>
+
+          <Panel header={<h4>Billing History</h4>} className='billing-history'>
             {invoices ? (
               <div>
                 <Grid>
