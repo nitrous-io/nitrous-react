@@ -36,7 +36,7 @@ class PlanStore extends Store {
   }
 
   get plans() {
-    return this._plans;
+    return (this._plans + this._orgPlans);
   }
 
   get orgPlans() {
@@ -44,7 +44,7 @@ class PlanStore extends Store {
   }
 
   get personalPlans() {
-    return this.plans;
+    return this._plans;
   }
 
   planById(id) {
