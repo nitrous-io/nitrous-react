@@ -176,7 +176,7 @@ export default class ContextSwitcher extends React.Component {
         )}
 
         {trialSubscription ? (
-          <span className='badge'>Trial ends: <Time value={trialSubscription.activeTrialEnd} format="MMM DD, YYYY" /></span>
+          <Badge>Trial ends: <Time value={trialSubscription.activeTrialEnd} format="MMM DD, YYYY" /></Badge>
         ) : ''}
       </Navbar>
     );
