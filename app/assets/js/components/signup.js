@@ -45,7 +45,6 @@ export default class Signup extends React.Component {
       passwordConfirmation: password,
       processing: false,
       authorizing: false,
-      errorMessage: null,
       isViaGitHub,
       gitHubUserName: (isViaGitHub && props.query.gitHubUserName || null)
     };
@@ -69,7 +68,7 @@ export default class Signup extends React.Component {
   }
 
   onUserCreateFailed = () => {
-    this.setState({ processing: false, errorMessage: userStore.lastError });
+    this.setState({ processing: false });
   }
 
   tokenStoreDidChange = () => {
