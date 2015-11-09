@@ -34,7 +34,6 @@ export default class Dashboard extends React.Component {
         orgActions.fetchAll(),
         hostActions.fetchAll(),
         planActions.fetchAll(),
-        planActions.fetchAllOrgPlans(),
         regionActions.fetchAll()
       ]).then(() => {
         this.preloaded = true;
