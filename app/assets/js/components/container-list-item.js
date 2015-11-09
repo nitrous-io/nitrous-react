@@ -8,7 +8,7 @@ import ContainerState from 'components/container-state';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
-import SnapshotContainer from 'components/commit-container';
+import SnapshotContainer from 'components/snapshot-container';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -102,7 +102,7 @@ export default class ContainerListItem extends React.Component {
                   ] : ''}
                 </DropdownButton>
                 <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
-                  <MenuItem onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
+                  <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
                   <MenuItem divider />
                   <MenuItem href={collaboratorsUrl}>
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}

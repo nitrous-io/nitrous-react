@@ -73,4 +73,8 @@ export default class Container extends Record({
   get canOpenIDE() {
     return this.state === 'running';
   }
+
+  get snapshotDisabled() {
+    return this.state !== 'running';
+  }
 }
