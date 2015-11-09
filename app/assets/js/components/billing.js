@@ -6,7 +6,7 @@ import subscriptionStore from 'stores/subscription-store';
 import invoiceStore from 'stores/invoice-store';
 import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
-import SubscriptionListItem from 'components/subscription-list-item'; 
+import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
 import { Grid, Row, Col } from 'react-bootstrap';
 import Org from 'records/org';
@@ -89,7 +89,7 @@ export default class Billing extends React.Component {
             )}
           </Panel>
 
-          <Panel header={<h4>Subscription</h4>} className='subscription'>
+          <Panel header={<h4>Subscriptions</h4>}>
             {subscriptions ? (
               <div>
                 {subscriptions.toList().map((subscription) => {
@@ -99,13 +99,11 @@ export default class Billing extends React.Component {
                 })}
               </div>
             ) : (
-              <div>
-                <p>You don&#39;t have any subscriptions.</p>
-              </div>
+              <p>You don&#39;t have any subscriptions.</p>
             )}
           </Panel>
 
-          <Panel header={<h4>Billing History</h4>} className='billing-history'>
+          <Panel header={<h4>Billing History</h4>}>
             {invoices ? (
               <div>
                 <Grid>

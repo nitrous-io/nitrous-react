@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react';
-import Subscription from 'records/subscription';
-import subscriptionActions from 'actions/subscription-actions';
 import { Grid, Row, Col, Button, Modal } from 'react-bootstrap';
 import Time from 'react-time';
+
+import Subscription from 'records/subscription';
+import subscriptionActions from 'actions/subscription-actions';
 import Currency from 'components/currency';
 
 export default class SubscriptionListItem extends React.Component {
@@ -71,12 +72,12 @@ export default class SubscriptionListItem extends React.Component {
   render() {
     const subscription = this.props.subscription,
           periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on";
-        
+
     return (
       <div className='subscription-list-item-component'>
         <Grid>
           <Row>
-            <Col lg={3} md={3} sm={6} xs={12}>Workspace {subscription.hostSlug} - {subscription.plan.name}</Col>
+            <Col lg={5} md={5} sm={6} xs={12}>Workspace {subscription.hostSlug} - {subscription.plan.name}</Col>
             <Col lg={3} md={3} sm={6} xs={12}>
               {subscription.activeTrialEnd ? (
                 <span>Trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" /></span>
@@ -85,15 +86,15 @@ export default class SubscriptionListItem extends React.Component {
               )}
             </Col>
 
-            <Col lg={3} md={3} sm={3} xs={12}>
+            <Col lg={2} md={2} sm={3} xs={12}>
               {subscription.cancelPending ? (
-                <Button onClick={this.handleShowReactivateModal}>Reactivate</Button> 
+                <Button onClick={this.handleShowReactivateModal}>Reactivate</Button>
               ) : (
-                <Button bsStyle='danger' onClick={this.handleShowCancelModal}>Cancel</Button> 
+                <Button bsStyle='danger' onClick={this.handleShowCancelModal}>Cancel</Button>
               )}
             </Col>
 
-            <Col lg={1} md={1} sm={3} xs={12}><Currency value={subscription.plan.priceDollars} /></Col>
+            <Col lg={2} md={2} sm={3} xs={12}><Currency value={subscription.plan.priceDollars} /></Col>
           </Row>
         </Grid>
 
@@ -155,7 +156,7 @@ export default class SubscriptionListItem extends React.Component {
             <Button onClick={this.handleReactivate}>Reactivate</Button>
           </Modal.Footer>
         </Modal>
- 
+
       </div>
     );
   }

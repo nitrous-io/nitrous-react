@@ -4,7 +4,7 @@ import { OrderedMap } from 'immutable';
 import snackbarActions from 'actions/snackbar-actions';
 
 class SubscriptionStore extends Store {
-  _subscriptions = OrderedMap(); // <K: slug, V: Subscription >
+  _subscriptions = OrderedMap(); // <K: slug, V: Subscription>
 
   handleAction(action) {
     switch (action.type) {
@@ -23,7 +23,7 @@ class SubscriptionStore extends Store {
         return; // do not notify of change
       }
       case 'subscription.canceled': {
-        snackbarActions.post(`Subscription has been canceled. `);
+        snackbarActions.post(`Subscription has been canceled.`);
         break;
       }
       case 'subscription.cancel-failed': {
@@ -32,7 +32,7 @@ class SubscriptionStore extends Store {
         break;
       }
       case 'subscription.reactivated': {
-        snackbarActions.post(`Subscription has been reactivated. `);
+        snackbarActions.post(`Subscription has been reactivated.`);
         break;
       }
       case 'subscription.reactivate-failed': {
@@ -40,7 +40,6 @@ class SubscriptionStore extends Store {
         snackbarActions.post(`Failed to reactivate subscription!`);
         break;
       }
-
       default: return;
     }
     this.notifyChange();
