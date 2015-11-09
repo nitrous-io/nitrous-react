@@ -8,7 +8,8 @@ export default class BillingProfile extends Record({
   expMonth: null,
   expYear: null,
   state: null,
-  billingIssues: false
+  billingIssues: false,
+  trialEligible: false
 }) {
   static deserialize(p) {
     return new this({
@@ -19,7 +20,8 @@ export default class BillingProfile extends Record({
       expMonth: p.exp_month,
       expYear: p.exp_year,
       state: p.state,
-      billingIssues: p.has_billing_issues
+      billingIssues: p.has_billing_issues,
+      trialEligible: p.trial_eligible
     });
   }
 

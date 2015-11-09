@@ -165,16 +165,17 @@ export default class NewHost extends React.Component {
     return true;
   };
 
-  requiresPayment = () => {
+  requiresPayment() {
     const { billingProfile } = this.state;
     return billingProfile && !billingProfile.hasCard;
-  };
+  }
 
   render() {
     const org = this.context.org,
           { plans, regions, creating, paymentFailed } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
+          { trialEligible } = this.state.billingProfile;
 
     return (
       <div className='new-host-component'>
@@ -188,7 +189,9 @@ export default class NewHost extends React.Component {
                 return (
                   <PlanListItem key={`plan-${plan.slug}`} plan={plan}
                     selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
-                    onSelect={this.handlePlanSelection} />
+                    onSelect={this.handlePlanSelection}
+                    trialEligible={trialEligible}
+                  />
                 );
               })}
             </Row>
