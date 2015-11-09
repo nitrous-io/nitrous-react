@@ -5,7 +5,10 @@ import Org from 'records/org';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
+import subscriptionStore from 'stores/subscription-store';
 import containerStore from 'stores/container-store';
+import subscriptionActions from 'actions/subscription-actions';
+import Time from 'react-time';
 import $ from 'jquery';
 
 export default class ContextSwitcher extends React.Component {
@@ -25,7 +28,8 @@ export default class ContextSwitcher extends React.Component {
     user: userStore.user,
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
-    sharedContainerCount: containerStore.sharedContainers.size
+    sharedContainerCount: containerStore.sharedContainers.size,
+    trialSubscription: subscriptionStore.trialSubscription
   };
 
   componentDidMount() {
@@ -33,6 +37,8 @@ export default class ContextSwitcher extends React.Component {
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    subscriptionActions.fetchAll();
 
     // hack to dismiss overlay tooltip after clicking menu
     $(React.findDOMNode(this)).on('click', '.dropdown-menu a[href]', function() {
@@ -47,6 +53,7 @@ export default class ContextSwitcher extends React.Component {
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
 
     $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
@@ -67,9 +74,13 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ sharedContainerCount: containerStore.sharedContainers.size });
   };
 
+  subscriptionStoreDidChange = () => {
+    this.setState({ trialSubscription: subscriptionStore.trialSubscription });
+  };
+
   render() {
     const { selectedHost } = this.props,
-          { user, sharedContainerCount } = this.state,
+          { user, sharedContainerCount, trialSubscription } = this.state,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
@@ -163,6 +174,10 @@ export default class ContextSwitcher extends React.Component {
             {contextMenu}
           </ButtonGroup>
         )}
+
+        {trialSubscription ? (
+          <Badge>Trial ends: <Time value={trialSubscription.activeTrialEnd} format="MMM DD, YYYY" /></Badge>
+        ) : ''}
       </Navbar>
     );
   }

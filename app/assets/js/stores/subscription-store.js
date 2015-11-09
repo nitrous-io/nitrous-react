@@ -48,6 +48,12 @@ class SubscriptionStore extends Store {
   get subscriptions() {
     return this._subscriptions;
   }
+
+  get trialSubscription() {
+    return this._subscriptions.find((s) => {
+      return s.activeTrialEnd;
+    });
+  }
 }
 
 export default new SubscriptionStore();
