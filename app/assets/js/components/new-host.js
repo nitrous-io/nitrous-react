@@ -146,7 +146,7 @@ export default class NewHost extends React.Component {
 
   // Whether user is allowed to add a payment method.
   // Individual context: always allowed.
-  // Org context: only admins are allowed to add a payment method.
+  // Org context: only owners are allowed to add a payment method.
   canAddPayment = () => {
     const { org } = this.context;
     if (org) {

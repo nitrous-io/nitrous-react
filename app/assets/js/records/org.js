@@ -33,6 +33,6 @@ export default class Org extends Record({
   }
 
   get roleAllowsBillingProfileAdmin() {
-    return this.role === 'owner' || this.role === 'admin';
+    return this.role === 'owner';
   }
 }
