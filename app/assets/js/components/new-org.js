@@ -1,12 +1,10 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, Alert, Button, Input, Panel, Table } from 'react-bootstrap';
+import { Grid, Row, Col, Alert, Button, Input, Panel } from 'react-bootstrap';
 import slug from 'slug';
 
 import orgStore from 'stores/org-store';
-import planStore from 'stores/plan-store';
 import orgActions from 'actions/org-actions';
 import paymentActions from 'actions/payment-actions';
-import planActions from 'actions/plan-actions';
 import Fa from 'components/fa';
 import PaymentMethod from 'components/payment-method';
 
@@ -18,8 +16,6 @@ export default class NewOrg extends React.Component {
   };
 
   state = {
-    plans: planStore.orgPlans,
-    selectedPlan: planStore.orgPlans.first(),
     orgName: null,
     orgNameValid: false,
     orgEmail: null,
@@ -31,9 +27,6 @@ export default class NewOrg extends React.Component {
   };
 
   componentDidMount() {
-    planStore.onChange(this.planStoreDidChange);
-    planActions.fetchAll();
-
     orgStore.onChange(this.orgStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);
 
@@ -41,16 +34,8 @@ export default class NewOrg extends React.Component {
   }
 
   componentWillUnmount() {
-    planStore.offChange(this.planStoreDidChange);
-
     orgStore.offChange(this.orgStoreDidChange);
     orgStore.off('create-failed', this.onOrgCreateFailed);
-  }
-
-  planStoreDidChange = () => {
-    const plans = planStore.orgPlans,
-          selectedPlan = this.state.selectedPlan || plans.first();
-    this.setState({ plans, selectedPlan });
   }
 
   orgStoreDidChange = () => {
@@ -103,10 +88,6 @@ export default class NewOrg extends React.Component {
     this.setState({ orgEmail, orgEmailValid: !!orgEmail.trim() });
   }
 
-  handlePlanSelected = (plan) => {
-    this.setState({ selectedPlan: plan });
-  }
-
   handleClickCreateBtn = () => {
     if (this.submitDisabled()) {
       return;
@@ -138,12 +119,12 @@ export default class NewOrg extends React.Component {
   }
 
   submitDisabled = () => {
-    const { processing, orgNameValid, orgEmail, selectedPlan } = this.state;
-    return processing || !orgNameValid || !orgEmail || !selectedPlan;
+    const { processing, orgNameValid, orgEmail } = this.state;
+    return processing || !orgNameValid || !orgEmail;
   }
 
   render() {
-    const { plans, selectedPlan, orgName, orgNameValid, orgEmail, orgEmailValid,
+    const { orgName, orgNameValid, orgEmail, orgEmailValid,
             orgSlug, createdOrg, processing, paymentFailed } = this.state;
 
     return (
@@ -188,48 +169,6 @@ export default class NewOrg extends React.Component {
                 disabled={createdOrg || processing}
                 onChange={this.handleOrgEmailChanged}
                 onKeyDown={this.handleKeyDown} />
-
-              <hr />
-
-              <h3>Choose a Plan</h3>
-
-              <Table responsive striped>
-                <colgroup>
-                  <col className='col-lg-4 col-md-4 col-sm-4 col-xs-3' />
-                  <col className='col-lg-3 col-md-3 col-sm-3 col-xs-3' />
-                  <col className='col-lg-3 col-md-3 col-sm-3 col-xs-3' />
-                  <col className='col-lg-2 col-md-2 col-sm-2 col-xs-3' />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>Plan</th>
-                    <th>Cost</th>
-                    <th>Workstations</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {plans.toList().map((plan) => {
-                    const price = (plan.price / 100).toFixed(2),
-                          selected = (selectedPlan && selectedPlan.slug === plan.slug);
-
-                    return (
-                      <tr key={`plan-${plan.slug}`}>
-                        <td><strong>{plan.name}</strong></td>
-                        <td>{price}/mo</td>
-                        <td><Fa icon='frown-o' /> FIXME</td>
-                        <td>
-                          <Button
-                            bsStyle={selected ? 'primary' : 'default'}
-                            onClick={this.handlePlanSelected.bind(this, plan)}>
-                            {selected? 'Selected' : 'Select'}
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
 
               <hr />
 
