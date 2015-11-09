@@ -3,13 +3,13 @@ import Invoice from 'records/invoice';
 import { OrderedMap } from 'immutable';
 
 class InvoiceStore extends Store {
-  _invoices = OrderedMap(); // <K: id, V: Invoice>
+  _userInvoices = OrderedMap(); // <K: id, V: Invoice>
 
   handleAction(action) {
     switch (action.type) {
       case 'invoice.fetched-all': {
         const { data } = action.data;
-        this._invoices = OrderedMap(data.invoices.map(function(d) {
+        this._userInvoices = OrderedMap(data.invoices.map(function(d) {
           const inv = Invoice.deserialize(d);
           return [inv.id, inv];
         }));
@@ -17,7 +17,7 @@ class InvoiceStore extends Store {
         break;
       }
       case 'invoice.fetch-all-failed': {
-        this._invoices = null;
+        this._userInvoices = null;
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
@@ -26,8 +26,8 @@ class InvoiceStore extends Store {
     this.notifyChange();
   }
 
-  get invoices() {
-    return this._invoices;
+  get userInvoices() {
+    return this._userInvoices;
   }
 }
 

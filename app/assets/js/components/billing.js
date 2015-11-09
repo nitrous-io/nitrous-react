@@ -30,7 +30,7 @@ export default class Billing extends React.Component {
   state = {
     billingProfile: this.findBillingProfile(),
     subscriptions: subscriptionStore.subscriptions,
-    invoices: invoiceStore.invoices
+    invoices: invoiceStore.userInvoices
   };
 
   componentWillMount() {
@@ -58,7 +58,7 @@ export default class Billing extends React.Component {
   };
 
   invoiceStoreDidChange = () => {
-    this.setState({ invoices: invoiceStore.invoices });
+    this.setState({ invoices: invoiceStore.userInvoices });
   };
 
   render() {
