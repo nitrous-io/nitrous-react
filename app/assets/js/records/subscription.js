@@ -27,7 +27,7 @@ export default class Subscription extends Record({
       currentPeriodEnd: s.current_period_end ? new Date(s.current_period_end) : null,
       hostSlug: s.host_slug,
       cancelPending: s.cancel_pending,
-      trialEnd: s.trial_end,
+      trialEnd: s.trial_end ? new Date(s.trial_end) : null,
       plan: s.plan && Plan.deserialize(s.plan),
       createdAt: s.created_at ? new Date(s.created_at) : null,
       updatedAt: s.updated_at ? new Date(s.updated_at) : null
@@ -37,8 +37,8 @@ export default class Subscription extends Record({
   get activeTrialEnd() {
     const currentDate = new Date();
     if (currentDate < this.trialEnd) {
-      return;
+      return this.trialEnd;
     }
-    return this.trialEnd;
+    return;
   }
 }
