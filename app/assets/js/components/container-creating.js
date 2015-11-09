@@ -52,6 +52,8 @@ export default class ContainerCreating extends React.Component {
       // this can trip up if there is another container created with the same name,
       // but we should really make container names unique (scoped to host) anyway
       this.setState({ container, done: true });
+
+      window.location.href = `/ide/#/${container.slug}`;
     }
   };
 
@@ -77,21 +79,22 @@ export default class ContainerCreating extends React.Component {
 
   render() {
     const { name } = this.props.query,
-          { container, done } = this.state;
+          { done } = this.state;
 
     return (
-      <div className='container-creating-component'>
+      <div className='container-creating-component container'>
         {done ? (
-          <div className='container done'>
-            <h2>Your container &ldquo;{name}&rdquo; is ready!</h2>
+          <div className='done'>
+            <h2>Your project &ldquo;{name}&rdquo; is ready!</h2>
+            <p>Opening Project IDE...</p>
+            <EtaProgressBar eta={200} done label='Ready!' />
             <ButtonToolbar>
-              <Button onClick={this.handleBackBtn}>Back to Project List</Button>
-              <a href={`/ide/#/${container.slug}`} className='btn btn-primary' target='_blank'>Open IDE</a>
+              <Button onClick={this.handleBackBtn}>Go to Project List instead</Button>
             </ButtonToolbar>
           </div>
         ) : (
-          <div className='container creating'>
-            <h2>Your new container &ldquo;{name}&rdquo; is being created...</h2>
+          <div className='creating'>
+            <h2>Your new project &ldquo;{name}&rdquo; is being created...</h2>
             <p>This may take several minutes to complete.</p>
             <EtaProgressBar eta={200} done={done} />
           </div>
