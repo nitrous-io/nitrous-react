@@ -15,7 +15,7 @@ export default class Signup extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
-      scenario: PropTypes.string,
+      intent: PropTypes.string,
       gitHubUserName: PropTypes.string,
       gitHubUserEmail: PropTypes.string
     })
@@ -48,7 +48,7 @@ export default class Signup extends React.Component {
       authorizing: false,
       isViaGitHub,
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
-      createOrg: this.isCreateOrgScenario()
+      createOrg: this.props.query.intent === 'org'
     };
   }
 
@@ -80,7 +80,7 @@ export default class Signup extends React.Component {
       return;
     }
 
-    if (this.isCreateOrgScenario() && this.state.createOrg) {
+    if (this.state.createOrg) {
       this.context.router.transitionTo('new-org');
       return;
     }
@@ -126,10 +126,6 @@ export default class Signup extends React.Component {
     });
   }
 
-  isCreateOrgScenario = () => {
-    return this.props.query.scenario === 'org';
-  }
-
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
             authorizing, processing, createOrg } = this.state,
@@ -165,11 +161,9 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            {this.isCreateOrgScenario() ? (
-              <Input type='checkbox' label='Create an organization after sign up'
-                checked={createOrg}
-                onChange={this.handleCreateOrgChanged} />
-            ) : ''}
+            <Input type='checkbox' label='Create an organization after sign up'
+              checked={createOrg}
+              onChange={this.handleCreateOrgChanged} />
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={
