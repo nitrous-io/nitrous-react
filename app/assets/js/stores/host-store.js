@@ -39,6 +39,12 @@ class HostStore extends Store {
         this.emit('create-failed');
         break;
       }
+      case 'host.start-failed': {
+        const { jqxhr, hostSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('start-failed', { hostSlug });
+        break;
+      }
       // from events-socket
       case 'events:host.creating': {
         const { id, slug, progress } = action.data;
@@ -55,10 +61,24 @@ class HostStore extends Store {
         this.emit('creating', { hostSlug: slug, stream });
         break;
       }
-      case 'events:host.created': {
+      case 'events:host.created':
+      case 'events:host.starting':
+      case 'events:host.started':
+      case 'events:host.restarting':
+      case 'events:host.restarted':
+      case 'events:host.stopping':
+      case 'events:host.stopped': {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
-        this.emit('created', { host });
+
+        if (action.type === 'events:host.created') {
+          this.emit('created', { host });
+        }
+
+        if (action.type === 'events:host.started') {
+          this.emit('started', { host });
+        }
+
         break;
       }
       case 'events:host.create-failed': {

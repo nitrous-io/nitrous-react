@@ -73,23 +73,38 @@ class HostActions {
     });
   }
 
-  fetchStats(slug) {
+  fetchStats(hostSlug) {
     return authedAjax({
       type: 'GET',
-      url: `/api/v0/hosts/${slug}/stats`,
+      url: `/api/v0/hosts/${hostSlug}/stats`,
       data: { period: '1s' },
       dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
         type: 'host.fetched-stats',
-        data: { data, hostSlug: slug }
+        data: { data, hostSlug }
       });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.fetch-stats-failed',
-        data: { jqxhr, hostSlug: slug }
+        data: { jqxhr, hostSlug }
       });
     });
+  }
+
+  start(hostSlug) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/hosts/${hostSlug}/start`,
+      dataType: 'json'
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.start-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
   }
 }
 

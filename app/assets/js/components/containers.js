@@ -4,6 +4,7 @@ import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
 import containerStore from 'stores/container-store';
 import announcementActions from 'actions/announcement-actions';
+import hostStore from 'stores/host-store';
 import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import ContainerList from 'components/container-list';
@@ -26,6 +27,7 @@ export default class Containers extends React.Component {
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
     announcementActions.fetchAllByHostSlug(this.context.host.slug);
+    hostStore.on('started', this.onHostStarted);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -43,6 +45,7 @@ export default class Containers extends React.Component {
   componentWillUnmount() {
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
+    hostStore.off('started', this.onHostStarted);
   }
 
   containerStoreDidChange = () => {
@@ -51,6 +54,13 @@ export default class Containers extends React.Component {
 
   announcementStoreDidChange = () => {
     this.setState({ announcements: announcementStore.announcementsByHostSlug(this.context.host.slug) });
+  };
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.context.host.slug === host.slug) {
+      containerActions.fetchAllByHostSlug(host.slug);
+    }
   };
 
   render() {

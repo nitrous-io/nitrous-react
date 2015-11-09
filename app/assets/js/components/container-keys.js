@@ -5,9 +5,11 @@ import Container from 'records/container';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
 import containerKeyActions from 'actions/container-key-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import userKeyActions from 'actions/user-key-actions';
 import containerStore from 'stores/container-store';
 import containerKeyStore from 'stores/container-key-store';
+import hostStore from 'stores/host-store';
 import userKeyStore from 'stores/user-key-store';
 import { Alert, Panel } from 'react-bootstrap';
 import SelectableTextarea from 'components/selectable-textarea';
@@ -55,6 +57,10 @@ export default class ContainerKeys extends React.Component {
     containerKeyStore.on('fetched-status', this.onContainerKeyFetchedStatus);
     userKeyStore.onChange(this.userKeyStoreDidChange);
     this.fetchData(containerSlug);
+
+    if (this.context.host) {
+      hostStore.on('started', this.onHostStarted);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -73,6 +79,10 @@ export default class ContainerKeys extends React.Component {
     containerKeyStore.off('fetch-status-failed', this.onContainerKeyFetchStatusFailed);
     containerKeyStore.off('fetched-status', this.onContainerKeyFetchedStatus);
     userKeyStore.offChange(this.userKeyStoreDidChange);
+
+    if (this.context.host) {
+      hostStore.off('started', this.onHostStarted);
+    }
   }
 
   fetchData = (containerSlug) => {
@@ -128,6 +138,14 @@ export default class ContainerKeys extends React.Component {
   userKeyStoreDidChange = () => {
     const userKeys = userKeyStore.keysByContainerSlug(this.props.params.containerSlug);
     this.setState({ userKeys });
+  }
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.context.host.slug === host.slug) {
+      snackbarActions.clear();
+      this.fetchData(this.props.params.containerSlug);
+    }
   }
 
   getChildContext() {
