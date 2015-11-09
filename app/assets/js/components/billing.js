@@ -27,10 +27,18 @@ export default class Billing extends React.Component {
     return billingStore.userBillingProfile;
   }
 
+  findInvoices = () => {
+    const org = this.context.org;
+    if (org) {
+      return invoiceStore.orgInvoicesBySlug(org.slug);
+    }
+    return invoiceStore.userInvoices;
+  }
+
   state = {
     billingProfile: this.findBillingProfile(),
     subscriptions: subscriptionStore.subscriptions,
-    invoices: invoiceStore.userInvoices
+    invoices: this.findInvoices()
   };
 
   componentWillMount() {
@@ -45,7 +53,12 @@ export default class Billing extends React.Component {
     subscriptionActions.fetchAll();
 
     invoiceStore.onChange(this.invoiceStoreDidChange);
-    invoiceActions.fetchAll();
+    const { org } = this.context;
+    if (org) {
+      invoiceActions.fetchAllByOrgSlug(org.slug);
+    } else {
+      invoiceActions.fetchAll();
+    }
   }
 
   componentWillUnmount() {
@@ -58,17 +71,17 @@ export default class Billing extends React.Component {
   };
 
   invoiceStoreDidChange = () => {
-    this.setState({ invoices: invoiceStore.userInvoices });
+    this.setState({ invoices: this.findInvoices() });
   };
 
   render() {
     const { billingProfile, subscriptions, invoices } = this.state,
+          { org } = this.context,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
-          { makeHref } = this.context.router;
+          { makeHref } = this.context.router,
+          showInvoices = invoices && invoices.count();
 
     var href = makeHref('payment-method');
-
-    const { org } = this.context;
     if (org) {
       href = makeHref('org-payment-method', { orgSlug: org.slug });
     }
@@ -112,7 +125,7 @@ export default class Billing extends React.Component {
           </Panel>
 
           <Panel header={<h4>Billing History</h4>}>
-            {invoices ? (
+            {showInvoices ? (
               <Table responsive hover>
                 <thead>
                   <tr>
