@@ -53,6 +53,7 @@ export default class ContextSwitcher extends React.Component {
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
 
     $(React.findDOMNode(this)).off('click', '.dropdown-menu a[href]');
   }
