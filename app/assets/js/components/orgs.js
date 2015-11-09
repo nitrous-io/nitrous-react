@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, ButtonToolbar, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Button, ButtonToolbar, Label, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
@@ -42,7 +42,11 @@ export default class Orgs extends React.Component {
             return (
               <ListGroupItem key={`org-${org.slug}`} className='clearfix'>
                 <img className='gravatar' src={org.gravatar(72)} />
-                <strong>{org.displayName}</strong>
+
+                <div className='org-info'>
+                  <span className='org-name'>{org.displayName}</span>
+                  <Label>{org.role}</Label>
+                </div>
 
                 <ButtonToolbar className='pull-right'>
                   {org.roleAllowsBillingProfileAdmin ? (
@@ -51,9 +55,11 @@ export default class Orgs extends React.Component {
                     </Button>
                   ) : ''}
 
-                  <Button href={makeHref('org-invite-members', { orgSlug: org.slug })}>
-                    <Fa icon='users' /> Members
-                  </Button>
+                  {org.roleAllowsMemberAdmin ? (
+                    <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
+                      <Fa icon='users' /> Members
+                    </Button>
+                  ) : ''}
                 </ButtonToolbar>
               </ListGroupItem>
             );
