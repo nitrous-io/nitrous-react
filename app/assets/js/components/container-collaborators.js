@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Nav, NavItem, Panel } from 'react-bootstrap';
+import { Nav, NavItem } from 'react-bootstrap';
 
 import Host from 'records/host';
 import collaboratorActions from 'actions/collaborator-actions';
@@ -79,21 +79,19 @@ export default class ContainerCollaborators extends React.Component {
         {loading ? (
           <LoadingIndicator />
         ) : (
-          <div className='container'>
+          <div className='inner-container'>
             <h4>
               {container.displayName}
               <span className='divider'><Fa icon='angle-right' /></span>
               {shared ? 'View Collaborators' : 'Manage Collaborators'}
             </h4>
 
-            <Panel>
-              <p className='hint'> <Fa icon='info-circle' /> Collaborators can work with you in real-time in the IDE and have full console access.</p>
+            <p className='hint'><Fa icon='info-circle' /> Collaborators can work with you in real-time in the IDE and have full console access.</p>
 
-              <CollaboratorList
-                collaborators={collaborators}
-                container={container}
-                shared={shared} />
-            </Panel>
+            <CollaboratorList
+              collaborators={collaborators}
+              container={container}
+              shared={shared} />
           </div>
         )}
       </div>

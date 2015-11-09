@@ -6,7 +6,7 @@ import collaboratorActions from 'actions/collaborator-actions';
 import collaboratorStore from 'stores/collaborator-store';
 import userStore from 'stores/user-store';
 import snackbarActions from 'actions/snackbar-actions';
-import { Grid, Row, Col, Button, Input, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Button, Input, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CollaboratorListItem from 'components/collaborator-list-item';
 
 export default class CollaboratorList extends React.Component {
@@ -122,29 +122,16 @@ export default class CollaboratorList extends React.Component {
 
         {!shared ? (
           <form onSubmit={this.handleSubmit}>
-            <Grid>
-              <Row>
-                <Col lg={12}>
-                  <label htmlFor='add-new-collaborator'>Add New Collaborator</label>
-                </Col>
-              </Row>
-              <Row>
-                <Col lg={4} md={4} sm={6} xs={12}>
-                  <Input id='add-new-collaborator'
-                    type='text' required placeholder='Username or email'
-                    value={newCollaborator}
-                    disabled={adding}
-                    bsStyle={addFailed ? 'error' : null}
-                    onChange={this.handleNewCollaboratorChanged} />
-                </Col>
-
-                <Col lg={8} md={8} sm={6} xs={12}>
-                  <Button bsStyle='default' type='submit'>
-                    {adding ? 'Adding...' : 'Add'}
-                  </Button>
-                </Col>
-              </Row>
-            </Grid>
+            <Input label='Add Collaborator'
+              type='text' required placeholder='Username or email'
+              value={newCollaborator}
+              disabled={adding}
+              bsStyle={addFailed ? 'error' : null}
+              onChange={this.handleNewCollaboratorChanged} buttonAfter={
+                <Button bsStyle='primary' type='submit'>
+                  {adding ? 'Adding...' : 'Add'}
+                </Button>
+              } />
           </form>
         ) : ''}
       </div>

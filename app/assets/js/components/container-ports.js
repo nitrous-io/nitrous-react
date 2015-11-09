@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, Input, Nav, NavItem, OverlayTrigger, Tooltip, Table,
-         Grid, Row, Col } from 'react-bootstrap';
+import { Button, Input, Nav, NavItem, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
 
 import { PortBinding } from 'records/container-config';
 import Host from 'records/host';
@@ -216,24 +215,17 @@ export default class ContainerPorts extends React.Component {
         </Table>
 
         <form onSubmit={this.handleAddPort}>
-          <Grid>
-            <Row>
-              <Col lg={2} md={2} sm={6} xs={12}>
-                <Input
-                  type='number' min='1' max='65535' required
-                  placeholder='New port'
-                  value={newPort}
-                  bsStyle={newPortInvalid ? 'error' : null}
-                  help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
-                  disabled={processing}
-                  onChange={this.handleNewPortChanged} />
-              </Col>
-
-              <Col lg={10} md={10} sm={6} xs={12}>
-                <Button bsStyle='default' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
-              </Col>
-            </Row>
-          </Grid>
+          <Input
+            type='number' min='1' max='65535' required
+            placeholder='New port'
+            value={newPort}
+            bsStyle={newPortInvalid ? 'error' : null}
+            help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
+            disabled={processing}
+            onChange={this.handleNewPortChanged}
+            buttonAfter={
+              <Button bsStyle='primary' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
+            } />
         </form>
 
         {dirty ? (
@@ -308,7 +300,7 @@ export default class ContainerPorts extends React.Component {
         {loading ? (
           <LoadingIndicator />
         ) : (
-          <div className='container'>
+          <div className='inner-container'>
             <h4>
               {container.displayName}
               <span className='divider'><Fa icon='angle-right' /></span>

@@ -216,7 +216,7 @@ export default class ContainerKeys extends React.Component {
         {loading ? (
           <LoadingIndicator />
         ) : (
-          <div className='container'>
+          <div className='inner-container'>
             <h4>
               {container.displayName}
               <span className='divider'><Fa icon='angle-right' /></span>

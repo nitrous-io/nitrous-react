@@ -202,7 +202,7 @@ export default class AccountSettings extends React.Component {
                     disabled={updating} value={existingPassword} onChange={this.handleChangeExistingPasswordField} />
                 ) : ''}
               </div>
-              <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? 'Saving...' : 'Save'}</Button>
+              <Button disabled={this.submitDisabled()} type='submit' bsStyle='primary'>{updating ? 'Saving...' : 'Save Changes'}</Button>
             </form>
           </Panel>
 
@@ -223,7 +223,7 @@ export default class AccountSettings extends React.Component {
               <div className='advanced-mode'>
                 <Input ref="advanced" type="checkbox" label="Show Advanced Features" checked={advanced} onChange={this.handleChangeAdvanced} />
               </div>
-              <Button type='submit' bsStyle='primary' disabled={updatingProfile}>{updatingProfile ? 'Saving...' : 'Save'}</Button>
+              <Button type='submit' bsStyle='primary' disabled={updatingProfile}>{updatingProfile ? 'Saving...' : 'Apply'}</Button>
             </form>
           </Panel>
         </div>

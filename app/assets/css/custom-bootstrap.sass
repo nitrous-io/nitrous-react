@@ -2,8 +2,17 @@
 body
   background-color: rgb(252,252,252)
 
-// Container
+// Type
 .container
+  > h2
+    font-size: 26px
+    padding-bottom: 30px
+    position: relative
+    display: block
+
+  > h3
+    font-size: 22px
+    padding-bottom: 10px
 
 // Navbar
 .navbar
@@ -56,6 +65,11 @@ nav + .tab-content
 
   .dropdown-menu
     margin-top: 0
+
+  > li.active > a,
+  > li.active > a:hover,
+  > li.active > a:focus
+    background: transparent
 
 .nav-pills,
 .nav-stacked
@@ -138,7 +152,7 @@ nav + .tab-content
       opacity: 1
 
   .fa
-    opacity: 0.53
+    opacity: 0.8
 
     + span
       margin-left: 6px
@@ -302,6 +316,9 @@ select.form-control
   border: 1px solid #ddd
   border-radius: $border-radius-small
   @include box-shadow(none)
+
+textarea
+  resize: vertical
 
 // Progress bars
 .progress

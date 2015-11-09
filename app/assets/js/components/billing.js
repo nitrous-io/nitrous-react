@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Panel, Table } from 'react-bootstrap';
+import { Button, Panel, Table } from 'react-bootstrap';
 
 import billingStore from 'stores/billing-store';
 import subscriptionStore from 'stores/subscription-store';
@@ -85,12 +85,12 @@ export default class Billing extends React.Component {
                 <p>
                   Expires {expMonth}/{expYear}
                 </p>
-                <p><a href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</a></p>
+                <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</Button></p>
               </div>
             ) : (
               <div>
                 <p>No payment method on file.</p>
-                <p><a href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</a></p>
+                <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</Button></p>
               </div>
             )}
           </Panel>
