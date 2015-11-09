@@ -125,6 +125,15 @@ class UserActions {
     });
   }
 
+  confirmEmail(token) {
+    return ajax({
+      type: 'POST',
+      url: '/api/v0/user/confirm',
+      cache: false,
+      data: { token }
+    });
+  }
+
   resendConfirmation(options) {
     const { appToken, confirmationToken } = options;
     const params = {

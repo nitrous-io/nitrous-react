@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Alert, ButtonInput } from 'react-bootstrap';
+import { Alert, ButtonInput, ButtonToolbar, Panel } from 'react-bootstrap';
 
 import tokenStore from 'stores/token-store';
 import userActions from 'actions/user-actions';
@@ -11,7 +11,8 @@ export default class ResendConfirmation extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
-      appToken: PropTypes.string
+      appToken: PropTypes.string,
+      confirmationToken: PropTypes.string
     })
   }
 
@@ -26,7 +27,7 @@ export default class ResendConfirmation extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.state.appToken) {
+    if (!(this.state.appToken || this.props.query.confirmationToken)) {
       this.context.router.transitionTo('login');
     }
   }
@@ -44,10 +45,11 @@ export default class ResendConfirmation extends React.Component {
       return;
     }
 
-    const { appToken } = this.state;
+    const { appToken } = this.state,
+          { confirmationToken } = this.props.query;
     this.setState({ processing: true });
 
-    userActions.resendConfirmation({ appToken }).then(() => {
+    userActions.resendConfirmation({ appToken, confirmationToken }).then(() => {
       this.setState({ processed: true, processing: false });
     }).catch(() => {
       this.setState({ processing: true });
@@ -60,7 +62,7 @@ export default class ResendConfirmation extends React.Component {
 
     return (
       <div className='forgot-password-component login-screen'>
-        <div className='form-panel'>
+        <Panel>
           <h2 className='nitrous-logo'></h2>
           {!processed ? (
             <Alert bsStyle="warning">
@@ -74,13 +76,15 @@ export default class ResendConfirmation extends React.Component {
 
           {!processed ? (
             <form onSubmit={this.handleSubmit}>
-              <div className='actions'>
+              <ButtonToolbar>
                 <ButtonInput type='submit' bsStyle='primary' disabled={this.submitDisabled()}>
                   {processing ? 'Sending...' : 'Send Confirmation Email'}
                 </ButtonInput>
-              </div>
+              </ButtonToolbar>
             </form>
           ) : ''}
+        </Panel>
+        <div className='misc-links'>
           <p>Already have an account? <Link to='login'>Log in</Link></p>
         </div>
       </div>
