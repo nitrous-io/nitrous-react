@@ -3,6 +3,7 @@ import DocsAnchor from 'components/docs-anchor';
 import { Grid, Alert, Badge, Button, ButtonGroup, ButtonToolbar, Col, DropdownButton, FormControls, Input, Label, ListGroup, ListGroupItem, MenuItem, Modal, Nav, Navbar, NavDropdown, Panel, PanelGroup, Popover, ProgressBar, Row, SplitButton, Tab, Table, Tabs, Tooltip, Well} from 'react-bootstrap';
 import Fa from 'components/fa';
 import LoadingIndicator from 'components/loading-indicator';
+import PromptModal from 'components/prompt-modal';
 import snackbarActions from 'actions/snackbar-actions';
 
 // ------------------------------------
@@ -26,6 +27,10 @@ export default class DocsUI extends React.Component {
       snackbarActions.post("Hello, this is a longer message", kind);
     };
   };
+
+  handleShowPromptModal = () => {
+    this.refs.promptModal.show();
+  }
 
   // ------------------------------------
   // Typography
@@ -765,6 +770,13 @@ export default class DocsUI extends React.Component {
               </Modal.Footer>
             </Modal.Dialog>
           </div>
+        </div>
+
+        <div className="docs-demo-wrapper">
+          <Button onClick={this.handleShowPromptModal}>Show PromptModal</Button>
+          <PromptModal ref='promptModal' showModal okButtonLabel='Confirm' okButtonStyle='danger' placeholder='Placeholder'>
+            <p>Text in a modal for prompting</p>
+          </PromptModal>
         </div>
 
       </div>
