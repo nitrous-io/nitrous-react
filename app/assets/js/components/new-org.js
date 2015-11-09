@@ -32,7 +32,7 @@ export default class NewOrg extends React.Component {
 
   componentDidMount() {
     planStore.onChange(this.planStoreDidChange);
-    planActions.fetchAll();
+    planActions.fetchAllOrgPlans();
 
     orgStore.onChange(this.orgStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);

@@ -36,15 +36,11 @@ class PlanStore extends Store {
   }
 
   get plans() {
-    return this._plans.filter((p) => {
-      return !p.hidden && p.subscription && p.price > 0;
-    });
+    return this._plans;
   }
 
   get orgPlans() {
-    return this._orgPlans.filter((p) => {
-      return !p.hidden && p.subscription && p.price > 0;
-    });
+    return this._orgPlans;
   }
 
   get personalPlans() {
