@@ -252,16 +252,18 @@ export default class NewOrg extends React.Component {
 
             <Col lg={3} lgOffset={0} md={4} mdOffset={1} sm={4} smOffset={1} xs={12}>
               <Panel header='Organizations'>
+                <h5>Organization Plans</h5>
                 <ul className='checklist'>
                   <li><Fa icon='check' /> Centralized billing</li>
-                  <li><Fa icon='check' /> Blackjack</li>
-                  <li><Fa icon='check' /> Hookers</li>
+                  <li><Fa icon='check' /> Permissions management</li>
+                  <li><Fa icon='check' /> Shared snapshots</li>
                 </ul>
+                <p>The credit card and plan you select on this screen will be billed to the organization billing profile, not your individual user account.</p>
 
                 <hr />
 
-                <h5>Samuel L. Ipsum</h5>
-                <p>Well, the way they make shows is, they make one show. That show's called a pilot. Then they show that show to the people who make shows, and on the strength of that one show they decide if they're going to make more shows. Some pilots get picked and become television programs. Some don't, become nothing. She starred in one of the ones that became nothing.</p>
+                <h5>Org Ownership</h5>
+                <p>You’ll be able to invite other owners to this organization in the next step. Organization owners have the highest privileges for org management and can edit and view billing information as well as invite and manage organization members.</p>
               </Panel>
             </Col>
           </Row>
