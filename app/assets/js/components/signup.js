@@ -15,6 +15,7 @@ export default class Signup extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
+      intent: PropTypes.string,
       gitHubUserName: PropTypes.string,
       gitHubUserEmail: PropTypes.string
     })
@@ -45,9 +46,9 @@ export default class Signup extends React.Component {
       passwordConfirmation: password,
       processing: false,
       authorizing: false,
-      errorMessage: null,
       isViaGitHub,
-      gitHubUserName: (isViaGitHub && props.query.gitHubUserName || null)
+      gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
+      createOrg: this.props.query.intent === 'org'
     };
   }
 
@@ -69,15 +70,21 @@ export default class Signup extends React.Component {
   }
 
   onUserCreateFailed = () => {
-    this.setState({ processing: false, errorMessage: userStore.lastError });
+    this.setState({ processing: false });
   }
 
   tokenStoreDidChange = () => {
-    if (tokenStore.token) {
-      this.context.router.transitionTo('dashboard');
+    if (!tokenStore.token) {
+      // Ignore failure to get token because we assume that we are able to login
+      // with the newly created account.
+      return;
     }
-    // Ignore failure to get token because we assume that we are able to login
-    // with the newly created account.
+
+    if (this.state.createOrg) {
+      this.context.router.transitionTo('new-org');
+      return;
+    }
+    this.context.router.transitionTo('dashboard');
   }
 
   handleUsernameChanged = (event) => {
@@ -94,6 +101,10 @@ export default class Signup extends React.Component {
 
   handlePasswordConfirmationChanged = (event) => {
     this.setState({ passwordConfirmation: event.target.value });
+  }
+
+  handleCreateOrgChanged = (event) => {
+    this.setState({ createOrg: event.target.checked });
   }
 
   handleSubmit = (event) => {
@@ -116,7 +127,8 @@ export default class Signup extends React.Component {
   }
 
   render() {
-    const { isViaGitHub, username, email, password, passwordConfirmation, authorizing, processing } = this.state,
+    const { isViaGitHub, username, email, password, passwordConfirmation,
+            authorizing, processing, createOrg } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           missing = !(username && email && password && passwordConfirmation),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
@@ -148,6 +160,10 @@ export default class Signup extends React.Component {
                 help={showPasswordConfirmError ? 'Passwords do not match' : null}
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
+
+            <Input type='checkbox' label='Create an organization after sign up'
+              checked={createOrg}
+              onChange={this.handleCreateOrgChanged} />
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={
