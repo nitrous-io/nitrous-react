@@ -138,7 +138,7 @@ export default class Billing extends React.Component {
           </Panel>
 
           <Panel header={<h4>Subscriptions</h4>}>
-            {subscriptions ? (
+            {subscriptions && subscriptions.size > 0 ? (
               <Table responsive hover>
                 <tbody>
                   {subscriptions.toList().map((subscription) => {
