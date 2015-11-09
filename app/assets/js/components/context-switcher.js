@@ -119,10 +119,10 @@ export default class ContextSwitcher extends React.Component {
             );
           }) : ''}
           {showOrgs ? <MenuItem divider /> : ''}
-          <MenuItem href={makeHref('shared-containers')}>
+          <MenuItem href={makeHref('shared-containers')} eventKey='shared'>
             Shared With Me
             {sharedContainerCount > 0 ? (
-              <Badge eventKey='shared'>{sharedContainerCount}</Badge>
+              <Badge>{sharedContainerCount}</Badge>
             ) : ''}
           </MenuItem>
           <MenuItem divider />
