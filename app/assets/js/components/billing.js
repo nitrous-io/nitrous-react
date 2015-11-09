@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Panel } from 'react-bootstrap';
+import { Panel, Table } from 'react-bootstrap';
 
 import billingStore from 'stores/billing-store';
 import subscriptionStore from 'stores/subscription-store';
@@ -8,7 +8,6 @@ import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
 import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
-import { Grid, Row, Col } from 'react-bootstrap';
 import Org from 'records/org';
 import Fa from 'components/fa';
 
@@ -98,13 +97,15 @@ export default class Billing extends React.Component {
 
           <Panel header={<h4>Subscriptions</h4>}>
             {subscriptions ? (
-              <div>
-                {subscriptions.toList().map((subscription) => {
-                  return (
-                    <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
-                  );
-                })}
-              </div>
+              <Table responsive hover>
+                <tbody>
+                  {subscriptions.toList().map((subscription) => {
+                    return (
+                      <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
+                    );
+                  })}
+                </tbody>
+              </Table>
             ) : (
               <p>You don&#39;t have any subscriptions.</p>
             )}
@@ -112,21 +113,23 @@ export default class Billing extends React.Component {
 
           <Panel header={<h4>Billing History</h4>}>
             {invoices ? (
-              <div>
-                <Grid>
-                  <Row>
-                    <Col lg={3} md={3} sm={3} xs={3}><strong>Subscription</strong></Col>
-                    <Col lg={3} md={3} sm={3} xs={3}><strong>Date</strong></Col>
-                    <Col lg={3} md={3} sm={3} xs={3}><strong>Amount</strong></Col>
-                    <Col lg={3} md={3} sm={3} xs={3}><strong>Details</strong></Col>
-                  </Row>
-                </Grid>
-                {invoices.slice(0, 8).toList().map((invoice) => {
-                  return (
-                    <InvoiceListItem key={`invoice-${invoice.id}`} invoice={invoice} />
-                  );
-                })}
-              </div>
+              <Table responsive hover>
+                <thead>
+                  <tr>
+                    <th>Subscription</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.slice(0, 8).toList().map((invoice) => {
+                    return (
+                      <InvoiceListItem key={`invoice-${invoice.id}`} invoice={invoice} />
+                    );
+                  })}
+                </tbody>
+              </Table>
             ) : (
               <div>
                 <p>You don&#39;t have any invoices available.</p>
