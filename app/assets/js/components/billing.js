@@ -34,6 +34,13 @@ export default class Billing extends React.Component {
     invoices: invoiceStore.invoices
   };
 
+  componentWillMount() {
+    const org = this.context.org;
+    if (org && !org.roleAllowsBillingProfileAdmin) {
+      this.context.router.transitionTo('dashboard');
+    }
+  }
+
   componentDidMount() {
     subscriptionStore.onChange(this.subscriptionStoreDidChange);
     subscriptionActions.fetchAll();
