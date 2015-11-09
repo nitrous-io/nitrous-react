@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Button, ButtonToolbar, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
@@ -31,7 +30,8 @@ export default class Orgs extends React.Component {
   }
 
   render() {
-    const { orgs } = this.state;
+    const { orgs } = this.state,
+          { makeHref } = this.context.router;
 
     return (
       <div className='orgs-component container'>
@@ -43,10 +43,18 @@ export default class Orgs extends React.Component {
               <ListGroupItem key={`org-${org.slug}`} className='clearfix'>
                 <img className='gravatar' src={org.gravatar(72)} />
                 <strong>{org.displayName}</strong>
-                <Link to='org-invite-members' params={{ orgSlug: org.slug }}
-                  className='btn btn-default pull-right'>
-                  <Fa icon='users' /> Members
-                </Link>
+
+                <ButtonToolbar className='pull-right'>
+                  {org.roleAllowsBillingProfileAdmin ? (
+                    <Button href={makeHref('org-billing', { orgSlug: org.slug })}>
+                      <Fa icon='credit-card' /> Billing
+                    </Button>
+                  ) : ''}
+
+                  <Button href={makeHref('org-invite-members', { orgSlug: org.slug })}>
+                    <Fa icon='users' /> Members
+                  </Button>
+                </ButtonToolbar>
               </ListGroupItem>
             );
           })}
