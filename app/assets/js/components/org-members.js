@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, ListGroup, ListGroupItem, Button, Input, Label, Panel } from 'react-bootstrap';
+import { Grid, Row, Col, ListGroup, ListGroupItem, Button, Input, Label } from 'react-bootstrap';
 
 import Org from 'records/org';
 import { Roles } from 'records/org-member';
@@ -138,17 +138,19 @@ export default class OrgMembers extends React.Component {
     orgMemberActions.add(this.props.org.slug, newMember, newMemberRole);
   }
 
-  handleNewMemberChanged = (event) => {
-    this.setState({ newMember: event.target.value });
-  }
+  handleNewMemberChanged = () => {
+    const value = this.refs.newMember.getValue();
+    this.setState({ newMember: value });
+  };
 
-  handleNewMemberRoleChanged = (event) => {
-    this.setState({ newMemberRole: event.target.value });
-  }
+  handleNewMemberRoleChanged = () => {
+    const value = this.refs.newMemberRole.getValue();
+    this.setState({ newMemberRole: value });
+  };
 
   render() {
     const { members, user, newMember, newMemberRole,
-            adding, addFailed, updatingMember } = this.state,
+          adding, addFailed, updatingMember } = this.state,
           loading = (members == null);
 
     if (loading) {
@@ -205,7 +207,7 @@ export default class OrgMembers extends React.Component {
                         <Button bsStyle='default' className='pull-right'
                           onClick={this.handleRemoveMember.bind(this, member)}>
                           <Fa icon='sign-out' />
-                          <span>Remove Member</span>
+                          <span>Remove</span>
                         </Button>
                       ) : ''}
                     </Col>
@@ -217,37 +219,31 @@ export default class OrgMembers extends React.Component {
         </ListGroup>
 
         {allowedRoles.length > 0 ? (
-          <Panel header='Add New Member'>
-            <form onSubmit={this.handleAddMember}>
-              <Input wrapperClassName="wrapper">
-                <Row>
-                  <Col xs={4}>
-                    <Input type='text' required placeholder='Username or email'
-                      ref='newMember'
-                      id='add-new-member'
-                      value={newMember}
-                      disabled={adding}
-                      bsStyle={addFailed ? 'error' : null}
-                      onChange={this.handleNewMemberChanged} />
-                  </Col>
-                  <Col xs={4}>
-                    <select className='form-control org-member-role'
-                      defaultValue={Roles.DefaultRole}
-                      disabled={adding}
-                      value={newMemberRole}
-                      onChange={this.handleNewMemberRoleChanged}>
-                      {allowedRoles.map((role) => {
-                        return (<option value={role} key={`role-${role}`}>{role}</option>);
-                      })}
-                    </select>
-                  </Col>
-                  <Col xs={4}>
-                    <Button type='submit' bsStyle='primary' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
-                  </Col>
-                </Row>
-              </Input>
-            </form>
-          </Panel>
+          <form className='new-member-form' onSubmit={this.handleAddMember}>
+            <Input className='org-member-role'
+              ref='newMemberRole'
+              type='select'
+              defaultValue={Roles.DefaultRole}
+              disabled={adding}
+              value={newMemberRole}
+              onChange={this.handleNewMemberRoleChanged}>
+              {allowedRoles.map((role) => {
+                return (<option value={role} key={`role-${role}`}>{role}</option>);
+              })}
+            </Input>
+
+            <Input type='text' required placeholder='Username or email'
+              ref='newMember'
+              id='add-new-member'
+              value={newMember}
+              disabled={adding}
+              bsStyle={addFailed ? 'error' : null}
+              onChange={this.handleNewMemberChanged}
+              buttonAfter={
+                <Button type='submit' bsStyle='primary' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
+              }/>
+
+          </form>
         ) : ''}
       </div>
     );

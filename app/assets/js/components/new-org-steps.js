@@ -29,7 +29,7 @@ export default class NewOrgSteps extends React.Component {
           <Col lg={4} md={4} sm={4} xs={12}>
             <Panel bsStyle={step === 3 ? 'success' : 'primary'}>
               <Fa icon={step === 3 ? 'check' : 'building'} />
-              <em>Step 2:</em>
+              <em>{step === 3 ? 'Completed' : 'Step 2:'}</em>
               Add organization info
             </Panel>
           </Col>

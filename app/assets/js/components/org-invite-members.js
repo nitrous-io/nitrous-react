@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, Panel } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Button, Grid, Row, Col, Panel } from 'react-bootstrap';
 
 import Org from 'records/org';
 import Fa from 'components/fa';
 import OrgMembers from 'components/org-members';
+import NewOrgSteps from 'components/new-org-steps';
 
 export default class OrgInviteMembers extends React.Component {
   displayName = 'OrgInviteMembers';
@@ -15,40 +15,44 @@ export default class OrgInviteMembers extends React.Component {
   };
 
   render() {
-    const { org } = this.context;
+    const { org, router } = this.context,
+          { makeHref } = router;
 
     return (
       <div className='org-invite-members-component container'>
-        <Grid>
+        <h2>New Organization</h2>
+        <NewOrgSteps step={3} />
+        <Grid className='ui-card-grid'>
           <Row>
-            <Col lg={8} lgOffset={2} md={10} mdOffset={1} sm={10} smOffset={1} xs={12}>
-              <h1>Invite Organization Members</h1>
-              <ol>
-                <li><Fa icon='check' /> Completed: Create personal account</li>
-                <li><Fa icon='check' /> Completed: Add organization info</li>
-                <li className='active'>Step 3: Invite organization members</li>
-              </ol>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col lg={5} lgOffset={2} md={5} mdOffset={1} sm={12} xs={12}>
-              <OrgMembers org={org} />
-              <Link to='new-org-host' params={{ orgSlug: org.slug }} className='btn btn-success'>Finish</Link>
+            <Col lg={8} md={8} sm={8} xs={12}>
+              <Panel header={<h4>Invite Members to Organization</h4>}>
+                <OrgMembers org={org} />
+              </Panel>
+              <Button href={makeHref('new-org-host', { orgSlug: org.slug })} bsStyle='primary'>Finish</Button>
             </Col>
 
-            <Col lg={3} md={4} sm={12} xs={12} className='sidebar'>
-              <Panel header='Organization Members'>
+            <Col lg={4} md={4} sm={4} xs={12}>
+              <Panel header={<h4>Organization Members</h4>}>
+                <p>All organization members can:</p>
+
                 <ul className='checklist'>
                   <li><Fa icon='check' /> Create workstations</li>
-                  <li><Fa icon='check' /> Play blackjack</li>
-                  <li><Fa icon='check' /> We really should</li>
-                  <li><Fa icon='check' /> state some real benefits</li>
+                  <li><Fa icon='check' /> Create and share projects</li>
+                  <li><Fa icon='check' /> Create and share snapshots</li>
+                  <li><Fa icon='check' /> Code collaboratively in real-time</li>
                 </ul>
-
-                <hr />
-
-                <p>As an organization <strong>owner</strong>, you'll have complete access to all of the organization's workstations. You also have control of what members have access to using fine-grained permissions.</p>
+              </Panel>
+              <Panel header={<h4>Organization Roles</h4>}>
+                <p>In addition to the above, organization owners and administrators can do the following:</p>
+                <h5>Owners</h5>
+                <ul className='checklist'>
+                  <li><Fa icon='check' /> Manage billing profile</li>
+                  <li><Fa icon='check' /> Add &amp; remove owners, admins and members</li>
+                </ul>
+                <h5>Admins</h5>
+                <ul className='checklist'>
+                  <li><Fa icon='check' /> Add &amp; remove admins and members</li>
+                </ul>
               </Panel>
             </Col>
           </Row>

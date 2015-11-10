@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-
+import { Panel } from 'react-bootstrap';
 import Org from 'records/org';
 import OrgMembers from 'components/org-members';
 import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
@@ -20,12 +20,14 @@ export default class OrgManageMembers extends React.Component {
     return (
       <div className='org-manage-members-component container'>
         <Breadcrumb>
+          <BreadcrumbItem href={makeHref('dashboard')}>Dashboard</BreadcrumbItem>
           <BreadcrumbItem href={makeHref('orgs')}>Orgs</BreadcrumbItem>
-          <BreadcrumbItem active>Members</BreadcrumbItem>
+          <BreadcrumbItem active>{org.displayName}</BreadcrumbItem>
         </Breadcrumb>
 
-        <h2>{org.displayName} &mdash; Members</h2>
-        <OrgMembers org={org} />
+        <Panel header={<h4>Manage Members</h4>}>
+          <OrgMembers org={org} />
+        </Panel>
       </div>
     );
   }
