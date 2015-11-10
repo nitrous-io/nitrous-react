@@ -40,6 +40,13 @@ class SubscriptionStore extends Store {
         snackbarActions.post(`Failed to reactivate subscription!`);
         break;
       }
+      case 'events:subscription.updated': {
+        const { data } = action;
+        const sub = Subscription.deserialize(data.subscription);
+        this._subscriptions = this._subscriptions.set(sub.slug, sub);
+        this._lastError = null;
+        break;
+      }
       default: return;
     }
     this.notifyChange();
