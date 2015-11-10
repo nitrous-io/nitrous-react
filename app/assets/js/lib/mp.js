@@ -4,6 +4,8 @@ import UAParser from 'ua-parser-js';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
 
+const dashboardVersion = "0.1";
+
 class Mp {
   initialized = null;
   userAfterInitialized = null;
@@ -33,6 +35,9 @@ class Mp {
       this.billingProfile = billingStore.userBillingProfile;
       if (this.personHash) {
         this.personHash.billing_state = billingStore.userBillingProfile.state;
+        if (mixpanel.people && mixpanel.people.set) {
+          mixpanel.people.set(this.personHash);
+        }
       }
     }
   }
@@ -91,7 +96,8 @@ class Mp {
     }
 
     this.personHash = {
-      $name: user.displayName
+      $name: user.displayName,
+      dashboardVersion
     };
     const splitName = this.personHash.$name.match(/(.*)\s([^\s]+)?$/);
     if (splitName) {
@@ -113,7 +119,8 @@ class Mp {
       os_version: this.ua.os.version,
       browser_name: this.ua.browser.name,
       browser_version: this.ua.browser.version,
-      browser_major: this.ua.browser.major
+      browser_major: this.ua.browser.major,
+      dashboardVersion
     };
     if (this.user) {
       props.username = this.user.username;
