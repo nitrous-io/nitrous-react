@@ -204,7 +204,7 @@ export default class ImageList extends React.Component {
       defaultActiveKey = 'snapshots';
       snapshotsContent = (
         <Tab eventKey='snapshots' title='My Snapshots'>
-          <Table className='image-table' striped>
+          <Table className='image-table' striped responsive>
             <thead>
               <tr>
                 {onSelect ? (
@@ -238,7 +238,7 @@ export default class ImageList extends React.Component {
     if (showImages !== false) {
       imagesContent = (
         <Tab eventKey='other-images' title='Other Images'>
-          <Table className='image-table' striped>
+          <Table className='image-table' striped responsive>
             <thead>
               <tr>
                 {onSelect ? (
@@ -269,7 +269,7 @@ export default class ImageList extends React.Component {
           </Table>
 
           <ButtonGroup>
-            <Button onClick={this.handlePullImageButton}>
+            <Button onClick={this.handlePullImageButton} bsStyle='primary'>
               <Fa icon='cloud-download' /> Pull Image
             </Button>
           </ButtonGroup>

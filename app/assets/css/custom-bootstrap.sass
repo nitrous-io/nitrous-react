@@ -369,7 +369,6 @@ textarea
 // Well
 .well
   border-radius: 0
-  // background: rgba(0,0,0,.02)
   background: rgb(252,252,252)
 
 // Glyphicon overwrite
@@ -421,13 +420,23 @@ textarea
     & > a
       display: block
 
+  .empty-state
+    padding-top: 10px
+    text-align: center
+    color: rgba($gray-light, .6)
+
   .panel-body
     table
       margin-bottom: 0
 
+      &:not(.table-bordered)
+        thead
+          & > tr > th
+            border-bottom: 0
+
       thead
-        & > tr > th
-          border-bottom: 0
+        .fa
+          color: rgba($gray-light, .6)
 
       & > tbody
         tr:first-of-type
