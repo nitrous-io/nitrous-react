@@ -3,7 +3,7 @@ import { Button, Grid, Row, Col, Panel } from 'react-bootstrap';
 
 import Org from 'records/org';
 import Fa from 'components/fa';
-import OrgMembers from 'components/org-members';
+import OrgMemberList from 'components/org-member-list';
 import NewOrgSteps from 'components/new-org-steps';
 
 export default class OrgInviteMembers extends React.Component {
@@ -26,7 +26,7 @@ export default class OrgInviteMembers extends React.Component {
           <Row>
             <Col lg={8} md={8} sm={8} xs={12}>
               <Panel header={<h4>Invite Members to Organization</h4>}>
-                <OrgMembers org={org} />
+                <OrgMemberList org={org} />
               </Panel>
               <Button href={makeHref('new-org-host', { orgSlug: org.slug })} bsStyle='primary'>Finish</Button>
             </Col>

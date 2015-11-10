@@ -186,7 +186,7 @@ export default class ImageList extends React.Component {
   render() {
     const { snapshots, otherImages, showPushModal, showPullModal, pushRepository, pushing, showDeleteModal, deleting, targetImage } = this.state,
           { host, selectedImage, showSnapshots, showImages, onSelect, manageImages } = this.props,
-          advanced = userStore.userProfile && userStore.userProfile.advanced,
+          { advanced } = userStore,
           canSubmitPush = !pushing && (pushRepository && pushRepository.length > 0);
 
     let onRefresh, onPush, onDelete = null;

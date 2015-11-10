@@ -10,7 +10,9 @@ import NewOrg from 'components/new-org';
 import Orgs from 'components/orgs';
 import OrgRoot from 'components/org-root';
 import OrgInviteMembers from 'components/org-invite-members';
-import OrgManageMembers from 'components/org-manage-members';
+import OrgMembers from 'components/org-members';
+import OrgBilling from 'components/org-billing';
+import OrgBillingPaymentMethod from 'components/org-billing-payment-method';
 import UserHost from 'components/user-host';
 import OrgHost from 'components/org-host';
 import NewHost from 'components/new-host';
@@ -26,8 +28,8 @@ import ContainerPorts from 'components/container-ports';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
-import Billing from 'components/billing';
-import BillingPaymentMethod from 'components/billing-payment-method';
+import UserBilling from 'components/user-billing';
+import UserBillingPaymentMethod from 'components/user-billing-payment-method';
 import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
@@ -65,10 +67,10 @@ export default (
         </Route>
 
         <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
-        <Route name='org-manage-members' path='manage-members' handler={OrgManageMembers} />
+        <Route name='org-members' path='members' handler={OrgMembers} />
 
-        <Route name='org-billing' path='billing' handler={Billing} />
-        <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
+        <Route name='org-billing' path='billing' handler={OrgBilling} />
+        <Route name='org-payment-method' path='billing/payment-method' handler={OrgBillingPaymentMethod} />
       </Route>
 
       <Route name='host' path='workstations/:hostSlug' handler={Host}>
@@ -90,10 +92,10 @@ export default (
       <Route name='shared-container-keys' path='shared-projects/:containerSlug/keys' handler={ContainerKeys} />
       <Route name='shared-container-ports' path='shared-projects/:containerSlug/ports' handler={ContainerPorts} />
 
-      <Route name='account-settings' path='settings' handler={AccountSettings} />
+      <Route name='account-settings' path='account' handler={AccountSettings} />
 
-      <Route name='billing' path='billing' handler={Billing} />
-      <Route name='payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />
+      <Route name='billing' path='billing' handler={UserBilling} />
+      <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
 
       <NotFoundRoute handler={NotFound} />
     </Route>

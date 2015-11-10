@@ -67,6 +67,13 @@ class UserStore extends Store {
     }
     return null;
   }
+
+  get advanced() {
+    if (this.userProfile) {
+      return !!this.userProfile.advanced;
+    }
+    return false;
+  }
 }
 
 export default new UserStore();

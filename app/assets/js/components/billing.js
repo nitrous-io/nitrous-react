@@ -171,53 +171,50 @@ export default class Billing extends React.Component {
 
     return (
       <div className='billing-component'>
-        <div className='container'>
-          <Panel header={<h4>Payment Method</h4>} className='payment-method'>
-            {hasCard ? (
+        <Panel header={<h4>Payment Method</h4>} className='payment-method'>
+          {hasCard ? (
 
-              <div>
-                <div className='bank-card'>
-                  <div className='card-number'>
-                    <span className='card-number-hidden'>••••</span>
-                    <span className='card-number-hidden'>••••</span>
-                    <span className='card-number-hidden'>••••</span>
-                    <span>{lastFour}</span>
-                  </div>
-                  <div className={`card-type ${cardTypeCssClass}`}>
-                    {cardType}
-                  </div>
-                  <div className='card-expiry'>
-                    <span className='card-expiry-label'>Valid until</span>
-                    <div className='card-expiry-date'>{expMonth}/{expYear}</div>
-                  </div>
+            <div>
+              <div className='bank-card'>
+                <div className='card-number'>
+                  <span className='card-number-hidden'>••••</span>
+                  <span className='card-number-hidden'>••••</span>
+                  <span className='card-number-hidden'>••••</span>
+                  <span>{lastFour}</span>
                 </div>
-
-                <div>
-                  <ButtonToolbar>
-                    <ButtonGroup>
-                      <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</Button>
-                    </ButtonGroup>
-                  </ButtonToolbar>
+                <div className={`card-type ${cardTypeCssClass}`}>
+                  {cardType}
+                </div>
+                <div className='card-expiry'>
+                  <span className='card-expiry-label'>Valid until</span>
+                  <div className='card-expiry-date'>{expMonth}/{expYear}</div>
                 </div>
               </div>
 
-            ) : (
               <div>
-                <p>No payment method on file.</p>
-                <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</Button></p>
+                <ButtonToolbar>
+                  <ButtonGroup>
+                    <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Card</Button>
+                  </ButtonGroup>
+                </ButtonToolbar>
               </div>
-            )}
-          </Panel>
+            </div>
 
-          <Panel header={<h4>Subscriptions</h4>}>
-            {this.renderSubscriptions()}
-          </Panel>
+          ) : (
+            <div>
+              <p>No card on file.</p>
+              <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Card</Button></p>
+            </div>
+          )}
+        </Panel>
 
-          <Panel header={<h4>Billing History</h4>}>
-            {this.renderInvoices()}
-          </Panel>
+        <Panel header={<h4>Subscriptions</h4>}>
+          {this.renderSubscriptions()}
+        </Panel>
 
-        </div>
+        <Panel header={<h4>Billing History</h4>}>
+          {this.renderInvoices()}
+        </Panel>
       </div>
     );
   }

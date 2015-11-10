@@ -34,7 +34,7 @@ export default class HostNav extends React.Component {
 
   render() {
     const { host, activeTab } = this.props,
-          advanced = userStore.userProfile && userStore.userProfile.advanced;
+          { advanced } = userStore;
 
     return (
       <div className='host-nav-component'>
