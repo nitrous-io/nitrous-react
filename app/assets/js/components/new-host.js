@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Alert, Grid, Row, Button } from 'react-bootstrap';
+import { Alert, Grid, Row, Button, Panel } from 'react-bootstrap';
 
 import Org from 'records/org';
 import billingStore from 'stores/billing-store';
@@ -181,7 +181,7 @@ export default class NewHost extends React.Component {
       <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
-          <h3>Select Plan</h3>
+          <h2>New Workstation</h2>
           <p className='hint'>All plans are standard with solid state drives (SSD)</p>
           <Grid className='ui-card-grid'>
             <Row>
@@ -211,15 +211,14 @@ export default class NewHost extends React.Component {
           </Grid>
 
           {this.canAddPayment() && this.requiresPayment() ? (
-            <div>
-              <h3>Pay with</h3>
+            <Panel header={<h4>Payment Method</h4>} className='payment-method'>
               {paymentFailed ? (
                 <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
               ) : ''}
               <PaymentMethod standalone={false}
                 onSuccess={this.handlePaymentSuccess}
                 onFailure={this.handlePaymentFailure} />
-            </div>
+            </Panel>
           ) : ''}
 
           <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
