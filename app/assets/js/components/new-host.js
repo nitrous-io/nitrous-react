@@ -174,8 +174,12 @@ export default class NewHost extends React.Component {
     const org = this.context.org,
           { plans, regions, creating, paymentFailed } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
-          { trialEligible } = this.state.billingProfile;
+          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+
+    let trialEligible = false;
+    if (this.state.billingProfile) {
+      trialEligible = this.state.billingProfile.trialEligible;
+    }
 
     return (
       <div className='new-host-component'>
