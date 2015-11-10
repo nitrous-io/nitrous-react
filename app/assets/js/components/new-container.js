@@ -11,6 +11,8 @@ import ImageList from 'components/image-list';
 import Registries from 'components/registries';
 import GenerateRandomNameButton from 'components/generate-random-name-button';
 import keypather from 'keypather';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 const keypath = keypather();
 
@@ -25,6 +27,10 @@ export default class NewContainer extends React.Component {
     router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
     host: PropTypes.instanceOf(Host).isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedNewContainer);
+  }
 
   state = {
     projectName: null,

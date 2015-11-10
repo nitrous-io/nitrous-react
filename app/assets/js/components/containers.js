@@ -9,6 +9,8 @@ import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import ContainerList from 'components/container-list';
 import HostNav from 'components/host-nav';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class Containers extends React.Component {
   displayName = 'Containers';
@@ -21,6 +23,10 @@ export default class Containers extends React.Component {
     containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
     announcements: announcementStore.announcementsByHostSlug(this.context.host.slug)
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedProjects);
+  }
 
   componentDidMount() {
     containerStore.onChange(this.containerStoreDidChange);

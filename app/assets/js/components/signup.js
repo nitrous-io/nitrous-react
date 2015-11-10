@@ -9,6 +9,8 @@ import tokenStore from 'stores/token-store';
 import userStore from 'stores/user-store';
 import { randomPassword } from 'lib/random';
 import snackbarActions from 'actions/snackbar-actions';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class Signup extends React.Component {
   displayName = 'Signup';
@@ -24,6 +26,10 @@ export default class Signup extends React.Component {
   static contextTypes = {
     router: React.PropTypes.func.isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventViewedSignup);
+  }
 
   constructor(props, context) {
     super(props, context);
