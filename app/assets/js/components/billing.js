@@ -194,7 +194,7 @@ export default class Billing extends React.Component {
               <div>
                 <ButtonToolbar>
                   <ButtonGroup>
-                    <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</Button>
+                    <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Card</Button>
                   </ButtonGroup>
                 </ButtonToolbar>
               </div>
@@ -202,8 +202,8 @@ export default class Billing extends React.Component {
 
           ) : (
             <div>
-              <p>No payment method on file.</p>
-              <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</Button></p>
+              <p>No card on file.</p>
+              <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Card</Button></p>
             </div>
           )}
         </Panel>

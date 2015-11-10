@@ -3,6 +3,7 @@ import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import { Panel, Alert, Input, Button } from 'react-bootstrap';
+import UserNav from 'components/user-nav';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
@@ -179,7 +180,7 @@ export default class AccountSettings extends React.Component {
 
     return (
       <div className='account-settings-component'>
-        <div className='container'>
+        <UserNav activeTab='account'>
           <Panel header={(<h4>Account</h4>)}>
             <form onSubmit={this.handleSubmit}>
               <div className='name'>
@@ -232,7 +233,7 @@ export default class AccountSettings extends React.Component {
               <Button type='submit' bsStyle='primary' disabled={updatingProfile}>{updatingProfile ? 'Saving...' : 'Apply'}</Button>
             </form>
           </Panel>
-        </div>
+        </UserNav>
       </div>
     );
   }

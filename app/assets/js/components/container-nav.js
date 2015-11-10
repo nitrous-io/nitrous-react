@@ -44,7 +44,7 @@ export default class ContainerNav extends React.Component {
           <ContextSwitcher selectedHost={host} />
         )}
 
-        <Breadcrumb>
+        <Breadcrumb className='no-margin'>
           {shared ? (
             <BreadcrumbItem href={makeHref('shared-containers')}>Shared With Me</BreadcrumbItem>
           ) : (

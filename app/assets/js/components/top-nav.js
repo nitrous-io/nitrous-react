@@ -4,7 +4,6 @@ import { Nav, NavDropdown, MenuItem, Label } from 'react-bootstrap';
 import LeftNavbar from 'components/left-navbar';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
-import User from 'records/user';
 import tokenActions from 'actions/token-actions';
 import $ from 'jquery';
 
@@ -12,7 +11,6 @@ export default class TopNav extends React.Component {
   displayName = 'TopNav';
 
   static contextTypes = {
-    user: PropTypes.instanceOf(User),
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 

@@ -1,17 +1,14 @@
 import React, { PropTypes } from 'react';
-
+import { Panel } from 'react-bootstrap';
 import Org from 'records/org';
 import billingStore from 'stores/billing-store';
 import PaymentMethod from 'components/payment-method';
-import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
-import BreadcrumbItem from 'components/bootstrap-backports/breadcrumb-item';
 
 export default class BillingPaymentMethod extends React.Component {
   displayName = 'BillingPaymentMethod';
 
   static contextTypes = {
-    org: PropTypes.instanceOf(Org),
-    router: PropTypes.func.isRequired
+    org: PropTypes.instanceOf(Org)
   }
 
   findBillingProfile = () => {
@@ -27,28 +24,22 @@ export default class BillingPaymentMethod extends React.Component {
   }
 
   render() {
-    const { makeHref } = this.context.router,
-          { billingProfile } = this.state,
+    const { billingProfile } = this.state,
           { org } = this.context;
 
     return (
       <div className='billing-payment-method-component'>
-        <div className='container'>
-
-          <Breadcrumb>
-            <BreadcrumbItem href={makeHref('billing')}>Billing</BreadcrumbItem>
-            <BreadcrumbItem active>Payment Method</BreadcrumbItem>
-          </Breadcrumb>
-
-          <h2>
+        <Panel header={
+          <h4>
             {billingProfile.hasCard ? (
-              org ? `Update Payment Method for ${org.name}` : 'Update Payment Method'
+              org ? `Update Card for ${org.name}` : 'Update Card'
             ) : (
-              org ? `Add Payment Method for ${org.name}` : 'Add Payment Method'
+              org ? `Add Card for ${org.name}` : 'Add Card'
             )}
-          </h2>
+          </h4>
+        }>
           <PaymentMethod standalone />
-        </div>
+        </Panel>
       </div>
     );
   }

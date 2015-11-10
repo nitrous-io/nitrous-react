@@ -30,7 +30,7 @@ export default class OrgNav extends React.Component {
 
     return (
       <div className='org-nav-component container'>
-        <Breadcrumb>
+        <Breadcrumb className='no-margin'>
           <BreadcrumbItem href={makeHref('dashboard')}>Dashboard</BreadcrumbItem>
           <BreadcrumbItem href={makeHref('orgs')}>Organizations</BreadcrumbItem>
           <BreadcrumbItem active>{org.displayName}</BreadcrumbItem>
