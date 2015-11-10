@@ -258,9 +258,15 @@ function browserifyBundler(options) {
     noParse: ['jquery']
   }, options || {});
 
+  if (process.env.FULL_PATHS === "true") {
+    gutil.log("Using full paths for browserify");
+    options.fullPaths = true;
+  }
+
   var bundler = browserify(appJS, options);
   bundler.add(require.resolve("babel/polyfill"));
   bundler.add(require.resolve("promise.prototype.finally"));
+  bundler.ignore("unicode/category/So");
   bundler.transform(babelify.configure({
     extensions: jsExtensions,
     compact: false,
