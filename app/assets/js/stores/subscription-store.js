@@ -5,21 +5,32 @@ import { OrderedMap } from 'immutable';
 import snackbarActions from 'actions/snackbar-actions';
 
 class SubscriptionStore extends Store {
-  _subscriptions = OrderedMap(); // <K: slug, V: Subscription>
+  _userSubscriptions = OrderedMap(); // <K: slug, V: Subscription>
+  _orgSubscriptions = OrderedMap(); // <K: orgSlug, V: <K: slug, V: Subscription>
 
   handleAction(action) {
     switch (action.type) {
       case 'subscription.fetched-all': {
-        const { data } = action.data;
-        this._subscriptions = OrderedMap(data.subscriptions.map(function(d) {
+        const { data, orgSlug } = action.data;
+        const subs = OrderedMap(data.subscriptions.map(function(d) {
           const s = Subscription.deserialize(d);
           return [s.slug, s];
         }));
+        if (orgSlug) {
+          this._orgSubscriptions = this._orgSubscriptions.set(orgSlug, subs);
+        } else {
+          this._userSubscriptions = subs;
+        }
         this._lastError = null;
         break;
       }
       case 'subscription.fetch-all-failed': {
-        this._subscriptions = null;
+        const { orgSlug } = action.data;
+        if (orgSlug) {
+          this._orgSubscriptions.set(orgSlug, null);
+        } else {
+          this._userSubscriptions = null;
+        }
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
@@ -53,18 +64,22 @@ class SubscriptionStore extends Store {
     this.notifyChange();
   }
 
-  get subscriptions() {
-    return this._subscriptions;
+  get userSubscriptions() {
+    return this._userSubscriptions;
   }
 
-  get activeSubscriptions() {
-    return this._subscriptions.filter((s) => {
+  orgSubscriptionsBySlug(orgSlug) {
+    return this._orgSubscriptions.get(orgSlug);
+  }
+
+  get activeUserSubscriptions() {
+    return this._userSubscriptions.filter((s) => {
       return hostStore.liveHosts.has(s.hostSlug);
     });
   }
 
   get trialSubscription() {
-    return this._subscriptions.find((s) => {
+    return this._userSubscriptions.find((s) => {
       return s.activeTrialEnd;
     });
   }
