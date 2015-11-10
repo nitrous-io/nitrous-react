@@ -24,7 +24,7 @@ export default class PaymentMethod extends React.Component {
     org: PropTypes.instanceOf(Org) // Takes precedence over this.context.org.
   };
 
-  findBillingProfile = () => {
+  findBillingProfile() {
     const org = this.props.org || this.context.org;
     if (org) {
       return billingStore.orgBillingProfiles.get(org.id);
@@ -42,20 +42,20 @@ export default class PaymentMethod extends React.Component {
     expirationMonth: null,
     expirationYear: null,
     zipCode: null
-  }
+  };
 
   componentDidMount() {
     billingStore.onChange(this.billingStoreDidChange);
     billingStore.on('update-failed', this.onBillingUpdateFailed);
 
-    paymentStore.on('submit-requested', this.paymentSubmitRequested);
+    paymentStore.on('submit-requested', this.onPaymentSubmitRequested);
   }
 
   componentWillUnmount() {
     billingStore.offChange(this.billingStoreDidChange);
     billingStore.off('update-failed', this.onBillingUpdateFailed);
 
-    paymentStore.off('submit-requested', this.paymentSubmitRequested);
+    paymentStore.off('submit-requested', this.onPaymentSubmitRequested);
   }
 
   billingStoreDidChange = () => {
@@ -75,7 +75,7 @@ export default class PaymentMethod extends React.Component {
     if (this.props.onSuccess) {
       this.props.onSuccess();
     }
-  }
+  };
 
   onBillingUpdateFailed = () => {
     this.setState({ saving: false });
@@ -88,18 +88,19 @@ export default class PaymentMethod extends React.Component {
     if (this.props.onFailure) {
       this.props.onFailure();
     }
-  }
+  };
 
-  paymentSubmitRequested = () => {
+  onPaymentSubmitRequested = () => {
     this.updateCard();
-  }
+  };
 
-  handleChangecardholderNameField = (event) => {
-    this.setState({ cardholderName: event.target.value });
-  }
+  handleChangeCardholderNameField = () => {
+    const value = this.refs.cardholderName.getValue();
+    this.setState({ cardholderName: value });
+  };
 
-  handleChangeCcNumberField = (event) => {
-    const num = event.target.value;
+  handleChangeCcNumberField = () => {
+    const num = this.refs.ccNumber.getValue();
     if (num) {
       const parsed = card.parse(num);
       const cardType = card.type(parsed, true);
@@ -107,37 +108,40 @@ export default class PaymentMethod extends React.Component {
     } else {
       this.setState({ ccNumber: num, cardType: null });
     }
-  }
+  };
 
-  handleChangeCvcField = (event) => {
-    this.setState({ cvc: event.target.value });
-  }
+  handleChangeCvcField = () => {
+    const value = this.refs.cvc.getValue();
+    this.setState({ cvc: value });
+  };
 
-  handleChangeExpirationMonthField = (event) => {
-    const { value } = event.target;
+  handleChangeExpirationMonthField = () => {
+    const value = this.refs.expirationMonth.getValue();
     this.setState({ expirationMonth: value });
 
     const parsed = expiration.month.parse(value);
     if (expiration.month.isValid(parsed) && value.toString().length === 2) {
       this.refs.expirationYear.getInputDOMNode().focus();
     }
-  }
+  };
 
-  handleChangeExpirationYearField = (event) => {
-    this.setState({ expirationYear: event.target.value });
-  }
+  handleChangeExpirationYearField = () => {
+    const value = this.refs.expirationYear.getValue();
+    this.setState({ expirationYear: value });
+  };
 
-  handleChangeZipCodeField = (event) => {
-    this.setState({ zipCode: event.target.value });
-  }
+  handleChangeZipCodeField = () => {
+    const value = this.refs.zipCode.getValue();
+    this.setState({ zipCode: value });
+  };
 
   handleSubmit = (event) => {
     event.preventDefault();
 
     this.updateCard();
-  }
+  };
 
-  submitDisabled = () => {
+  submitDisabled() {
     return (this.state.saving
       || !this.cardholderNameValid()
       || !this.ccNumberValid()
@@ -147,7 +151,7 @@ export default class PaymentMethod extends React.Component {
       || !this.zipCodeValid());
   }
 
-  updateCard = () => {
+  updateCard() {
     if (this.submitDisabled()) {
       if (!this.props.standalone && this.props.onFailure) {
         this.props.onFailure();
@@ -171,33 +175,33 @@ export default class PaymentMethod extends React.Component {
     });
   }
 
-  cardholderNameValid = () => {
+  cardholderNameValid() {
     return this.state.cardholderName && this.state.cardholderName.trim().length > 0;
   }
 
-  ccNumberValid = () => {
+  ccNumberValid() {
     return card.isValid(this.state.ccNumber);
   }
 
-  cvcValid = () => {
+  cvcValid() {
     return this.state.cvc && this.state.cvc.match(/\d+/);
   }
 
-  expirationMonthValid = () => {
+  expirationMonthValid() {
     const { expirationMonth } = this.state,
           parsed = expiration.month.parse(expirationMonth);
 
     return expiration.month.isValid(parsed) && expirationMonth.toString().length === 2;
   }
 
-  expirationYearValid = () => {
+  expirationYearValid() {
     const { expirationYear } = this.state,
           parsed = expiration.year.parse(expirationYear);
 
     return expiration.year.isValid(parsed) && expirationYear.toString().length === 4;
   }
 
-  expirationValidationMessage = () => {
+  expirationValidationMessage() {
     const { expirationMonth, expirationYear } = this.state;
     if ((expirationMonth || expirationYear) && !this.expirationMonthValid()) {
       return 'Please enter a valid month';
@@ -213,25 +217,25 @@ export default class PaymentMethod extends React.Component {
     }
   }
 
-  zipCodeValid = () => {
+  zipCodeValid() {
     return this.state.zipCode && this.state.zipCode.length > 0;
   }
 
-  validationStyle = (value, valid) => {
+  validationStyle(value, valid) {
     if (value === null) {
       return null;
     }
     return valid ? 'success' : 'error';
   }
 
-  validationMessage = (value, valid, failureMessage) => {
+  validationMessage(value, valid, failureMessage) {
     if (value === null || valid) {
       return null;
     }
     return failureMessage;
   }
 
-  formatCardNumber = () => {
+  formatCardNumber() {
     const { ccNumber } = this.state;
     let formatted = card.format(ccNumber);
     // if people type longer than format displays, don't try to format
@@ -244,14 +248,14 @@ export default class PaymentMethod extends React.Component {
   render() {
     const { standalone } = this.props,
           { billingProfile, saving, cardholderName, ccNumber, cvc,
-            expirationMonth, expirationYear, zipCode } = this.state;
+          expirationMonth, expirationYear, zipCode } = this.state;
 
-    const cardholderNameValid = this.cardholderNameValid();
-    const ccNumberValid = this.ccNumberValid();
-    const cvcValid = this.cvcValid();
-    const expirationMonthValid = this.expirationMonthValid();
-    const expirationYearValid = this.expirationYearValid();
-    const zipCodeValid = this.zipCodeValid();
+    const cardholderNameValid = this.cardholderNameValid(),
+          ccNumberValid = this.ccNumberValid(),
+          cvcValid = this.cvcValid(),
+          expirationMonthValid = this.expirationMonthValid(),
+          expirationYearValid = this.expirationYearValid(),
+          zipCodeValid = this.zipCodeValid();
 
     const expirationValidationMessage = this.expirationValidationMessage();
 
@@ -261,12 +265,17 @@ export default class PaymentMethod extends React.Component {
       'has-error': !!expirationValidationMessage
     });
 
+    const mm = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+          currentYear = new Date().getFullYear(),
+          yyyy = Array.from(new Array(11), (_, i) => (currentYear + i).toString());
+
     return (
       <div className='payment-method-component'>
         <form onSubmit={this.handleSubmit}>
           <div className='cardholderName'>
             <Input label="Cardholder's Name"
               id='cardholder-name'
+              ref='cardholderName'
               type='text'
               placeholder='Name'
               bsStyle={this.validationStyle(cardholderName, cardholderNameValid)}
@@ -274,11 +283,12 @@ export default class PaymentMethod extends React.Component {
               required
               disabled={saving}
               value={cardholderName}
-              onChange={this.handleChangecardholderNameField} />
+              onChange={this.handleChangeCardholderNameField} />
           </div>
           <div className='ccNumber'>
             <Input label='Card Number'
               id='cc-number'
+              ref='ccNumber'
               type='text'
               placeholder='Number'
               bsStyle={this.validationStyle(ccNumber, ccNumberValid)}
@@ -291,6 +301,7 @@ export default class PaymentMethod extends React.Component {
           <div className='cvc'>
             <Input label='CVC'
               id='cvc'
+              ref='cvc'
               type='password'
               placeholder='CVC'
               bsStyle={this.validationStyle(cvc, cvcValid)}
@@ -304,26 +315,37 @@ export default class PaymentMethod extends React.Component {
             <div className={expirationClasses}>
               <label className='control-label' htmlFor='expiration-month'>Expiration (MM/YYYY)</label>
               <div className='form-inline'>
-                <Input type='text'
+                <Input type='select'
                   id='expiration-month'
-                  placeholder='MM'
-                  pattern='[0-9]{2}'
+                  ref='expirationMonth'
                   bsStyle={this.validationStyle(expirationMonth, expirationMonthValid)}
                   required
                   disabled={saving}
                   value={expirationMonth}
-                  onChange={this.handleChangeExpirationMonthField} />
-                /
-                <Input type='text'
+                  onChange={this.handleChangeExpirationMonthField}>
+                  <option></option>
+                  {mm.map((m) => {
+                    return (
+                      <option value={m} key={`mm-${m}`}>{m}</option>
+                    );
+                  })}
+                </Input>
+                <span className='mm-yy-divider'>/</span>
+                <Input type='select'
                   id='expiration-year'
                   ref='expirationYear'
-                  placeholder='YYYY'
-                  pattern='20[0-9]{2}'
                   bsStyle={this.validationStyle(expirationYear, expirationYearValid)}
                   required
                   disabled={saving}
                   value={expirationYear}
-                  onChange={this.handleChangeExpirationYearField} />
+                  onChange={this.handleChangeExpirationYearField}>
+                  <option></option>
+                  {yyyy.map((y) => {
+                    return (
+                      <option value={y} key={`yyyy-${y}`}>{y}</option>
+                    );
+                  })}
+                </Input>
 
                 {expirationValidationMessage ? (
                   <span className='help-block'>{expirationValidationMessage}</span>
@@ -334,6 +356,7 @@ export default class PaymentMethod extends React.Component {
           <div className='zipcode'>
             <Input label='Zip/Postal Code'
               id='zip-code'
+              ref='zipCode'
               type='text'
               placeholder='Code'
               bsStyle={this.validationStyle(zipCode, zipCodeValid)}
