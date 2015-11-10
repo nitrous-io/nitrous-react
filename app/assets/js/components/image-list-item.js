@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, ButtonToolbar } from 'react-bootstrap';
 import Image from 'records/image';
 import classNames from 'classnames';
 import TimeAgo from 'react-timeago';
@@ -36,23 +36,23 @@ export default class ImageListItem extends React.Component {
         <td><TimeAgo date={image.createdAt} /></td>
         <td>{prettyBytes(image.virtualSize)}</td>
         <td>
-          {onRefresh ?
-            <Button bsStyle='link' onClick={onRefresh}>
-              <Fa icon='refresh' />
-            </Button>
-          : ''}
-          &nbsp;
-          {onPush ?
-            <Button bsStyle='link' onClick={onPush}>
-              <Fa icon='cloud-upload' />
-            </Button>
-          : ''}
-          &nbsp;
-          {onDelete ?
-            <Button bsStyle='link' onClick={onDelete}>
-              <Fa icon='trash' />
-            </Button>
-          : ''}
+          <ButtonToolbar className='pull-right'>
+            {onRefresh ?
+              <Button bsStyle='default' onClick={onRefresh}>
+                <Fa icon='refresh' /> Refresh
+              </Button>
+            : ''}
+            {onPush ?
+              <Button bsStyle='default' onClick={onPush}>
+                <Fa icon='cloud-upload' /> Upload
+              </Button>
+            : ''}
+            {onDelete ?
+              <Button bsStyle='default' onClick={onDelete}>
+                <Fa icon='trash' /> Delete
+              </Button>
+            : ''}
+          </ButtonToolbar>
         </td>
       </tr>
     );
