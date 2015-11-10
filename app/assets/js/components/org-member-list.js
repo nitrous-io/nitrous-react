@@ -10,8 +10,8 @@ import userStore from 'stores/user-store';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
 
-export default class OrgMembers extends React.Component {
-  displayName = 'OrgMembers';
+export default class OrgMemberList extends React.Component {
+  displayName = 'OrgMemberList';
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -155,7 +155,7 @@ export default class OrgMembers extends React.Component {
 
     if (loading) {
       return (
-        <div className='org-members-component'>
+        <div className='org-member-list-component'>
           <LoadingIndicator />
         </div>
       );
@@ -164,7 +164,7 @@ export default class OrgMembers extends React.Component {
     const allowedRoles = Roles.allowedFor(this.props.org.role);
 
     return (
-      <div className='org-members-component ui-card-grid'>
+      <div className='org-member-list-component ui-card-grid'>
         <ListGroup>
           {members.map((member) => {
             const isSelf = (member.userId === user.id),

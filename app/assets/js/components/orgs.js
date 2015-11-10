@@ -39,7 +39,7 @@ export default class Orgs extends React.Component {
       <div className='orgs-component container'>
         <Breadcrumb>
           <BreadcrumbItem href={makeHref('dashboard')}>Dashboard</BreadcrumbItem>
-          <BreadcrumbItem active>Orgs</BreadcrumbItem>
+          <BreadcrumbItem active>Organizations</BreadcrumbItem>
         </Breadcrumb>
 
         <Panel header={<h4>Organizations</h4>}>
@@ -59,15 +59,15 @@ export default class Orgs extends React.Component {
                         </Col>
                         <Col lg={3} md={3} sm={3} xs={12} className='actions'>
                           <ButtonToolbar className='pull-right'>
-                            {org.roleAllowsBillingProfileAdmin ? (
-                              <Button href={makeHref('org-billing', { orgSlug: org.slug })}>
-                                <Fa icon='credit-card' /> Billing
-                              </Button>
-                            ) : ''}
-
                             {org.roleAllowsMemberAdmin ? (
                               <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
                                 <Fa icon='users' /> Members
+                              </Button>
+                            ) : ''}
+
+                            {org.roleAllowsBillingProfileAdmin ? (
+                              <Button href={makeHref('org-billing', { orgSlug: org.slug })}>
+                                <Fa icon='credit-card' /> Billing
                               </Button>
                             ) : ''}
                           </ButtonToolbar>
