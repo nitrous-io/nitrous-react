@@ -82,7 +82,7 @@ export default class SubscriptionListItem extends React.Component {
               Free Trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" />
             </span>
           ) : (
-            <span>{periodEndDescriptor} <Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></span>
+            <span> {periodEndDescriptor} <Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></span>
           )}
         </td>
         <td>

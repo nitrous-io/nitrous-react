@@ -24,7 +24,8 @@ export default class Plan extends Record({
   ssh: false,
   customDomain: false,
   customTemplates: false,
-  org: false
+  org: false,
+  trialPeriodDays: 0
 }) {
   static deserialize(p) {
     return new this({
@@ -51,7 +52,8 @@ export default class Plan extends Record({
       ssh: !!p.ssh,
       customDomain: !!p.custom_domain,
       customTemplates: !!p.custom_templates,
-      org: !!p.org
+      org: !!p.org,
+      trialPeriodDays: p.trial_period_days
     });
   }
 

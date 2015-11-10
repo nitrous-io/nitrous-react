@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
-import { Col, Button } from 'react-bootstrap';
+import { Col, Button, Label, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Fa from 'components/fa';
 import Plan from 'records/plan';
 import classNames from 'classnames';
 
@@ -9,7 +10,8 @@ export default class PlanListItem extends React.Component {
   static propTypes = {
     plan: PropTypes.instanceOf(Plan).isRequired,
     selected: PropTypes.bool.isRequired,
-    onSelect: PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired,
+    trialEligible: PropTypes.bool.isRequired
   };
 
   handleClick = () => {
@@ -17,15 +19,22 @@ export default class PlanListItem extends React.Component {
   };
 
   render() {
-    const plan = this.props.plan,
-          selected = this.props.selected,
-          price = (plan.price / 100).toFixed(2);
+    const { plan, selected } = this.props,
+          price = (plan.price / 100).toFixed(2),
+          isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='plan-list-item-component'>
         <div className={classNames('ui-card', { selected })}>
           <div className='ui-card-body'>
-            <h4>{plan.name}</h4>
+            <h4>
+              {plan.name}
+              {isTrialPlan ? (
+                <OverlayTrigger placement='top' overlay={<Tooltip id='free-trial-tooltip'>Try for free for first {plan.trialPeriodDays} days.</Tooltip>}>
+                  <Label className='trial-label' bsStyle="success"><Fa icon="info-circle" /> Free Trial</Label>
+                </OverlayTrigger>
+              ) : ''}
+            </h4>
             <div className='description'>{plan.description}</div>
             <ul className='features'>
               <li>

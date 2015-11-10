@@ -43,7 +43,7 @@ export default class Billing extends React.Component {
 
   state = {
     billingProfile: this.findBillingProfile(),
-    subscriptions: subscriptionStore.subscriptions,
+    activeSubscriptions: subscriptionStore.activeSubscriptions,
     invoices: this.findInvoices()
   };
 
@@ -73,7 +73,7 @@ export default class Billing extends React.Component {
   }
 
   subscriptionStoreDidChange = () => {
-    this.setState({ subscriptions: subscriptionStore.subscriptions });
+    this.setState({ activeSubscriptions: subscriptionStore.activeSubscriptions });
   };
 
   invoiceStoreDidChange = () => {
@@ -81,10 +81,11 @@ export default class Billing extends React.Component {
   };
 
   render() {
-    const { billingProfile, subscriptions, invoices } = this.state,
+    const { billingProfile, activeSubscriptions, invoices } = this.state,
           { org } = this.context,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router,
+          showActiveSubscriptions = activeSubscriptions && activeSubscriptions.count(),
           showInvoices = invoices && invoices.count();
 
     let cardTypeCssClass = cardType ? cardType.replace(/_/g, '').toLowerCase() : '';
@@ -138,10 +139,10 @@ export default class Billing extends React.Component {
           </Panel>
 
           <Panel header={<h4>Subscriptions</h4>}>
-            {subscriptions ? (
+            {showActiveSubscriptions ? (
               <Table responsive hover>
                 <tbody>
-                  {subscriptions.toList().map((subscription) => {
+                  {activeSubscriptions.toList().map((subscription) => {
                     return (
                       <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
                     );
@@ -149,7 +150,7 @@ export default class Billing extends React.Component {
                 </tbody>
               </Table>
             ) : (
-              <p>You don&#39;t have any subscriptions.</p>
+              <p>You don&#39;t have any active subscriptions.</p>
             )}
           </Panel>
 
