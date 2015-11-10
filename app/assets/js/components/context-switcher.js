@@ -8,7 +8,7 @@ import hostStore from 'stores/host-store';
 import subscriptionStore from 'stores/subscription-store';
 import containerStore from 'stores/container-store';
 import subscriptionActions from 'actions/subscription-actions';
-import Time from 'react-time';
+import TimeAgo from 'react-timeago';
 import $ from 'jquery';
 
 export default class ContextSwitcher extends React.Component {
@@ -113,6 +113,13 @@ export default class ContextSwitcher extends React.Component {
       buttonTitle = withGravatar(selectedOrg || user);
     }
 
+    const timeAgoFormatter = (value, unit) => {
+      if(value !== 1) {
+        unit += 's'
+      }
+      return value + ' ' + unit;
+    };
+
     const contextMenu = (
       <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
         <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle='link'>
@@ -176,7 +183,7 @@ export default class ContextSwitcher extends React.Component {
         )}
 
         {currentSubscription && currentSubscription.activeTrialEnd ? (
-          <Badge>Trial ends: <Time value={currentSubscription.activeTrialEnd} format="MMM DD, YYYY" /></Badge>
+          <Badge>Trial ends in <TimeAgo date={currentSubscription.activeTrialEnd} formatter={timeAgoFormatter} /></Badge>
         ) : ''}
       </Navbar>
     );
