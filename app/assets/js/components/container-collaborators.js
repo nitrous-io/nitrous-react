@@ -1,14 +1,12 @@
 import React, { PropTypes } from 'react';
-import { Nav, NavItem } from 'react-bootstrap';
-
+import { Panel } from 'react-bootstrap';
 import Host from 'records/host';
 import collaboratorActions from 'actions/collaborator-actions';
 import containerActions from 'actions/container-actions';
 import collaboratorStore from 'stores/collaborator-store';
 import containerStore from 'stores/container-store';
-import ContextSwitcher from 'components/context-switcher';
+import ContainerNav from 'components/container-nav';
 import LoadingIndicator from 'components/loading-indicator';
-import HostNav from 'components/host-nav';
 import Fa from 'components/fa';
 import CollaboratorList from 'components/collaborator-list';
 
@@ -16,7 +14,6 @@ export default class ContainerCollaborators extends React.Component {
   displayName = 'ContainerCollaborators';
 
   static contextTypes = {
-    router: PropTypes.func.isRequired,
     host: PropTypes.instanceOf(Host)
   };
 
@@ -57,43 +54,26 @@ export default class ContainerCollaborators extends React.Component {
   }
 
   render() {
-    const { container, collaborators } = this.state,
+    const { containerSlug } = this.props.params,
+          { container, collaborators } = this.state,
           { host } = this.context,
           shared = !host,
-          loading = (container == null || collaborators == null),
-          { makeHref } = this.context.router;
+          loading = (container == null || collaborators == null);
 
     return (
-      <div className='container-collaborators-component container-subpage container'>
-        {shared ? (
-          <div>
-            <ContextSwitcher shared />
-            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
-              <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
-            </Nav>
-          </div>
-        ) : (
-          <HostNav host={host} activeTab='containers' />
-        )}
-
-        {loading ? (
-          <LoadingIndicator />
-        ) : (
-          <div className='inner-container'>
-            <h4>
-              {container.displayName}
-              <span className='divider'><Fa icon='angle-right' /></span>
-              {shared ? 'View Collaborators' : 'Manage Collaborators'}
-            </h4>
-
-            <p className='hint'><Fa icon='info-circle' /> Collaborators can work with you in real-time in the IDE and have full console access.</p>
-
-            <CollaboratorList
-              collaborators={collaborators}
-              container={container}
-              shared={shared} />
-          </div>
-        )}
+      <div className='container-collaborators-component'>
+        <ContainerNav activeTab='collaborators' containerSlug={containerSlug} container={container} host={host}>
+          <Panel header={<h4>{shared ? 'View' : 'Manage'} Collaborators</h4>}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              <div>
+                <p className='hint'><Fa icon='info-circle' /> Collaborators can work with you in real-time in the IDE and have full console access.</p>
+                <CollaboratorList collaborators={collaborators} container={container} shared={shared} />
+              </div>
+            )}
+          </Panel>
+        </ContainerNav>
       </div>
     );
   }

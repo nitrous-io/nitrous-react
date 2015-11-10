@@ -867,7 +867,7 @@ export default class DocsUI extends React.Component {
               </a>
             </div>
             <Nav right>
-              <NavDropdown eventKey={3} title={<span><img className="gravatar" src="https://secure.gravatar.com/avatar/2ccca9397738305d719dd73e3c47f638?default=retro&secure=true&size=40" /><span className="username">User</span></span>} id="basic-nav-dropdown" className='account-menu'>
+              <NavDropdown eventKey={1} title={<span><img className="gravatar" src="https://secure.gravatar.com/avatar/2ccca9397738305d719dd73e3c47f638?default=retro&secure=true&size=40" /><span className="username">User</span></span>} id="basic-nav-dropdown" className='account-menu'>
                 <MenuItem eventKey="1">Account Settings</MenuItem>
                 <MenuItem eventKey="2">Billing</MenuItem>
                 <MenuItem divider />

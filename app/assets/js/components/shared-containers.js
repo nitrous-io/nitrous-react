@@ -1,5 +1,4 @@
-import React, { PropTypes } from 'react';
-import { Nav, NavItem } from 'react-bootstrap';
+import React from 'react';
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
 import collaboratorStore from 'stores/collaborator-store';
@@ -10,10 +9,6 @@ import ContainerList from 'components/container-list';
 
 export default class SharedContainers extends React.Component {
   displayName = 'SharedContainers';
-
-  static contextTypes = {
-    router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
-  };
 
   state = {
     containers: containerStore.sharedContainers,
@@ -42,7 +37,7 @@ export default class SharedContainers extends React.Component {
     }
     containerActions.fetchAllShared();
     snackbarActions.post(`You have been added to the ${container.slug} project by ${initiatorUsername}.`);
-  }
+  };
 
   onCollaboratorRemoved = (data) => {
     const { container, collaboratorUserId, initiatorUsername } = data;
@@ -51,7 +46,7 @@ export default class SharedContainers extends React.Component {
     }
     containerActions.fetchAllShared();
     snackbarActions.post(`You have been removed from the ${container.slug} project by ${initiatorUsername}.`);
-  }
+  };
 
   containerStoreDidChange = () => {
     this.setState({ containers: containerStore.sharedContainers });
@@ -59,19 +54,15 @@ export default class SharedContainers extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
-  }
+  };
 
   render() {
-    const { makeHref } = this.context.router,
-          containers = this.state.containers.toList();
+    const containers = this.state.containers.toList();
 
     return (
       <div className='shared-containers-component'>
         <div className='container'>
           <ContextSwitcher shared />
-          <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
-            <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
-          </Nav>
           <ContainerList containers={containers} />
         </div>
       </div>
