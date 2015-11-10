@@ -8,6 +8,8 @@ import tokenStore from 'stores/token-store';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class Login extends React.Component {
   displayName = 'Login';
@@ -24,6 +26,7 @@ export default class Login extends React.Component {
   };
 
   static willTransitionTo(transition) {
+    Mp.track(MpEvents.EventViewedLogin);
     if (tokenStore.token) {
       transition.redirect('dashboard');
     }

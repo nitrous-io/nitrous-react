@@ -4,6 +4,8 @@ import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import { Panel, Alert, Input, Button } from 'react-bootstrap';
 import Fa from 'components/fa';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class AccountSettings extends React.Component {
   displayName = 'AccountSettings';
@@ -20,6 +22,10 @@ export default class AccountSettings extends React.Component {
     connectingToGitHub: false,
     advanced: userStore.user.userProfile.advanced
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedAccount);
+  }
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);

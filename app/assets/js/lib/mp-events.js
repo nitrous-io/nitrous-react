@@ -1,6 +1,9 @@
 export default {
   // new events
   EventDashboardViewedProjects: "Dashboard Viewed Projects",
+  EventViewedSignup: "Viewed Signup",
+  EventViewedNewOrg: "Viewed New Org",
+  EventDashboardViewedNewOrgHost: "Viewed New Org Host",
   //events from existing application
   EventDashboardUserClickedDownloadDesktopApp: "Dashboard User Clicked Download Desktop App",
   EventDashboardUserClickedPreviewURL: "Dashboard User Clicked Preview URL",

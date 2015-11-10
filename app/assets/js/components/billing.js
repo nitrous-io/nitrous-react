@@ -10,6 +10,8 @@ import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
 import Org from 'records/org';
 import Fa from 'components/fa';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class Billing extends React.Component {
   displayName = 'Billing';
@@ -18,6 +20,10 @@ export default class Billing extends React.Component {
     org: PropTypes.instanceOf(Org),
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedBilling);
+  }
 
   findBillingProfile = () => {
     const org = this.context.org;

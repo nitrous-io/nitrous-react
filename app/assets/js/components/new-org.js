@@ -7,6 +7,8 @@ import orgActions from 'actions/org-actions';
 import paymentActions from 'actions/payment-actions';
 import Fa from 'components/fa';
 import PaymentMethod from 'components/payment-method';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
@@ -14,6 +16,10 @@ export default class NewOrg extends React.Component {
   static contextTypes = {
     router: PropTypes.func.isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventViewedNewOrg);
+  }
 
   state = {
     orgName: null,

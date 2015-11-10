@@ -15,6 +15,8 @@ import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
 import PaymentMethod from 'components/payment-method';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class NewHost extends React.Component {
   displayName = 'NewHost';
@@ -23,6 +25,14 @@ export default class NewHost extends React.Component {
     router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
     org: PropTypes.instanceOf(Org)
   };
+
+  static willTransitionTo(transition) {
+    if (transition.path && transition.path.includes("/orgs")) {
+      Mp.track(MpEvents.EventDashboardViewedNewOrgHost);
+    } else {
+      Mp.track(MpEvents.EventDashboardViewedNewHost);
+    }
+  }
 
   findBillingProfile = () => {
     const org = this.context.org;

@@ -4,6 +4,8 @@ import userStore from 'stores/user-store';
 import ImageList from 'components/image-list';
 import HostNav from 'components/host-nav';
 import Registries from 'components/registries';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class HostImages extends React.Component {
   displayName = 'HostImages';
@@ -12,6 +14,10 @@ export default class HostImages extends React.Component {
     router: PropTypes.func.isRequired,
     host: PropTypes.instanceOf(Host).isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedHostImages);
+  }
 
   render() {
     const { host } = this.context,
