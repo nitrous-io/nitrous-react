@@ -116,7 +116,7 @@ export default class Billing extends React.Component {
     return (loadingSubscriptions ? (
         <LoadingIndicator />
       ) : (
-        <p>You don&#39;t have any subscriptions.</p>
+        <p className="empty-state">You don&#39;t have any subscriptions.</p>
       ));
   }
 
@@ -149,7 +149,7 @@ export default class Billing extends React.Component {
     return (loadingInvoices ? (
         <LoadingIndicator />
       ) : (
-        <p>You don&#39;t have any invoices.</p>
+        <p className="empty-state">You don&#39;t have any invoices.</p>
       ));
   }
 
@@ -204,7 +204,11 @@ export default class Billing extends React.Component {
             ) : (
               <div>
                 <p>No payment method on file.</p>
-                <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</Button></p>
+                <ButtonToolbar>
+                  <ButtonGroup>
+                    <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Add Payment Method</Button>
+                  </ButtonGroup>
+                </ButtonToolbar>
               </div>
             )}
           </Panel>
