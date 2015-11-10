@@ -74,8 +74,6 @@ export default class TopNav extends React.Component {
                 <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
                 <MenuItem href={makeHref('billing')}>Billing</MenuItem>
                 <MenuItem divider />
-                <MenuItem eventKey='send-feedback' disabled>Send Feedback</MenuItem>
-                <MenuItem divider />
                 <MenuItem href='https://community.nitrous.io/docs' target='_blank'>Documentation</MenuItem>
                 <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
                 <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
