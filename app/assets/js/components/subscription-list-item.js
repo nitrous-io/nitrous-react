@@ -4,6 +4,7 @@ import Time from 'react-time';
 
 import Subscription from 'records/subscription';
 import subscriptionActions from 'actions/subscription-actions';
+import subscriptionStore from 'stores/subscription-store';
 import Currency from 'components/currency';
 
 export default class SubscriptionListItem extends React.Component {
@@ -19,6 +20,24 @@ export default class SubscriptionListItem extends React.Component {
     showReactivateModal: false,
     canceling: false,
     reactivating: false
+  };
+
+  componentDidMount() {
+    subscriptionStore.on('cancel-failed', this.onCancelFailed);
+    subscriptionStore.on('reactivate-failed', this.onReactivateFailed);
+  }
+
+  componentWillUnmount() {
+    subscriptionStore.off('cancel-failed', this.onCancelFailed);
+    subscriptionStore.off('reactivate-failed', this.onReactivateFailed);
+  }
+
+  onCancelFailed = () => {
+    this.setState({ canceling: false });
+  };
+
+  onReactivateFailed = () => {
+    this.setState({ reactivating: false });
   };
 
   handleShowCancelModal = () => {

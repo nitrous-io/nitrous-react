@@ -43,6 +43,7 @@ class SubscriptionStore extends Store {
       case 'subscription.cancel-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         snackbarActions.post(`Failed to cancel subscription!`);
+        this.emit('cancel-failed');
         break;
       }
       case 'subscription.reactivated': {
@@ -52,6 +53,7 @@ class SubscriptionStore extends Store {
       case 'subscription.reactivate-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         snackbarActions.post(`Failed to reactivate subscription!`);
+        this.emit('reactivate-failed');
         break;
       }
       case 'events:subscription.updated': {
