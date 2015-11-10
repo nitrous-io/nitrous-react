@@ -38,6 +38,13 @@ import DocsUI from 'components/docs-ui';
 
 export default (
   <Route name='application' path='/' handler={Application}>
+    // temporary routes
+    <Route name='temp-billing' path='billing' handler={redirectTo('billing')} />
+    <Route name='temp-containers' path='containers/:hostSlug' handler={redirectTo('dashboard')} />
+    <Route name='temp-containers-ports' path='containers/:hostSlug/ports' handler={redirectTo('dashboard')} />
+    <Route name='temp-account' path='account' handler={redirectTo('account-settings')} />
+    <Route name='temp-subscriptions' path='subscriptions' handler={redirectTo('billing')} />
+
     <DefaultRoute handler={redirectTo('dashboard')} />
     <Route name='login' handler={Login} />
     <Route name='forgot-password' handler={ForgotPassword} />
