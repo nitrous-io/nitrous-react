@@ -1,6 +1,7 @@
 import React from 'react';
-import TopNav from 'components/top-nav';
 import { RouteHandler } from 'react-router';
+
+import TopNav from 'components/top-nav';
 import tokenStore from 'stores/token-store';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
