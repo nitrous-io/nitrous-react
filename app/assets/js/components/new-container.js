@@ -141,7 +141,7 @@ export default class NewContainer extends React.Component {
   render() {
     const { projectName, creating, templates, selectedImageType, selectedImage } = this.state,
           { host } = this.context,
-          advanced = userStore.userProfile && userStore.userProfile.advanced;
+          { advanced } = userStore;
 
     return (
       <div className='new-container-component'>

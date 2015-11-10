@@ -21,7 +21,7 @@ export default class HostImages extends React.Component {
 
   render() {
     const { host } = this.context,
-          advanced = userStore.userProfile && userStore.userProfile.advanced;
+          { advanced } = userStore;
 
     return (
       <div className='host-images-component container'>

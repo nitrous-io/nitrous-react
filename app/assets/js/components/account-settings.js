@@ -21,7 +21,7 @@ export default class AccountSettings extends React.Component {
     newPasswordConfirm: null,
     existingPassword: null,
     connectingToGitHub: false,
-    advanced: userStore.user.userProfile.advanced
+    advanced: userStore.advanced
   };
 
   static willTransitionTo() {
@@ -50,7 +50,7 @@ export default class AccountSettings extends React.Component {
       newPasswordConfirm: null,
       existingPassword: null,
       connectingToGitHub: false,
-      advanced: user.userProfile.advanced
+      advanced: userStore.advanced
     });
     snackbarActions.post('Account details updated successfully.');
   }
