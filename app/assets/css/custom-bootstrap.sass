@@ -429,9 +429,14 @@ textarea
     table
       margin-bottom: 0
 
+      &:not(.table-bordered)
+        thead
+          & > tr > th
+            border-bottom: 0
+
       thead
-        & > tr > th
-          border-bottom: 0
+        .fa
+          color: rgba($gray-light, .6)
 
       & > tbody
         tr:first-of-type

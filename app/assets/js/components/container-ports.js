@@ -174,13 +174,13 @@ export default class ContainerPorts extends React.Component {
         <Table responsive hover>
           <thead>
             <tr>
-              <th>Open Ports</th>
               <th>
                 <OverlayTrigger placement='top'
                   overlay={<Tooltip id='primary-port-tooltip'>Accessible from port 80</Tooltip>}>
                   <span>Primary <Fa icon='question-circle' /></span>
                 </OverlayTrigger>
               </th>
+              <th>Open Ports</th>
               <th></th>
             </tr>
           </thead>
@@ -247,27 +247,27 @@ export default class ContainerPorts extends React.Component {
     const { portBindings } = this.state;
 
     return (
-      <Table responsive striped hover>
+      <Table responsive hover>
         <thead>
           <tr>
-            <th>Open Ports</th>
             <th>
               <OverlayTrigger placement='top'
                 overlay={<Tooltip id='primary-port-tooltip'>Accessible from port 80</Tooltip>}>
                 <span>Primary <Fa icon='question-circle' /></span>
               </OverlayTrigger>
             </th>
+            <th>Open Ports</th>
           </tr>
         </thead>
         <tbody>
           {portBindings.size > 0 ? portBindings.map((binding) => {
             return (
               <tr key={`binding-${binding.containerPort}`}>
-                <td className='col-port'>{binding.containerPort}</td>
-                <td className='col-preview'>
+                <td className='col-preview col-md-2'>
                   <Input type='radio' name='previewPort' disabled
                     checked={binding.preview} />
                 </td>
+                <td className='col-port'>{binding.containerPort}</td>
               </tr>
             );
           }) : (
