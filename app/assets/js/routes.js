@@ -34,7 +34,8 @@ import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
 
-import DocsUI from 'components/docs-ui';
+// import DocsUI from 'components/docs-ui';
+// use <Route name='ui' path='ui' handler={DocsUI} /> when you need it
 
 export default (
   <Route name='application' path='/' handler={Application}>
@@ -52,8 +53,6 @@ export default (
     <Route name='signup' handler={Signup} />
     <Route name='confirm-email' handler={ConfirmEmail} />
     <Route name='resend-confirmation' handler={ResendConfirmation} />
-
-    <Route name='ui' path='ui' handler={DocsUI} />
 
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={redirectTo('user-host')} />
