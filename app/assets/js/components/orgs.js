@@ -53,11 +53,11 @@ export default class Orgs extends React.Component {
                         <Col lg={1} md={1} sm={1} xs={2} className='user-avatar'>
                           <img className='gravatar' src={org.gravatar(72)} />
                         </Col>
-                        <Col lg={8} md={8} sm={8} xs={8} className='collaborator-name'>
+                        <Col lg={8} md={8} sm={6} xs={8} className='collaborator-name'>
                           <strong>{org.displayName}</strong>
                           <Label>{org.role}</Label>
                         </Col>
-                        <Col lg={3} md={3} sm={3} xs={12} className='actions'>
+                        <Col lg={3} md={3} sm={5} xs={12} className='actions'>
                           <ButtonToolbar className='pull-right'>
                             {org.roleAllowsBillingProfileAdmin ? (
                               <Button href={makeHref('org-billing', { orgSlug: org.slug })}>

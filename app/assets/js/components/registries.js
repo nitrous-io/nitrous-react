@@ -104,7 +104,7 @@ export default class Registries extends React.Component {
 
     return (
       <div className='registries-component'>
-        <Table striped>
+        <Table striped responsive>
           <thead>
             <tr>
               <th>Registry</th>
