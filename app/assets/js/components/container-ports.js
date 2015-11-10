@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, Input, Nav, NavItem, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
-
+import { Panel, Button, Input, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
 import { PortBinding } from 'records/container-config';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -8,9 +7,8 @@ import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
 import hostStore from 'stores/host-store';
 import containerConfigStore from 'stores/container-config-store';
-import ContextSwitcher from 'components/context-switcher';
+import ContainerNav from 'components/container-nav';
 import LoadingIndicator from 'components/loading-indicator';
-import HostNav from 'components/host-nav';
 import Fa from 'components/fa';
 
 export default class ContainerPorts extends React.Component {
@@ -159,7 +157,7 @@ export default class ContainerPorts extends React.Component {
     containerActions.reconfigure(container, newConfig);
   }
 
-  isDirty = () => {
+  isDirty() {
     const { portBindings } = this.state;
     if (!portBindings) {
       return false;
@@ -167,7 +165,7 @@ export default class ContainerPorts extends React.Component {
     return !portBindings.equals(this.findPortBindings());
   }
 
-  renderPortEditor = () => {
+  renderPortEditor() {
     const { portBindings, processing, newPort, newPortInvalid } = this.state,
           dirty = this.isDirty();
 
@@ -240,7 +238,7 @@ export default class ContainerPorts extends React.Component {
     );
   }
 
-  renderShared = () => {
+  renderShared() {
     const { portBindings } = this.state;
 
     return (
@@ -278,38 +276,23 @@ export default class ContainerPorts extends React.Component {
   }
 
   render() {
-    const { container, containerConfig } = this.state,
+    const { containerSlug } = this.props.params,
+          { container, containerConfig } = this.state,
           { host } = this.context,
           shared = !host,
-          loading = (container == null || containerConfig == null),
-          { makeHref } = this.context.router;
+          loading = (container == null || containerConfig == null);
 
     return (
-      <div className='container-ports-component container-subpage container'>
-        {shared ? (
-          <div>
-            <ContextSwitcher shared />
-            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
-              <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
-            </Nav>
-          </div>
-        ) : (
-          <HostNav host={host} activeTab='containers' />
-        )}
-
-        {loading ? (
-          <LoadingIndicator />
-        ) : (
-          <div className='inner-container'>
-            <h4>
-              {container.displayName}
-              <span className='divider'><Fa icon='angle-right' /></span>
-              {shared ? 'View Ports' : 'Manage Ports'}
-            </h4>
-
-            {shared ? this.renderShared() : this.renderPortEditor()}
-          </div>
-        )}
+      <div className='container-ports-component'>
+        <ContainerNav activeTab='ports' containerSlug={containerSlug} container={container} host={host}>
+          <Panel header={(<h4>{shared ? 'View' : 'Manage'} Ports</h4>)}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              shared ? this.renderShared() : this.renderPortEditor()
+            )}
+          </Panel>
+        </ContainerNav>
       </div>
     );
   }
