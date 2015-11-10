@@ -1,12 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Col, Alert, Button, Input, Panel } from 'react-bootstrap';
 import slug from 'slug';
-
 import orgStore from 'stores/org-store';
 import orgActions from 'actions/org-actions';
 import paymentActions from 'actions/payment-actions';
 import Fa from 'components/fa';
 import PaymentMethod from 'components/payment-method';
+import NewOrgSteps from 'components/new-org-steps';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 
@@ -135,68 +135,59 @@ export default class NewOrg extends React.Component {
 
     return (
       <div className='new-org-component container'>
-        <Grid>
+        <h2>New Organization</h2>
+        <NewOrgSteps />
+        <Grid className='ui-card-grid'>
           <Row>
-            <Col lg={8} lgOffset={2} md={10} mdOffset={1} sm={10} smOffset={1} xs={12}>
-              <h1>Create an Organization</h1>
-              <ol>
-                <li className='active'><Fa icon='check' /> Completed: Create personal account</li>
-                <li>Step 2: Add organization info</li>
-                <li>Step 3: Invite organization members</li>
-              </ol>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={5} lgOffset={2} md={5} mdOffset={1} sm={5} smOffset={1} xs={12}>
-              <h3>Organization Info</h3>
+            <Col lg={8} md={8} sm={8} xs={12}>
+              <Panel header={<h4>Organization Info</h4>}>
+                <Input type='text' required placeholder='Planet Express Shipping'
+                  ref='orgNameField'
+                  id='org-name'
+                  label='Organization Name'
+                  bsStyle={orgName && !orgNameValid ? 'error' : null}
+                  value={orgName}
+                  help={orgSlug ? (
+                    <span className='help-block'>
+                      Your organization slug will be <strong>{orgSlug}</strong>
+                    </span>
+                  ): null}
+                  disabled={createdOrg || processing}
+                  onChange={this.handleOrgNameChanged}
+                  onKeyDown={this.handleKeyDown} />
 
-              <Input type='text' required placeholder='Planet Express Shipping'
-                ref='orgNameField'
-                id='org-name'
-                label='Organization Name'
-                bsStyle={orgName && !orgNameValid ? 'error' : null}
-                value={orgName}
-                help={orgSlug ? (
-                  <span className='help-block'>
-                    Your organization slug will be <strong>{orgSlug}</strong>
-                  </span>
-                ): null}
-                disabled={createdOrg || processing}
-                onChange={this.handleOrgNameChanged}
-                onKeyDown={this.handleKeyDown} />
+                <Input type='email' required placeholder='bender@planetexpress.com'
+                  ref='orgEmailField'
+                  id='org-email'
+                  label='Billing Email'
+                  bsStyle={orgEmail && !orgEmailValid ? 'error' : null}
+                  value={orgEmail}
+                  help='Receipts will be sent here'
+                  disabled={createdOrg || processing}
+                  onChange={this.handleOrgEmailChanged}
+                  onKeyDown={this.handleKeyDown} />
+              </Panel>
 
-              <Input type='email' required placeholder='bender@planetexpress.com'
-                ref='orgEmailField'
-                id='org-email'
-                label='Billing Email'
-                bsStyle={orgEmail && !orgEmailValid ? 'error' : null}
-                value={orgEmail}
-                help='Receipts will be sent here'
-                disabled={createdOrg || processing}
-                onChange={this.handleOrgEmailChanged}
-                onKeyDown={this.handleKeyDown} />
+              <Panel header={<h4>Payment Method</h4>}>
+                {paymentFailed ? (
+                  <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
+                ) : ''}
 
-              <hr />
+                <PaymentMethod standalone={false} org={createdOrg}
+                  onSuccess={this.handlePaymentSuccess}
+                  onFailure={this.handlePaymentFailure} />
 
-              <h3>Payment Method</h3>
+              </Panel>
 
-              {paymentFailed ? (
-                <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
-              ) : ''}
-
-              <PaymentMethod standalone={false} org={createdOrg}
-                onSuccess={this.handlePaymentSuccess}
-                onFailure={this.handlePaymentFailure} />
-
-              <Button type='submit' bsStyle='success'
+              <Button type='submit' bsStyle='primary'
                 disabled={this.submitDisabled()}
                 onClick={this.handleClickCreateBtn}>
                 {processing ? 'Creating Organization...' : 'Create Organization'}
               </Button>
             </Col>
 
-            <Col lg={3} lgOffset={0} md={4} mdOffset={1} sm={4} smOffset={1} xs={12}>
-              <Panel header='Organizations'>
+            <Col lg={4} md={4} sm={4} xs={12}>
+              <Panel header={<h4>Organizations</h4>}>
                 <h5>Organization Plans</h5>
                 <ul className='checklist'>
                   <li><Fa icon='check' /> Centralized billing</li>
