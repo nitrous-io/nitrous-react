@@ -30,6 +30,7 @@ import Billing from 'components/billing';
 import BillingPaymentMethod from 'components/billing-payment-method';
 import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
+import ConfirmEmail from 'components/confirm-email';
 
 import DocsUI from 'components/docs-ui';
 
@@ -40,6 +41,7 @@ export default (
     <Route name='forgot-password' handler={ForgotPassword} />
     <Route name='reset-password' handler={ResetPassword} />
     <Route name='signup' handler={Signup} />
+    <Route name='confirm-email' handler={ConfirmEmail} />
     <Route name='resend-confirmation' handler={ResendConfirmation} />
 
     <Route name='ui' path='ui' handler={DocsUI} />
