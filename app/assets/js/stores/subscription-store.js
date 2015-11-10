@@ -1,5 +1,6 @@
 import Store from 'stores/store';
 import Subscription from 'records/subscription';
+import hostStore from 'stores/host-store';
 import { OrderedMap } from 'immutable';
 import snackbarActions from 'actions/snackbar-actions';
 
@@ -54,6 +55,12 @@ class SubscriptionStore extends Store {
 
   get subscriptions() {
     return this._subscriptions;
+  }
+
+  get activeSubscriptions() {
+    return this._subscriptions.filter((s) => {
+      return hostStore.liveHosts.has(s.hostSlug);
+    });
   }
 
   get trialSubscription() {
