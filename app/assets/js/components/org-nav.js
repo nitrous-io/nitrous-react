@@ -41,7 +41,7 @@ export default class OrgNav extends React.Component {
             <Col lg={2} md={2} sm={3} xs={12}>
               <Nav bsStyle='pills' stacked activeKey={activeTab}>
                 {org.roleAllowsMemberAdmin ? (
-                  <NavItem href={makeOrgHref('manage-members')} eventKey='members'>Members</NavItem>
+                  <NavItem href={makeOrgHref('members')} eventKey='members'>Members</NavItem>
                 ) : ''}
                 {org.roleAllowsBillingProfileAdmin ? (
                   <NavItem href={makeOrgHref('billing')} eventKey='billing'>Billing</NavItem>

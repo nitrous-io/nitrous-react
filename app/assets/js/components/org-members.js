@@ -4,8 +4,8 @@ import Org from 'records/org';
 import OrgNav from 'components/org-nav';
 import OrgMemberList from 'components/org-member-list';
 
-export default class OrgManageMembers extends React.Component {
-  displayName = 'OrgManageMembers';
+export default class OrgMembers extends React.Component {
+  displayName = 'OrgMembers';
 
   static contextTypes = {
     org: PropTypes.instanceOf(Org).isRequired
@@ -15,7 +15,7 @@ export default class OrgManageMembers extends React.Component {
     const { org } = this.context;
 
     return (
-      <div className='org-manage-members-component'>
+      <div className='org-members-component'>
         <OrgNav org={org} activeTab='members'>
           <Panel header={<h4>Manage Members</h4>}>
             <OrgMemberList org={org} />

@@ -10,7 +10,7 @@ import NewOrg from 'components/new-org';
 import Orgs from 'components/orgs';
 import OrgRoot from 'components/org-root';
 import OrgInviteMembers from 'components/org-invite-members';
-import OrgManageMembers from 'components/org-manage-members';
+import OrgMembers from 'components/org-members';
 import OrgBilling from 'components/org-billing';
 import UserHost from 'components/user-host';
 import OrgHost from 'components/org-host';
@@ -66,7 +66,7 @@ export default (
         </Route>
 
         <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
-        <Route name='org-manage-members' path='manage-members' handler={OrgManageMembers} />
+        <Route name='org-members' path='members' handler={OrgMembers} />
 
         <Route name='org-billing' path='billing' handler={OrgBilling} />
         <Route name='org-payment-method' path='billing/payment-method' handler={BillingPaymentMethod} />

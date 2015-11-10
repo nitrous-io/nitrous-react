@@ -60,7 +60,7 @@ export default class Orgs extends React.Component {
                         <Col lg={3} md={3} sm={3} xs={12} className='actions'>
                           <ButtonToolbar className='pull-right'>
                             {org.roleAllowsMemberAdmin ? (
-                              <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
+                              <Button href={makeHref('org-members', { orgSlug: org.slug })}>
                                 <Fa icon='users' /> Members
                               </Button>
                             ) : ''}
