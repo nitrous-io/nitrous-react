@@ -1,4 +1,3 @@
-import mixpanel from 'mixpanel-browser/build/mixpanel.cjs';
 import UAParser from 'ua-parser-js';
 
 import userStore from 'stores/user-store';
@@ -35,19 +34,19 @@ class Mp {
       this.billingProfile = billingStore.userBillingProfile;
       if (this.personHash) {
         this.personHash.billing_state = billingStore.userBillingProfile.state;
-        if (mixpanel.people && mixpanel.people.set) {
-          mixpanel.people.set(this.personHash);
+        if (this.mixpanel.people && this.mixpanel.people.set) {
+          this.mixpanel.people.set(this.personHash);
         }
       }
     }
   }
 
   init(token) {
-    if (!mixpanel.init) {
+    if (!this.mixpanel.init) {
       return;
     }
 
-    mixpanel.init(token);
+    this.mixpanel.init(token);
     this.initialized = true;
 
     if (this.userAfterInitialized) {
@@ -68,7 +67,7 @@ class Mp {
       return;
     }
 
-    if (!mixpanel.identify) {
+    if (!this.mixpanel.identify) {
       return;
     }
 
@@ -77,9 +76,9 @@ class Mp {
     }
     this.user = user;
 
-    mixpanel.identify(user.id.toString());
+    this.mixpanel.identify(user.id.toString());
 
-    if (!(mixpanel.people && mixpanel.people.set_once)) {
+    if (!(this.mixpanel.people && this.mixpanel.people.set_once)) {
       return;
     }
 
@@ -89,9 +88,9 @@ class Mp {
       $created: user.createdAt,
       user_id: user.id.toString()
     };
-    mixpanel.people.set_once(personData);
+    this.mixpanel.people.set_once(personData);
 
-    if (!mixpanel.people.set) {
+    if (!this.mixpanel.people.set) {
       return;
     }
 
@@ -106,7 +105,7 @@ class Mp {
     } else {
       this.personHash.$first_name = this.personHash.$name;
     }
-    mixpanel.people.set(this.personHash);
+    this.mixpanel.people.set(this.personHash);
   }
 
   track(name, data) {
@@ -133,9 +132,16 @@ class Mp {
     if (data) {
       Object.assign(props, data);
     }
-    mixpanel.register_once({ 'First Time': 'TRUE' });
-    mixpanel.track(name, props);
-    mixpanel.register({ 'First Time': 'FALSE' });
+    this.mixpanel.register_once({ 'First Time': 'TRUE' });
+    this.mixpanel.track(name, props);
+    this.mixpanel.register({ 'First Time': 'FALSE' });
+  }
+
+  get mixpanel() {
+    if (!window.mixpanel) {
+      return {}; // return stub (similar if blocked by ads)
+    }
+    return window.mixpanel;
   }
 }
 
