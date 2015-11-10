@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Panel, Button, Input, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
+import { Panel, Button, ButtonToolbar, Input, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
 import { PortBinding } from 'records/container-config';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -171,7 +171,7 @@ export default class ContainerPorts extends React.Component {
 
     return (
       <div>
-        <Table responsive striped hover>
+        <Table responsive hover>
           <thead>
             <tr>
               <th>Open Ports</th>
@@ -188,18 +188,20 @@ export default class ContainerPorts extends React.Component {
             {portBindings.size > 0 ? portBindings.map((binding) => {
               return (
                 <tr key={`binding-${binding.containerPort}`}>
-                  <td className='col-port'>{binding.containerPort}</td>
-                  <td className='col-preview'>
+                  <td className='col-preview col-md-2'>
                     <Input type='radio' name='previewPort'
                       checked={binding.preview}
                       disabled={processing}
                       onChange={this.handlePreviewChanged.bind(this, binding)} />
                   </td>
-                  <td>
-                    <Button bsStyle='warning'
+                  <td className='col-port col-md-2'>{binding.containerPort}</td>
+                  <td className='col-md-8'>
+                    <Button bsStyle='default'
+                      className='pull-right'
                       disabled={processing}
                       onClick={this.handleRemove.bind(this, binding)}>
-                      <Fa icon='trash' />
+                      <Fa icon='close' />
+                      <span>Remove</span>
                     </Button>
                   </td>
                 </tr>
@@ -212,28 +214,31 @@ export default class ContainerPorts extends React.Component {
           </tbody>
         </Table>
 
-        <form onSubmit={this.handleAddPort}>
-          <Input
-            type='number' min='1' max='65535' required
-            placeholder='New port'
-            value={newPort}
-            bsStyle={newPortInvalid ? 'error' : null}
-            help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
-            disabled={processing}
-            onChange={this.handleNewPortChanged}
-            buttonAfter={
-              <Button bsStyle='primary' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
-            } />
-        </form>
+        <div className='port-form-wrapper'>
+          <form onSubmit={this.handleAddPort}>
+            <Input
+              label='Add Port'
+              type='number' min='1' max='65535' required
+              placeholder='New port'
+              value={newPort}
+              bsStyle={newPortInvalid ? 'error' : null}
+              help={newPortInvalid ? 'Please enter a port number from 1-65535' : ''}
+              disabled={processing}
+              onChange={this.handleNewPortChanged}
+              buttonAfter={
+                <Button bsStyle='primary' type='submit' disabled={!newPort || newPortInvalid || processing}>Add</Button>
+              } />
+          </form>
+        </div>
 
-        {dirty ? (
+        <ButtonToolbar>
           <Button className='pull-right'
-            bsStyle='primary'
+            bsStyle={dirty ? ('primary') : 'disabled'}
             disabled={processing}
             onClick={this.handleApplyChanges}>
             {processing ? 'Applying Changes...' : 'Apply Changes'}
           </Button>
-        ) : ''}
+        </ButtonToolbar>
       </div>
     );
   }
