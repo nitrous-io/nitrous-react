@@ -100,12 +100,12 @@ export default class SubscriptionListItem extends React.Component {
               <Modal.Title>Cancel Subscription</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <p>Are you sure you want to cancel the subscription for your workspace
+              <p>Are you sure you want to cancel the subscription for your workstation
                 {subscription.hostSlug ? (
                   <strong> {subscription.hostSlug}</strong>
                 ) : ''}
               ?</p>
-              <p>Your subscription will end on <strong><Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></strong>, after which your workspace will be terminated.</p>
+              <p>Your subscription will end on <strong><Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></strong>, after which your workstation will be terminated.</p>
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={this.handleCloseCancelSubscriptionModal}>Close</Button>
@@ -118,13 +118,13 @@ export default class SubscriptionListItem extends React.Component {
               <Modal.Title>Cancel Trial</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <p>Are you sure you want to cancel your free trial for your workspace
+              <p>Are you sure you want to cancel your free trial for your workstation
                 {subscription.hostSlug ? (
                   <strong> {subscription.hostSlug}</strong>
                 ) : ''}
               ?</p>
                 {subscription.activeTrialEnd ? (
-                  <p>Your free trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" />. After cancelling, your workspace will be terminated <strong>immediately</strong>. This means that you will not be able to resume your free trial or be eligible for any more free trials.</p>
+                  <p>Your free trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" />. After canceling, your workstation will be terminated <strong>immediately</strong>. This means that you will not be able to resume your free trial or be eligible for any more free trials.</p>
                 ) : ''}
             </Modal.Body>
             <Modal.Footer>
