@@ -73,6 +73,25 @@ class SubscriptionStore extends Store {
         this._lastError = null;
         break;
       }
+      case 'events:subscription.deleted': {
+        const { data } = action,
+              sub = Subscription.deserialize(data.subscription);
+        if (sub.orgId) {
+          const org = orgStore.orgByOrgId(sub.orgId);
+          if (org) {
+            let subs = this._orgSubscriptions.get(org.slug);
+            if (!subs) {
+              subs = OrderedMap();
+            }
+            subs = subs.delete(sub.slug, sub);
+            this._orgSubscriptions = this._orgSubscriptions.set(org.slug, subs);
+          }
+        } else {
+          this._userSubscriptions = this._userSubscriptions.delete(sub.slug);
+        }
+        this._lastError = null;
+        break;
+      }
       default: return;
     }
     this.notifyChange();
