@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { Button, ButtonGroup, ButtonToolbar, Panel, Table } from 'react-bootstrap';
-
 import billingStore from 'stores/billing-store';
 import subscriptionStore from 'stores/subscription-store';
 import invoiceStore from 'stores/invoice-store';
@@ -116,7 +115,7 @@ export default class Billing extends React.Component {
     return (loadingSubscriptions ? (
         <LoadingIndicator />
       ) : (
-        <p>You don&#39;t have any subscriptions.</p>
+        <p className="empty-state">You don&#39;t have any subscriptions.</p>
       ));
   }
 
@@ -149,7 +148,7 @@ export default class Billing extends React.Component {
     return (loadingInvoices ? (
         <LoadingIndicator />
       ) : (
-        <p>You don&#39;t have any invoices.</p>
+        <p className="empty-state">You don&#39;t have any invoices.</p>
       ));
   }
 
