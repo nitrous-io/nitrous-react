@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
-import { Button, ButtonToolbar, Label, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Grid, Row, Col, ListGroup, ListGroupItem, Button, ButtonToolbar, Label } from 'react-bootstrap';
 
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
 import Fa from 'components/fa';
+import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
+import BreadcrumbItem from 'components/bootstrap-backports/breadcrumb-item';
 
 export default class Orgs extends React.Component {
   displayName = 'Orgs';
@@ -35,36 +37,50 @@ export default class Orgs extends React.Component {
 
     return (
       <div className='orgs-component container'>
-        <h1>Organizations</h1>
+        <Breadcrumb>
+          <BreadcrumbItem href={makeHref('dashboard')}>Dashboard</BreadcrumbItem>
+          <BreadcrumbItem active>Orgs</BreadcrumbItem>
+        </Breadcrumb>
 
-        <ListGroup>
-          {orgs.toList().map((org) => {
-            return (
-              <ListGroupItem key={`org-${org.slug}`} className='clearfix'>
-                <img className='gravatar' src={org.gravatar(72)} />
+        <h2>Organizations</h2>
 
-                <div className='org-info'>
-                  <span className='org-name'>{org.displayName}</span>
-                  <Label>{org.role}</Label>
-                </div>
+        <div className="ui-card-grid">
+          <ListGroup>
+            {orgs.toList().map((org) => {
+              return (
+                <ListGroupItem key={`org-${org.slug}`}>
+                  <Grid>
+                    <Row>
+                      <Col lg={1} md={1} sm={1} xs={2} className='user-avatar'>
+                        <img className='gravatar' src={org.gravatar(72)} />
+                      </Col>
+                      <Col lg={8} md={8} sm={8} xs={8} className='collaborator-name'>
+                        <strong>{org.displayName}</strong>
+                        <Label>{org.role}</Label>
+                      </Col>
+                      <Col lg={3} md={3} sm={3} xs={12} className='actions'>
+                        <ButtonToolbar className='pull-right'>
+                          {org.roleAllowsBillingProfileAdmin ? (
+                            <Button href={makeHref('org-billing', { orgSlug: org.slug })}>
+                              <Fa icon='credit-card' /> Billing
+                            </Button>
+                          ) : ''}
 
-                <ButtonToolbar className='pull-right'>
-                  {org.roleAllowsBillingProfileAdmin ? (
-                    <Button href={makeHref('org-billing', { orgSlug: org.slug })}>
-                      <Fa icon='credit-card' /> Billing
-                    </Button>
-                  ) : ''}
+                          {org.roleAllowsMemberAdmin ? (
+                            <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
+                              <Fa icon='users' /> Members
+                            </Button>
+                          ) : ''}
+                        </ButtonToolbar>
+                      </Col>
+                    </Row>
+                  </Grid>
 
-                  {org.roleAllowsMemberAdmin ? (
-                    <Button href={makeHref('org-manage-members', { orgSlug: org.slug })}>
-                      <Fa icon='users' /> Members
-                    </Button>
-                  ) : ''}
-                </ButtonToolbar>
-              </ListGroupItem>
-            );
-          })}
-        </ListGroup>
+                </ListGroupItem>
+              );
+            })}
+          </ListGroup>
+        </div>
       </div>
     );
   }

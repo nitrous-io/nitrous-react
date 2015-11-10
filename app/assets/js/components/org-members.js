@@ -138,17 +138,19 @@ export default class OrgMembers extends React.Component {
     orgMemberActions.add(this.props.org.slug, newMember, newMemberRole);
   }
 
-  handleNewMemberChanged = (event) => {
-    this.setState({ newMember: event.target.value });
-  }
+  handleNewMemberChanged = () => {
+    const value = this.refs.newMember.getValue();
+    this.setState({ newMember: value });
+  };
 
-  handleNewMemberRoleChanged = (event) => {
-    this.setState({ newMemberRole: event.target.value });
-  }
+  handleNewMemberRoleChanged = () => {
+    const value = this.refs.newMemberRole.getValue();
+    this.setState({ newMemberRole: value });
+  };
 
   render() {
     const { members, user, newMember, newMemberRole,
-            adding, addFailed, updatingMember } = this.state,
+          adding, addFailed, updatingMember } = this.state,
           loading = (members == null);
 
     if (loading) {
@@ -162,7 +164,7 @@ export default class OrgMembers extends React.Component {
     const allowedRoles = Roles.allowedFor(this.props.org.role);
 
     return (
-      <div className='org-members-component'>
+      <div className='org-members-component ui-card-grid'>
         <ListGroup>
           {members.map((member) => {
             const isSelf = (member.userId === user.id),
@@ -172,11 +174,13 @@ export default class OrgMembers extends React.Component {
               <ListGroupItem key={`member-${member.id}`}>
                 <Grid>
                   <Row>
-                    <Col lg={6} md={6} sm={6} xs={6}>
+                    <Col lg={1} md={1} sm={1} xs={2} className='user-avatar'>
                       <img className='gravatar' src={member.gravatar(72)} />
-                      <span>{member.username}</span>
                     </Col>
-                    <Col lg={4} md={4} sm={4} xs={4}>
+                    <Col lg={1} md={1} sm={1} xs={2} className='collaborator-name'>
+                      <strong>{member.username}</strong>
+                    </Col>
+                    <Col lg={3} md={3} sm={3} xs={4}>
                       {canEditRole ? (
                         <select className='form-control org-member-role'
                           value={member.role}
@@ -198,11 +202,12 @@ export default class OrgMembers extends React.Component {
                         </div>
                       )}
                     </Col>
-                    <Col lg={2} md={2} sm={2} xs={2}>
+                    <Col lg={7} md={7} sm={7} xs={12} className='actions'>
                       {canEditRole ? (
-                        <Button bsStyle='warning' className='pull-right'
+                        <Button bsStyle='default' className='pull-right'
                           onClick={this.handleRemoveMember.bind(this, member)}>
-                          <Fa icon='trash' />
+                          <Fa icon='sign-out' />
+                          <span>Remove</span>
                         </Button>
                       ) : ''}
                     </Col>
@@ -214,42 +219,30 @@ export default class OrgMembers extends React.Component {
         </ListGroup>
 
         {allowedRoles.length > 0 ? (
-          <form onSubmit={this.handleAddMember}>
-            <Grid>
-              <Row>
-                <Col lg={12}>
-                  <label htmlFor='add-new-member'>Add New Member</label>
-                </Col>
-              </Row>
+          <form className='new-member-form' onSubmit={this.handleAddMember}>
+            <Input className='org-member-role'
+              ref='newMemberRole'
+              type='select'
+              defaultValue={Roles.DefaultRole}
+              disabled={adding}
+              value={newMemberRole}
+              onChange={this.handleNewMemberRoleChanged}>
+              {allowedRoles.map((role) => {
+                return (<option value={role} key={`role-${role}`}>{role}</option>);
+              })}
+            </Input>
 
-              <Row>
-                <Col lg={6} md={6} sm={6} xs={6}>
-                  <Input type='text' required placeholder='Username or email'
-                    ref='newMember'
-                    id='add-new-member'
-                    value={newMember}
-                    disabled={adding}
-                    bsStyle={addFailed ? 'error' : null}
-                    onChange={this.handleNewMemberChanged} />
-                </Col>
+            <Input type='text' required placeholder='Username or email'
+              ref='newMember'
+              id='add-new-member'
+              value={newMember}
+              disabled={adding}
+              bsStyle={addFailed ? 'error' : null}
+              onChange={this.handleNewMemberChanged}
+              buttonAfter={
+                <Button type='submit' bsStyle='primary' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
+              }/>
 
-                <Col lg={4} md={6} sm={6} xs={6}>
-                  <select className='form-control org-member-role'
-                    defaultValue={Roles.DefaultRole}
-                    disabled={adding}
-                    value={newMemberRole}
-                    onChange={this.handleNewMemberRoleChanged}>
-                    {allowedRoles.map((role) => {
-                      return (<option value={role} key={`role-${role}`}>{role}</option>);
-                    })}
-                  </select>
-                </Col>
-
-                <Col lg={2} md={12} sm={12} xs={12}>
-                  <Button type='submit' disabled={adding}>{adding ? 'Adding...' : 'Add'}</Button>
-                </Col>
-              </Row>
-            </Grid>
           </form>
         ) : ''}
       </div>

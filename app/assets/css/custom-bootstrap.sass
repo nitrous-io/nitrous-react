@@ -329,6 +329,10 @@ select.form-control
   border-radius: $border-radius-small
   +box-shadow(none)
 
+select:focus,
+select.form-control:focus
+  +box-shadow(none)
+
 textarea
   resize: vertical
 
@@ -399,6 +403,12 @@ textarea
       td
         background-color: $table-bg-hover
 
+  tbody
+    .form-group
+      margin-bottom: 0
+      .radio
+        top: 3px
+
 // Panel
 .panel
   +box-shadow(none)
@@ -461,3 +471,29 @@ textarea
   & > li
     & + li:before
       content: '/'
+
+// List Group
+.list-group
+  .list-group-item
+
+    .container
+      padding-left: 0
+      padding-right: 0
+
+    .user-avatar
+      width: 50px
+      img
+        border-radius: 50%
+
+    .collaborator-name
+      strong
+        font-size: 15px
+
+    .actions
+      padding-right: 0
+
+      .btn
+        margin-right: 0
+
+    span.label
+      margin-left: 8px

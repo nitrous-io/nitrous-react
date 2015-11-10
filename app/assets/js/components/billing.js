@@ -8,6 +8,7 @@ import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
 import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
+import LoadingIndicator from 'components/loading-indicator';
 import Org from 'records/org';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
@@ -33,6 +34,14 @@ export default class Billing extends React.Component {
     return billingStore.userBillingProfile;
   }
 
+  findSubscriptions = () => {
+    const org = this.context.org;
+    if (org) {
+      return subscriptionStore.orgSubscriptionsBySlug(org.slug);
+    }
+    return subscriptionStore.activeUserSubscriptions;
+  }
+
   findInvoices = () => {
     const org = this.context.org;
     if (org) {
@@ -43,8 +52,10 @@ export default class Billing extends React.Component {
 
   state = {
     billingProfile: this.findBillingProfile(),
-    subscriptions: subscriptionStore.subscriptions,
-    invoices: this.findInvoices()
+    subscriptions: this.findSubscriptions(),
+    invoices: this.findInvoices(),
+    loadingSubscriptions: true,
+    loadingInvoices: true
   };
 
   componentWillMount() {
@@ -56,10 +67,14 @@ export default class Billing extends React.Component {
 
   componentDidMount() {
     subscriptionStore.onChange(this.subscriptionStoreDidChange);
-    subscriptionActions.fetchAll();
+    const { org } = this.context;
+    if (org) {
+      subscriptionActions.fetchAllByOrgSlug(org.slug);
+    } else {
+      subscriptionActions.fetchAll();
+    }
 
     invoiceStore.onChange(this.invoiceStoreDidChange);
-    const { org } = this.context;
     if (org) {
       invoiceActions.fetchAllByOrgSlug(org.slug);
     } else {
@@ -73,19 +88,76 @@ export default class Billing extends React.Component {
   }
 
   subscriptionStoreDidChange = () => {
-    this.setState({ subscriptions: subscriptionStore.subscriptions });
+    this.setState({ loadingSubscriptions: false, subscriptions: this.findSubscriptions() });
   };
 
   invoiceStoreDidChange = () => {
-    this.setState({ invoices: this.findInvoices() });
+    this.setState({ loadingInvoices: false, invoices: this.findInvoices() });
   };
 
+  renderSubscriptions = () => {
+    const { subscriptions, loadingSubscriptions } = this.state,
+          showSubscriptions = subscriptions && subscriptions.count();
+
+    if (showSubscriptions) {
+      return (
+        <Table responsive hover>
+          <tbody>
+            {subscriptions.toList().map((subscription) => {
+              return (
+                <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
+              );
+            })}
+          </tbody>
+        </Table>
+      );
+    }
+
+    return (loadingSubscriptions ? (
+        <LoadingIndicator />
+      ) : (
+        <p>You don&#39;t have any subscriptions.</p>
+      ));
+  }
+
+  renderInvoices = () => {
+    const { invoices, loadingInvoices } = this.state,
+          showInvoices = invoices && invoices.count();
+
+    if (showInvoices) {
+      return (
+        <Table responsive hover>
+          <thead>
+            <tr>
+              <th>Subscription</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoices.slice(0, 8).toList().map((invoice) => {
+              return (
+                <InvoiceListItem key={`invoice-${invoice.id}`} invoice={invoice} />
+              );
+            })}
+          </tbody>
+        </Table>
+      );
+    }
+
+    return (loadingInvoices ? (
+        <LoadingIndicator />
+      ) : (
+        <p>You don&#39;t have any invoices.</p>
+      ));
+  }
+
   render() {
-    const { billingProfile, subscriptions, invoices } = this.state,
+    const { billingProfile } = this.state,
           { org } = this.context,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
-          { makeHref } = this.context.router,
-          showInvoices = invoices && invoices.count();
+          { makeHref } = this.context.router;
 
     let cardTypeCssClass = cardType ? cardType.replace(/_/g, '').toLowerCase() : '';
     if (cardType === 'AmericanExpress') {
@@ -138,45 +210,11 @@ export default class Billing extends React.Component {
           </Panel>
 
           <Panel header={<h4>Subscriptions</h4>}>
-            {subscriptions ? (
-              <Table responsive hover>
-                <tbody>
-                  {subscriptions.toList().map((subscription) => {
-                    return (
-                      <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
-                    );
-                  })}
-                </tbody>
-              </Table>
-            ) : (
-              <p>You don&#39;t have any subscriptions.</p>
-            )}
+            {this.renderSubscriptions()}
           </Panel>
 
           <Panel header={<h4>Billing History</h4>}>
-            {showInvoices ? (
-              <Table responsive hover>
-                <thead>
-                  <tr>
-                    <th>Subscription</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.slice(0, 8).toList().map((invoice) => {
-                    return (
-                      <InvoiceListItem key={`invoice-${invoice.id}`} invoice={invoice} />
-                    );
-                  })}
-                </tbody>
-              </Table>
-            ) : (
-              <div>
-                <p>You don&#39;t have any invoices available.</p>
-              </div>
-            )}
+            {this.renderInvoices()}
           </Panel>
 
         </div>

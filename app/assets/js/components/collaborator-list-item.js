@@ -109,7 +109,7 @@ export default class CollaboratorListItem extends React.Component {
       <div className='collaborator-list-item-component'>
         <Grid>
           <Row>
-            <Col lg={1} md={1} sm={1} xs={2}>
+            <Col lg={1} md={1} sm={1} xs={2} className='user-avatar'>
               <img className='gravatar' src={collaborator.gravatar(72)} />
             </Col>
             <Col lg={10} md={10} sm={10} xs={10} className='collaborator-name'>
@@ -131,14 +131,16 @@ export default class CollaboratorListItem extends React.Component {
 
             <Col lg={1} md={1} sm={1} xs={12} className='actions'>
               {!shared ? (
-                <Button bsStyle='warning' className='pull-right' onClick={this.handleRemove}>
-                  <Fa icon='trash' />
+                <Button bsStyle='default' className='pull-right' onClick={this.handleRemove}>
+                  <Fa icon='sign-out' />
+                  <span>Remove from Project</span>
                 </Button>
               ) : ''}
 
               {shared && isSelf ? (
-                <Button bsStyle='warning' className='pull-right' onClick={this.handleLeave}>
+                <Button bsStyle='default' className='pull-right' onClick={this.handleLeave}>
                   <Fa icon='sign-out' />
+                  <span>Leave Project</span>
                 </Button>
               ) : ''}
             </Col>
@@ -157,7 +159,7 @@ export default class CollaboratorListItem extends React.Component {
             <Button bsStyle='danger'
               disabled={removing}
               onClick={removing ? null : this.handleRemoveModalOK}>
-              {removing ? 'Removing...' : 'Remove'}
+              {removing ? 'Removing...' : 'Remove from Project'}
             </Button>
           </Modal.Footer>
         </Modal>
@@ -174,7 +176,7 @@ export default class CollaboratorListItem extends React.Component {
             <Button bsStyle='danger'
               disabled={leaving}
               onClick={leaving ? null : this.handleLeaveModalOK}>
-              {leaving ? 'Leaving...' : 'Leave'}
+              {leaving ? 'Leaving...' : 'Leave this Project'}
             </Button>
           </Modal.Footer>
         </Modal>
