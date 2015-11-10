@@ -115,7 +115,7 @@ export default class ContextSwitcher extends React.Component {
 
     const timeAgoFormatter = (value, unit) => {
       if (value !== 1) {
-        unit += 's'
+        unit += 's';
       }
       return value + ' ' + unit;
     };
