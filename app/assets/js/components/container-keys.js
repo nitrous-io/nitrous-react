@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Link } from 'react-router';
-import { Button, Nav, NavItem } from 'react-bootstrap';
+import { Button, Alert, Panel } from 'react-bootstrap';
 import Container from 'records/container';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -11,12 +10,10 @@ import containerStore from 'stores/container-store';
 import containerKeyStore from 'stores/container-key-store';
 import hostStore from 'stores/host-store';
 import userKeyStore from 'stores/user-key-store';
-import { Alert, Panel } from 'react-bootstrap';
+import ContainerNav from 'components/container-nav';
 import SelectableTextarea from 'components/selectable-textarea';
 import Fa from 'components/fa';
-import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
-import HostNav from 'components/host-nav';
 import UserKeyList from 'components/user-key-list';
 
 export default class ContainerKeys extends React.Component {
@@ -194,38 +191,21 @@ export default class ContainerKeys extends React.Component {
   }
 
   render() {
-    const { container, containerKeys, userKeys, containerKeysFailed } = this.state,
+    const { containerSlug } = this.props.params,
+          { container, containerKeys, userKeys, containerKeysFailed } = this.state,
           { host } = this.context,
           shared = !host,
-          loading = (container == null || (containerKeys == null && !containerKeysFailed) || userKeys == null),
-          { makeHref } = this.context.router;
+          loading = (container == null || (containerKeys == null && !containerKeysFailed) || userKeys == null);
 
     return (
-      <div className='container-keys-component container-subpage container'>
-        {!shared ? (
-          <HostNav host={host} activeTab='containers' />
-        ) : (
-          <div>
-            <ContextSwitcher shared />
-            <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey='containers'>
-              <NavItem href={makeHref('shared-containers')} eventKey='containers'>Projects</NavItem>
-            </Nav>
-          </div>
-        )}
-
-        {loading ? (
-          <LoadingIndicator />
-        ) : (
-          <div className='inner-container'>
-            <h4>
-              {container.displayName}
-              <span className='divider'><Fa icon='angle-right' /></span>
-              Manage SSH Keys
-            </h4>
-
-            {container.state === 'running' ? (
-              <div>
-                <Panel header={(<h4>Project Public Keys</h4>)}>
+      <div className='container-keys-component'>
+        <ContainerNav activeTab='keys' containerSlug={containerSlug} container={container} host={host}>
+          <Panel header={<h4>Container Public Key</h4>}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              container.state === 'running' ? (
+                <div>
                   <p className='hint'> <Fa icon='info-circle' /> Public keys on your project. Add these to external services to allow access to them from your project.</p>
 
                   {containerKeys && containerKeys.size > 0 ?
@@ -244,24 +224,23 @@ export default class ContainerKeys extends React.Component {
                       <Alert bsStyle='warning'><p>There are no public keys on your project.</p></Alert>
                     )
                   )}
-                </Panel>
-
-                <Panel header={(<h4>User Public Keys</h4>)}>
-                  <UserKeyList userKeys={userKeys} host={host} shared={shared} />
-                </Panel>
-              </div>
-            ) : (
-              <Alert bsStyle='warning'>
-                <p>Please start this project to view its keys.</p>
-                {!shared ? (
-                  <p><Link to='containers' className='btn btn-default' params={{ hostSlug: host.slug }}>Back to Projects List</Link></p>
-                ): (
-                  <p><Link to='shared-containers' className='btn btn-default'>Back to Projects List</Link></p>
-                )}
-              </Alert>
+                </div>
+              ) : (
+                <Alert bsStyle='warning'>
+                  <p>Please start this project to view its keys.</p>
+                </Alert>
+              )
             )}
-          </div>
-        )}
+          </Panel>
+
+          <Panel header={(<h4>Public Keys for SSH Access</h4>)}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              <UserKeyList userKeys={userKeys} host={host} shared={shared} />
+            )}
+          </Panel>
+        </ContainerNav>
       </div>
     );
   }
