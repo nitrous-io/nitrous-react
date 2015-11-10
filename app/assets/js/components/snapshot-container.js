@@ -30,7 +30,14 @@ export default class SnapshotContainer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.container === this.props.container && nextProps.showModal === this.props.showModal) {
+    const { container } = this.props,
+          nextContainer = nextProps.container;
+    if (nextContainer.slug === container.slug && nextContainer.snapshotDisabled && this.props.showModal && nextProps.showModal) {
+      nextProps.onHideModal();
+      return;
+    }
+
+    if (nextContainer.slug === container.slug && nextProps.showModal === this.props.showModal) {
       return; // no change, do not bother
     }
 
