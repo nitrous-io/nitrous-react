@@ -78,7 +78,9 @@ export default class SubscriptionListItem extends React.Component {
         <td>Workspace {subscription.hostSlug} – {subscription.plan.name}</td>
         <td>
           {subscription.activeTrialEnd ? (
-            <span>Trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" /></span>
+            <span>
+              Free Trial ends on <Time value={subscription.activeTrialEnd} format="MMM DD, YYYY" />
+            </span>
           ) : (
             <span>{periodEndDescriptor} <Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></span>
           )}
