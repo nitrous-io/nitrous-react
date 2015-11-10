@@ -20,6 +20,26 @@ class SubscriptionActions {
     });
   }
 
+  fetchAllByOrgSlug(orgSlug) {
+    const promise = authedAjax({
+      type: 'GET',
+      url: `/api/v0/orgs/${orgSlug}/subscriptions`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'subscription.fetched-all',
+        data: { data, orgSlug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'subscription.fetch-all-failed',
+        data: { jqxhr, orgSlug }
+      });
+    });
+    return promise;
+  }
+
   cancel(slug) {
     return authedAjax({
       type: 'DELETE',

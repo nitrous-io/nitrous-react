@@ -45,6 +45,10 @@ class OrgStore extends Store {
   orgByOrgSlug(slug) {
     return this._orgs.find((org) => org.slug === slug);
   }
+
+  orgByOrgId(id) {
+    return this._orgs.find((org) => org.id === id);
+  }
 }
 
 export default new OrgStore();
