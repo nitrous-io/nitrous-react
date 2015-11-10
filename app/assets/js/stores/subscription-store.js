@@ -1,8 +1,10 @@
+import { OrderedMap } from 'immutable';
+
 import Store from 'stores/store';
 import Subscription from 'records/subscription';
 import hostStore from 'stores/host-store';
-import { OrderedMap } from 'immutable';
 import snackbarActions from 'actions/snackbar-actions';
+import orgStore from 'stores/org-store';
 
 class SubscriptionStore extends Store {
   _userSubscriptions = OrderedMap(); // <K: slug, V: Subscription>
@@ -53,9 +55,21 @@ class SubscriptionStore extends Store {
         break;
       }
       case 'events:subscription.updated': {
-        const { data } = action;
-        const sub = Subscription.deserialize(data.subscription);
-        this._subscriptions = this._subscriptions.set(sub.slug, sub);
+        const { data } = action,
+              sub = Subscription.deserialize(data.subscription);
+        if (sub.orgId) {
+          const org = orgStore.orgByOrgId(sub.orgId);
+          if (org) {
+            let subs = this._orgSubscriptions.get(org.slug);
+            if (!subs) {
+              subs = OrderedMap();
+            }
+            subs = subs.set(sub.slug, sub);
+            this._orgSubscriptions = this._orgSubscriptions.set(org.slug, subs);
+          }
+        } else {
+          this._userSubscriptions = this._userSubscriptions.set(sub.slug, sub);
+        }
         this._lastError = null;
         break;
       }
@@ -85,7 +99,7 @@ class SubscriptionStore extends Store {
   }
 
   findBySlug(slug) {
-    return this._subscriptions.find((s) => {
+    return this._userSubscriptions.find((s) => {
       return s.slug === slug;
     });
   }
