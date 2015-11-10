@@ -54,6 +54,12 @@ class SubscriptionStore extends Store {
       return s.activeTrialEnd;
     });
   }
+
+  findBySlug(slug) {
+    return this._subscriptions.find((s) => {
+      return s.slug === slug;
+    });
+  }
 }
 
 export default new SubscriptionStore();
