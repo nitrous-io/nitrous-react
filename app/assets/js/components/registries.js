@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Table, Button } from 'react-bootstrap';
+import { Table, Button, ButtonToolbar } from 'react-bootstrap';
 import Host from 'records/host';
 import ConnectRegistry from 'components/connect-registry';
 import DisconnectRegistry from 'components/disconnect-registry';
@@ -117,22 +117,26 @@ export default class Registries extends React.Component {
               <td>DockerHub</td>
               <td>{dockerRegistry ? dockerRegistry.username : 'Not Connected'}</td>
               <td>
-                {dockerRegistry ?
-                  this.disconnectRegistryButton(dockerRegistry)
-                  :
-                  <Button onClick={this.handleConnectDockerRegistryButton}>Connect</Button>
-                }
+                <ButtonToolbar className='pull-right'>
+                  {dockerRegistry ?
+                    this.disconnectRegistryButton(dockerRegistry)
+                    :
+                    <Button onClick={this.handleConnectDockerRegistryButton}>Connect</Button>
+                  }
+                </ButtonToolbar>
               </td>
             </tr>
             <tr>
               <td>Quay.io</td>
               <td>{quayRegistry ? quayRegistry.username : 'Not Connected'}</td>
               <td>
-                {quayRegistry ?
-                  this.disconnectRegistryButton(quayRegistry)
-                  :
-                  <Button onClick={this.handleConnectQuayRegistryButton}>Connect</Button>
-                }
+                <ButtonToolbar className='pull-right'>
+                  {quayRegistry ?
+                    this.disconnectRegistryButton(quayRegistry)
+                    :
+                    <Button onClick={this.handleConnectQuayRegistryButton}>Connect</Button>
+                  }
+                </ButtonToolbar>
               </td>
             </tr>
             {remaining.map((registry) => {
@@ -141,7 +145,9 @@ export default class Registries extends React.Component {
                   <td>{registry.url}</td>
                   <td>{registry.username}</td>
                   <td>
-                    {this.disconnectRegistryButton(registry)}
+                    <ButtonToolbar className='pull-right'>
+                      {this.disconnectRegistryButton(registry)}
+                    </ButtonToolbar>
                   </td>
                 </tr>
               );

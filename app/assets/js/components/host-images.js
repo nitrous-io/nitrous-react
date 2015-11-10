@@ -30,7 +30,7 @@ export default class HostImages extends React.Component {
           <ImageList manageImages host={host} />
 
           {advanced ? (
-            <div>
+            <div className="inner-container">
               <h4>Docker Registries</h4>
               <Registries showDisconnect host={host} />
             </div>
