@@ -16,7 +16,9 @@ export default class SubscriptionListItem extends React.Component {
   state = {
     showCancelSubscriptionModal: false,
     showCancelTrialModal: false,
-    showReactivateModal: false
+    showReactivateModal: false,
+    canceling: false,
+    reactivating: false
   };
 
   handleShowCancelModal = () => {
@@ -45,6 +47,7 @@ export default class SubscriptionListItem extends React.Component {
 
   handleCancel = () => {
     subscriptionActions.cancel(this.props.subscription.slug);
+    this.setState({ canceling: true });
     if (this.props.subscription.activeTrialEnd) {
       this.hideCancelTrialModal();
     } else {
@@ -66,12 +69,15 @@ export default class SubscriptionListItem extends React.Component {
 
   handleReactivate = () => {
     subscriptionActions.reactivate(this.props.subscription.slug);
+    this.setState({ reactivating: true });
     this.hideReactivateModal();
   };
 
   render() {
     const { subscription } = this.props,
-          periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on";
+          periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
+          cancelButtonLabel = this.state.canceling ? "Canceling ..." : "Cancel",
+          reactivateButtonLabel = this.state.reactivating ? "Reactivating ..." : "Reactivate";
 
     return (
       <tr>
@@ -90,9 +96,9 @@ export default class SubscriptionListItem extends React.Component {
         </td>
         <td>
           {subscription.cancelPending ? (
-            <Button onClick={this.handleShowReactivateModal}>Reactivate</Button>
+            <Button onClick={this.handleShowReactivateModal} disabled={this.state.reactivating} >{reactivateButtonLabel}</Button>
           ) : (
-            <Button bsStyle='danger' onClick={this.handleShowCancelModal}>Cancel</Button>
+            <Button bsStyle='danger' onClick={this.handleShowCancelModal} disabled={this.state.canceling}>{cancelButtonLabel}</Button>
           )}
 
           <Modal show={this.state.showCancelSubscriptionModal} onHide={this.hideCancelSubscriptionModal}>
