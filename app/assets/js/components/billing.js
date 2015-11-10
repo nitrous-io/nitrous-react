@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, Panel, Table } from 'react-bootstrap';
+import { Button, ButtonGroup, ButtonToolbar, Panel, Table } from 'react-bootstrap';
 
 import billingStore from 'stores/billing-store';
 import subscriptionStore from 'stores/subscription-store';
@@ -66,6 +66,11 @@ export default class Billing extends React.Component {
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router;
 
+    let cardTypeCssClass = cardType ? cardType.replace(/_/g, '').toLowerCase() : '';
+    if (cardType === 'AmericanExpress') {
+      cardTypeCssClass = 'amex';
+    }
+
     var href = makeHref('payment-method');
 
     const { org } = this.context;
@@ -78,15 +83,33 @@ export default class Billing extends React.Component {
         <div className='container'>
           <Panel header={<h4>Payment Method</h4>} className='payment-method'>
             {hasCard ? (
+
               <div>
-                <p>
-                  <b>{cardType}</b> - {lastFour}
-                </p>
-                <p>
-                  Expires {expMonth}/{expYear}
-                </p>
-                <p><Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</Button></p>
+                <div className='bank-card'>
+                  <div className='card-number'>
+                    <span className='card-number-hidden'>••••</span>
+                    <span className='card-number-hidden'>••••</span>
+                    <span className='card-number-hidden'>••••</span>
+                    <span>{lastFour}</span>
+                  </div>
+                  <div className={`card-type ${cardTypeCssClass}`}>
+                    {cardType}
+                  </div>
+                  <div className='card-expiry'>
+                    <span className='card-expiry-label'>Valid until</span>
+                    <div className='card-expiry-date'>{expMonth}/{expYear}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <ButtonToolbar>
+                    <ButtonGroup>
+                      <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Payment Method</Button>
+                    </ButtonGroup>
+                  </ButtonToolbar>
+                </div>
               </div>
+
             ) : (
               <div>
                 <p>No payment method on file.</p>

@@ -170,7 +170,7 @@ export default class UserKeyList extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <Button ref='modalCancel' onClick={this.handleRegisterModalCancel}>Cancel</Button>
-            <Button bsStyle='danger'
+            <Button bsStyle='primary'
               disabled={registering}
               onClick={registering ? null : this.handleRegisterModalOK}>
               {registering ? 'Registering...' : 'Register Key'}

@@ -14,6 +14,9 @@ body
     font-size: 22px
     padding-bottom: 10px
 
+  .inner-container
+    padding-top: 20px
+
 // Navbar
 .navbar
   .container
@@ -76,6 +79,15 @@ nav + .tab-content
   color: $navbar-default-link-color
   border-radius: $border-radius-small
 
+.nav-stacked
+  a
+    color: $navbar-default-link-color
+
+  li.disabled
+    a
+      &, &:hover
+        color: rgba($navbar-default-link-color,.4)
+
 .ui-segmented-pill
   .nav-pills
     > li > a
@@ -91,7 +103,7 @@ nav + .tab-content
 .btn
   border: 1px solid transparent
   border-radius: $border-radius-small
-  @include box-shadow(0 1px 0 rgba(0,0,0,.1))
+  @include box-shadow(none)
   @include transition(all 0.25s)
 
   &:hover,
@@ -412,6 +424,8 @@ textarea
           td
             border-top: 0
 
+    .btn-toolbar
+      padding-top: 20px
 
 // Modals
 .modal-dialog

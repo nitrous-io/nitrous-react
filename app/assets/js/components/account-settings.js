@@ -177,14 +177,14 @@ export default class AccountSettings extends React.Component {
           <Panel header={(<h4>Account</h4>)}>
             <form onSubmit={this.handleSubmit}>
               <div className='name'>
-                <Input label='Name' type='text' placeholder='Your name...'
+                <Input label='Name' type='text' placeholder='John Doe'
                   required disabled={updating} value={name} onChange={this.handleChangeNameField} />
               </div>
               {unconfirmedEmail ? (
                 <p><i>The email {unconfirmedEmail} is unconfirmed, in the meantime emails will be sent to {user.email}.</i></p>
               ) : ''}
               <div className='email'>
-                <Input label='Email' type='text' placeholder='Email...'
+                <Input label='Email' type='text' placeholder='johndoe@mail.com'
                   help={(!email ? 'An email must be provided' : null)}
                   required disabled={updating} value={email} onChange={this.handleChangeEmailField} />
               </div>

@@ -20,7 +20,7 @@ export default class HostImages extends React.Component {
     return (
       <div className='host-images-component container'>
         <HostNav host={host} activeTab='images' />
-        <div className='container'>
+        <div className='inner-container'>
           <ImageList manageImages host={host} />
 
           {advanced ? (

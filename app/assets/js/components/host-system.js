@@ -79,7 +79,7 @@ export default class HostSystem extends React.Component {
     return (
       <div className='host-system-component container'>
         <HostNav host={host} activeTab='system' />
-        <div className='container'>
+        <div className='inner-container'>
           <Table responsive striped bordered condensed hover id='host-system-info'>
             <colgroup>
               <col className='col-lg-2 col-md-2 col-sm-4 col-xs-1' />
