@@ -103,39 +103,39 @@ nav + .tab-content
 .btn
   border: 1px solid transparent
   border-radius: $border-radius-small
-  @include box-shadow(none)
-  @include transition(all 0.25s)
+  +box-shadow(none)
+  +transition(all 0.25s)
 
   &:hover,
   &:focus,
   &.focus
     border: 1px solid transparent
-    @include box-shadow(none)
+    +box-shadow(none)
 
   &:active,
   &.active
     outline: 0
     background-image: none
-    @include box-shadow(none)
+    +box-shadow(none)
 
   &:active,
   &.active
     &:focus,
     &.focus
-      @include box-shadow(none)
+      +box-shadow(none)
 
   &-link
-    @include box-shadow(none)
+    +box-shadow(none)
     color: $btn-default-color
 
     &:hover,
     &:focus
-      @include box-shadow(none)
+      +box-shadow(none)
       color: $btn-default-color
       text-decoration: none
 
   &-default
-    @include box-shadow(none)
+    +box-shadow(none)
     border: 1px solid rgba(0,0,0,.1)
 
     &:hover,
@@ -144,12 +144,12 @@ nav + .tab-content
       color: $btn-default-color
       border: 1px solid rgba(0,0,0,.1)
       background: rgba(0,0,0,.025)
-      @include box-shadow(none)
+      +box-shadow(none)
 
     &:active,
     &.active
       border: 1px solid rgba(0,0,0,.1)
-      @include box-shadow(none)
+      +box-shadow(none)
 
     &.disabled
       background-color: rgba(0,0,0,.1)
@@ -299,15 +299,15 @@ input[type=number],
   border: 1px solid #ddd
   border-radius: $border-radius-small
   -webkit-appearance: none
-  @include box-shadow(none)
+  +box-shadow(none)
 
   &:focus
-    @include box-shadow(none)
+    +box-shadow(none)
     border-color: $brand-primary
 
   &[disabled],
   &[readonly]
-    @include box-shadow(none)
+    +box-shadow(none)
     border: 1px dotted #ddd
 
   &.input
@@ -327,7 +327,7 @@ select,
 select.form-control
   border: 1px solid #ddd
   border-radius: $border-radius-small
-  @include box-shadow(none)
+  +box-shadow(none)
 
 textarea
   resize: vertical
