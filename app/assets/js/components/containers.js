@@ -9,6 +9,7 @@ import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import ContainerList from 'components/container-list';
 import HostNav from 'components/host-nav';
+import LoadingIndicator from 'components/loading-indicator';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 
@@ -73,7 +74,8 @@ export default class Containers extends React.Component {
     const { host } = this.context,
           { announcements } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
-          containers = this.state.containers ? this.state.containers.toList() : null;
+          containers = this.state.containers ? this.state.containers.toList() : null,
+          loading = host.isResuming;
 
     return (
       <div className='containers-component container'>
@@ -81,7 +83,12 @@ export default class Containers extends React.Component {
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
         ) : ''}
-        <ContainerList containers={containers} host={host} />
+
+        {loading ? (
+          <LoadingIndicator large />
+        ) : (
+          <ContainerList containers={containers} host={host} />
+        )}
       </div>
     );
   }
