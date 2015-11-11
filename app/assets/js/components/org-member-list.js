@@ -177,10 +177,8 @@ export default class OrgMemberList extends React.Component {
                     <Col lg={1} md={1} sm={1} xs={2} className='user-avatar'>
                       <img className='gravatar' src={member.gravatar(72)} />
                     </Col>
-                    <Col lg={1} md={1} sm={1} xs={2} className='collaborator-name'>
+                    <Col lg={9} md={9} sm={9} xs={2} className='collaborator-name'>
                       <strong>{member.username}</strong>
-                    </Col>
-                    <Col lg={3} md={3} sm={3} xs={4}>
                       {canEditRole ? (
                         <select className='form-control org-member-role'
                           value={member.role}
@@ -202,7 +200,7 @@ export default class OrgMemberList extends React.Component {
                         </div>
                       )}
                     </Col>
-                    <Col lg={7} md={7} sm={7} xs={12} className='actions'>
+                    <Col lg={2} md={2} sm={2} xs={12} className='actions'>
                       {canEditRole ? (
                         <Button bsStyle='default' className='pull-right'
                           onClick={this.handleRemoveMember.bind(this, member)}>
