@@ -158,7 +158,7 @@ export default class Billing extends React.Component {
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router;
 
-    let cardTypeCssClass = cardType ? cardType.replace(/_/g, '').toLowerCase() : '';
+    let cardTypeCssClass = cardType ? cardType.replace(/[_-\s]/g, '').toLowerCase() : '';
     if (cardType === 'AmericanExpress') {
       cardTypeCssClass = 'amex';
     }
