@@ -68,10 +68,10 @@ export default (
       <Route name='new-org' path='orgs/new' handler={NewOrg} />
 
       <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
-        <Route name='org-host' path='workstations' handler={OrgHost}>
-          <DefaultRoute handler={redirectTo('new-org-host')} />
-          <Route name='new-org-host' path='new' handler={NewHost} />
-        </Route>
+        <DefaultRoute handler={redirectTo('org-host')} />
+
+        <Route name='org-host' path='workstations' handler={OrgHost} />
+        <Route name='new-org-host' path='workstations/new' handler={NewHost} />
 
         <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
         <Route name='org-members' path='members' handler={OrgMembers} />

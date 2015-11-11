@@ -14,15 +14,18 @@ export default class OrgHost extends React.Component {
   componentWillMount() {
     const { router, org } = this.context;
 
-    if (org) {
-      const orgHosts = hostStore.hostsByOrgId(org.id);
-
-      if (orgHosts.size > 0) {
-        router.transitionTo('host', { hostSlug: orgHosts.first().slug });
-      }
-    } else {
+    if (!org) {
       router.transitionTo('user-host');
+      return;
     }
+
+    const orgHosts = hostStore.hostsByOrgId(org.id);
+    if (orgHosts.size > 0) {
+      router.transitionTo('host', { hostSlug: orgHosts.first().slug });
+      return;
+    }
+
+    router.transitionTo('new-org-host', { orgSlug: org.slug });
   }
 
   render() {

@@ -129,7 +129,7 @@ export default class ContextSwitcher extends React.Component {
           {showOrgs ? <MenuItem header>Organization</MenuItem> : ''}
           {showOrgs ? orgs.map((org) => {
             return (
-              <MenuItem key={`org-${org.id}`} href={makeHref('org-host', { orgSlug: org.slug })}>
+              <MenuItem key={`org-${org.id}`} href={makeHref('org', { orgSlug: org.slug })}>
                 <img className='gravatar' src={org.gravatar(40)} />
                 {org.displayName}
               </MenuItem>
