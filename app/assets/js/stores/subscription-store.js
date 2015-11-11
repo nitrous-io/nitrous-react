@@ -43,6 +43,7 @@ class SubscriptionStore extends Store {
       case 'subscription.cancel-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         snackbarActions.post(`Failed to cancel subscription!`);
+        this.emit('cancel-failed');
         break;
       }
       case 'subscription.reactivated': {
@@ -52,6 +53,7 @@ class SubscriptionStore extends Store {
       case 'subscription.reactivate-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         snackbarActions.post(`Failed to reactivate subscription!`);
+        this.emit('reactivate-failed');
         break;
       }
       case 'events:subscription.updated': {
@@ -69,6 +71,25 @@ class SubscriptionStore extends Store {
           }
         } else {
           this._userSubscriptions = this._userSubscriptions.set(sub.slug, sub);
+        }
+        this._lastError = null;
+        break;
+      }
+      case 'events:subscription.deleted': {
+        const { data } = action,
+              sub = Subscription.deserialize(data.subscription);
+        if (sub.orgId) {
+          const org = orgStore.orgByOrgId(sub.orgId);
+          if (org) {
+            let subs = this._orgSubscriptions.get(org.slug);
+            if (!subs) {
+              subs = OrderedMap();
+            }
+            subs = subs.delete(sub.slug, sub);
+            this._orgSubscriptions = this._orgSubscriptions.set(org.slug, subs);
+          }
+        } else {
+          this._userSubscriptions = this._userSubscriptions.delete(sub.slug);
         }
         this._lastError = null;
         break;
