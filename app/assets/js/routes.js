@@ -103,9 +103,9 @@ export default (
 
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
-
-      <NotFoundRoute handler={NotFound} />
     </Route>
+
+    <NotFoundRoute handler={NotFound} />
   </Route>
 );
 
