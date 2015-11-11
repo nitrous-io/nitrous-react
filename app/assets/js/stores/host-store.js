@@ -67,7 +67,9 @@ class HostStore extends Store {
       case 'events:host.restarting':
       case 'events:host.restarted':
       case 'events:host.stopping':
-      case 'events:host.stopped': {
+      case 'events:host.stopped':
+      case 'events:host.updated':
+      case 'events:host.destroying': {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
 
@@ -104,13 +106,13 @@ class HostStore extends Store {
 
   get userHosts() {
     return this._hosts.filter((h) => {
-      return !h.orgId && !h.terminatedAt && h.state !== 'terminated';
+      return !h.orgId && !h.terminatedAt && h.state !== 'terminated' && h.state !== 'terminating';
     });
   }
 
   hostsByOrgId(orgId) {
     return this._hosts.filter((h) => {
-      return h.orgId === orgId && !h.terminatedAt && h.state !== 'terminated';
+      return h.orgId === orgId && !h.terminatedAt && h.state !== 'terminated' && h.state !== 'terminating';
     });
   }
 
