@@ -33,6 +33,17 @@ class OrgStore extends Store {
         this.emit('create-failed', { slug });
         break;
       }
+      case 'org.left': {
+        const { orgSlug } = action.data;
+        this._orgs = this._orgs.delete(orgSlug);
+        this._lastError = null;
+        break;
+      }
+      case 'org.leave-failed': {
+        const { orgSlug, member, jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        break;
+      }
       default: return;
     }
     this.notifyChange();
