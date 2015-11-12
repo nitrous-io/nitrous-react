@@ -4,6 +4,7 @@ import Time from 'react-time';
 
 import Subscription from 'records/subscription';
 import subscriptionActions from 'actions/subscription-actions';
+import subscriptionStore from 'stores/subscription-store';
 import Currency from 'components/currency';
 
 export default class SubscriptionListItem extends React.Component {
@@ -16,7 +17,26 @@ export default class SubscriptionListItem extends React.Component {
   state = {
     showCancelSubscriptionModal: false,
     showCancelTrialModal: false,
-    showReactivateModal: false
+    showReactivateModal: false,
+    canceling: subscriptionStore.getPendingState(this.props.subscription.slug) === 'canceling',
+    reactivating: subscriptionStore.getPendingState(this.props.subscription.slug) === 'reactivating'
+  };
+
+  componentDidMount() {
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+  }
+
+  componentWillUnmount() {
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
+  }
+
+  subscriptionStoreDidChange = () => {
+    const { slug } = this.props.subscription;
+
+    this.setState({
+      canceling: subscriptionStore.getPendingState(slug) === 'canceling',
+      reactivating: subscriptionStore.getPendingState(slug) === 'reactivating'
+    });
   };
 
   handleShowCancelModal = () => {
@@ -44,6 +64,7 @@ export default class SubscriptionListItem extends React.Component {
   };
 
   handleCancel = () => {
+    this.setState({ canceling: true });
     subscriptionActions.cancel(this.props.subscription.slug);
     if (this.props.subscription.activeTrialEnd) {
       this.hideCancelTrialModal();
@@ -65,13 +86,17 @@ export default class SubscriptionListItem extends React.Component {
   };
 
   handleReactivate = () => {
+    this.setState({ reactivating: true });
     subscriptionActions.reactivate(this.props.subscription.slug);
     this.hideReactivateModal();
   };
 
   render() {
     const { subscription } = this.props,
-          periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on";
+          periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
+          { canceling, reactivating } = this.state,
+          cancelButtonLabel = canceling ? "Canceling ..." : "Cancel",
+          reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate";
 
     return (
       <tr>
@@ -90,9 +115,11 @@ export default class SubscriptionListItem extends React.Component {
         </td>
         <td>
           {subscription.cancelPending ? (
-            <Button onClick={this.handleShowReactivateModal}>Reactivate</Button>
+            <Button onClick={this.handleShowReactivateModal} disabled={reactivating} >{reactivateButtonLabel}</Button>
           ) : (
-            <Button bsStyle='danger' onClick={this.handleShowCancelModal}>Cancel</Button>
+            <div>
+            <Button bsStyle='danger' onClick={this.handleShowCancelModal} disabled={canceling}>{cancelButtonLabel}</Button>
+            </div>
           )}
 
           <Modal show={this.state.showCancelSubscriptionModal} onHide={this.hideCancelSubscriptionModal}>
