@@ -69,14 +69,15 @@ export default class UserKeyListItem extends React.Component {
       <div className='user-key-list-item-component'>
         <Grid>
           <Row>
-            <Col lg={11} md={11} sm={11} xs={12} className='content'>
+            <Col lg={10} md={10} sm={10} xs={12} className='content'>
               <h4>{userKey.displayName}</h4>
               <p className='hint'>Added <TimeAgo date={userKey.createdAt} /></p>
             </Col>
 
-            <Col lg={1} md={1} sm={1} xs={12} className='actions'>
-              <Button bsStyle='warning' className='pull-right' onClick={this.handleDelete}>
+            <Col lg={2} md={2} sm={2} xs={12} className='actions'>
+              <Button bsStyle='default' className='pull-right' onClick={this.handleDelete}>
                 <Fa icon='trash' />
+                <span>Delete</span>
               </Button>
             </Col>
           </Row>
