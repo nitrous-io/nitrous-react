@@ -227,7 +227,7 @@ export default class ImageList extends React.Component {
                 );
               }) : (
                 <tr>
-                  <td className="text-center" colSpan={4}>
+                  <td className="text-center" colSpan={5}>
                     <p className="empty-state">No Snapshots</p>
                   </td>
                 </tr>
@@ -264,7 +264,9 @@ export default class ImageList extends React.Component {
                 );
               }) : (
                 <tr>
-                  <td className="text-center" colSpan={4}>No Images</td>
+                  <td className="text-center" colSpan={5}>
+                    <p className="empty-state">No Images</p>
+                  </td>
                 </tr>
               )}
             </tbody>
