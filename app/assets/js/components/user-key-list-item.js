@@ -70,7 +70,7 @@ export default class UserKeyListItem extends React.Component {
         <Grid>
           <Row>
             <Col lg={10} md={10} sm={10} xs={12} className='content'>
-              <h4>{userKey.displayName}</h4>
+              <h5>{userKey.displayName}</h5>
               <p className='hint'>Added <TimeAgo date={userKey.createdAt} /></p>
             </Col>
 
