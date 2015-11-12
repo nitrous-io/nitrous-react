@@ -106,13 +106,13 @@ class HostStore extends Store {
 
   get userHosts() {
     return this._hosts.filter((h) => {
-      return h.orgId && h.isActive();
+      return h.orgId && h.isActive;
     });
   }
 
   hostsByOrgId(orgId) {
     return this._hosts.filter((h) => {
-      return h.orgId === orgId && h.isActive();
+      return h.orgId === orgId && h.isActive;
     });
   }
 
