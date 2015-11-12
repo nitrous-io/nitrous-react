@@ -85,4 +85,8 @@ export default class Host extends Record({
     }
     return this.state;
   }
+
+  get isActive() {
+    return !this.terminatedAt && this.state !== 'terminated' && this.state !== 'terminating';
+  }
 }
