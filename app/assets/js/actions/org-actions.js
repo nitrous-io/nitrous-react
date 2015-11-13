@@ -54,6 +54,26 @@ class OrgActions {
       });
     });
   }
+
+  leave(orgSlug, member) {
+    const promise = authedAjax({
+      type: 'DELETE',
+      url: `/api/v0/orgs/${orgSlug}/members/${member}`,
+      dataType: 'json'
+    }).then(() => {
+      dispatcher.dispatch({
+        type: 'org.left',
+        data: { orgSlug, member }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'org.leave-failed',
+        data: { jqxhr, orgSlug, member }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new OrgActions();
