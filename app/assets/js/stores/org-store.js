@@ -40,7 +40,7 @@ class OrgStore extends Store {
         break;
       }
       case 'org.leave-failed': {
-        const { orgSlug, member, jqxhr } = action.data;
+        const { jqxhr } = action.data;
         this.handleErrorJqxhr(jqxhr);
         break;
       }
