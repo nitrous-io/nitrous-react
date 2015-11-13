@@ -1,9 +1,10 @@
 import Store from 'stores/store';
 import Host from 'records/host';
-import { OrderedMap } from 'immutable';
+import { OrderedMap, OrderedSet } from 'immutable';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
+  _cancelledHosts = OrderedSet(); // <HostSlug>
 
   handleAction(action) {
     switch (action.type) {
@@ -71,6 +72,11 @@ class HostStore extends Store {
       case 'events:host.updated':
       case 'events:host.destroying': {
         const host = Host.deserialize(action.data.host);
+
+        if (this._cancelledHosts.has(host.slug)) {
+          break;
+        }
+
         this._hosts = this._hosts.set(host.slug, host);
 
         if (action.type === 'events:host.created') {
@@ -87,6 +93,15 @@ class HostStore extends Store {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
         this.emit('create-failed', { host });
+        break;
+      }
+      case 'events:subscription.deleted': {
+        const { data } = action,
+              hostSlug = data.subscription && data.subscription.host_slug;
+        if (hostSlug) {
+          this._cancelledHosts = this._cancelledHosts.add(hostSlug);
+          this._hosts = this._hosts.delete(hostSlug);
+        }
         break;
       }
       default: return;
