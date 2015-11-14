@@ -3,8 +3,8 @@ import OrgMember from 'records/org-member';
 import { OrderedMap, OrderedSet } from 'immutable';
 
 class OrgMemberStore extends Store {
-  MEMBER_NOT_FOUND = Symbol('MEMBER_NOT_FOUND');
-  NOT_ALLOWED = Symbol('NOT_ALLOWED');
+  MEMBER_NOT_FOUND = 'MEMBER_NOT_FOUND';
+  NOT_ALLOWED = 'NOT_ALLOWED';
 
   _membersByOrgSlug = OrderedMap(); // <K: OrgSlug, V: OrderedSet<OrgMember>>
 
