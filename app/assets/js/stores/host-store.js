@@ -115,19 +115,19 @@ class HostStore extends Store {
 
   get liveHosts() {
     return this._hosts.filter((h) => {
-      return !h.terminatedAt;
+      return !h.terminatedAt && !h.shared;
     });
   }
 
   get userHosts() {
     return this._hosts.filter((h) => {
-      return !h.orgId && h.isActive;
+      return !h.orgId && h.isActive && !h.shared;
     });
   }
 
   hostsByOrgId(orgId) {
     return this._hosts.filter((h) => {
-      return h.orgId === orgId && h.isActive;
+      return h.orgId === orgId && h.isActive && !h.shared;
     });
   }
 
