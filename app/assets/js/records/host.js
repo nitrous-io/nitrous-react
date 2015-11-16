@@ -91,4 +91,8 @@ export default class Host extends Record({
   get isActive() {
     return !this.terminatedAt && this.state !== 'terminated' && this.state !== 'terminating';
   }
+
+  get isResuming() {
+    return this.state === 'starting' || this.state === 'restarting';
+  }
 }
