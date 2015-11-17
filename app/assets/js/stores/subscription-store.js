@@ -92,6 +92,8 @@ class SubscriptionStore extends Store {
           snackbarActions.post('Subscription has been canceled.');
         } else if (pendingState === 'reactivating') {
           snackbarActions.post('Subscription has been reactivated.');
+        } else if (pendingState === 'upgrading') {
+          snackbarActions.post('Subscription has been upgraded.');
         }
 
         this._setPendingState(sub.slug);
@@ -139,6 +141,28 @@ class SubscriptionStore extends Store {
         this._lastError = null;
         break;
       }
+      case 'subscription.pending-upgrade': {
+        this._setPendingState(action.data.slug, 'upgrading');
+        break;
+      }
+      case 'subscription.upgrade-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr, 'Failed to upgrade subscription!');
+        this._setPendingState(action.data.slug);
+        break;
+      }
+      case 'subscription.fetched-upgrade-estimate': {
+        const { data, planId } = action.data;
+        if (data.total !== 0) {
+          const upgradeEstimate = data.total / 100.0;
+          this.emit('upgrade-estimate', { upgradeEstimate, planId });
+        }
+        this._lastError = null;
+        return;
+      }
+      case 'subscription.fetch-upgrade-estimate-failed': {
+        // Don't block if unable to get upgrade estimate.
+        return;
+      }
       default: return;
     }
     this.notifyChange();
@@ -168,6 +192,10 @@ class SubscriptionStore extends Store {
     return this._userSubscriptions.find((s) => {
       return s.slug === slug;
     });
+  }
+
+  isUpgrading(slug) {
+    return this.getPendingState(slug) === 'upgrading';
   }
 
   _setPendingState(slug, state) {
