@@ -10,6 +10,10 @@ class SubscriptionStore extends Store {
   _userSubscriptions = OrderedMap(); // <K: slug, V: Subscription>
   _orgSubscriptions = OrderedMap(); // <K: orgSlug, V: <K: slug, V: Subscription>
 
+  // To store states for frontend (e.g. canceling/reactivating),
+  // only works when states are mutually exclusive
+  _pendingStates = OrderedMap(); // <K: slug, V: string>
+
   handleAction(action) {
     switch (action.type) {
       case 'subscription.fetched-all': {
@@ -36,27 +40,39 @@ class SubscriptionStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
-      case 'subscription.canceled': {
-        snackbarActions.post(`Subscription has been canceled.`);
+      case 'subscription.pending-cancel': {
+        this._setPendingState(action.data.slug, 'canceling');
         break;
       }
       case 'subscription.cancel-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
-        snackbarActions.post(`Failed to cancel subscription!`);
+        this._setPendingState(action.data.slug);
+        snackbarActions.post('Failed to cancel subscription!');
         break;
       }
-      case 'subscription.reactivated': {
-        snackbarActions.post(`Subscription has been reactivated.`);
+      case 'subscription.pending-reactivation': {
+        this._setPendingState(action.data.slug, 'reactivating');
         break;
       }
       case 'subscription.reactivate-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
-        snackbarActions.post(`Failed to reactivate subscription!`);
+        this._setPendingState(action.data.slug);
+        snackbarActions.post('Failed to reactivate subscription!');
         break;
       }
       case 'events:subscription.updated': {
         const { data } = action,
-              sub = Subscription.deserialize(data.subscription);
+              sub = Subscription.deserialize(data.subscription),
+              pendingState = this.getPendingState(sub.slug);
+
+        if (pendingState === 'canceling') {
+          snackbarActions.post('Subscription has been canceled.');
+        } else if (pendingState === 'reactivating') {
+          snackbarActions.post('Subscription has been reactivated.');
+        }
+
+        this._setPendingState(sub.slug);
+
         if (sub.orgId) {
           const org = orgStore.orgByOrgId(sub.orgId);
           if (org) {
@@ -69,6 +85,33 @@ class SubscriptionStore extends Store {
           }
         } else {
           this._userSubscriptions = this._userSubscriptions.set(sub.slug, sub);
+        }
+        this._lastError = null;
+        break;
+      }
+      case 'events:subscription.deleted': {
+        const { data } = action,
+              sub = Subscription.deserialize(data.subscription),
+              pendingState = this.getPendingState(sub.slug);
+
+        if (pendingState === 'canceling') {
+          snackbarActions.post('Subscription has been canceled.');
+        }
+
+        this._setPendingState(sub.slug);
+
+        if (sub.orgId) {
+          const org = orgStore.orgByOrgId(sub.orgId);
+          if (org) {
+            let subs = this._orgSubscriptions.get(org.slug);
+            if (!subs) {
+              subs = OrderedMap();
+            }
+            subs = subs.delete(sub.slug, sub);
+            this._orgSubscriptions = this._orgSubscriptions.set(org.slug, subs);
+          }
+        } else {
+          this._userSubscriptions = this._userSubscriptions.delete(sub.slug);
         }
         this._lastError = null;
         break;
@@ -102,6 +145,18 @@ class SubscriptionStore extends Store {
     return this._userSubscriptions.find((s) => {
       return s.slug === slug;
     });
+  }
+
+  _setPendingState(slug, state) {
+    if (state) {
+      this._pendingStates = this._pendingStates.set(slug, state);
+    } else {
+      this._pendingStates = this._pendingStates.delete(slug);
+    }
+  }
+
+  getPendingState(slug) {
+    return this._pendingStates.get(slug);
   }
 }
 

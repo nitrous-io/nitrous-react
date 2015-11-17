@@ -41,8 +41,9 @@ export default (
   <Route name='application' path='/' handler={Application}>
     // temporary routes
     <Route name='temp-billing' path='billing' handler={redirectTo('billing')} />
-    <Route name='temp-containers' path='containers/:hostSlug' handler={redirectTo('dashboard')} />
-    <Route name='temp-containers-ports' path='containers/:hostSlug/ports' handler={redirectTo('dashboard')} />
+    <Route name='temp-workspaces' path='workspaces/:slug' handler={redirectTo('dashboard')} />
+    <Route name='temp-containers' path='containers/:slug' handler={redirectTo('dashboard')} />
+    <Route name='temp-containers-ports' path='containers/:slug/ports' handler={redirectTo('dashboard')} />
     <Route name='temp-account' path='account' handler={redirectTo('account-settings')} />
     <Route name='temp-subscriptions' path='subscriptions' handler={redirectTo('billing')} />
 
@@ -67,10 +68,10 @@ export default (
       <Route name='new-org' path='orgs/new' handler={NewOrg} />
 
       <Route name='org' path='orgs/:orgSlug' handler={OrgRoot}>
-        <Route name='org-host' path='workstations' handler={OrgHost}>
-          <DefaultRoute handler={redirectTo('new-org-host')} />
-          <Route name='new-org-host' path='new' handler={NewHost} />
-        </Route>
+        <DefaultRoute handler={redirectTo('org-host')} />
+
+        <Route name='org-host' path='workstations' handler={OrgHost} />
+        <Route name='new-org-host' path='workstations/new' handler={NewHost} />
 
         <Route name='org-invite-members' path='invite-members' handler={OrgInviteMembers} />
         <Route name='org-members' path='members' handler={OrgMembers} />
@@ -102,9 +103,9 @@ export default (
 
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
-
-      <NotFoundRoute handler={NotFound} />
     </Route>
+
+    <NotFoundRoute handler={NotFound} />
   </Route>
 );
 

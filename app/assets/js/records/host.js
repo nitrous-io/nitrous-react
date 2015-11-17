@@ -25,6 +25,7 @@ export default class Host extends Record({
   pendingRespec: false,
   subscriptionSlug: null,
   free: false,
+  shared: false,
   createdAt: null,
   updatedAt: null,
   terminatedAt: null,
@@ -56,6 +57,7 @@ export default class Host extends Record({
       pendingRespec: !!p.pending_respec,
       subscriptionSlug: p.subscription_slug,
       free: !!p.free,
+      shared: p.shared,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null,
       terminatedAt: p.terminated_at ? new Date(p.terminated_at) : null,
@@ -84,5 +86,13 @@ export default class Host extends Record({
       }
     }
     return this.state;
+  }
+
+  get isActive() {
+    return !this.terminatedAt && this.state !== 'terminated' && this.state !== 'terminating';
+  }
+
+  get isResuming() {
+    return this.state === 'starting' || this.state === 'restarting';
   }
 }

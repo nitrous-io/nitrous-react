@@ -39,4 +39,8 @@ export default class Org extends Record({
   get roleAllowsMemberAdmin() {
     return this.role === 'owner' || this.role === 'admin';
   }
+
+  get canLeave() {
+    return this.role === 'member' || this.role === 'admin';
+  }
 }

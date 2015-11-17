@@ -3,9 +3,12 @@ import { Grid, Row, Col, ListGroup, ListGroupItem, Button, ButtonToolbar, Label,
 
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
+import userStore from 'stores/user-store';
 import Fa from 'components/fa';
 import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
 import BreadcrumbItem from 'components/bootstrap-backports/breadcrumb-item';
+import PromptModal from 'components/prompt-modal';
+import SelectableText from 'components/selectable-text';
 
 export default class Orgs extends React.Component {
   displayName = 'Orgs';
@@ -15,7 +18,9 @@ export default class Orgs extends React.Component {
   };
 
   state = {
-    orgs: orgStore.orgs
+    orgs: orgStore.orgs,
+    orgToLeave: null,
+    orgLeaveConfirmation: null
   };
 
   componentDidMount() {
@@ -28,11 +33,26 @@ export default class Orgs extends React.Component {
   }
 
   orgStoreDidChange = () => {
-    this.setState({ orgs: orgStore.orgs });
+    this.setState({ orgs: orgStore.orgs, orgToLeave: null, orgLeaveConfirmation: null });
+  }
+
+  handleShowLeaveOrg = (org) => {
+    this.setState({ orgToLeave: org, orgLeaveConfirmation: null }, () => {
+      this.refs.leaveModal.show();
+    });
+  }
+
+  handleLeaveModalTextInput = (text) => {
+    this.setState({ orgLeaveConfirmation: text });
+  }
+
+  handleLeaveModalOK = () => {
+    const { orgToLeave } = this.state;
+    orgActions.leave(orgToLeave.slug, userStore.user.username);
   }
 
   render() {
-    const { orgs } = this.state,
+    const { orgs, orgToLeave } = this.state,
           { makeHref } = this.context.router;
 
     return (
@@ -70,6 +90,12 @@ export default class Orgs extends React.Component {
                                 <Fa icon='credit-card' /> Billing
                               </Button>
                             ) : ''}
+
+                            {org.canLeave ? (
+                              <Button onClick={this.handleShowLeaveOrg.bind(this, org)}>
+                                <Fa icon='sign-out' /> Leave
+                              </Button>
+                            ) : ''}
                           </ButtonToolbar>
                         </Col>
                       </Row>
@@ -81,6 +107,20 @@ export default class Orgs extends React.Component {
             </ListGroup>
           </div>
         </Panel>
+
+        {orgToLeave ? (
+          <PromptModal ref='leaveModal' okButtonLabel='Leave' okButtonStyle='danger'
+            okButtonDisabled={this.state.orgLeaveConfirmation !== orgToLeave.slug} placeholder={orgToLeave.slug}
+            onOK={this.handleLeaveModalOK} onTextInput={this.handleLeaveModalTextInput}>
+            <p>This action <strong>CANNOT</strong> be undone!</p>
+            <p>This will remove you from the organization and you will no longer be able to access your workspaces.</p>
+            <p>
+              Please type in the slug of the organization
+              (<SelectableText><strong>{orgToLeave.slug}</strong></SelectableText>)
+              to confirm:
+            </p>
+          </PromptModal>
+        ) : ''}
       </div>
     );
   }

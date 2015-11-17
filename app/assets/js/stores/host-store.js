@@ -1,9 +1,10 @@
 import Store from 'stores/store';
 import Host from 'records/host';
-import { OrderedMap } from 'immutable';
+import { OrderedMap, OrderedSet } from 'immutable';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
+  _cancelledHosts = OrderedSet(); // <HostSlug>
 
   handleAction(action) {
     switch (action.type) {
@@ -67,8 +68,15 @@ class HostStore extends Store {
       case 'events:host.restarting':
       case 'events:host.restarted':
       case 'events:host.stopping':
-      case 'events:host.stopped': {
+      case 'events:host.stopped':
+      case 'events:host.updated':
+      case 'events:host.destroying': {
         const host = Host.deserialize(action.data.host);
+
+        if (this._cancelledHosts.has(host.slug)) {
+          break;
+        }
+
         this._hosts = this._hosts.set(host.slug, host);
 
         if (action.type === 'events:host.created') {
@@ -87,6 +95,15 @@ class HostStore extends Store {
         this.emit('create-failed', { host });
         break;
       }
+      case 'events:subscription.deleted': {
+        const { data } = action,
+              hostSlug = data.subscription && data.subscription.host_slug;
+        if (hostSlug) {
+          this._cancelledHosts = this._cancelledHosts.add(hostSlug);
+          this._hosts = this._hosts.delete(hostSlug);
+        }
+        break;
+      }
       default: return;
     }
     this.notifyChange();
@@ -98,19 +115,19 @@ class HostStore extends Store {
 
   get liveHosts() {
     return this._hosts.filter((h) => {
-      return !h.terminatedAt;
+      return !h.terminatedAt && !h.shared;
     });
   }
 
   get userHosts() {
     return this._hosts.filter((h) => {
-      return !h.orgId && !h.terminatedAt && h.state !== 'terminated';
+      return !h.orgId && h.isActive && !h.shared;
     });
   }
 
   hostsByOrgId(orgId) {
     return this._hosts.filter((h) => {
-      return h.orgId === orgId && !h.terminatedAt && h.state !== 'terminated';
+      return h.orgId === orgId && h.isActive && !h.shared;
     });
   }
 

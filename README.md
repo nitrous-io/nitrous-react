@@ -59,6 +59,18 @@ Run `gulp` to start a dev server and watch file system changes. ESLint is run au
 
 Run `npm test` to run Jest tests.
 
+#### Analyzing file size
+
+Using [disc](https://github.com/hughsk/disc) you can analyze the resulting `app.js`. To analyze the file you will need to run the following:
+
+```
+gulp clean && FULL_PATHS=true gulp js-dist
+discify build/dist/assets/js/app.js > info-dist.html
+```
+
+`discify` requires browserify generate the app.js with full paths, so you need to pass in `FULL_PATHS=yes` as an environment variable.
+The file `info-dist.html` should be generated which you can then look at in your browser for a full breakdown of the `app.js`.
+
 #### LiveReload support
 
 [LiveReload](http://livereload.com/) is supported. To get this to work:
