@@ -60,7 +60,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     });
     if (selectedPlan) {
       subscriptionActions.fetchUpgradeEstimate(subscription.slug, selectedPlan.id);
-    } 
+    }
   }
 
   planStoreDidChange = () => {
