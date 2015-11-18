@@ -79,7 +79,7 @@ export default class PlanListItem extends React.Component {
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
             </ul>
             {this.renderAction()}
-            <Button disabled={disable} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>
+            <Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>
           </div>
         </div>
       </Col>

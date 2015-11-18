@@ -105,7 +105,7 @@ class SubscriptionActions {
     });
     return promise;
   }
-}
+
 
   upgrade(slug, plan) {
     const { id } = plan;

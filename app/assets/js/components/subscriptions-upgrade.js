@@ -127,6 +127,7 @@ export default class SubscriptionsUpgrade extends React.Component {
           availablePlansText = userPlansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
           trialEligible = false,
           selected = false,
+          onTrial = subscription ? subscription.activeTrialEnd : false,
           disableUpgrade = true;
     
     return (
@@ -176,7 +177,11 @@ export default class SubscriptionsUpgrade extends React.Component {
                     <Modal.Title>Begin Upgrade</Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
+                    {onTrial ? (
+                      <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
+                    ) : (
+                      <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
+                    )}
                     <p>Your workspace will be restarted to perform the upgrade, please ensure you have saved your work.</p>
                   </Modal.Body>
                   <Modal.Footer>
