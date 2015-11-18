@@ -1,13 +1,16 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Button, Modal } from 'react-bootstrap';
-import { Link } from 'react-router';
 import stringUtil from 'lib/string-util';
 
+import PlanListItem from 'components/plan-list-item';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
+import hostStore from 'stores/host-store';
 import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
-import PlanListItem from 'components/plan-list-item';
+import hostActions from 'actions/host-actions';
+import taskActions from 'actions/task-actions';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
@@ -39,6 +42,10 @@ export default class SubscriptionsUpgrade extends React.Component {
     planActions.fetchAll();
 
     subscriptionStore.on('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
+    subscriptionStore.on('upgraded', this.onSubscriptionUpgraded);
+    hostStore.on('respeccing', this.onHostRespeccing);
+    hostStore.on('respecced', this.onHostRespecced);
+    hostStore.on('respec_failed', this.onHostRespecFailed);
   }
 
   componentWillUnmount() {
@@ -46,6 +53,10 @@ export default class SubscriptionsUpgrade extends React.Component {
     planStore.offChange(this.planStoreDidChange);
 
     subscriptionStore.off('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
+    subscriptionStore.off('upgraded', this.onSubscriptionUpgraded);
+    hostStore.off('respeccing', this.onHostRespeccing);
+    hostStore.off('respecced', this.onHostRespecced);
+    hostStore.off('respeccing', this.onHostRespecFailed);
   }
 
   subscriptionStoreDidChange = () => {
@@ -78,6 +89,40 @@ export default class SubscriptionsUpgrade extends React.Component {
       return;
     }
     this.setState({ upgradeEstimate });
+  }
+
+  onSubscriptionUpgraded = (data) => {
+    const { hostSlug } = data;
+    if (hostSlug !== this.findSubscription().hostSlug) {
+      return;
+    }
+    hostActions.respec(hostSlug);
+    taskActions.update(`host-respec-${hostSlug}`, `Beginning workstation ${hostSlug} resizing...`);
+  }
+
+  onHostRespeccing = (data) => {
+    const { hostSlug } = data;
+    if (hostSlug !== this.findSubscription().hostSlug) {
+      return;
+    }
+    taskActions.update(`host-respec-${hostSlug}`, `Workstation${hostSlug} resizing...`);
+  }
+
+  onHostRespecFailed = (data) => {
+    const { hostSlug } = data;
+    if (hostSlug !== this.findSubscription().hostSlug) {
+      return;
+    }
+    taskActions.fail(`host-respec-${hostSlug}`);
+  }
+
+  onHostRespecced = (data) => {
+    const { hostSlug } = data;
+    if (hostSlug !== this.findSubscription().hostSlug) {
+      return;
+    }
+    snackbarActions.post(`Workstation ${hostSlug} has been upgraded!`);
+    taskActions.done(`host-respec-${hostSlug}`);
   }
 
   findSubscription() {
@@ -128,7 +173,9 @@ export default class SubscriptionsUpgrade extends React.Component {
           trialEligible = false,
           selected = false,
           onTrial = subscription ? subscription.activeTrialEnd : false,
-          disableUpgrade = true;
+          disableUpgrade = true,
+          { makeHref } = this.context.router,
+          billingURL = makeHref('billing');
     
     return (
       <div className='subscriptions-upgrade-component'>
@@ -166,7 +213,7 @@ export default class SubscriptionsUpgrade extends React.Component {
           </Grid>
 
           <Row>
-            <Link className='btn btn-default back-btn pull-left' to='billing'>Back</Link>
+            <Button disabled={upgrading} className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
 
             {!userPlansForUpgrade.isEmpty() ? (
               <div>
@@ -182,7 +229,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                     ) : (
                       <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
                     )}
-                    <p>Your workspace will be restarted to perform the upgrade, please ensure you have saved your work.</p>
+                    <p>After your subscription has been successfully upgraded, your workstation will be resized and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
                   </Modal.Body>
                   <Modal.Footer>
                     <Button onClick={this.handleCloseModal}>Close</Button>

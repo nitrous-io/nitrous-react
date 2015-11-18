@@ -94,6 +94,7 @@ class SubscriptionStore extends Store {
           snackbarActions.post('Subscription has been reactivated.');
         } else if (pendingState === 'upgrading') {
           snackbarActions.post('Subscription has been upgraded.');
+          this.emit('upgraded', { hostSlug: sub.hostSlug });
         }
 
         this._setPendingState(sub.slug);

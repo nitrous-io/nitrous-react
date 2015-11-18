@@ -1,5 +1,6 @@
 import Store from 'stores/store';
 import Host from 'records/host';
+import snackbarActions from 'actions/snackbar-actions';
 import { OrderedMap, OrderedSet } from 'immutable';
 
 class HostStore extends Store {
@@ -69,6 +70,12 @@ class HostStore extends Store {
         this.handleErrorJqxhr(jqxhr);
         this.emit('terminate-failed', { hostSlug });
         return;
+      case 'host.respec-failed': {
+        const { jqxhr, hostSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        snackbarActions.post(`Failed to upgrade workstation ${hostSlug}. Please contact support`);
+        this.emit('respec_failed', { hostSlug });
+        break;
       }
       // from events-socket
       case 'events:host.creating': {
@@ -94,6 +101,22 @@ class HostStore extends Store {
       case 'events:host.stopping':
       case 'events:host.stopped':
       case 'events:host.updated':
+      case 'events:host.respeccing':
+        const { host } = action.data;
+        this.emit('respeccing', { hostSlug: host.slug });
+        break;
+      case 'events:host.respecced': {
+        const { host } = action.data;
+        this.emit('respecced', { hostSlug: host.slug });
+        this._lastError = null;
+        break;
+      }
+      case 'events:host.respec_failed': {
+        const { host } = action.data;
+        snackbarActions.post(`Failed to upgrade workstation ${host.slug}. Please contact support`);
+        this.emit('respec_failed', { hostSlug: host.slug });
+        break;
+      }
       case 'events:host.destroying': {
         const host = Host.deserialize(action.data.host);
 
