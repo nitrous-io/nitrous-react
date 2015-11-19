@@ -92,12 +92,14 @@ export default class SubscriptionsUpgrade extends React.Component {
   }
 
   onSubscriptionUpgraded = (data) => {
+    this.hideUpgradeSubscriptionModal();
     const { hostSlug } = data;
     if (hostSlug !== this.findSubscription().hostSlug) {
       return;
     }
     hostActions.respec(hostSlug);
     taskActions.update(`host-respec-${hostSlug}`, `Beginning workstation ${hostSlug} resizing...`);
+    this.context.router.transitionTo('host', { hostSlug });
   }
 
   onHostRespeccing = (data) => {
@@ -105,7 +107,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     if (hostSlug !== this.findSubscription().hostSlug) {
       return;
     }
-    taskActions.update(`host-respec-${hostSlug}`, `Workstation${hostSlug} resizing...`);
+    taskActions.update(`host-respec-${hostSlug}`, `Workstation ${hostSlug} resizing...`);
   }
 
   onHostRespecFailed = (data) => {
@@ -113,6 +115,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     if (hostSlug !== this.findSubscription().hostSlug) {
       return;
     }
+    snackbarActions.post(`Failed to upgrade workstation ${hostSlug}! Please contact support`);
     taskActions.fail(`host-respec-${hostSlug}`);
   }
 
@@ -148,7 +151,6 @@ export default class SubscriptionsUpgrade extends React.Component {
   };
 
   handleUpgradeSubscription = () => {
-    this.hideUpgradeSubscriptionModal();
     this.setState({ upgrading: true });
     const { selectedPlan } = this.state;
     subscriptionActions.upgrade(this.props.params.subscriptionSlug, selectedPlan);
@@ -168,12 +170,10 @@ export default class SubscriptionsUpgrade extends React.Component {
           selectedPlanPrice = selectedPlan ? selectedPlan.priceDollars.toFixed(2) : null,
           selectedPlanTitle = selectedPlanSlug ? stringUtil.titleize(selectedPlanSlug) : "",
           prorataCharge = upgradeEstimate ? `of $${upgradeEstimate.toFixed(2)}` : "",
-          upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade To " + selectedPlanTitle,
+          upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade",
           availablePlansText = userPlansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
-          trialEligible = false,
-          selected = false,
           onTrial = subscription ? subscription.activeTrialEnd : false,
-          disableUpgrade = true,
+          backdrop = 'static',
           { makeHref } = this.context.router,
           billingURL = makeHref('billing');
     
@@ -187,11 +187,11 @@ export default class SubscriptionsUpgrade extends React.Component {
             <Row>
               {subscription ? (
                 <PlanListItem key={`plan-${subscription.plan.slug}`} plan={subscription.plan}
-                  selected={selected}
+                  selected={false}
                   onSelect={this.handlePlanSelection}
-                  trialEligible={trialEligible}
+                  trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
-                  disabled={disableUpgrade}
+                  disabled
                 />
               ) : ''}
             </Row>
@@ -205,7 +205,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                   <PlanListItem key={`plan-${plan.slug}`} plan={plan}
                     selected={selectedPlanSlug === plan.slug}
                     onSelect={this.handlePlanSelection}
-                    trialEligible={trialEligible}
+                    trialEligible={false}
                   />
                 );
               })}
@@ -213,13 +213,13 @@ export default class SubscriptionsUpgrade extends React.Component {
           </Grid>
 
           <Row>
-            <Button disabled={upgrading} className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
+            <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
 
             {!userPlansForUpgrade.isEmpty() ? (
               <div>
-                <Button disabled={upgrading} className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>{upgradeBtnLabel}</Button>
+                <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
 
-                <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal}>
+                <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop={backdrop}>
                   <Modal.Header>
                     <Modal.Title>Begin Upgrade</Modal.Title>
                   </Modal.Header>
@@ -232,8 +232,10 @@ export default class SubscriptionsUpgrade extends React.Component {
                     <p>After your subscription has been successfully upgraded, your workstation will be resized and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button onClick={this.handleCloseModal}>Close</Button>
-                    <Button onClick={this.handleUpgradeSubscription} bsStyle='primary'>Upgrade</Button>
+                    {!upgrading ? (
+                      <Button onClick={this.handleCloseModal}>Close</Button>
+                    ) : ''}
+                    <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
                   </Modal.Footer>
                 </Modal>
               </div>
