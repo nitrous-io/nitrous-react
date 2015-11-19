@@ -7,6 +7,7 @@ export default class Org extends Record({
   email: null,
   name: null,
   role: null,
+  multiHost: false,
   createdAt: null,
   updatedAt: null
 }) {
@@ -17,6 +18,7 @@ export default class Org extends Record({
       email: p.email,
       name: p.name,
       role: p.role,
+      multiHost: p.multi_host,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
