@@ -147,7 +147,6 @@ class HostActions {
     });
     return promise;
   }
-}
 
   respec(hostSlug) {
     const promise = authedAjax({

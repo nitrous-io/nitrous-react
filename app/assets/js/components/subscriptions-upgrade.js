@@ -5,12 +5,10 @@ import stringUtil from 'lib/string-util';
 import PlanListItem from 'components/plan-list-item';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
-import hostStore from 'stores/host-store';
 import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
-import hostActions from 'actions/host-actions';
 import taskActions from 'actions/task-actions';
-import snackbarActions from 'actions/snackbar-actions';
+import hostActions from 'actions/host-actions';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
@@ -43,9 +41,6 @@ export default class SubscriptionsUpgrade extends React.Component {
 
     subscriptionStore.on('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
     subscriptionStore.on('upgraded', this.onSubscriptionUpgraded);
-    hostStore.on('respeccing', this.onHostRespeccing);
-    hostStore.on('respecced', this.onHostRespecced);
-    hostStore.on('respec_failed', this.onHostRespecFailed);
   }
 
   componentWillUnmount() {
@@ -54,9 +49,6 @@ export default class SubscriptionsUpgrade extends React.Component {
 
     subscriptionStore.off('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
     subscriptionStore.off('upgraded', this.onSubscriptionUpgraded);
-    hostStore.off('respeccing', this.onHostRespeccing);
-    hostStore.off('respecced', this.onHostRespecced);
-    hostStore.off('respeccing', this.onHostRespecFailed);
   }
 
   subscriptionStoreDidChange = () => {
@@ -98,34 +90,8 @@ export default class SubscriptionsUpgrade extends React.Component {
       return;
     }
     hostActions.respec(hostSlug);
-    taskActions.update(`host-respec-${hostSlug}`, `Beginning workstation ${hostSlug} resizing...`);
+    taskActions.update(`host-respec-${hostSlug}`, `Beginning workstation ${hostSlug} upgrading...`);
     this.context.router.transitionTo('host', { hostSlug });
-  }
-
-  onHostRespeccing = (data) => {
-    const { hostSlug } = data;
-    if (hostSlug !== this.findSubscription().hostSlug) {
-      return;
-    }
-    taskActions.update(`host-respec-${hostSlug}`, `Workstation ${hostSlug} resizing...`);
-  }
-
-  onHostRespecFailed = (data) => {
-    const { hostSlug } = data;
-    if (hostSlug !== this.findSubscription().hostSlug) {
-      return;
-    }
-    snackbarActions.post(`Failed to upgrade workstation ${hostSlug}! Please contact support`);
-    taskActions.fail(`host-respec-${hostSlug}`);
-  }
-
-  onHostRespecced = (data) => {
-    const { hostSlug } = data;
-    if (hostSlug !== this.findSubscription().hostSlug) {
-      return;
-    }
-    snackbarActions.post(`Workstation ${hostSlug} has been upgraded!`);
-    taskActions.done(`host-respec-${hostSlug}`);
   }
 
   findSubscription() {
@@ -191,6 +157,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                   onSelect={this.handlePlanSelection}
                   trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
+                  currentPlan
                   disabled
                 />
               ) : ''}
@@ -210,37 +177,35 @@ export default class SubscriptionsUpgrade extends React.Component {
                 );
               })}
             </Row>
-          </Grid>
 
-          <Row>
-            <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
+            <Row>
+              <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
 
-            {!userPlansForUpgrade.isEmpty() ? (
-              <div>
+              {!userPlansForUpgrade.isEmpty() ? (
                 <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
+              ) : ''}
+            </Row>
 
-                <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop={backdrop}>
-                  <Modal.Header>
-                    <Modal.Title>Begin Upgrade</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    {onTrial ? (
-                      <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
-                    ) : (
-                      <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
-                    )}
-                    <p>After your subscription has been successfully upgraded, your workstation will be resized and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    {!upgrading ? (
-                      <Button onClick={this.handleCloseModal}>Close</Button>
-                    ) : ''}
-                    <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
-                  </Modal.Footer>
-                </Modal>
-              </div>
-            ) : ''}
-          </Row>
+            <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop={backdrop}>
+              <Modal.Header>
+                <Modal.Title>Begin Upgrade</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                {onTrial ? (
+                  <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
+                ) : (
+                  <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
+                )}
+                <p>After your subscription has been successfully upgraded, your workstation will be upgraded and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
+              </Modal.Body>
+              <Modal.Footer>
+                {!upgrading ? (
+                  <Button onClick={this.handleCloseModal}>Close</Button>
+                ) : ''}
+                <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
+              </Modal.Footer>
+            </Modal>
+          </Grid>
         </div>
       </div>
     );

@@ -56,6 +56,7 @@ class PlanStore extends Store {
   }
 
   // TODO: Rename to plansForUpgrade when ready to include org subscriptions in upgrade option.
+  // TODO: Consume plan as argument instead of plan price.
   userPlansForUpgrade(currentPlanPrice) {
     return this.personalPlans.filter((p) => {
       return p.price > currentPlanPrice;

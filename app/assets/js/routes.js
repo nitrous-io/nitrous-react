@@ -107,7 +107,6 @@ export default (
 
       <Route name='subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
 
-      <NotFoundRoute handler={NotFound} />
     </Route>
 
     <NotFoundRoute handler={NotFound} />
