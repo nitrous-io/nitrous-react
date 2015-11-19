@@ -84,6 +84,27 @@ class SubscriptionActions {
     });
     return promise;
   }
+
+  subscribeOrgPlan(orgSlug, planSlug) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/orgs/${orgSlug}/subscriptions`,
+      dataType: 'json',
+      data: { plan: planSlug }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'subscription.subscribed-org-plan',
+        data: { data, orgSlug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'subscription.subscribe-org-plan-failed',
+        data: { jqxhr, orgSlug }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new SubscriptionActions();
