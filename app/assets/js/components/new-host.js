@@ -17,6 +17,7 @@ import RegionListItem from 'components/region-list-item';
 import PaymentMethod from 'components/payment-method';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class NewHost extends React.Component {
   displayName = 'NewHost';
@@ -129,11 +130,17 @@ export default class NewHost extends React.Component {
   };
 
   handleClickCreateBtn = () => {
+    const { org } = this.context;
     this.setState({ creating: true });
 
     // If payment is required, we have to wait for payment to be successful
     // before proceeding to create the host.
-    if (this.requiresPayment()) {
+    if ((!org || (org && !org.multiHost)) && this.requiresPayment()) {
+      if (!this.canAddPayment()) {
+        snackbarActions.post('Please ask your owner to add a card to your Org.');
+        this.setState({ creating: false });
+        return;
+      }
       paymentActions.requestSubmit();
       return;
     }
@@ -172,41 +179,71 @@ export default class NewHost extends React.Component {
     return billingProfile && !billingProfile.hasCard;
   }
 
-  render() {
+  renderPlanSelection() {
     const org = this.context.org,
-          { plans, regions, creating, paymentFailed } = this.state,
+          { plans } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
-          multiHost = org && org.multiHost;
+          multiHost = org && org.multiHost,
+          orgPlan = org && org.plan;
 
     let trialEligible = false;
     if (this.state.billingProfile) {
       trialEligible = this.state.billingProfile.trialEligible;
     }
 
+    if (!multiHost) {
+      return (
+        <div>
+          <p className='hint'>All plans are standard with solid state drives (SSD)</p>
+          <Grid className='ui-card-grid'>
+            <Row>
+              {plans.toList().map((plan) => {
+                return (
+                  <PlanListItem key={`plan-${plan.slug}`} plan={plan}
+                    selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
+                    onSelect={this.handlePlanSelection}
+                    trialEligible={trialEligible}
+                  />
+                );
+              })}
+            </Row>
+          </Grid>
+        </div>
+      );
+    }
+
+    if (!orgPlan) {
+      return (<p>This org supports multi-host, no plan selection is required.</p>);
+    }
+
+    return (
+      <div>
+        <h3>{"Your organization's plan"}</h3>
+        <Grid className='ui-card-grid'>
+          <Row>
+            <PlanListItem key={`plan-${orgPlan.slug}`} plan={orgPlan}
+              selected={selectedPlanSlug === orgPlan.slug} // compare slug because plans may have been reloaded
+              onSelect={this.handlePlanSelection}
+              trialEligible={false}
+              disabled
+            />
+          </Row>
+        </Grid>
+      </div>
+    );
+  }
+
+  render() {
+    const org = this.context.org,
+          { regions, creating, paymentFailed } = this.state,
+          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+
     return (
       <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
           <h2>New Workstation</h2>
-          <p className='hint'>All plans are standard with solid state drives (SSD)</p>
-          {multiHost ? (
-            <p>This org supports multi-host, no plan selection is required.</p>
-          ) : (
-            <Grid className='ui-card-grid'>
-              <Row>
-                {plans.toList().map((plan) => {
-                  return (
-                    <PlanListItem key={`plan-${plan.slug}`} plan={plan}
-                      selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
-                      onSelect={this.handlePlanSelection}
-                      trialEligible={trialEligible}
-                    />
-                  );
-                })}
-              </Row>
-            </Grid>
-          )}
+          {this.renderPlanSelection()}
           <h3>Select Region</h3>
           <p className='hint'>Select the region closest to you for best performance</p>
           <Grid className='ui-card-grid'>
