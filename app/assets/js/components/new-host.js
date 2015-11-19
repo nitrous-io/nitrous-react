@@ -95,10 +95,12 @@ export default class NewHost extends React.Component {
   }
 
   setPlans(context=this.context) {
-    const plans = context.org ? planStore.orgPlans : planStore.personalPlans;
+    const plans = context.org ? planStore.orgPlans : planStore.personalPlans,
+          noPlan = context.org && context.org.multiHost;
+
     this.setState({
       plans,
-      selectedPlan: this.state.selectedPlan || plans.first()
+      selectedPlan: noPlan ? null : (this.state.selectedPlan || plans.first())
     });
   }
 
@@ -174,7 +176,8 @@ export default class NewHost extends React.Component {
     const org = this.context.org,
           { plans, regions, creating, paymentFailed } = this.state,
           selectedPlanSlug = this.state.selectedPlan ? this.state.selectedPlan.slug : null,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
+          multiHost = org && org.multiHost;
 
     let trialEligible = false;
     if (this.state.billingProfile) {
@@ -187,19 +190,23 @@ export default class NewHost extends React.Component {
           <ContextSwitcher selectedOrg={org} />
           <h2>New Workstation</h2>
           <p className='hint'>All plans are standard with solid state drives (SSD)</p>
-          <Grid className='ui-card-grid'>
-            <Row>
-              {plans.toList().map((plan) => {
-                return (
-                  <PlanListItem key={`plan-${plan.slug}`} plan={plan}
-                    selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
-                    onSelect={this.handlePlanSelection}
-                    trialEligible={trialEligible}
-                  />
-                );
-              })}
-            </Row>
-          </Grid>
+          {multiHost ? (
+            <p>This org supports multi-host, no plan selection is required.</p>
+          ) : (
+            <Grid className='ui-card-grid'>
+              <Row>
+                {plans.toList().map((plan) => {
+                  return (
+                    <PlanListItem key={`plan-${plan.slug}`} plan={plan}
+                      selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
+                      onSelect={this.handlePlanSelection}
+                      trialEligible={trialEligible}
+                    />
+                  );
+                })}
+              </Row>
+            </Grid>
+          )}
           <h3>Select Region</h3>
           <p className='hint'>Select the region closest to you for best performance</p>
           <Grid className='ui-card-grid'>

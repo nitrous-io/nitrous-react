@@ -49,7 +49,7 @@ class HostActions {
     const params = {
       async: true,
       name,
-      size: plan.slug,
+      size: plan && plan.slug,
       region: region.slug
     };
     if (org) {
