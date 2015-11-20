@@ -2,6 +2,7 @@ import UAParser from 'ua-parser-js';
 
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
+import subscriptionStore from 'stores/subscription-store';
 
 const dashboardVersion = "0.1";
 
@@ -11,6 +12,7 @@ class Mp {
 
   user = null;
   billingProfile = null;
+  trialSubscription = null;
 
   ua = null;
   personHash = null;
@@ -18,6 +20,7 @@ class Mp {
   constructor() {
     userStore.onChange(this.userStoreDidChange);
     billingStore.onChange(this.billingStoreDidChange);
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
     this.ua = new UAParser().getResult();
   }
 
@@ -38,6 +41,16 @@ class Mp {
           this.mixpanel.people.set(this.personHash);
         }
       }
+    }
+  }
+
+  subscriptionStoreDidChange = () => {
+    if (subscriptionStore.trialSubscription) {
+      this.trialSubscription = subscriptionStore.trialSubscription;
+    }
+
+    if (this.mixpanel.people && this.mixpanel.people.set) {
+      this.mixpanel.people.set({has_trial: (this.trialSubscription !== null)});
     }
   }
 
@@ -86,7 +99,8 @@ class Mp {
       $email: user.email,
       $username: user.username,
       $created: user.createdAt,
-      user_id: user.id.toString()
+      user_id: user.id.toString(),
+      has_trial: this.trialSubscription !== null
     };
     this.mixpanel.people.set_once(personData);
 
@@ -129,6 +143,7 @@ class Mp {
     if (this.billingProfile) {
       props.billing_state = this.billingProfile.state;
     }
+    props.has_trial = (this.trialSubscription !== null);
     if (data) {
       Object.assign(props, data);
     }
