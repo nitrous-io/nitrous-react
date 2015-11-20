@@ -60,6 +60,29 @@ class SubscriptionStore extends Store {
         snackbarActions.post('Failed to reactivate subscription!');
         break;
       }
+      case 'subscription.subscribed-org-plan': {
+        const { data, orgSlug } = action.data,
+              s = Subscription.deserialize(data.subscription);
+
+        if (orgSlug) {
+          let subs = this._orgSubscriptions.get(orgSlug);
+          if (!subs) {
+            subs = new OrderedMap();
+          }
+          this._orgSubscriptions = this._orgSubscriptions.set(orgSlug, subs.set(s.slug, s));
+        } else {
+          this._userSubscriptions = this._userSubscriptions.set(s.slug, s);
+        }
+        this._lastError = null;
+        this.emit('subscribed-org-plan', { orgSlug });
+        return;
+      }
+      case 'subscription.subscribe-org-plan-failed': {
+        const { jqxhr, orgSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('subscribe-org-plan-failed', { orgSlug });
+        return;
+      }
       case 'events:subscription.updated': {
         const { data } = action,
               sub = Subscription.deserialize(data.subscription),

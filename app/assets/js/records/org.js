@@ -1,12 +1,16 @@
 import { Record } from 'immutable';
 import md5 from 'md5';
 
+import Plan from 'records/plan';
+
 export default class Org extends Record({
   id: null,
   slug: null,
   email: null,
   name: null,
   role: null,
+  multiHost: false,
+  plan: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -17,6 +21,8 @@ export default class Org extends Record({
       email: p.email,
       name: p.name,
       role: p.role,
+      multiHost: p.multi_host,
+      plan: p.plan && Plan.deserialize(p.plan),
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
