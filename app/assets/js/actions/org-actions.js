@@ -35,35 +35,6 @@ class OrgActions {
     return promise;
   }
 
-  fetch(orgSlug) {
-    const promise = authedAjax({
-      type: 'GET',
-      url: `/api/v0/orgs/${orgSlug}`,
-      dataType: 'json'
-    });
-    promise.then((data) => {
-      dispatcher.dispatch({
-        type: 'org.fetched',
-        data: { data }
-      });
-
-      if (data.org.billing_profile) {
-        const bpData = { billing_profile: data.org.billing_profile };
-        dispatcher.dispatch({
-          type: 'billing-profile.fetched',
-          data: { data: bpData }
-        });
-      }
-    });
-    promise.catch((jqxhr) => {
-      dispatcher.dispatch({
-        type: 'org.fetch-failed',
-        data: { jqxhr, orgSlug }
-      });
-    });
-    return promise;
-  }
-
   create(options) {
     const { slug, name, email } = options;
     return authedAjax({

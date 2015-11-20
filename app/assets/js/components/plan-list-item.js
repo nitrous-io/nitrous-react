@@ -11,33 +11,17 @@ export default class PlanListItem extends React.Component {
     plan: PropTypes.instanceOf(Plan).isRequired,
     selected: PropTypes.bool.isRequired,
     onSelect: PropTypes.func.isRequired,
-    trialEligible: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool
+    trialEligible: PropTypes.bool.isRequired
   };
 
   handleClick = () => {
     this.props.onSelect(this.props.plan);
   };
 
-  renderAction() {
-    const { disabled, plan, selected } = this.props,
-          price = (plan.price / 100).toFixed(2);
-
-    if (!disabled) {
-      return (<Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>);
-    }
-
-    if (plan.org) {
-      return (<p>Need more? Contact your Org Owner.</p>);
-    }
-
-    return '';
-  }
-
   render() {
-    const { disabled, plan, selected } = this.props,
-          isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0,
-          showMaxHosts = !disabled && plan.maxHosts;
+    const { plan, selected } = this.props,
+          price = (plan.price / 100).toFixed(2),
+          isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='plan-list-item-component'>
@@ -53,9 +37,6 @@ export default class PlanListItem extends React.Component {
             </h4>
             <div className='description'>{plan.description}</div>
             <ul className='features'>
-            {showMaxHosts ? (
-              <li><span className='highlight'>{plan.maxHosts}</span> Workstations</li>
-            ) : ''}
               <li>
                 {plan.maxContainers > 1 ? 'Up to ' : ''}
                 <span className='highlight'>{plan.maxContainers}</span>
@@ -64,7 +45,7 @@ export default class PlanListItem extends React.Component {
               <li><span className='highlight'>{plan.memory}</span> Memory</li>
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
             </ul>
-            {this.renderAction()}
+            <Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>
           </div>
         </div>
       </Col>
