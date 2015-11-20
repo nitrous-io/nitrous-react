@@ -4,6 +4,7 @@ import { OrderedMap, OrderedSet } from 'immutable';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
+  _subHosts = OrderedMap(); // <K: SubscriptionSlug, V: OrderedMap<K: HostSlug, V: Host>
   _cancelledHosts = OrderedSet(); // <HostSlug>
 
   handleAction(action) {
@@ -45,6 +46,29 @@ class HostStore extends Store {
         this.handleErrorJqxhr(jqxhr);
         this.emit('start-failed', { hostSlug });
         break;
+      }
+      case 'host.fetched-sub-hosts': {
+        const { data, subscriptionSlug } = action.data;
+
+        const hosts = OrderedMap(data.hosts.map(function(d) {
+          const h = Host.deserialize(d);
+          return [h.slug, h];
+        }));
+
+        this._subHosts = this._subHosts.set(subscriptionSlug, hosts);
+        this.emit('fetched-sub-hosts', { subscriptionSlug });
+        break;
+      }
+      case 'host.terminated': {
+        const { hostSlug } = action.data;
+        this.emit('terminated', { hostSlug });
+        return;
+      }
+      case 'host.terminate-failed': {
+        const { hostSlug, jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('terminate-failed', { hostSlug });
+        return;
       }
       // from events-socket
       case 'events:host.creating': {
@@ -123,6 +147,10 @@ class HostStore extends Store {
     return this._hosts.filter((h) => {
       return !h.orgId && h.isActive && !h.shared;
     });
+  }
+
+  hostsBySubSlug(subSlug) {
+    return this._subHosts.get(subSlug) || OrderedMap();
   }
 
   hostsByOrgId(orgId) {
