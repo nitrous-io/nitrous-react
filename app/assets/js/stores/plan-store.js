@@ -27,7 +27,13 @@ class PlanStore extends Store {
 
   get plans() {
     return this._plans.filter((p) => {
-      return !p.hidden && p.subscription && p.price > 0;
+      return !p.hidden && !p.maxHosts && p.subscription && p.price > 0;
+    });
+  }
+
+  get betaPlans() {
+    return this._plans.filter((p) => {
+      return !p.hidden && p.maxHosts && p.subscription && p.price > 0;
     });
   }
 
@@ -37,6 +43,10 @@ class PlanStore extends Store {
 
   get orgPlans() {
     return this.plans.filter((p) => p.org);
+  }
+
+  get orgBetaPlans() {
+    return this.betaPlans.filter((p) => p.org);
   }
 
   planById(id) {
