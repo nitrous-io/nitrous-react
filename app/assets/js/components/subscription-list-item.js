@@ -98,9 +98,14 @@ export default class SubscriptionListItem extends React.Component {
           cancelButtonLabel = canceling ? "Canceling ..." : "Cancel",
           reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate";
 
+    let title = `Workstation ${subscription.hostSlug} – ${subscription.plan.name}`;
+    if (subscription.multiHost) {
+      title = subscription.plan.name;
+    }
+
     return (
       <tr>
-        <td>Workspace {subscription.hostSlug} – {subscription.plan.name}</td>
+        <td>{title}</td>
         <td>
           {subscription.activeTrialEnd ? (
             <span>
