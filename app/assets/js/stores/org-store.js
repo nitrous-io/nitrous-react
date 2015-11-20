@@ -20,17 +20,6 @@ class OrgStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
-      case 'org.fetched': {
-        const { data } = action.data,
-              org = Org.deserialize(data.org);
-        this._orgs = this._orgs.set(org.slug, org);
-        this._lastError = null;
-        break;
-      }
-      case 'org.fetch-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
-        break;
-      }
       case 'org.created': {
         const { data } = action.data,
               org = Org.deserialize(data.org);

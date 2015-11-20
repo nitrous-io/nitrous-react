@@ -13,7 +13,6 @@ export default class Subscription extends Record({
   cancelPending: null,
   trialEnd: null,
   plan: null,
-  multiHost: false,
   createdAt: null,
   updatedAt: null
 }) {
@@ -30,7 +29,6 @@ export default class Subscription extends Record({
       cancelPending: s.cancel_pending,
       trialEnd: s.trial_end ? new Date(s.trial_end) : null,
       plan: s.plan && Plan.deserialize(s.plan),
-      multiHost: s.multi_host,
       createdAt: s.created_at ? new Date(s.created_at) : null,
       updatedAt: s.updated_at ? new Date(s.updated_at) : null
     });
@@ -42,13 +40,5 @@ export default class Subscription extends Record({
       return this.trialEnd;
     }
     return;
-  }
-
-  get title() {
-    if (!this.plan) {
-      return 'Subscription';
-    }
-
-    return `${this.plan.name} $${this.plan.priceDollars}/month`;
   }
 }
