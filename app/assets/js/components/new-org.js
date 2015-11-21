@@ -205,20 +205,12 @@ export default class NewOrg extends React.Component {
 
     return (
       <Panel header={<h4>Choose a Plan</h4>}>
-        <Table responsive hover>
-          <thead>
-            <tr>
-              <th>Plan</th>
-              <th>Cost</th>
-              <th>Workstations</th>
-              <th></th>
-            </tr>
-          </thead>
+        <Table className='no-border selectable'>
           <tbody>
             {plans.toList().map((plan) => {
               return (
                 <OrgPlanListItem key={`plan-${plan.slug}`} plan={plan}
-                  selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
+                  selected={selectedPlanSlug === plan.slug}
                   onSelect={this.handlePlanSelection}
                 />
               );
