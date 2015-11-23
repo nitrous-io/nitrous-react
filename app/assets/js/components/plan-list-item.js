@@ -15,6 +15,7 @@ export default class PlanListItem extends React.Component {
     onSelect: PropTypes.func.isRequired,
     trialEligible: PropTypes.bool.isRequired,
     activeTrialEnd: PropTypes.instanceOf(Date),
+    currentPlan: PropTypes.bool,
     disabled: PropTypes.bool
   };
 
@@ -23,8 +24,12 @@ export default class PlanListItem extends React.Component {
   };
 
   renderAction() {
-    const { disabled, plan, selected } = this.props,
-          price = (plan.price / 100).toFixed(2);
+    const { disabled, plan, selected, currentPlan } = this.props,
+          price = plan.priceDollars.toFixed(2);
+
+    if (currentPlan) {
+      return (<Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>);
+    }
 
     if (!disabled) {
       return (<Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>);
@@ -39,7 +44,6 @@ export default class PlanListItem extends React.Component {
 
   render() {
     const { plan, selected, activeTrialEnd, disabled } = this.props,
-          price = plan.priceDollars.toFixed(2),
           isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0,
           showMaxHosts = !disabled && plan.maxHosts;
 
@@ -79,7 +83,6 @@ export default class PlanListItem extends React.Component {
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
             </ul>
             {this.renderAction()}
-            <Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>
           </div>
         </div>
       </Col>

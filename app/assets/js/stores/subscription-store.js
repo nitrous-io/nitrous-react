@@ -10,7 +10,7 @@ class SubscriptionStore extends Store {
   _userSubscriptions = OrderedMap(); // <K: slug, V: Subscription>
   _orgSubscriptions = OrderedMap(); // <K: orgSlug, V: <K: slug, V: Subscription>
 
-  // To store states for frontend (e.g. canceling/reactivating),
+  // To store states for frontend (e.g. canceling/reactivating/upgrading),
   // only works when states are mutually exclusive
   _pendingStates = OrderedMap(); // <K: slug, V: string>
 
@@ -94,6 +94,7 @@ class SubscriptionStore extends Store {
           snackbarActions.post('Subscription has been reactivated.');
         } else if (pendingState === 'upgrading') {
           snackbarActions.post('Subscription has been upgraded.');
+          this.emit('upgraded', { hostSlug: sub.hostSlug });
         }
 
         this._setPendingState(sub.slug);
@@ -160,7 +161,6 @@ class SubscriptionStore extends Store {
         return;
       }
       case 'subscription.fetch-upgrade-estimate-failed': {
-        // Don't block if unable to get upgrade estimate.
         return;
       }
       default: return;

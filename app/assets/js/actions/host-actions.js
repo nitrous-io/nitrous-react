@@ -147,6 +147,21 @@ class HostActions {
     });
     return promise;
   }
+
+  respec(hostSlug) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/hosts/${hostSlug}/respec`,
+      dataType: 'json'
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.respec-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new HostActions();

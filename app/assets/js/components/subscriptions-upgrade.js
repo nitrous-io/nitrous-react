@@ -1,13 +1,14 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Button, Modal } from 'react-bootstrap';
-import { Link } from 'react-router';
 import stringUtil from 'lib/string-util';
 
+import PlanListItem from 'components/plan-list-item';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
 import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
-import PlanListItem from 'components/plan-list-item';
+import taskActions from 'actions/task-actions';
+import hostActions from 'actions/host-actions';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
@@ -39,6 +40,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     planActions.fetchAll();
 
     subscriptionStore.on('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
+    subscriptionStore.on('upgraded', this.onSubscriptionUpgraded);
   }
 
   componentWillUnmount() {
@@ -46,6 +48,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     planStore.offChange(this.planStoreDidChange);
 
     subscriptionStore.off('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
+    subscriptionStore.off('upgraded', this.onSubscriptionUpgraded);
   }
 
   subscriptionStoreDidChange = () => {
@@ -60,7 +63,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     });
     if (selectedPlan) {
       subscriptionActions.fetchUpgradeEstimate(subscription.slug, selectedPlan.id);
-    } 
+    }
   }
 
   planStoreDidChange = () => {
@@ -78,6 +81,17 @@ export default class SubscriptionsUpgrade extends React.Component {
       return;
     }
     this.setState({ upgradeEstimate });
+  }
+
+  onSubscriptionUpgraded = (data) => {
+    this.hideUpgradeSubscriptionModal();
+    const { hostSlug } = data;
+    if (hostSlug !== this.findSubscription().hostSlug) {
+      return;
+    }
+    hostActions.respec(hostSlug);
+    taskActions.update(`host-respec-${hostSlug}`, `Beginning workstation ${hostSlug} upgrading...`);
+    this.context.router.transitionTo('host', { hostSlug });
   }
 
   findSubscription() {
@@ -103,7 +117,6 @@ export default class SubscriptionsUpgrade extends React.Component {
   };
 
   handleUpgradeSubscription = () => {
-    this.hideUpgradeSubscriptionModal();
     this.setState({ upgrading: true });
     const { selectedPlan } = this.state;
     subscriptionActions.upgrade(this.props.params.subscriptionSlug, selectedPlan);
@@ -123,12 +136,12 @@ export default class SubscriptionsUpgrade extends React.Component {
           selectedPlanPrice = selectedPlan ? selectedPlan.priceDollars.toFixed(2) : null,
           selectedPlanTitle = selectedPlanSlug ? stringUtil.titleize(selectedPlanSlug) : "",
           prorataCharge = upgradeEstimate ? `of $${upgradeEstimate.toFixed(2)}` : "",
-          upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade To " + selectedPlanTitle,
+          upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade",
           availablePlansText = userPlansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
-          trialEligible = false,
-          selected = false,
           onTrial = subscription ? subscription.activeTrialEnd : false,
-          disableUpgrade = true;
+          backdrop = 'static',
+          { makeHref } = this.context.router,
+          billingURL = makeHref('billing');
     
     return (
       <div className='subscriptions-upgrade-component'>
@@ -140,11 +153,12 @@ export default class SubscriptionsUpgrade extends React.Component {
             <Row>
               {subscription ? (
                 <PlanListItem key={`plan-${subscription.plan.slug}`} plan={subscription.plan}
-                  selected={selected}
+                  selected={false}
                   onSelect={this.handlePlanSelection}
-                  trialEligible={trialEligible}
+                  trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
-                  disabled={disableUpgrade}
+                  currentPlan
+                  disabled
                 />
               ) : ''}
             </Row>
@@ -158,40 +172,40 @@ export default class SubscriptionsUpgrade extends React.Component {
                   <PlanListItem key={`plan-${plan.slug}`} plan={plan}
                     selected={selectedPlanSlug === plan.slug}
                     onSelect={this.handlePlanSelection}
-                    trialEligible={trialEligible}
+                    trialEligible={false}
                   />
                 );
               })}
             </Row>
+
+            <Row>
+              <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
+
+              {!userPlansForUpgrade.isEmpty() ? (
+                <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
+              ) : ''}
+            </Row>
+
+            <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop={backdrop}>
+              <Modal.Header>
+                <Modal.Title>Begin Upgrade</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                {onTrial ? (
+                  <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
+                ) : (
+                  <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
+                )}
+                <p>After your subscription has been successfully upgraded, your workstation will be upgraded and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
+              </Modal.Body>
+              <Modal.Footer>
+                {!upgrading ? (
+                  <Button onClick={this.handleCloseModal}>Close</Button>
+                ) : ''}
+                <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
+              </Modal.Footer>
+            </Modal>
           </Grid>
-
-          <Row>
-            <Link className='btn btn-default back-btn pull-left' to='billing'>Back</Link>
-
-            {!userPlansForUpgrade.isEmpty() ? (
-              <div>
-                <Button disabled={upgrading} className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>{upgradeBtnLabel}</Button>
-
-                <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal}>
-                  <Modal.Header>
-                    <Modal.Title>Begin Upgrade</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    {onTrial ? (
-                      <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
-                    ) : (
-                      <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
-                    )}
-                    <p>Your workspace will be restarted to perform the upgrade, please ensure you have saved your work.</p>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button onClick={this.handleCloseModal}>Close</Button>
-                    <Button onClick={this.handleUpgradeSubscription} bsStyle='primary'>Upgrade</Button>
-                  </Modal.Footer>
-                </Modal>
-              </div>
-            ) : ''}
-          </Row>
         </div>
       </div>
     );
