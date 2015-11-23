@@ -105,6 +105,52 @@ class SubscriptionActions {
     });
     return promise;
   }
+
+
+  upgrade(slug, plan) {
+    const { id } = plan;
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/subscriptions/${slug}/upgrade`,
+      dataType: 'json',
+      data: { plan_id: id }
+    });
+    promise.then((data) => {
+      dispatcher.dispatch({
+        type: 'subscription.pending-upgrade',
+        data: { data, slug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'subscription.upgrade-failed',
+        data: { jqxhr, slug }
+      });
+    });
+    return promise;
+  }
+
+  fetchUpgradeEstimate(slug, planId) {
+    const promise = authedAjax({
+      type: 'GET',
+      url: `/api/v0/subscriptions/${slug}/upgrade`,
+      dataType: 'json',
+      data: { plan_id: planId }
+    });
+    promise.then((data) => {
+      dispatcher.dispatch({
+        type: 'subscription.fetched-upgrade-estimate',
+        data: { data, planId }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'subscription.fetch-upgrade-estimate-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new SubscriptionActions();

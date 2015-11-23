@@ -54,6 +54,13 @@ class PlanStore extends Store {
       return p.id === id;
     });
   }
+
+  // TODO: Rename to plansForUpgrade when ready to include org subscriptions in upgrade option.
+  userPlansForUpgrade(currentPlanPrice) {
+    return this.personalPlans.filter((p) => {
+      return p.price > currentPlanPrice;
+    });
+  }
 }
 
 export default new PlanStore();

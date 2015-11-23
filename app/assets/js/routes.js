@@ -30,6 +30,7 @@ import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
 import UserBilling from 'components/user-billing';
 import UserBillingPaymentMethod from 'components/user-billing-payment-method';
+import SubscriptionsUpgrade from 'components/subscriptions-upgrade';
 import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
@@ -103,6 +104,10 @@ export default (
 
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
+
+      <Route name='subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
+
+      <NotFoundRoute handler={NotFound} />
     </Route>
 
     <NotFoundRoute handler={NotFound} />

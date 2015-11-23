@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
 import { Col, Button, Label, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import TimeAgo from 'react-timeago';
+import classNames from 'classnames';
+
 import Fa from 'components/fa';
 import Plan from 'records/plan';
-import classNames from 'classnames';
 
 export default class PlanListItem extends React.Component {
   displayName = 'PlanListItem';
@@ -12,6 +14,7 @@ export default class PlanListItem extends React.Component {
     selected: PropTypes.bool.isRequired,
     onSelect: PropTypes.func.isRequired,
     trialEligible: PropTypes.bool.isRequired,
+    activeTrialEnd: PropTypes.instanceOf(Date),
     disabled: PropTypes.bool
   };
 
@@ -35,9 +38,17 @@ export default class PlanListItem extends React.Component {
   }
 
   render() {
-    const { disabled, plan, selected } = this.props,
+    const { plan, selected, activeTrialEnd, disabled } = this.props,
+          price = plan.priceDollars.toFixed(2),
           isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0,
           showMaxHosts = !disabled && plan.maxHosts;
+
+    const timeAgoFormatter = (value, unit) => {
+      if (value !== 1) {
+        unit += 's';
+      }
+      return value + ' ' + unit;
+    };
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='plan-list-item-component'>
@@ -49,6 +60,9 @@ export default class PlanListItem extends React.Component {
                 <OverlayTrigger placement='top' overlay={<Tooltip id='free-trial-tooltip'>Try for free for first {plan.trialPeriodDays} days.</Tooltip>}>
                   <Label className='trial-label' bsStyle="success"><Fa icon="info-circle" /> Free Trial</Label>
                 </OverlayTrigger>
+              ) : ''}
+              {activeTrialEnd ? (
+                <Label className='trial-label' bsStyle="success">Trial: <TimeAgo date={activeTrialEnd} formatter={timeAgoFormatter} /> Left</Label>
               ) : ''}
             </h4>
             <div className='description'>{plan.description}</div>
@@ -65,6 +79,7 @@ export default class PlanListItem extends React.Component {
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
             </ul>
             {this.renderAction()}
+            <Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>
           </div>
         </div>
       </Col>
