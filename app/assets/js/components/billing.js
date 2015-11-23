@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Button, ButtonGroup, ButtonToolbar, Panel, Table } from 'react-bootstrap';
+import Time from 'react-time';
 
 import hostStore from 'stores/host-store';
 import hostActions from 'actions/host-actions';
@@ -218,15 +219,14 @@ export default class Billing extends React.Component {
     const hosts = hostStore.hostsBySubSlug(sub.slug);
     let hostsTitle = '';
     if (hosts) {
-      hostsTitle = ` - ${hosts.size}`;
       if (sub.plan && sub.plan.maxHosts) {
-        hostsTitle = `${hostsTitle} of ${sub.plan.maxHosts} workstations`;
+        hostsTitle = ` (using ${hosts.size} of ${sub.plan.maxHosts})`;
       } else {
-        hostsTitle = `${hostsTitle} workstations`;
+        hostsTitle = ` (using ${hosts.size})`;
       }
     }
 
-    return `${sub.title}${hostsTitle}`;
+    return `Workstations${hostsTitle}`;
   }
 
   renderHosts = () => {
@@ -266,6 +266,45 @@ export default class Billing extends React.Component {
     );
   }
 
+  renderOrgPlanInfo = () => {
+    const { org } = this.context,
+          multiHost = org && org.multiHost,
+          sub = this.findMultiHostSubscription();
+
+    if (!multiHost || !sub) {
+      return '';
+    }
+
+    let workspaceInfo = null;
+    if (sub.plan.maxHosts === 1) {
+      workspaceInfo = ' 1 workstation';
+    } else if (sub.plan.maxHosts > 1) {
+      workspaceInfo = ` ${sub.plan.maxHosts} workstations`;
+    }
+
+    return (
+      <Panel header={<h4>Plan</h4>}>
+        <div className='org-info'>
+          <p><strong>{sub.plan.name}</strong></p>
+          {workspaceInfo ? (
+            <p>{workspaceInfo}</p>
+          ) : ''}
+          {sub.currentPeriodEnd ? (
+            <p>Renews on <Time value={sub.currentPeriodEnd} format="MMM DD, YYYY" /></p>
+          ) : ''}
+        </div>
+
+        <div>
+          <ButtonToolbar>
+            <ButtonGroup>
+              <Button>Change Plan</Button>
+            </ButtonGroup>
+          </ButtonToolbar>
+        </div>
+      </Panel>
+    );
+  }
+
   render() {
     const { billingProfile } = this.state,
           { org } = this.context,
@@ -285,6 +324,8 @@ export default class Billing extends React.Component {
 
     return (
       <div className='billing-component'>
+        {this.renderOrgPlanInfo()}
+
         <Panel header={<h4>Payment Method</h4>} className='payment-method'>
           {hasCard ? (
 
