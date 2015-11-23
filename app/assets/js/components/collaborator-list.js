@@ -5,8 +5,10 @@ import Container from 'records/container';
 import collaboratorActions from 'actions/collaborator-actions';
 import collaboratorStore from 'stores/collaborator-store';
 import userStore from 'stores/user-store';
+import planStore from 'stores/plan-store';
+import hostStore from 'stores/host-store';
 import snackbarActions from 'actions/snackbar-actions';
-import { Button, Input, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Button, Input, Modal, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CollaboratorListItem from 'components/collaborator-list-item';
 
 export default class CollaboratorList extends React.Component {
@@ -22,15 +24,28 @@ export default class CollaboratorList extends React.Component {
     shared: PropTypes.bool
   }
 
-  state = {
-    user: userStore.user,
-    newCollaborator: null,
-    adding: false,
-    addFailed: false
+  constructor(props, context) {
+    super(props, context);
+
+    const host = hostStore.hostByHostId(this.props.container.hostId),
+          plan = planStore.planById(host.planId);
+
+    this.state = {
+      host,
+      plan,
+      user: userStore.user,
+      newCollaborator: null,
+      adding: false,
+      addFailed: false,
+      showCollabLimitModal: false
+    };
   }
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    hostStore.onChange(this.hostStoreDidChange);
+    planStore.onChange(this.planStoreDidChange);
+
     collaboratorStore.on('added', this.onCollaboratorAdded);
     collaboratorStore.on('add-failed', this.onCollaboratorAddFailed);
     collaboratorStore.on('removed', this.onCollaboratorRemoved);
@@ -38,6 +53,9 @@ export default class CollaboratorList extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    hostStore.offChange(this.hostStoreDidChange);
+    planStore.offChange(this.planStoreDidChange);
+
     collaboratorStore.off('added', this.onCollaboratorAdded);
     collaboratorStore.off('add-failed', this.onCollaboratorAddFailed);
     collaboratorStore.off('removed', this.onCollaboratorRemoved);
@@ -45,6 +63,19 @@ export default class CollaboratorList extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  planStoreDidChange = () => {
+    if (this.state.host) {
+      const plan = planStore.planById(this.state.host.planId);
+      this.setState({ plan });
+    }
+  }
+
+  hostStoreDidChange = () => {
+    const container = this.props.container,
+          host = hostStore.hostByHostId(container.hostId);
+    this.setState({ host });
   }
 
   onCollaboratorAdded = (data) => {
@@ -95,13 +126,32 @@ export default class CollaboratorList extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
 
+    if (this.state.plan) {
+      const plan = this.state.plan,
+            collaborators = this.props.collaborators;
+      if (collaborators.size >= plan.maxCollaborators && plan.maxCollaborators) {
+        this.setState({ showCollabLimitModal: true });
+        return;
+      }
+    }
+
     this.setState({ adding: true });
     collaboratorActions.add(this.props.container, this.state.newCollaborator);
   }
 
+  hideCollabLimitModal = () => {
+    this.setState({ showCollabLimitModal: false });
+  };
+
+  handleCloseCollabLimitModal = () => {
+    this.hideCollabLimitModal();
+  };
+
   render() {
     const { collaborators, container, shared } = this.props,
-          { newCollaborator, adding, addFailed } = this.state;
+          { newCollaborator, adding, addFailed } = this.state,
+          { makeHref } = this.context.router,
+          newOrgURL = makeHref('new-org');
 
     return (
       <div className='collaborator-list-component'>
@@ -134,6 +184,19 @@ export default class CollaboratorList extends React.Component {
               } />
           </form>
         ) : ''}
+
+        <Modal show={this.state.showCollabLimitModal} onHide={this.hideCollabLimitModal}>
+          <Modal.Header>
+            <Modal.Title>Add More Collaborators</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>You have reached the maximum number of collaborators permitted on your subscription. To add more collaborators, please create an organization.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleCloseCollabLimitModal}>Close</Button>
+            <Button bsStyle='primary' href={newOrgURL}>Create Organization</Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }
