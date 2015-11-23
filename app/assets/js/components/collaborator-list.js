@@ -5,6 +5,8 @@ import Container from 'records/container';
 import collaboratorActions from 'actions/collaborator-actions';
 import collaboratorStore from 'stores/collaborator-store';
 import userStore from 'stores/user-store';
+import planStore from 'stores/plan-store';
+import hostStore from 'stores/host-store';
 import snackbarActions from 'actions/snackbar-actions';
 import { Button, Input, Modal, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CollaboratorListItem from 'components/collaborator-list-item';
@@ -22,32 +24,58 @@ export default class CollaboratorList extends React.Component {
     shared: PropTypes.bool
   }
 
-  state = {
-    user: userStore.user,
-    newCollaborator: null,
-    adding: false,
-    addFailed: false,
-    showCollabLimitModal: false
+  constructor(props, context) {
+    super(props, context);
+
+    const host = hostStore.hostByHostId(this.props.container.hostId),
+          plan = planStore.planById(host.planId);
+
+    this.state = {
+      host,
+      plan,
+      user: userStore.user,
+      newCollaborator: null,
+      adding: false,
+      addFailed: false,
+      showCollabLimitModal: false
+    };
   }
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    hostStore.onChange(this.hostStoreDidChange);
+    planStore.onChange(this.planStoreDidChange);
+
     collaboratorStore.on('added', this.onCollaboratorAdded);
     collaboratorStore.on('add-failed', this.onCollaboratorAddFailed);
     collaboratorStore.on('removed', this.onCollaboratorRemoved);
-    collaboratorStore.on('collab-limit-reached', this.onCollaboratorLimitReached);
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    hostStore.offChange(this.hostStoreDidChange);
+    planStore.offChange(this.planStoreDidChange);
+
     collaboratorStore.off('added', this.onCollaboratorAdded);
     collaboratorStore.off('add-failed', this.onCollaboratorAddFailed);
     collaboratorStore.off('removed', this.onCollaboratorRemoved);
-    collaboratorStore.off('collab-limit-reached', this.onCollaboratorLimitReached);
   }
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  planStoreDidChange = () => {
+    if (this.state.host) {
+      const plan = planStore.planById(this.state.host.planId);
+      this.setState({ plan });
+    }
+  }
+
+  hostStoreDidChange = () => {
+    const container = this.props.container,
+          host = hostStore.hostByHostId(container.hostId);
+    this.setState({ host });
   }
 
   onCollaboratorAdded = (data) => {
@@ -88,13 +116,6 @@ export default class CollaboratorList extends React.Component {
     collaboratorActions.fetchAllByContainerSlug(this.props.container.slug);
   }
 
-  onCollaboratorLimitReached = (data) => {
-    const { container } = data;
-    if (this.props.container.slug === container.slug) {
-      this.setState({ showCollabLimitModal: true });
-    }
-  }
-
   handleNewCollaboratorChanged = (event) => {
     this.setState({
       newCollaborator: event.target.value,
@@ -105,16 +126,25 @@ export default class CollaboratorList extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
 
+    if (this.state.plan) {
+      const plan = this.state.plan,
+            collaborators = this.props.collaborators;
+      if (collaborators.size >= plan.maxCollaborators && plan.maxCollaborators) {
+        this.setState({ showCollabLimitModal: true });
+        return;
+      }
+    }
+
     this.setState({ adding: true });
     collaboratorActions.add(this.props.container, this.state.newCollaborator);
   }
 
-  hideCollabLimitReachedModal = () => {
+  hideCollabLimitModal = () => {
     this.setState({ showCollabLimitModal: false });
   };
 
   handleCloseCollabLimitModal = () => {
-    this.hideCollabLimitReachedModal();
+    this.hideCollabLimitModal();
   };
 
   render() {
@@ -155,7 +185,7 @@ export default class CollaboratorList extends React.Component {
           </form>
         ) : ''}
 
-        <Modal show={this.state.showCollabLimitReachedModal} onHide={this.hideCollabLimitReachedModal}>
+        <Modal show={this.state.showCollabLimitModal} onHide={this.hideCollabLimitModal}>
           <Modal.Header>
             <Modal.Title>Add More Collaborators</Modal.Title>
           </Modal.Header>
@@ -163,7 +193,7 @@ export default class CollaboratorList extends React.Component {
             <p>You have reached the maximum number of collaborators permitted on your subscription. To add more collaborators, please create an organization.</p>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={this.handleCloseCollabLimitReachedModal}>Close</Button>
+            <Button onClick={this.handleCloseCollabLimitModal}>Close</Button>
             <Button bsStyle='primary' href={newOrgURL}>Create Organization</Button>
           </Modal.Footer>
         </Modal>

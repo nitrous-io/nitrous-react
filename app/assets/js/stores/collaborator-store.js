@@ -25,12 +25,7 @@ class CollaboratorStore extends Store {
       }
       case 'collaborator.add-failed': {
         const { jqxhr, container, collaborator } = action.data;
-        if (jqxhr.responseJSON.error === 'collab_limit_reached') {
-          this.emit('collab-limit-reached', { container });
-          this._lastError = jqxhr.errorMessage;
-        } else {
-          this.handleErrorJqxhr(action.data.jqxhr);
-        }
+        this.handleErrorJqxhr(jqxhr);
         this.emit('add-failed', { container, collaborator });
         break;
       }
