@@ -34,6 +34,7 @@ import SubscriptionsUpgrade from 'components/subscriptions-upgrade';
 import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
+import FirstStart from 'components/first-start';
 
 // import DocsUI from 'components/docs-ui';
 // use <Route name='ui' path='ui' handler={DocsUI} /> when you need it
@@ -57,7 +58,7 @@ export default (
     <Route name='resend-confirmation' handler={ResendConfirmation} />
 
     <Route name='dashboard' handler={Dashboard}>
-      <DefaultRoute handler={redirectTo('user-host')} />
+      <DefaultRoute handler={FirstStart} />
 
       <Route name='new-user-host' path='workstations/new' handler={NewHost} />
       <Route name='host-creating' path='workstations/creating' handler={HostCreating} />
