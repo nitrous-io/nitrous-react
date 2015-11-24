@@ -102,8 +102,12 @@ export default class ContainerListItem extends React.Component {
                   ] : ''}
                 </DropdownButton>
                 <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
-                  <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
-                  <MenuItem divider />
+                  {!shared ? (
+                    <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
+                  ) : ''}
+                  {!shared ? (
+                    <MenuItem divider />
+                  ) : ''}
                   <MenuItem href={collaboratorsUrl}>
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
                   </MenuItem>
