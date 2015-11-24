@@ -8,6 +8,7 @@ import hostStore from 'stores/host-store';
 import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import ContainerList from 'components/container-list';
+import ContextSwitcher from 'components/context-switcher';
 import HostNav from 'components/host-nav';
 import LoadingIndicator from 'components/loading-indicator';
 import Mp from 'lib/mp';
@@ -77,18 +78,23 @@ export default class Containers extends React.Component {
           containers = this.state.containers ? this.state.containers.toList() : null,
           loading = host.isResuming;
 
+    if (loading) {
+      return (
+        <div className='containers-component container'>
+          <ContextSwitcher selectedHost={host} />
+          <LoadingIndicator large />
+        </div>
+      );
+    }
+
     return (
       <div className='containers-component container'>
+        <ContextSwitcher selectedHost={host} />
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
         ) : ''}
-
-        {loading ? (
-          <LoadingIndicator large />
-        ) : (
-          <ContainerList containers={containers} host={host} />
-        )}
+        <ContainerList containers={containers} host={host} />
       </div>
     );
   }

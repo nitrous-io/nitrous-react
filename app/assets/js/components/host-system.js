@@ -1,4 +1,8 @@
 import React, { PropTypes } from 'react';
+import { Table } from 'react-bootstrap';
+import TimeAgo from 'react-timeago';
+import prettyBytes from 'pretty-bytes';
+
 import Host from 'records/host';
 import hostStore from 'stores/host-store';
 import hostStatsStore from 'stores/host-stats-store';
@@ -6,11 +10,9 @@ import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
 import hostActions from 'actions/host-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import { Table } from 'react-bootstrap';
-import TimeAgo from 'react-timeago';
+import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
 import HostNav from 'components/host-nav';
-import prettyBytes from 'pretty-bytes';
 
 export default class HostSystem extends React.Component {
   displayName = 'HostSystem';
@@ -32,7 +34,9 @@ export default class HostSystem extends React.Component {
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
 
-    hostActions.fetchStats(this.context.host.slug);
+    if (!this.context.host.isResuming) {
+      hostActions.fetchStats(this.context.host.slug);
+    }
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -74,10 +78,21 @@ export default class HostSystem extends React.Component {
 
   render() {
     const { stats, plan, region } = this.state,
-          { host } = this.context;
+          { host } = this.context,
+          loading = host.isResuming;
+
+    if (loading) {
+      return (
+        <div className='host-system-component container'>
+          <ContextSwitcher selectedHost={host} />
+          <LoadingIndicator large />
+        </div>
+      );
+    }
 
     return (
       <div className='host-system-component container'>
+        <ContextSwitcher selectedHost={host} />
         <HostNav host={host} activeTab='system' />
         <div className='inner-container'>
           <Table responsive striped bordered condensed hover id='host-system-info'>
