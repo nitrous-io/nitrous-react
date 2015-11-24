@@ -6,9 +6,14 @@ import Subscription from 'records/subscription';
 import subscriptionActions from 'actions/subscription-actions';
 import subscriptionStore from 'stores/subscription-store';
 import Currency from 'components/currency';
+import planStore from 'stores/plan-store';
 
 export default class SubscriptionListItem extends React.Component {
   displayName = 'SubscriptionListItem';
+
+  static contextTypes = {
+    router: PropTypes.func.isRequired
+  };
 
   static propTypes = {
     subscription: PropTypes.instanceOf(Subscription).isRequired
@@ -96,11 +101,19 @@ export default class SubscriptionListItem extends React.Component {
           periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
           { canceling, reactivating } = this.state,
           cancelButtonLabel = canceling ? "Canceling ..." : "Cancel",
-          reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate";
+          reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate",
+          disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
+          { makeHref } = this.context.router,
+          subscriptionsUpgradeURL = makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug });
+
+    let title = `Workstation ${subscription.hostSlug} – ${subscription.plan.name}`;
+    if (subscription.multiHost) {
+      title = subscription.plan.name;
+    }
 
     return (
       <tr>
-        <td>Workspace {subscription.hostSlug} – {subscription.plan.name}</td>
+        <td>{title}</td>
         <td>
           {subscription.activeTrialEnd ? (
             <span>
@@ -177,6 +190,7 @@ export default class SubscriptionListItem extends React.Component {
             </Modal.Footer>
           </Modal>
         </td>
+        <td><Button disabled={disableUpgrade} href={subscriptionsUpgradeURL} bsStyle="primary">Upgrade</Button></td>
       </tr>
     );
   }

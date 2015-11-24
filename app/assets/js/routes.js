@@ -30,9 +30,11 @@ import SharedContainers from 'components/shared-containers';
 import AccountSettings from 'components/account-settings';
 import UserBilling from 'components/user-billing';
 import UserBillingPaymentMethod from 'components/user-billing-payment-method';
+import SubscriptionsUpgrade from 'components/subscriptions-upgrade';
 import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
+import FirstStart from 'components/first-start';
 
 // import DocsUI from 'components/docs-ui';
 // use <Route name='ui' path='ui' handler={DocsUI} /> when you need it
@@ -56,7 +58,7 @@ export default (
     <Route name='resend-confirmation' handler={ResendConfirmation} />
 
     <Route name='dashboard' handler={Dashboard}>
-      <DefaultRoute handler={redirectTo('user-host')} />
+      <DefaultRoute handler={FirstStart} />
 
       <Route name='new-user-host' path='workstations/new' handler={NewHost} />
       <Route name='host-creating' path='workstations/creating' handler={HostCreating} />
@@ -78,6 +80,8 @@ export default (
 
         <Route name='org-billing' path='billing' handler={OrgBilling} />
         <Route name='org-payment-method' path='billing/payment-method' handler={OrgBillingPaymentMethod} />
+
+        <Route name='org-subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
       </Route>
 
       <Route name='host' path='workstations/:hostSlug' handler={Host}>
@@ -103,6 +107,9 @@ export default (
 
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
+
+      <Route name='subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
+
     </Route>
 
     <NotFoundRoute handler={NotFound} />

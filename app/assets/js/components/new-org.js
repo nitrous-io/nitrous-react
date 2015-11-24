@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, Alert, Button, Input, Panel } from 'react-bootstrap';
+import { Grid, Row, Col, Alert, Button, Input, Panel, Table } from 'react-bootstrap';
 import slug from 'slug';
+
 import orgStore from 'stores/org-store';
 import orgActions from 'actions/org-actions';
 import paymentActions from 'actions/payment-actions';
@@ -9,9 +10,20 @@ import PaymentMethod from 'components/payment-method';
 import NewOrgSteps from 'components/new-org-steps';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
+import planStore from 'stores/plan-store';
+import planActions from 'actions/plan-actions';
+import subscriptionStore from 'stores/subscription-store';
+import subscriptionActions from 'actions/subscription-actions';
+import OrgPlanListItem from 'components/org-plan-list-item';
 
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
+
+  static propTypes = {
+    query: PropTypes.shape({
+      beta: PropTypes.string
+    })
+  };
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -29,19 +41,28 @@ export default class NewOrg extends React.Component {
     orgSlug: null,
     createdOrg: null,
     processing: false,
-    paymentFailed: false
+    paymentFailed: false,
+    plans: planStore.orgBetaPlans,
+    selectedPlan: null
   };
 
   componentDidMount() {
+    planStore.onChange(this.planStoreDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);
+    subscriptionStore.on('subscribed-org-plan', this.onSubscribedOrgPlan);
+    subscriptionStore.on('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
 
     this.refs.orgNameField.getInputDOMNode().focus();
+    planActions.fetchAll();
   }
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
+    planStore.offChange(this.planStoreDidChange);
     orgStore.off('create-failed', this.onOrgCreateFailed);
+    subscriptionStore.off('subscribed-org-plan', this.onSubscribedOrgPlan);
+    subscriptionStore.off('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
   }
 
   orgStoreDidChange = () => {
@@ -63,6 +84,15 @@ export default class NewOrg extends React.Component {
       paymentActions.requestSubmit();
     }
   }
+
+  planStoreDidChange = () => {
+    const plans = planStore.orgBetaPlans;
+
+    this.setState({
+      plans,
+      selectedPlan: plans.first()
+    });
+  };
 
   onOrgCreateFailed = (data) => {
     const { slug } = data;
@@ -116,17 +146,79 @@ export default class NewOrg extends React.Component {
   }
 
   handlePaymentSuccess = () => {
-    const org = this.state.createdOrg;
-    this.context.router.transitionTo('org-invite-members', { orgSlug: org.slug });
+    const { createdOrg, selectedPlan } = this.state,
+          { beta } = this.props.query;
+
+    if (beta === 'true' && selectedPlan) {
+      subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug);
+      return;
+    }
+
+    this.transitionToInviteMembers();
+  }
+
+  onSubscribedOrgPlan = (data) => {
+    const { orgSlug } = data,
+          { createdOrg } = this.state;
+
+    if (createdOrg.slug === orgSlug) {
+      orgActions.fetch(orgSlug);
+      this.transitionToInviteMembers();
+    }
+  }
+
+  transitionToInviteMembers = () => {
+    const { createdOrg } = this.state;
+    this.context.router.transitionTo('org-invite-members', { orgSlug: createdOrg.slug });
   }
 
   handlePaymentFailure = () => {
     this.setState({ processing: false, paymentFailed: true });
   }
 
+  onSubscribeOrgPlanFailed = (data) => {
+    const { orgSlug } = data,
+          { createdOrg } = this.state;
+
+    if (createdOrg.slug === orgSlug) {
+      this.setState({ processing: false, paymentFailed: true });
+    }
+  }
+
+  handlePlanSelection = (plan) => {
+    this.setState({ selectedPlan: plan });
+  };
+
   submitDisabled = () => {
     const { processing, orgNameValid, orgEmail } = this.state;
     return processing || !orgNameValid || !orgEmail;
+  }
+
+  renderPlanSelection() {
+    const { beta } = this.props.query,
+          { plans, selectedPlan } = this.state,
+          selectedPlanSlug = selectedPlan && selectedPlan.slug;
+
+    if (beta !== 'true' || !plans) {
+      return;
+    }
+
+    return (
+      <Panel header={<h4>Choose a Plan</h4>}>
+        <Table className='no-border selectable'>
+          <tbody>
+            {plans.toList().map((plan) => {
+              return (
+                <OrgPlanListItem key={`plan-${plan.slug}`} plan={plan}
+                  selected={selectedPlanSlug === plan.slug}
+                  onSelect={this.handlePlanSelection}
+                />
+              );
+            })}
+          </tbody>
+        </Table>
+      </Panel>
+    );
   }
 
   render() {
@@ -167,6 +259,8 @@ export default class NewOrg extends React.Component {
                   onChange={this.handleOrgEmailChanged}
                   onKeyDown={this.handleKeyDown} />
               </Panel>
+
+              {this.renderPlanSelection()}
 
               <Panel header={<h4>Payment Method</h4>}>
                 {paymentFailed ? (

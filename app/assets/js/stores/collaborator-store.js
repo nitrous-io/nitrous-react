@@ -24,8 +24,8 @@ class CollaboratorStore extends Store {
         break;
       }
       case 'collaborator.add-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
-        const { container, collaborator } = action.data;
+        const { jqxhr, container, collaborator } = action.data;
+        this.handleErrorJqxhr(jqxhr);
         this.emit('add-failed', { container, collaborator });
         break;
       }

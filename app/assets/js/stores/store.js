@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import dispatcher from 'app-dispatcher';
 import snackbarActions from 'actions/snackbar-actions';
+import stringUtil from 'lib/string-util';
 
 export default class Store extends EventEmitter {
   _dispatchToken = null;
@@ -22,18 +23,19 @@ export default class Store extends EventEmitter {
     this.notifyChange();
   }
 
-  handleErrorJqxhr(jqxhr) {
+  handleErrorJqxhr(jqxhr, fallbackError) {
     const { responseJSON } = jqxhr;
     if (responseJSON && ['invalid_token', 'confirmation_lapsed'].includes(responseJSON.error)) {
       return;
     }
 
     const err = this._lastError = jqxhr.errorMessage;
-    if (err === 'internal_server_error') {
-      return;
-    }
-    if (err) {
-      snackbarActions.post(err);
+    if (err && err !== 'internal_server_error') {
+      const errMsg = stringUtil.capitalize(err);
+      snackbarActions.post(errMsg);
+    } else if (fallbackError) {
+      const fallbackErrMsg = stringUtil.capitalize(fallbackError);
+      snackbarActions.post(fallbackErrMsg);
     }
   }
 

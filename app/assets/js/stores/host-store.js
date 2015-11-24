@@ -1,9 +1,14 @@
+import { OrderedMap, OrderedSet } from 'immutable';
+
 import Store from 'stores/store';
 import Host from 'records/host';
-import { OrderedMap, OrderedSet } from 'immutable';
+import SubHost from 'records/sub-host';
+import taskActions from 'actions/task-actions';
+import snackbarActions from 'actions/snackbar-actions';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
+  _subHosts = OrderedMap(); // <K: SubscriptionSlug, V: OrderedMap<K: HostSlug, V: Host>
   _cancelledHosts = OrderedSet(); // <HostSlug>
 
   handleAction(action) {
@@ -44,6 +49,35 @@ class HostStore extends Store {
         const { jqxhr, hostSlug } = action.data;
         this.handleErrorJqxhr(jqxhr);
         this.emit('start-failed', { hostSlug });
+        break;
+      }
+      case 'host.fetched-sub-hosts': {
+        const { data, subscriptionSlug } = action.data;
+
+        const hosts = OrderedMap(data.hosts.map(function(d) {
+          const h = SubHost.deserialize(d);
+          return [h.slug, h];
+        }));
+
+        this._subHosts = this._subHosts.set(subscriptionSlug, hosts);
+        this.emit('fetched-sub-hosts', { subscriptionSlug });
+        break;
+      }
+      case 'host.terminated': {
+        const { hostSlug } = action.data;
+        this.emit('terminated', { hostSlug });
+        return;
+      }
+      case 'host.terminate-failed': {
+        const { hostSlug, jqxhr } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('terminate-failed', { hostSlug });
+        return;
+      }
+      case 'host.respec-failed': {
+        const { jqxhr, hostSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('respec_failed', { hostSlug });
         break;
       }
       // from events-socket
@@ -89,6 +123,27 @@ class HostStore extends Store {
 
         break;
       }
+      case 'events:host.respeccing':
+        const { host } = action.data;
+        taskActions.update(`host-respec-${host.slug}`, `Workstation ${host.slug} upgrading...`);
+        break;
+      case 'events:host.respecced': {
+        const { host } = action.data;
+        snackbarActions.post(`Workstation ${host.slug} has been upgraded!`);
+        taskActions.done(`host-respec-${host.slug}`);
+
+        const h = Host.deserialize(action.data.host);
+        this._hosts = this._hosts.set(h.slug, h);
+        this._lastError = null;
+        break;
+      }
+      case 'events:host.respec_failed': {
+        const { host } = action.data;
+        snackbarActions.post(`Failed to upgrade workstation ${host.slug}! Please contact support`);
+        taskActions.fail(`host-respec-${host.slug}`);
+
+        break;
+      }
       case 'events:host.create-failed': {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
@@ -123,6 +178,10 @@ class HostStore extends Store {
     return this._hosts.filter((h) => {
       return !h.orgId && h.isActive && !h.shared;
     });
+  }
+
+  hostsBySubSlug(subSlug) {
+    return this._subHosts.get(subSlug) || OrderedMap();
   }
 
   hostsByOrgId(orgId) {

@@ -4,15 +4,21 @@ export default class Currency extends React.Component {
   displayName = 'Currency';
 
   static propTypes = {
-    value: PropTypes.number.isRequired
+    value: PropTypes.number.isRequired,
+    wholeNumPreferred: PropTypes.bool
   };
 
   render() {
-    // Converts eg. { 100, 100.0, 100.00, 100.000 } to 100.00
-    const decimaledValue = this.props.value.toFixed(2);
+    const { value, wholeNumPreferred } = this.props;
+
+    let sanitizedValue = value.toFixed(2);
+
+    if (wholeNumPreferred && (value % 1 === 0)) {
+      sanitizedValue = value.toFixed(0);
+    }
 
     return (
-      <span>${decimaledValue}</span>
+      <span>${sanitizedValue}</span>
     );
   }
 }

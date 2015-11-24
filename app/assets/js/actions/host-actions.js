@@ -44,12 +44,33 @@ class HostActions {
     });
   }
 
+  fetchSubscriptionHosts(subscriptionSlug) {
+    const promise = authedAjax({
+      type: 'GET',
+      url: `/api/v0/subscriptions/${subscriptionSlug}/hosts`,
+      dataType: 'json'
+    });
+    promise.then((data) => {
+      dispatcher.dispatch({
+        type: 'host.fetched-sub-hosts',
+        data: { data, subscriptionSlug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.fetch-sub-hosts-failed',
+        data: { jqxhr, subscriptionSlug }
+      });
+    });
+    return promise;
+  }
+
   create(options) {
     const { name, org, plan, region } = options;
     const params = {
       async: true,
       name,
-      size: plan.slug,
+      size: plan && plan.slug,
       region: region.slug
     };
     if (org) {
@@ -101,6 +122,41 @@ class HostActions {
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'host.start-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
+  }
+
+  terminate(hostSlug) {
+    const promise = authedAjax({
+      type: 'DELETE',
+      url: `/api/v0/hosts/${hostSlug}`,
+      dataType: 'json'
+    }).then(() => {
+      dispatcher.dispatch({
+        type: 'host.terminated',
+        data: { hostSlug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.terminate-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
+  }
+
+  respec(hostSlug) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/hosts/${hostSlug}/respec`,
+      dataType: 'json'
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.respec-failed',
         data: { jqxhr, hostSlug }
       });
     });

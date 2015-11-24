@@ -10,7 +10,7 @@ class SubscriptionStore extends Store {
   _userSubscriptions = OrderedMap(); // <K: slug, V: Subscription>
   _orgSubscriptions = OrderedMap(); // <K: orgSlug, V: <K: slug, V: Subscription>
 
-  // To store states for frontend (e.g. canceling/reactivating),
+  // To store states for frontend (e.g. canceling/reactivating/upgrading),
   // only works when states are mutually exclusive
   _pendingStates = OrderedMap(); // <K: slug, V: string>
 
@@ -60,6 +60,29 @@ class SubscriptionStore extends Store {
         snackbarActions.post('Failed to reactivate subscription!');
         break;
       }
+      case 'subscription.subscribed-org-plan': {
+        const { data, orgSlug } = action.data,
+              s = Subscription.deserialize(data.subscription);
+
+        if (orgSlug) {
+          let subs = this._orgSubscriptions.get(orgSlug);
+          if (!subs) {
+            subs = new OrderedMap();
+          }
+          this._orgSubscriptions = this._orgSubscriptions.set(orgSlug, subs.set(s.slug, s));
+        } else {
+          this._userSubscriptions = this._userSubscriptions.set(s.slug, s);
+        }
+        this._lastError = null;
+        this.emit('subscribed-org-plan', { orgSlug });
+        return;
+      }
+      case 'subscription.subscribe-org-plan-failed': {
+        const { jqxhr, orgSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('subscribe-org-plan-failed', { orgSlug });
+        return;
+      }
       case 'events:subscription.updated': {
         const { data } = action,
               sub = Subscription.deserialize(data.subscription),
@@ -69,6 +92,9 @@ class SubscriptionStore extends Store {
           snackbarActions.post('Subscription has been canceled.');
         } else if (pendingState === 'reactivating') {
           snackbarActions.post('Subscription has been reactivated.');
+        } else if (pendingState === 'upgrading') {
+          snackbarActions.post('Subscription has been upgraded.');
+          this.emit('upgraded', { hostSlug: sub.hostSlug });
         }
 
         this._setPendingState(sub.slug);
@@ -116,6 +142,27 @@ class SubscriptionStore extends Store {
         this._lastError = null;
         break;
       }
+      case 'subscription.pending-upgrade': {
+        this._setPendingState(action.data.slug, 'upgrading');
+        break;
+      }
+      case 'subscription.upgrade-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr, 'Failed to upgrade subscription!');
+        this._setPendingState(action.data.slug);
+        break;
+      }
+      case 'subscription.fetched-upgrade-estimate': {
+        const { data, planId } = action.data;
+        if (data.total !== 0) {
+          const upgradeEstimate = data.total / 100.0;
+          this.emit('upgrade-estimate', { upgradeEstimate, planId });
+        }
+        this._lastError = null;
+        return;
+      }
+      case 'subscription.fetch-upgrade-estimate-failed': {
+        return;
+      }
       default: return;
     }
     this.notifyChange();
@@ -145,6 +192,20 @@ class SubscriptionStore extends Store {
     return this._userSubscriptions.find((s) => {
       return s.slug === slug;
     });
+  }
+
+  findOrgSubscriptionBySlug(orgSlug, slug) {
+    const orgSubs = this.orgSubscriptionsBySlug(orgSlug);
+    if (!orgSubs) {
+      return null;
+    }
+    return orgSubs.find((s) => {
+      return s.slug === slug;
+    });
+  }
+
+  isUpgrading(slug) {
+    return this.getPendingState(slug) === 'upgrading';
   }
 
   _setPendingState(slug, state) {

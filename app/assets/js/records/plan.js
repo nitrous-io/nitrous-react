@@ -19,6 +19,8 @@ export default class Plan extends Record({
   autoShutdown: false,
   maxContainers: 0,
   maxSnapshots: 0,
+  maxHosts: 0,
+  maxCollaborators: 1,
   cleanPreview: false,
   desktopApp: false,
   ssh: false,
@@ -47,6 +49,8 @@ export default class Plan extends Record({
       autoShutdown: !!p.auto_shutdown,
       maxContainers: p.max_containers,
       maxSnapshots: p.max_snapshots,
+      maxHosts: p.max_hosts || 0,
+      maxCollaborators: p.max_collaborators,
       cleanPreview: !!p.clean_preview,
       desktopApp: !!p.desktop_app,
       ssh: !!p.ssh,
@@ -59,5 +63,9 @@ export default class Plan extends Record({
 
   get priceDollars() {
     return this.price / 100.0;
+  }
+
+  get priceDisplay() {
+    return this.priceDollars.toFixed(2);
   }
 }
