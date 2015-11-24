@@ -236,6 +236,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                   trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
                   numberUsedHosts={numberUsedHosts}
+                  showHosts
                   currentPlan
                   disabled
                 />
@@ -252,6 +253,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                     selected={selectedPlanSlug === plan.slug}
                     onSelect={this.handlePlanSelection}
                     trialEligible={false}
+                    showHosts
                   />
                 );
               })}

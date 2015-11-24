@@ -18,7 +18,8 @@ export default class PlanListItem extends React.Component {
     activeTrialEnd: PropTypes.instanceOf(Date),
     currentPlan: PropTypes.bool,
     disabled: PropTypes.bool,
-    numberUsedHosts: PropTypes.number
+    numberUsedHosts: PropTypes.number,
+    showHosts: PropTypes.bool
   };
 
   handleClick = () => {
@@ -45,9 +46,9 @@ export default class PlanListItem extends React.Component {
   }
 
   renderMaxHosts() {
-    const { plan, numberUsedHosts } = this.props;
+    const { plan, numberUsedHosts, showHosts } = this.props;
 
-    if (!plan.maxHosts) {
+    if (!plan.maxHosts || !showHosts) {
       return '';
     }
 
