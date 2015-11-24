@@ -132,25 +132,22 @@ class ContainerActions {
   }
 
   commit(containerSlug, name) {
-    const promise = authedAjax({
+    return authedAjax({
       type: 'POST',
       url: `/api/v0/containers/${containerSlug}/commit`,
       dataType: 'json',
       data: { name }
-    });
-    promise.then((data) => {
+    }).then((data) => {
       dispatcher.dispatch({
         type: 'container.committed',
         data: { data, containerSlug }
       });
-    });
-    promise.catch((jqxhr) => {
+    }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'container.commit-failed',
         data: { jqxhr, containerSlug }
       });
     });
-    return promise;
   }
 
   create(name, imageRepo, template, host, updateImage, privileged, publishAll) {
