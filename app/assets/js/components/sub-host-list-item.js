@@ -1,17 +1,17 @@
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
 
-import Host from 'records/host';
+import SubHost from 'records/sub-host';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import hostActions from 'actions/host-actions';
 import hostStore from 'stores/host-store';
 
-export default class HostListItem extends React.Component {
-  displayName = 'HostListItem';
+export default class SubHostListItem extends React.Component {
+  displayName = 'SubHostListItem';
 
   static propTypes = {
-    host: PropTypes.instanceOf(Host).isRequired
+    subHost: PropTypes.instanceOf(SubHost).isRequired
   };
 
   state = {
@@ -32,7 +32,7 @@ export default class HostListItem extends React.Component {
 
   handleHostTerminated = (data) => {
     const { hostSlug } = data,
-          { host } = this.props;
+          { host } = this.props.subHost;
 
     if (hostSlug === host.slug) {
       this.setState({ terminating: false, terminated: true });
@@ -41,7 +41,7 @@ export default class HostListItem extends React.Component {
 
   handleHostTerminateFailed = (data) => {
     const { hostSlug } = data,
-          { host } = this.props;
+          { host } = this.props.subHost;
 
     if (hostSlug === host.slug) {
       this.setState({ terminating: false });
@@ -63,8 +63,10 @@ export default class HostListItem extends React.Component {
   }
 
   handleTerminateModalOK = () => {
+    const { host } = this.props.subHost;
+
     this.setState({ terminating: true });
-    hostActions.terminate(this.props.host.slug);
+    hostActions.terminate(host.slug);
   }
 
   terminateButtonLabel = () => {
@@ -88,10 +90,13 @@ export default class HostListItem extends React.Component {
   }
 
   render() {
-    const { host } = this.props;
+    const { subHost } = this.props,
+          { host } = subHost;
 
     return (
       <tr>
+        <td className='col-md-1'><img className='gravatar rounded-gravatar' src={subHost.gravatar(72)} /></td>
+        <td className='col-md-4'>{subHost.username}</td>
         <td>{host.slug}</td>
         <td>{host.state}</td>
         <td>

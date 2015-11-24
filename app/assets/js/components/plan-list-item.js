@@ -17,7 +17,8 @@ export default class PlanListItem extends React.Component {
     trialEligible: PropTypes.bool.isRequired,
     activeTrialEnd: PropTypes.instanceOf(Date),
     currentPlan: PropTypes.bool,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    numberUsedHosts: PropTypes.number
   };
 
   handleClick = () => {
@@ -43,10 +44,26 @@ export default class PlanListItem extends React.Component {
     return '';
   }
 
+  renderMaxHosts() {
+    const { plan, numberUsedHosts } = this.props;
+
+    if (!plan.maxHosts) {
+      return '';
+    }
+
+    let usedTitle = '';
+    if (numberUsedHosts !== null && numberUsedHosts !== undefined) {
+      usedTitle = `Using ${numberUsedHosts} of `;
+    }
+
+    return (
+      <li><span className='highlight'>{usedTitle}{plan.maxHosts}</span> Workstations</li>
+    );
+  }
+
   render() {
-    const { plan, selected, activeTrialEnd, disabled } = this.props,
-          isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0,
-          showMaxHosts = !disabled && plan.maxHosts;
+    const { plan, selected, activeTrialEnd } = this.props,
+          isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0;
 
     const timeAgoFormatter = (value, unit) => {
       if (value !== 1) {
@@ -72,9 +89,7 @@ export default class PlanListItem extends React.Component {
             </h4>
             <div className='description'>{plan.description}</div>
             <ul className='features'>
-            {showMaxHosts ? (
-              <li><span className='highlight'>{plan.maxHosts}</span> Workstations</li>
-            ) : ''}
+              {this.renderMaxHosts()}
               <li>
                 {plan.maxContainers > 1 ? 'Up to ' : ''}
                 <span className='highlight'>{plan.maxContainers}</span>

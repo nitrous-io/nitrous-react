@@ -11,7 +11,7 @@ import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
 import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
-import HostListItem from 'components/host-list-item';
+import SubHostListItem from 'components/sub-host-list-item';
 import LoadingIndicator from 'components/loading-indicator';
 import Org from 'records/org';
 import Fa from 'components/fa';
@@ -250,15 +250,17 @@ export default class Billing extends React.Component {
       <Table responsive hover>
         <thead>
           <tr>
+            <th>User</th>
+            <th></th>
             <th>Slug</th>
             <th>State</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {hosts.toList().map((host) => {
+          {hosts.toList().map((subHost) => {
             return (
-              <HostListItem key={`host-${host.id}`} host={host} />
+              <SubHostListItem key={`host-${subHost.host.id}`} subHost={subHost} />
             );
           })}
         </tbody>

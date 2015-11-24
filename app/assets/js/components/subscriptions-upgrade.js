@@ -235,6 +235,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                   onSelect={this.handlePlanSelection}
                   trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
+                  numberUsedHosts={numberUsedHosts}
                   currentPlan
                   disabled
                 />
