@@ -1,19 +1,22 @@
 import React, { PropTypes } from 'react';
 import { Grid, Row, Button, Modal } from 'react-bootstrap';
-import stringUtil from 'lib/string-util';
 
 import PlanListItem from 'components/plan-list-item';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
+import hostStore from 'stores/host-store';
 import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
 import taskActions from 'actions/task-actions';
 import hostActions from 'actions/host-actions';
+import LoadingIndicator from 'components/loading-indicator';
+import Org from 'records/org';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
 
   static contextTypes = {
+    org: PropTypes.instanceOf(Org),
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
@@ -25,40 +28,77 @@ export default class SubscriptionsUpgrade extends React.Component {
 
   state = {
     subscription: this.findSubscription(),
-    userPlansForUpgrade: this.findUserPlansForUpgrade(),
-    selectedPlan: this.findUserPlansForUpgrade() ? this.findUserPlansForUpgrade().first() : null,
+    plansForUpgrade: this.findPlansForUpgrade(),
+    selectedPlan: this.findPlansForUpgrade() ? this.findPlansForUpgrade().first() : null,
     showUpgradeSubscriptionModal: false,
     upgrading: subscriptionStore.isUpgrading(this.props.params.subscriptionSlug),
-    upgradeEstimate: null
+    upgradeEstimate: null,
+    numberUsedHosts: null
   };
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    this.fetchObjects(nextContext);
+  }
+
+  componentWillMount() {
+    const org = this.context.org;
+    if (org && !org.roleAllowsBillingProfileAdmin) {
+      this.context.router.transitionTo('dashboard');
+    }
+  }
 
   componentDidMount() {
     subscriptionStore.onChange(this.subscriptionStoreDidChange);
-    subscriptionActions.fetchAll();
-
     planStore.onChange(this.planStoreDidChange);
-    planActions.fetchAll();
+
+    hostStore.on('fetched-sub-hosts', this.setUsedHosts);
 
     subscriptionStore.on('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
     subscriptionStore.on('upgraded', this.onSubscriptionUpgraded);
+
+    this.fetchObjects();
   }
 
   componentWillUnmount() {
     subscriptionStore.offChange(this.subscriptionStoreDidChange);
     planStore.offChange(this.planStoreDidChange);
 
+    hostStore.off('fetched-sub-hosts', this.setUsedHosts);
+
     subscriptionStore.off('upgrade-estimate', this.onSubscriptionUpgradeEstimate);
     subscriptionStore.off('upgraded', this.onSubscriptionUpgraded);
   }
 
+  fetchObjects = (context=this.context) => {
+    planActions.fetchAll();
+
+    const { org } = context;
+    if (org) {
+      subscriptionActions.fetchAllByOrgSlug(org.slug);
+    } else {
+      subscriptionActions.fetchAll();
+    }
+
+    this.setUsedHosts();
+  }
+
   subscriptionStoreDidChange = () => {
     const subscription = this.findSubscription(),
-          userPlansForUpgrade = this.findUserPlansForUpgrade(),
-          selectedPlan = userPlansForUpgrade ?  userPlansForUpgrade.first() : null;
+          plansForUpgrade = this.findPlansForUpgrade(),
+          selectedPlan = plansForUpgrade ?  plansForUpgrade.first() : null;
+
+    if (!subscription) {
+      return;
+    }
+
+    if (subscription.multiHost) {
+      hostActions.fetchSubscriptionHosts(subscription.slug);
+    }
+
     this.setState({
       subscription,
       upgrading: subscriptionStore.isUpgrading(subscription.slug),
-      userPlansForUpgrade,
+      plansForUpgrade,
       selectedPlan
     });
     if (selectedPlan) {
@@ -67,11 +107,11 @@ export default class SubscriptionsUpgrade extends React.Component {
   }
 
   planStoreDidChange = () => {
-    const userPlansForUpgrade = this.findUserPlansForUpgrade(),
-          selectedPlan = userPlansForUpgrade ? userPlansForUpgrade.first() : null;
+    const plansForUpgrade = this.findPlansForUpgrade(),
+          selectedPlan = plansForUpgrade ? plansForUpgrade.first() : null;
     this.setState({
       selectedPlan,
-      userPlansForUpgrade
+      plansForUpgrade
     });
   };
 
@@ -85,6 +125,12 @@ export default class SubscriptionsUpgrade extends React.Component {
 
   onSubscriptionUpgraded = (data) => {
     this.hideUpgradeSubscriptionModal();
+    const { org } = this.context;
+
+    if (org) {
+      return this.context.router.transitionTo('org-billing', { orgSlug: org.slug });
+    }
+
     const { hostSlug } = data;
     if (hostSlug !== this.findSubscription().hostSlug) {
       return;
@@ -94,14 +140,33 @@ export default class SubscriptionsUpgrade extends React.Component {
     this.context.router.transitionTo('host', { hostSlug });
   }
 
-  findSubscription() {
-    return subscriptionStore.findBySlug(this.props.params.subscriptionSlug);
+  setUsedHosts = () => {
+    const { subscription } = this.state,
+          { org } = this.context;
+
+    if (!org || !subscription || !subscription.multiHost) {
+      this.setState({ numberUsedHosts: null });
+    }
+    const hosts = hostStore.hostsBySubSlug(subscription.slug),
+          len = hosts ? hosts.size : null;
+
+    this.setState({ numberUsedHosts: len });
   }
 
-  findUserPlansForUpgrade() {
+  findSubscription() {
+    const { org } = this.context,
+          { subscriptionSlug } = this.props.params;
+    if (org) {
+      return subscriptionStore.findOrgSubscriptionBySlug(org.slug, subscriptionSlug);
+    }
+
+    return subscriptionStore.findBySlug(subscriptionSlug);
+  }
+
+  findPlansForUpgrade() {
     const subscription = this.findSubscription();
     if (subscription) {
-      return planStore.userPlansForUpgrade(subscription.plan.price);
+      return planStore.plansForUpgrade(subscription.plan);
     } else {
       return planStore.personalPlans;
     }
@@ -131,18 +196,31 @@ export default class SubscriptionsUpgrade extends React.Component {
   };
 
   render() {
-    const { subscription, upgrading, upgradeEstimate, userPlansForUpgrade, selectedPlan } = this.state,
+    const { subscription } = this.state;
+
+    if (!subscription) {
+      return (
+        <div className='subscriptions-upgrade-component'>
+          <div className='container'>
+            <h2>Upgrade Your Subscription</h2>
+            <LoadingIndicator />
+          </div>
+        </div>
+      );
+    }
+
+    const { upgrading, upgradeEstimate, plansForUpgrade, selectedPlan, numberUsedHosts } = this.state,
+          { org, router } = this.context,
           selectedPlanSlug = selectedPlan ? selectedPlan.slug : "",
           selectedPlanPrice = selectedPlan ? selectedPlan.priceDollars.toFixed(2) : null,
-          selectedPlanTitle = selectedPlanSlug ? stringUtil.titleize(selectedPlanSlug) : "",
+          selectedPlanTitle = selectedPlan ? selectedPlan.name : "",
           prorataCharge = upgradeEstimate ? `of $${upgradeEstimate.toFixed(2)}` : "",
           upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade",
-          availablePlansText = userPlansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
+          availablePlansText = plansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
           onTrial = subscription ? subscription.activeTrialEnd : false,
-          backdrop = 'static',
-          { makeHref } = this.context.router,
-          billingURL = makeHref('billing');
-    
+          { makeHref } = router,
+          billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing');
+
     return (
       <div className='subscriptions-upgrade-component'>
         <div className='container'>
@@ -157,6 +235,7 @@ export default class SubscriptionsUpgrade extends React.Component {
                   onSelect={this.handlePlanSelection}
                   trialEligible={false}
                   activeTrialEnd={subscription.activeTrialEnd}
+                  numberUsedHosts={numberUsedHosts}
                   currentPlan
                   disabled
                 />
@@ -167,7 +246,7 @@ export default class SubscriptionsUpgrade extends React.Component {
           <p className='hint'>{availablePlansText}</p>
           <Grid className='ui-card-grid'>
             <Row>
-              {userPlansForUpgrade.toList().map((plan) => {
+              {plansForUpgrade.toList().map((plan) => {
                 return (
                   <PlanListItem key={`plan-${plan.slug}`} plan={plan}
                     selected={selectedPlanSlug === plan.slug}
@@ -181,12 +260,12 @@ export default class SubscriptionsUpgrade extends React.Component {
             <Row>
               <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
 
-              {!userPlansForUpgrade.isEmpty() ? (
+              {!plansForUpgrade.isEmpty() ? (
                 <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
               ) : ''}
             </Row>
 
-            <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop={backdrop}>
+            <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop='static'>
               <Modal.Header>
                 <Modal.Title>Begin Upgrade</Modal.Title>
               </Modal.Header>

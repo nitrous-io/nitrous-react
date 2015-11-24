@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Col, Alert, Button, Input, Panel } from 'react-bootstrap';
+import { Grid, Row, Col, Alert, Button, Input, Panel, Table } from 'react-bootstrap';
 import slug from 'slug';
 
 import orgStore from 'stores/org-store';
@@ -10,11 +10,11 @@ import PaymentMethod from 'components/payment-method';
 import NewOrgSteps from 'components/new-org-steps';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
-import PlanListItem from 'components/plan-list-item';
 import planStore from 'stores/plan-store';
 import planActions from 'actions/plan-actions';
 import subscriptionStore from 'stores/subscription-store';
 import subscriptionActions from 'actions/subscription-actions';
+import OrgPlanListItem from 'components/org-plan-list-item';
 
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
@@ -204,20 +204,19 @@ export default class NewOrg extends React.Component {
     }
 
     return (
-      <Panel header={<h4>Plan</h4>}>
-        <Grid className='ui-card-grid'>
-          <Row>
+      <Panel header={<h4>Choose a Plan</h4>}>
+        <Table className='no-border selectable'>
+          <tbody>
             {plans.toList().map((plan) => {
               return (
-                <PlanListItem key={`plan-${plan.slug}`} plan={plan}
-                  selected={selectedPlanSlug === plan.slug} // compare slug because plans may have been reloaded
+                <OrgPlanListItem key={`plan-${plan.slug}`} plan={plan}
+                  selected={selectedPlanSlug === plan.slug}
                   onSelect={this.handlePlanSelection}
-                  trialEligible={false}
                 />
               );
             })}
-          </Row>
-        </Grid>
+          </tbody>
+        </Table>
       </Panel>
     );
   }

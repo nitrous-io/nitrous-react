@@ -194,6 +194,16 @@ class SubscriptionStore extends Store {
     });
   }
 
+  findOrgSubscriptionBySlug(orgSlug, slug) {
+    const orgSubs = this.orgSubscriptionsBySlug(orgSlug);
+    if (!orgSubs) {
+      return null;
+    }
+    return orgSubs.find((s) => {
+      return s.slug === slug;
+    });
+  }
+
   isUpgrading(slug) {
     return this.getPendingState(slug) === 'upgrading';
   }

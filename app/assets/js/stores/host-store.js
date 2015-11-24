@@ -1,8 +1,10 @@
+import { OrderedMap, OrderedSet } from 'immutable';
+
 import Store from 'stores/store';
 import Host from 'records/host';
+import SubHost from 'records/sub-host';
 import taskActions from 'actions/task-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import { OrderedMap, OrderedSet } from 'immutable';
 
 class HostStore extends Store {
   _hosts = OrderedMap(); // <K: HostSlug, V: Host>
@@ -53,7 +55,7 @@ class HostStore extends Store {
         const { data, subscriptionSlug } = action.data;
 
         const hosts = OrderedMap(data.hosts.map(function(d) {
-          const h = Host.deserialize(d);
+          const h = SubHost.deserialize(d);
           return [h.slug, h];
         }));
 

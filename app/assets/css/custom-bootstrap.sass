@@ -408,6 +408,36 @@ textarea
       .radio
         top: 3px
 
+  &.no-border
+    th, td
+     border-top: none !important
+
+  &.selectable
+    border-collapse: separate
+    border-spacing: 0 1em
+
+    tbody
+      tr
+        color: #888
+        outline: 1px solid #ddd
+
+        button:
+          height: 33px
+
+        &.active
+          outline: 1px solid $brand-primary
+          color: $brand-primary
+
+          td
+            background-color: white
+
+          .vertical-align
+            height: 33px
+            display: flex
+            align-items: center
+            justify-content: center
+
+
 // Panel
 .panel
   +box-shadow(none)
@@ -524,3 +554,7 @@ textarea
     .hint
       padding-bottom: 0
       margin-bottom: 0
+
+.rounded-gravatar
+  border-radius: 50%
+  width: 36px

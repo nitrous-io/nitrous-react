@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Button, ButtonGroup, ButtonToolbar, Panel, Table } from 'react-bootstrap';
+import Time from 'react-time';
 
 import hostStore from 'stores/host-store';
 import hostActions from 'actions/host-actions';
@@ -10,7 +11,7 @@ import subscriptionActions from 'actions/subscription-actions';
 import invoiceActions from 'actions/invoice-actions';
 import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
-import HostListItem from 'components/host-list-item';
+import SubHostListItem from 'components/sub-host-list-item';
 import LoadingIndicator from 'components/loading-indicator';
 import Org from 'records/org';
 import Fa from 'components/fa';
@@ -218,15 +219,14 @@ export default class Billing extends React.Component {
     const hosts = hostStore.hostsBySubSlug(sub.slug);
     let hostsTitle = '';
     if (hosts) {
-      hostsTitle = ` - ${hosts.size}`;
       if (sub.plan && sub.plan.maxHosts) {
-        hostsTitle = `${hostsTitle} of ${sub.plan.maxHosts} workstations`;
+        hostsTitle = ` (using ${hosts.size} of ${sub.plan.maxHosts})`;
       } else {
-        hostsTitle = `${hostsTitle} workstations`;
+        hostsTitle = ` (using ${hosts.size})`;
       }
     }
 
-    return `${sub.title}${hostsTitle}`;
+    return `Workstations${hostsTitle}`;
   }
 
   renderHosts = () => {
@@ -250,19 +250,63 @@ export default class Billing extends React.Component {
       <Table responsive hover>
         <thead>
           <tr>
+            <th>User</th>
+            <th></th>
             <th>Slug</th>
             <th>State</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {hosts.toList().map((host) => {
+          {hosts.toList().map((subHost) => {
             return (
-              <HostListItem key={`host-${host.id}`} host={host} />
+              <SubHostListItem key={`host-${subHost.host.id}`} subHost={subHost} />
             );
           })}
         </tbody>
       </Table>
+    );
+  }
+
+  renderOrgPlanInfo = () => {
+    const { org } = this.context,
+          { makeHref } = this.context.router,
+          multiHost = org && org.multiHost,
+          sub = this.findMultiHostSubscription();
+
+    if (!multiHost || !sub) {
+      return '';
+    }
+
+    let workspaceInfo = null;
+    if (sub.plan.maxHosts === 1) {
+      workspaceInfo = ' 1 workstation';
+    } else if (sub.plan.maxHosts > 1) {
+      workspaceInfo = ` ${sub.plan.maxHosts} workstations`;
+    }
+
+    const href = makeHref('org-subscriptions-upgrade', { orgSlug: org.slug, subscriptionSlug: sub.slug });
+
+    return (
+      <Panel header={<h4>Plan</h4>}>
+        <div className='org-info'>
+          <p><strong>{sub.plan.name}</strong></p>
+          {workspaceInfo ? (
+            <p>{workspaceInfo}</p>
+          ) : ''}
+          {sub.currentPeriodEnd ? (
+            <p>Renews on <Time value={sub.currentPeriodEnd} format="MMM DD, YYYY" /></p>
+          ) : ''}
+        </div>
+
+        <div>
+          <ButtonToolbar>
+            <ButtonGroup>
+              <Button href={href}>Change Plan</Button>
+            </ButtonGroup>
+          </ButtonToolbar>
+        </div>
+      </Panel>
     );
   }
 
@@ -285,6 +329,8 @@ export default class Billing extends React.Component {
 
     return (
       <div className='billing-component'>
+        {this.renderOrgPlanInfo()}
+
         <Panel header={<h4>Payment Method</h4>} className='payment-method'>
           {hasCard ? (
 

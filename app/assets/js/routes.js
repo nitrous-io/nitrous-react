@@ -79,6 +79,8 @@ export default (
 
         <Route name='org-billing' path='billing' handler={OrgBilling} />
         <Route name='org-payment-method' path='billing/payment-method' handler={OrgBillingPaymentMethod} />
+
+        <Route name='org-subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
       </Route>
 
       <Route name='host' path='workstations/:hostSlug' handler={Host}>
