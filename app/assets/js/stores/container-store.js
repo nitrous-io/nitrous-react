@@ -82,7 +82,8 @@ class ContainerStore extends Store {
         break;
       }
       case 'container.commit-failed': {
-        const { containerSlug } = action.data;
+        const { jqxhr, containerSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
         this.emit('commit-failed', { containerSlug });
         break;
       }

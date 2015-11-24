@@ -28,7 +28,7 @@ export default class CollaboratorList extends React.Component {
     super(props, context);
 
     const host = hostStore.hostByHostId(this.props.container.hostId),
-          plan = planStore.planById(host.planId);
+          plan = host ? planStore.planById(host.planId) : null;
 
     this.state = {
       host,
