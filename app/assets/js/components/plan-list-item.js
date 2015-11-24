@@ -4,6 +4,7 @@ import TimeAgo from 'react-timeago';
 import classNames from 'classnames';
 
 import Fa from 'components/fa';
+import Currency from 'components/currency';
 import Plan from 'records/plan';
 
 export default class PlanListItem extends React.Component {
@@ -25,14 +26,14 @@ export default class PlanListItem extends React.Component {
 
   renderAction() {
     const { disabled, plan, selected, currentPlan } = this.props,
-          price = plan.priceDollars.toFixed(2);
+          price = <Currency value={plan.priceDollars} wholeNumPreferred />;
 
     if (currentPlan) {
-      return (<Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>);
+      return (<Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>{price}/mo</Button>);
     }
 
     if (!disabled) {
-      return (<Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>${price}/mo</Button>);
+      return (<Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>{price}/mo</Button>);
     }
 
     if (plan.org) {
