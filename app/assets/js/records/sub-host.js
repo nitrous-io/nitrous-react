@@ -19,4 +19,12 @@ export default class SubHost extends Record({
       return `https://secure.gravatar.com/avatar/${this.gravatarHash}?default=retro&secure=true&size=${size}`;
     }
   }
+
+  get slug() {
+    if (this.host) {
+      return this.host.slug;
+    }
+
+    return this.username;
+  }
 }
