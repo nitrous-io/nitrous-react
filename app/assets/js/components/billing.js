@@ -268,6 +268,7 @@ export default class Billing extends React.Component {
 
   renderOrgPlanInfo = () => {
     const { org } = this.context,
+          { makeHref } = this.context.router,
           multiHost = org && org.multiHost,
           sub = this.findMultiHostSubscription();
 
@@ -281,6 +282,8 @@ export default class Billing extends React.Component {
     } else if (sub.plan.maxHosts > 1) {
       workspaceInfo = ` ${sub.plan.maxHosts} workstations`;
     }
+
+    const href = makeHref('org-subscriptions-upgrade', { orgSlug: org.slug, subscriptionSlug: sub.slug });
 
     return (
       <Panel header={<h4>Plan</h4>}>
@@ -297,7 +300,7 @@ export default class Billing extends React.Component {
         <div>
           <ButtonToolbar>
             <ButtonGroup>
-              <Button>Change Plan</Button>
+              <Button href={href}>Change Plan</Button>
             </ButtonGroup>
           </ButtonToolbar>
         </div>

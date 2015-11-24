@@ -55,10 +55,18 @@ class PlanStore extends Store {
     });
   }
 
-  // TODO: Rename to plansForUpgrade when ready to include org subscriptions in upgrade option.
-  // TODO: Consume plan as argument instead of plan price.
-  userPlansForUpgrade(currentPlanPrice) {
-    return this.personalPlans.filter((p) => {
+  plansForUpgrade(plan) {
+    let scope = this.personalPlans;
+    if (plan.org) {
+      if (plan.maxHosts) {
+        scope = this.orgBetaPlans;
+      } else {
+        scope = this.orgPlans;
+      }
+    }
+
+    const currentPlanPrice = plan.price;
+    return scope.filter((p) => {
       return p.price > currentPlanPrice;
     });
   }

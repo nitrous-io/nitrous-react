@@ -102,7 +102,7 @@ export default class SubscriptionListItem extends React.Component {
           { canceling, reactivating } = this.state,
           cancelButtonLabel = canceling ? "Canceling ..." : "Cancel",
           reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate",
-          disableUpgrade = planStore.userPlansForUpgrade(subscription.plan.price).isEmpty(),
+          disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
           { makeHref } = this.context.router,
           subscriptionsUpgradeURL = makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug });
 
