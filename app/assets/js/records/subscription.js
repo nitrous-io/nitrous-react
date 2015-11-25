@@ -1,5 +1,6 @@
 import { Record } from 'immutable';
 import Plan from 'records/plan';
+import format from 'lib/format';
 
 export default class Subscription extends Record({
   slug: null,
@@ -49,6 +50,6 @@ export default class Subscription extends Record({
       return 'Subscription';
     }
 
-    return `${this.plan.name} $${this.plan.priceDisplay}/month`;
+    return `${this.plan.name} ${format.currency(this.plan.priceDollars)}/month`;
   }
 }

@@ -64,8 +64,4 @@ export default class Plan extends Record({
   get priceDollars() {
     return this.price / 100.0;
   }
-
-  get priceDisplay() {
-    return this.priceDollars.toFixed(2);
-  }
 }

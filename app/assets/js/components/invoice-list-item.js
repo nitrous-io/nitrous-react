@@ -2,8 +2,8 @@ import React, { PropTypes } from 'react';
 import Invoice from 'records/invoice';
 import { Modal, Button, Table } from 'react-bootstrap';
 import Time from 'react-time';
-import Currency from 'components/currency';
 import stringUtil from 'lib/string-util';
+import format from 'lib/format';
 
 export default class InvoiceListItem extends React.Component {
   displayName = 'InvoiceListItem';
@@ -30,19 +30,15 @@ export default class InvoiceListItem extends React.Component {
 
   render() {
     const { invoice } = this.props,
-          invoiceTitle = stringUtil.titleize(`${invoice.title}`);
+          invoiceTitle = stringUtil.titleize(invoice.title),
+          invoiceCharge = format.currency(invoice.totalChargeDollars),
+          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars);
 
     return (
       <tr>
-        <td>
-          {invoiceTitle}
-        </td>
-        <td>
-          <Time value={invoice.periodEnd} format="YYYY-MM-DD" />
-        </td>
-        <td>
-          <Currency value={invoice.totalChargeDollars} />
-        </td>
+        <td>{invoiceTitle}</td>
+        <td><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></td>
+        <td>{invoiceCharge}</td>
         <td>
           <a onClick={this.handleViewInvoice} className='btn btn-default'>View</a>
 
@@ -55,17 +51,17 @@ export default class InvoiceListItem extends React.Component {
                 <tbody>
                   <tr>
                     <td>Subscription to {invoiceTitle}</td>
-                    <td><Currency value={invoice.totalChargeDollars} /></td>
+                    <td>{invoiceCharge}</td>
                   </tr>
                   {invoice.creditAvailable ? (
                     <tr>
                       <td>Credits applied</td>
-                      <td>(<Currency value={invoice.creditAvailableDollars} />)</td>
+                      <td>({invoiceCreditAvailable})</td>
                     </tr>
                   ) : ''}
                   <tr>
                     <td><strong>Total Charge</strong></td>
-                    <td><strong><Currency value={invoice.totalChargeDollars} /></strong></td>
+                    <td><strong>{invoiceCharge}</strong></td>
                   </tr>
                 </tbody>
               </Table>
