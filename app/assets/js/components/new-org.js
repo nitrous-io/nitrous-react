@@ -37,7 +37,7 @@ export default class NewOrg extends React.Component {
     processing: false,
     paymentFailed: false,
     plans: planStore.orgMultiHostPlans,
-    selectedPlan: null
+    selectedPlan: planStore.orgMultiHostPlans ? planStore.orgMultiHostPlans.first() : null
   };
 
   componentDidMount() {
@@ -183,8 +183,8 @@ export default class NewOrg extends React.Component {
   };
 
   submitDisabled = () => {
-    const { processing, orgNameValid, orgEmail } = this.state;
-    return processing || !orgNameValid || !orgEmail;
+    const { processing, orgNameValid, orgEmail, selectedPlan } = this.state;
+    return processing || !orgNameValid || !orgEmail || !selectedPlan;
   }
 
   renderPlanSelection() {
