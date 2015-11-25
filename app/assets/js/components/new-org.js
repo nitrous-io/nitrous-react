@@ -19,12 +19,6 @@ import OrgPlanListItem from 'components/org-plan-list-item';
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
 
-  static propTypes = {
-    query: PropTypes.shape({
-      beta: PropTypes.string
-    })
-  };
-
   static contextTypes = {
     router: PropTypes.func.isRequired
   };
@@ -42,7 +36,7 @@ export default class NewOrg extends React.Component {
     createdOrg: null,
     processing: false,
     paymentFailed: false,
-    plans: planStore.orgBetaPlans,
+    plans: planStore.orgMultiHostPlans,
     selectedPlan: null
   };
 
@@ -86,7 +80,7 @@ export default class NewOrg extends React.Component {
   }
 
   planStoreDidChange = () => {
-    const plans = planStore.orgBetaPlans;
+    const plans = planStore.orgMultiHostPlans;
 
     this.setState({
       plans,
@@ -146,10 +140,9 @@ export default class NewOrg extends React.Component {
   }
 
   handlePaymentSuccess = () => {
-    const { createdOrg, selectedPlan } = this.state,
-          { beta } = this.props.query;
+    const { createdOrg, selectedPlan } = this.state;
 
-    if (beta === 'true' && selectedPlan) {
+    if (selectedPlan) {
       subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug);
       return;
     }
@@ -195,11 +188,10 @@ export default class NewOrg extends React.Component {
   }
 
   renderPlanSelection() {
-    const { beta } = this.props.query,
-          { plans, selectedPlan } = this.state,
+    const { plans, selectedPlan } = this.state,
           selectedPlanSlug = selectedPlan && selectedPlan.slug;
 
-    if (beta !== 'true' || !plans) {
+    if (!plans) {
       return;
     }
 
