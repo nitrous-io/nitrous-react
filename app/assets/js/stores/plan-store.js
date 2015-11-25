@@ -31,7 +31,7 @@ class PlanStore extends Store {
     });
   }
 
-  get betaPlans() {
+  get multiHostPlans() {
     return this._plans.filter((p) => {
       return !p.hidden && p.maxHosts && p.subscription && p.price > 0;
     });
@@ -45,8 +45,8 @@ class PlanStore extends Store {
     return this.plans.filter((p) => p.org);
   }
 
-  get orgBetaPlans() {
-    return this.betaPlans.filter((p) => p.org);
+  get orgMultiHostPlans() {
+    return this.multiHostPlans.filter((p) => p.org);
   }
 
   planById(id) {
@@ -59,7 +59,7 @@ class PlanStore extends Store {
     let scope = this.personalPlans;
     if (plan.org) {
       if (plan.maxHosts) {
-        scope = this.orgBetaPlans;
+        scope = this.orgMultiHostPlans;
       } else {
         scope = this.orgPlans;
       }

@@ -77,4 +77,25 @@ export default class Container extends Record({
   get snapshotDisabled() {
     return this.state !== 'running';
   }
+
+  get sshHost() {
+    if (!this.sshUrl) {
+      return null;
+    }
+    return this.sshUrl.match(/@([^:]+):/)[1];
+  }
+
+  get sshPort() {
+    if (!this.sshUrl) {
+      return null;
+    }
+    return this.sshUrl.match(/:(\d+)$/)[1];
+  }
+
+  get sshUsername() {
+    if (!this.sshUrl) {
+      return null;
+    }
+    return this.sshUrl.match(/\/\/([^@]+)@/)[1];
+  }
 }

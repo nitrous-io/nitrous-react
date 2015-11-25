@@ -19,12 +19,6 @@ import OrgPlanListItem from 'components/org-plan-list-item';
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
 
-  static propTypes = {
-    query: PropTypes.shape({
-      beta: PropTypes.string
-    })
-  };
-
   static contextTypes = {
     router: PropTypes.func.isRequired
   };
@@ -42,8 +36,8 @@ export default class NewOrg extends React.Component {
     createdOrg: null,
     processing: false,
     paymentFailed: false,
-    plans: planStore.orgBetaPlans,
-    selectedPlan: null
+    plans: planStore.orgMultiHostPlans,
+    selectedPlan: planStore.orgMultiHostPlans ? planStore.orgMultiHostPlans.first() : null
   };
 
   componentDidMount() {
@@ -86,7 +80,7 @@ export default class NewOrg extends React.Component {
   }
 
   planStoreDidChange = () => {
-    const plans = planStore.orgBetaPlans;
+    const plans = planStore.orgMultiHostPlans;
 
     this.setState({
       plans,
@@ -146,10 +140,9 @@ export default class NewOrg extends React.Component {
   }
 
   handlePaymentSuccess = () => {
-    const { createdOrg, selectedPlan } = this.state,
-          { beta } = this.props.query;
+    const { createdOrg, selectedPlan } = this.state;
 
-    if (beta === 'true' && selectedPlan) {
+    if (selectedPlan) {
       subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug);
       return;
     }
@@ -190,16 +183,15 @@ export default class NewOrg extends React.Component {
   };
 
   submitDisabled = () => {
-    const { processing, orgNameValid, orgEmail } = this.state;
-    return processing || !orgNameValid || !orgEmail;
+    const { processing, orgNameValid, orgEmail, selectedPlan } = this.state;
+    return processing || !orgNameValid || !orgEmail || !selectedPlan;
   }
 
   renderPlanSelection() {
-    const { beta } = this.props.query,
-          { plans, selectedPlan } = this.state,
+    const { plans, selectedPlan } = this.state,
           selectedPlanSlug = selectedPlan && selectedPlan.slug;
 
-    if (beta !== 'true' || !plans) {
+    if (!plans) {
       return;
     }
 
