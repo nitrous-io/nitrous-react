@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, Alert, Panel } from 'react-bootstrap';
+import { Button, Alert, Panel, Table } from 'react-bootstrap';
 import Container from 'records/container';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -233,11 +233,44 @@ export default class ContainerKeys extends React.Component {
             )}
           </Panel>
 
-          <Panel header={(<h4>Public Keys for SSH Access</h4>)}>
+          <Panel header={<h4>Public Keys for SSH Access</h4>}>
             {loading ? (
               <LoadingIndicator />
             ) : (
               <UserKeyList userKeys={userKeys} host={host} shared={shared} />
+            )}
+          </Panel>
+
+          <Panel header={<h4>SSH Access</h4>}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              container.sshUrl ? (
+                <Table striped bordered>
+                  <tbody>
+                    <tr>
+                      <th>SSH URL</th>
+                      <td><a href={container.sshUrl}>{container.sshUrl}</a></td>
+                    </tr>
+                    <tr>
+                      <th>Host</th>
+                      <td>{container.sshHost}</td>
+                    </tr>
+                    <tr>
+                      <th>Port</th>
+                      <td>{container.sshPort}</td>
+                    </tr>
+                    <tr>
+                      <th>Username</th>
+                      <td>{container.sshUsername}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+              ) : (
+                <Alert bsStyle='warning'>
+                  <p>SSH Access is not available.</p>
+                </Alert>
+              )
             )}
           </Panel>
         </ContainerNav>
