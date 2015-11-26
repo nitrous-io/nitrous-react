@@ -6,15 +6,20 @@ import billingStore from 'stores/billing-store';
 import hostStore from 'stores/host-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
+import orgMemberStore from 'stores/org-member-store';
 import userStore from 'stores/user-store';
+import subscriptionStore from 'stores/subscription-store';
 import hostActions from 'actions/host-actions';
 import paymentActions from 'actions/payment-actions';
 import planActions from 'actions/plan-actions';
+import orgMemberActions from 'actions/org-member-actions';
+import subscriptionActions from 'actions/subscription-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
 import PaymentMethod from 'components/payment-method';
+import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 import snackbarActions from 'actions/snackbar-actions';
@@ -43,22 +48,34 @@ export default class NewHost extends React.Component {
     return billingStore.userBillingProfile;
   }
 
-  state = {
-    user: userStore.user,
-    billingProfile: this.findBillingProfile(),
-    plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
-    regions: regionStore.regions,
-    selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
-    selectedRegion: regionStore.regions.first(),
-    creating: false,
-    paymentFailed: false
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    const user = userStore.user,
+          subscription = this.findSubscription(),
+          currentPlan = subscription ? planStore.planById(subscription.planId) : null;
+
+    this.state = {
+      user,
+      member: null,
+      subscription,
+      billingProfile: this.findBillingProfile(),
+      plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
+      currentPlan,
+      regions: regionStore.regions,
+      selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
+      selectedRegion: regionStore.regions.first(),
+      creating: false,
+      paymentFailed: false
+    };
+  }
 
   componentDidMount() {
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
-    planActions.fetchAll();
-    regionActions.fetchAll();
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    orgMemberStore.onChange(this.orgMemberStoreDidChange);
+    this.fetchObjects();
 
     hostStore.on('create-initiated', this.onHostCreateInitiated);
     hostStore.on('create-failed', this.onHostCreateFailed);
@@ -74,9 +91,22 @@ export default class NewHost extends React.Component {
   componentWillUnmount() {
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
+    orgMemberStore.offChange(this.orgMemberStoreDidChange);
 
     hostStore.off('create-initiated', this.onHostCreateInitiated);
     hostStore.off('create-failed', this.onHostCreateFailed);
+  }
+
+  fetchObjects = (context=this.context) => {
+    planActions.fetchAll();
+    regionActions.fetchAll();
+
+    const { org } = context;
+    if (org) {
+      subscriptionActions.fetchAllByOrgSlug(org.slug);
+      orgMemberActions.fetchAllByOrgSlug(org.slug);
+    }
   }
 
   onHostCreateInitiated = (data) => {
@@ -108,6 +138,26 @@ export default class NewHost extends React.Component {
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
   };
+
+  subscriptionStoreDidChange = () => {
+    const subscription = this.findSubscription();
+    this.setState({ subscription });
+  };
+
+  orgMemberStoreDidChange = () => {
+    if (this.context.org && this.state.user) {
+      const member = orgMemberStore.orgMemberByUserId(this.context.org.slug, this.state.user.id);
+      this.setState({ member });
+    }
+  };
+
+  findSubscription() {
+    const { org } = this.context,
+          orgSub = org ? subscriptionStore.orgSubscriptionsBySlug(org.slug) : null;
+    if (orgSub) {
+      return orgSub.first();
+    }
+  }
 
   planStoreDidChange = () => {
     this.setPlans();
@@ -179,6 +229,21 @@ export default class NewHost extends React.Component {
     return billingProfile && !billingProfile.hasCard;
   }
 
+  hostsLimitReached() {
+    const { org } = this.context;
+    if (org) {
+      return hostStore.hostsByOrgId(org.id).size >= org.maxHosts;
+    }
+    return;
+  }
+
+  isOrgOwner() {
+    const member = this.state.member;
+    if (member) {
+      return member.role === 'owner';
+    }
+  }
+
   renderPlanSelection() {
     const org = this.context.org,
           { plans } = this.state,
@@ -235,13 +300,22 @@ export default class NewHost extends React.Component {
 
   render() {
     const org = this.context.org,
-          { regions, creating, paymentFailed } = this.state,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+          { subscription, regions, creating, paymentFailed } = this.state,
+          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
+          { makeHref } = this.context.router,
+          subscriptionsUpgradeURL = subscription ? makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }) : null;
 
     return (
       <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
+          {this.hostsLimitReached() ? (
+            <p className='hint'>
+              <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
+              {subscriptionsUpgradeURL ? ' -' : ''}
+              {subscriptionsUpgradeURL ? <a href={subscriptionsUpgradeURL}> Upgrade plan</a> : ''}
+            </p>
+            ) : ''}
           <h2>New Workstation</h2>
           {this.renderPlanSelection()}
           <h3>Select Region</h3>
