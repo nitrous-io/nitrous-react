@@ -51,12 +51,11 @@ export default class NewHost extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const user = userStore.user,
-          subscription = this.findSubscription(),
+    const subscription = this.findSubscription(),
           currentPlan = subscription ? planStore.planById(subscription.planId) : null;
 
     this.state = {
-      user,
+      user: userStore.user,
       member: null,
       subscription,
       billingProfile: this.findBillingProfile(),
@@ -140,8 +139,12 @@ export default class NewHost extends React.Component {
   };
 
   subscriptionStoreDidChange = () => {
-    const subscription = this.findSubscription();
-    this.setState({ subscription });
+    const subscription = this.findSubscription(),
+          currentPlan = subscription ?  planStore.planById(subscription.planId) : null;
+    this.setState({
+      subscription,
+      currentPlan
+    });
   };
 
   orgMemberStoreDidChange = () => {
@@ -160,6 +163,9 @@ export default class NewHost extends React.Component {
   }
 
   planStoreDidChange = () => {
+    const subscription = this.state.subscription,
+          currentPlan = subscription ? planStore.planById(subscription.planId) : null;
+    this.setState({ currentPlan });
     this.setPlans();
   };
 
@@ -244,6 +250,12 @@ export default class NewHost extends React.Component {
     }
   }
 
+  canUpgrade() {
+    if (this.state.currentPlan) {
+      return !planStore.plansForUpgrade(this.state.currentPlan).isEmpty();
+    }
+  }
+
   renderPlanSelection() {
     const org = this.context.org,
           { plans } = this.state,
@@ -312,8 +324,8 @@ export default class NewHost extends React.Component {
           {this.hostsLimitReached() ? (
             <p className='hint'>
               <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
-              {subscriptionsUpgradeURL ? ' -' : ''}
-              {subscriptionsUpgradeURL ? <a href={subscriptionsUpgradeURL}> Upgrade plan</a> : ''}
+              {this.canUpgrade() && subscriptionsUpgradeURL ? ' -' : ''}
+              {this.canUpgrade() && subscriptionsUpgradeURL ? <a href={subscriptionsUpgradeURL}> Upgrade plan</a> : ''}
             </p>
             ) : ''}
           <h2>New Workstation</h2>
