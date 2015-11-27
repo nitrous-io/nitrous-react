@@ -4,7 +4,7 @@ import TimeAgo from 'react-timeago';
 import classNames from 'classnames';
 
 import Fa from 'components/fa';
-import Currency from 'components/currency';
+import format from 'lib/format';
 import Plan from 'records/plan';
 
 export default class PlanListItem extends React.Component {
@@ -28,7 +28,7 @@ export default class PlanListItem extends React.Component {
 
   renderAction() {
     const { disabled, plan, selected, currentPlan } = this.props,
-          price = <Currency value={plan.priceDollars} wholeNumPreferred />;
+          price = format.currencyPreferWholeNum(plan.priceDollars);
 
     if (currentPlan) {
       return (<Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>{price}/mo</Button>);
