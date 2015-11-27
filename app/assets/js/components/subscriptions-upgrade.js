@@ -24,6 +24,10 @@ export default class SubscriptionsUpgrade extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
       subscriptionSlug: PropTypes.string.isRequired
+    }),
+
+    query: PropTypes.shape({
+      prev: PropTypes.string.isRequired
     })
   };
 
@@ -219,8 +223,15 @@ export default class SubscriptionsUpgrade extends React.Component {
           upgradeBtnLabel = upgrading ? 'Upgrading...' : 'Upgrade',
           availablePlansText = plansForUpgrade.isEmpty() ? 'There are no available plans to upgrade to for this subscription.' : 'Select one of these plans to upgrade your subscription to',
           onTrial = subscription ? subscription.activeTrialEnd : false,
+          prevURLHint = this.props.query.prev,
           { makeHref } = router,
-          billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing');
+          billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing'),
+          newOrgHostURL = org ? makeHref('new-org-host', { orgSlug: org.slug }) : null;
+
+    let prevURL = billingURL;
+    if (prevURLHint === 'new-org-host') {
+      prevURL = newOrgHostURL;
+    }
 
     return (
       <div className='subscriptions-upgrade-component'>
@@ -261,7 +272,7 @@ export default class SubscriptionsUpgrade extends React.Component {
             </Row>
 
             <Row>
-              <Button className='back-btn pull-left' bsStyle='default' href={billingURL}>Back</Button>
+              <Button className='back-btn pull-left' bsStyle='default' href={prevURL}>Back</Button>
 
               {!plansForUpgrade.isEmpty() ? (
                 <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>

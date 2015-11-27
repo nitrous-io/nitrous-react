@@ -81,13 +81,6 @@ class OrgMemberStore extends Store {
   orgMembersByOrgSlug(slug) {
     return this._membersByOrgSlug.get(slug);
   }
-
-  orgMemberByUserId(orgSlug, userId) {
-    const members = this.orgMembersByOrgSlug(orgSlug);
-    return members.find((m) => {
-      return m.user_id === userId;
-    });
-  }
 }
 
 export default new OrgMemberStore();

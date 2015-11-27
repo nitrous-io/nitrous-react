@@ -6,13 +6,11 @@ import billingStore from 'stores/billing-store';
 import hostStore from 'stores/host-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
-import orgMemberStore from 'stores/org-member-store';
 import userStore from 'stores/user-store';
 import subscriptionStore from 'stores/subscription-store';
 import hostActions from 'actions/host-actions';
 import paymentActions from 'actions/payment-actions';
 import planActions from 'actions/plan-actions';
-import orgMemberActions from 'actions/org-member-actions';
 import subscriptionActions from 'actions/subscription-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
@@ -51,16 +49,11 @@ export default class NewHost extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const subscription = this.findSubscription(),
-          currentPlan = subscription ? planStore.planById(subscription.planId) : null;
-
     this.state = {
       user: userStore.user,
-      member: null,
-      subscription,
+      subscription: this.findSubscription(),
       billingProfile: this.findBillingProfile(),
       plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
-      currentPlan,
       regions: regionStore.regions,
       selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
       selectedRegion: regionStore.regions.first(),
@@ -73,7 +66,6 @@ export default class NewHost extends React.Component {
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
     subscriptionStore.onChange(this.subscriptionStoreDidChange);
-    orgMemberStore.onChange(this.orgMemberStoreDidChange);
     this.fetchObjects();
 
     hostStore.on('create-initiated', this.onHostCreateInitiated);
@@ -91,7 +83,6 @@ export default class NewHost extends React.Component {
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
     subscriptionStore.offChange(this.subscriptionStoreDidChange);
-    orgMemberStore.offChange(this.orgMemberStoreDidChange);
 
     hostStore.off('create-initiated', this.onHostCreateInitiated);
     hostStore.off('create-failed', this.onHostCreateFailed);
@@ -102,9 +93,8 @@ export default class NewHost extends React.Component {
     regionActions.fetchAll();
 
     const { org } = context;
-    if (org) {
+    if (org && this.isOrgOwner()) {
       subscriptionActions.fetchAllByOrgSlug(org.slug);
-      orgMemberActions.fetchAllByOrgSlug(org.slug);
     }
   }
 
@@ -139,19 +129,8 @@ export default class NewHost extends React.Component {
   };
 
   subscriptionStoreDidChange = () => {
-    const subscription = this.findSubscription(),
-          currentPlan = subscription ?  planStore.planById(subscription.planId) : null;
-    this.setState({
-      subscription,
-      currentPlan
-    });
-  };
-
-  orgMemberStoreDidChange = () => {
-    if (this.context.org && this.state.user) {
-      const member = orgMemberStore.orgMemberByUserId(this.context.org.slug, this.state.user.id);
-      this.setState({ member });
-    }
+    const subscription = this.findSubscription();
+    this.setState({ subscription });
   };
 
   findSubscription() {
@@ -163,9 +142,6 @@ export default class NewHost extends React.Component {
   }
 
   planStoreDidChange = () => {
-    const subscription = this.state.subscription,
-          currentPlan = subscription ? planStore.planById(subscription.planId) : null;
-    this.setState({ currentPlan });
     this.setPlans();
   };
 
@@ -238,22 +214,25 @@ export default class NewHost extends React.Component {
   hostsLimitReached() {
     const { org } = this.context;
     if (org) {
-      return hostStore.hostsByOrgId(org.id).size >= org.maxHosts;
+      return org.usedHosts >= org.maxHosts;
     }
-    return;
+    return false;
   }
 
   isOrgOwner() {
-    const member = this.state.member;
-    if (member) {
-      return member.role === 'owner';
+    const { org } = this.context;
+    if (org.role) {
+      return org.role === 'owner';
     }
+    return false;
   }
 
   canUpgrade() {
-    if (this.state.currentPlan) {
-      return !planStore.plansForUpgrade(this.state.currentPlan).isEmpty();
+    const { org } = this.context;
+    if (org) {
+      return !planStore.plansForUpgrade(org.plan).isEmpty();
     }
+    return false;
   }
 
   renderPlanSelection() {
@@ -315,7 +294,7 @@ export default class NewHost extends React.Component {
           { subscription, regions, creating, paymentFailed } = this.state,
           selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
           { makeHref } = this.context.router,
-          subscriptionsUpgradeURL = subscription ? makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }) : null;
+          subscriptionsUpgradeURL = (subscription && org) ? makeHref('org-subscriptions-upgrade', { subscriptionSlug: subscription.slug, orgSlug: org.slug }, { prev: 'new-org-host'}) : null;
 
     return (
       <div className='new-host-component'>
@@ -324,10 +303,9 @@ export default class NewHost extends React.Component {
           {this.hostsLimitReached() ? (
             <p className='hint'>
               <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
-              {this.canUpgrade() && subscriptionsUpgradeURL ? ' -' : ''}
-              {this.canUpgrade() && subscriptionsUpgradeURL ? <a href={subscriptionsUpgradeURL}> Upgrade plan</a> : ''}
+              {this.isOrgOwner() && this.canUpgrade() && subscriptionsUpgradeURL ? <span> - <a href={subscriptionsUpgradeURL}> Upgrade plan</a></span> : ''}
             </p>
-            ) : ''}
+          ) : ''}
           <h2>New Workstation</h2>
           {this.renderPlanSelection()}
           <h3>Select Region</h3>
