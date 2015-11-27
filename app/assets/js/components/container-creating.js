@@ -77,7 +77,11 @@ export default class ContainerCreating extends React.Component {
 
   render() {
     const { name } = this.props.query,
-          { container, done } = this.state;
+          { container, done } = this.state,
+          communityURL = 'https://community.nitrous.io',
+          snapshotURL = communityURL + '/docs/snapshots',
+          editCodeURL = communityURL + '/docs/edit-your-code',
+          previewAppURL = communityURL + '/docs/preview-your-app';
 
     return (
       <div className='container-creating-component'>
@@ -96,6 +100,15 @@ export default class ContainerCreating extends React.Component {
             <EtaProgressBar eta={200} done={done} />
           </div>
         )}
+
+        <div className='container tutorial-links'>
+          <h2>Getting Started</h2>
+          <ul>
+            <li><a href={snapshotURL} target='_blank'>Snapshot a Project</a></li>
+            <li><a href={editCodeURL} target='_blank'>Editing Code on a New Project</a></li>
+            <li><a href={previewAppURL} target='_blank'>Previewing Your Application</a></li>
+          </ul>
+        </div>
       </div>
     );
   }
