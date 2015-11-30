@@ -21,6 +21,7 @@ export default class PaymentMethod extends React.Component {
     standalone: PropTypes.bool,
     onSuccess: PropTypes.func,
     onFailure: PropTypes.func,
+    onChange: PropTypes.func,
     org: PropTypes.instanceOf(Org) // Takes precedence over this.context.org.
   };
 
@@ -94,9 +95,17 @@ export default class PaymentMethod extends React.Component {
     this.updateCard();
   };
 
+  bubbleChange = () => {
+    if (this.props.onChange) {
+      this.props.onChange();
+    }
+  }
+
   handleChangeCardholderNameField = () => {
     const value = this.refs.cardholderName.getValue();
-    this.setState({ cardholderName: value });
+    this.setState({ cardholderName: value }, () => {
+      this.bubbleChange();
+    });
   };
 
   handleChangeCcNumberField = () => {
@@ -104,20 +113,28 @@ export default class PaymentMethod extends React.Component {
     if (num) {
       const parsed = card.parse(num);
       const cardType = card.type(parsed, true);
-      this.setState({ ccNumber: parsed, cardType });
+      this.setState({ ccNumber: parsed, cardType }, () => {
+        this.bubbleChange();
+      });
     } else {
-      this.setState({ ccNumber: num, cardType: null });
+      this.setState({ ccNumber: num, cardType: null }, () => {
+        this.bubbleChange();
+      });
     }
   };
 
   handleChangeCvcField = () => {
     const value = this.refs.cvc.getValue();
-    this.setState({ cvc: value });
+    this.setState({ cvc: value }, () => {
+      this.bubbleChange();
+    });
   };
 
   handleChangeExpirationMonthField = () => {
     const value = this.refs.expirationMonth.getValue();
-    this.setState({ expirationMonth: value });
+    this.setState({ expirationMonth: value }, () => {
+      this.bubbleChange();
+    });
 
     const parsed = expiration.month.parse(value);
     if (expiration.month.isValid(parsed) && value.toString().length === 2) {
@@ -127,12 +144,16 @@ export default class PaymentMethod extends React.Component {
 
   handleChangeExpirationYearField = () => {
     const value = this.refs.expirationYear.getValue();
-    this.setState({ expirationYear: value });
+    this.setState({ expirationYear: value }, () => {
+      this.bubbleChange();
+    });
   };
 
   handleChangeZipCodeField = () => {
     const value = this.refs.zipCode.getValue();
-    this.setState({ zipCode: value });
+    this.setState({ zipCode: value }, () => {
+      this.bubbleChange();
+    });
   };
 
   handleSubmit = (event) => {
@@ -141,14 +162,17 @@ export default class PaymentMethod extends React.Component {
     this.updateCard();
   };
 
+  fieldsInvalid = () => {
+    return (!this.cardholderNameValid()
+          || !this.ccNumberValid()
+          || !this.cvcValid()
+          || !this.expirationMonthValid()
+          || !this.expirationYearValid()
+          || !this.zipCodeValid());
+  }
+
   submitDisabled() {
-    return (this.state.saving
-      || !this.cardholderNameValid()
-      || !this.ccNumberValid()
-      || !this.cvcValid()
-      || !this.expirationMonthValid()
-      || !this.expirationYearValid()
-      || !this.zipCodeValid());
+    return (this.state.saving || this.fieldsInvalid());
   }
 
   updateCard() {
