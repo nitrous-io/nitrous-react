@@ -4,6 +4,7 @@ import { Col, ButtonToolbar, Button, DropdownButton, MenuItem } from 'react-boot
 import Host from 'records/host';
 import Container from 'records/container';
 import containerActions from 'actions/container-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import ContainerState from 'components/container-state';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
@@ -59,6 +60,10 @@ export default class ContainerListItem extends React.Component {
 
   handleHideSnapshot = () => {
     this.setState({ showSnapshotModal: false });
+  }
+
+  handleSnapshotComplete = () => {
+    snackbarActions.post('Snapshot successfully created.');
   }
 
   render() {
@@ -139,7 +144,10 @@ export default class ContainerListItem extends React.Component {
               </PromptModal>
             ) : ''}
 
-            <SnapshotContainer container={container} showModal={showSnapshotModal} onHideModal={this.handleHideSnapshot} />
+            <SnapshotContainer container={container}
+              show={showSnapshotModal}
+              onHide={this.handleHideSnapshot}
+              onSuccess={this.handleSnapshotComplete} />
           </div>
         </div>
       </Col>

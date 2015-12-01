@@ -10,8 +10,9 @@ export default class SnapshotContainer extends React.Component {
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired,
-    showModal: PropTypes.bool.isRequired,
-    onHideModal: PropTypes.func.isRequired
+    show: PropTypes.bool.isRequired,
+    onHide: PropTypes.func.isRequired,
+    onSuccess: PropTypes.func
   };
 
   state = {
@@ -32,19 +33,19 @@ export default class SnapshotContainer extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { container } = this.props,
           nextContainer = nextProps.container;
-    if (nextContainer.slug === container.slug && nextContainer.snapshotDisabled && this.props.showModal && nextProps.showModal) {
-      nextProps.onHideModal();
+    if (nextContainer.slug === container.slug && nextContainer.snapshotDisabled && this.props.show && nextProps.show) {
+      nextProps.onHide();
       return;
     }
 
-    if (nextContainer.slug === container.slug && nextProps.showModal === this.props.showModal) {
+    if (nextContainer.slug === container.slug && nextProps.show === this.props.show) {
       return; // no change, do not bother
     }
 
     const date = new Date(),
           name = `${nextProps.container.name} ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     this.setState({ name, processing: false }, () => {
-      if (nextProps.showModal) {
+      if (nextProps.show) {
         this.refs.name.getInputDOMNode().focus();
       }
     });
@@ -56,7 +57,10 @@ export default class SnapshotContainer extends React.Component {
     }
 
     this.setState({ name: null, processing: false });
-    this.props.onHideModal();
+    this.props.onHide();
+    if (this.props.onSuccess) {
+      this.props.onSuccess();
+    }
   }
 
   handleCommitFailed = (event) => {
@@ -67,7 +71,7 @@ export default class SnapshotContainer extends React.Component {
     this.setState({ processing: false });
   }
 
-  handleChangeNameField = (event) => {
+  handleNameChanged = (event) => {
     const val = event.target.value;
     if (!val || val.trim() === '') {
       this.setState({ name: null });
@@ -77,7 +81,6 @@ export default class SnapshotContainer extends React.Component {
 
   submitDisabled = () => {
     const { name, processing } = this.state;
-
     return processing || !name;
   }
 
@@ -97,20 +100,21 @@ export default class SnapshotContainer extends React.Component {
 
   render() {
     const { name, processing } = this.state,
-          { showModal, onHideModal } = this.props;
+          { show, onHide } = this.props;
 
     return (
-      <Modal show={showModal} onHide={onHideModal}>
+      <Modal show={show} onHide={onHide}>
         <Modal.Header>
           <Modal.Title>Snapshot Project</Modal.Title>
         </Modal.Header>
         <form onSubmit={this.handleSubmit}>
           <Modal.Body>
-            <Input ref='name' label="Snapshot Name" type='text' placeholder='My Awesome Project'
-              required value={name} onChange={this.handleChangeNameField} />
+            <Input ref='name' id='snapshot-name' label='Snapshot Name'
+              type='text' placeholder='My Awesome Project'
+              required value={name} onChange={this.handleNameChanged} />
           </Modal.Body>
           <Modal.Footer>
-            <Button ref='modalCancel' onClick={onHideModal}>Cancel</Button>
+            <Button ref='modalCancel' onClick={onHide}>Cancel</Button>
             <Button type='submit' disabled={this.submitDisabled()} bsStyle='primary'>{processing ? 'Creating...' : 'Create Snapshot'}</Button>
           </Modal.Footer>
         </form>
