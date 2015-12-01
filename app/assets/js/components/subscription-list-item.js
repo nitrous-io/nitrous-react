@@ -5,8 +5,8 @@ import Time from 'react-time';
 import Subscription from 'records/subscription';
 import subscriptionActions from 'actions/subscription-actions';
 import subscriptionStore from 'stores/subscription-store';
-import Currency from 'components/currency';
 import planStore from 'stores/plan-store';
+import format from 'lib/format';
 
 export default class SubscriptionListItem extends React.Component {
   displayName = 'SubscriptionListItem';
@@ -100,6 +100,7 @@ export default class SubscriptionListItem extends React.Component {
     const { subscription } = this.props,
           periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
           { canceling, reactivating } = this.state,
+          subscriptionPlanPrice = format.currency(subscription.plan.priceDollars),
           cancelButtonLabel = canceling ? "Canceling ..." : "Cancel",
           reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate",
           disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
@@ -124,7 +125,7 @@ export default class SubscriptionListItem extends React.Component {
           )}
         </td>
         <td>
-          <Currency value={subscription.plan.priceDollars} />
+          {subscriptionPlanPrice}
         </td>
         <td>
           {subscription.cancelPending ? (

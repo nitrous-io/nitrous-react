@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Grid, Row, Button, Modal } from 'react-bootstrap';
 
 import PlanListItem from 'components/plan-list-item';
+import LoadingIndicator from 'components/loading-indicator';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
 import hostStore from 'stores/host-store';
@@ -9,8 +10,8 @@ import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
 import taskActions from 'actions/task-actions';
 import hostActions from 'actions/host-actions';
-import LoadingIndicator from 'components/loading-indicator';
 import Org from 'records/org';
+import format from 'lib/format';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
@@ -211,12 +212,12 @@ export default class SubscriptionsUpgrade extends React.Component {
 
     const { upgrading, upgradeEstimate, plansForUpgrade, selectedPlan, numberUsedHosts } = this.state,
           { org, router } = this.context,
-          selectedPlanSlug = selectedPlan ? selectedPlan.slug : "",
-          selectedPlanPrice = selectedPlan ? selectedPlan.priceDollars.toFixed(2) : null,
-          selectedPlanTitle = selectedPlan ? selectedPlan.name : "",
-          prorataCharge = upgradeEstimate ? `of $${upgradeEstimate.toFixed(2)}` : "",
-          upgradeBtnLabel = upgrading ? "Upgrading..." : "Upgrade",
-          availablePlansText = plansForUpgrade.isEmpty() ? "There are no available plans to upgrade to for this subscription." : "Select one of these plans to upgrade your subscription to",
+          selectedPlanSlug = selectedPlan ? selectedPlan.slug : '',
+          selectedPlanPrice = selectedPlan ? format.currency(selectedPlan.priceDollars) : null,
+          selectedPlanTitle = selectedPlan ? selectedPlan.name : '',
+          prorataCharge = upgradeEstimate ? `of ${format.currency(upgradeEstimate)}` : '',
+          upgradeBtnLabel = upgrading ? 'Upgrading...' : 'Upgrade',
+          availablePlansText = plansForUpgrade.isEmpty() ? 'There are no available plans to upgrade to for this subscription.' : 'Select one of these plans to upgrade your subscription to',
           onTrial = subscription ? subscription.activeTrialEnd : false,
           { makeHref } = router,
           billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing');
@@ -273,9 +274,9 @@ export default class SubscriptionsUpgrade extends React.Component {
               </Modal.Header>
               <Modal.Body>
                 {onTrial ? (
-                  <p>To perform the upgrade you will be immediately charged ${selectedPlanPrice} for the month.</p>
+                  <p>To perform the upgrade you will be immediately charged {selectedPlanPrice} for the month.</p>
                 ) : (
-                  <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then ${selectedPlanPrice} each month.</p>
+                  <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then {selectedPlanPrice} each month.</p>
                 )}
                 <p>After your subscription has been successfully upgraded, your workstation will be upgraded and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
               </Modal.Body>

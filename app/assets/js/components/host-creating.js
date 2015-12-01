@@ -94,7 +94,12 @@ export default class HostCreating extends React.Component {
   render() {
     const { done, failed } = this.state,
           { hostSlug } = this.props.query,
-          { org } = this.context;
+          { org } = this.context,
+          communityURL = 'https://community.nitrous.io',
+          newProjURL = communityURL + '/docs/setup-a-dev-environment',
+          editCodeURL = communityURL + '/docs/edit-your-code',
+          previewAppURL = communityURL + '/docs/preview-your-app',
+          collabURL = communityURL + '/docs/collaboration';
 
     return (
       <div className='host-creating-component container'>
@@ -112,6 +117,16 @@ export default class HostCreating extends React.Component {
             )}
           </div>
         )}
+
+        <div className='tutorial-links'>
+          <h2>Getting Started</h2>
+          <ul>
+            <li><a href={newProjURL} target='_blank'>Creating a New Project</a></li>
+            <li><a href={editCodeURL} target='_blank'>Editing Code on a New Project</a></li>
+            <li><a href={previewAppURL} target='_blank'>Previewing Your Application</a></li>
+            <li><a href={collabURL} target='_blank'>Collaborative Coding Intro</a></li>
+          </ul>
+        </div>
       </div>
     );
   }

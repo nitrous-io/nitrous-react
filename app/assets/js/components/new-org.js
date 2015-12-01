@@ -36,6 +36,7 @@ export default class NewOrg extends React.Component {
     createdOrg: null,
     processing: false,
     paymentFailed: false,
+    paymentValid: false,
     plans: planStore.orgMultiHostPlans,
     selectedPlan: planStore.orgMultiHostPlans ? planStore.orgMultiHostPlans.first() : null
   };
@@ -169,6 +170,15 @@ export default class NewOrg extends React.Component {
     this.setState({ processing: false, paymentFailed: true });
   }
 
+  handlePaymentChange = () => {
+    const pm = this.refs.paymentMethod;
+    if (pm) {
+      this.setState({ paymentValid: !pm.fieldsInvalid() });
+    } else {
+      this.setState({ paymentValid: false });
+    }
+  }
+
   onSubscribeOrgPlanFailed = (data) => {
     const { orgSlug } = data,
           { createdOrg } = this.state;
@@ -183,8 +193,8 @@ export default class NewOrg extends React.Component {
   };
 
   submitDisabled = () => {
-    const { processing, orgNameValid, orgEmail, selectedPlan } = this.state;
-    return processing || !orgNameValid || !orgEmail || !selectedPlan;
+    const { processing, orgNameValid, orgEmail, selectedPlan, paymentValid } = this.state;
+    return processing || !orgNameValid || !orgEmail || !selectedPlan || !paymentValid;
   }
 
   renderPlanSelection() {
@@ -259,9 +269,10 @@ export default class NewOrg extends React.Component {
                   <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
                 ) : ''}
 
-                <PaymentMethod standalone={false} org={createdOrg}
+                <PaymentMethod ref='paymentMethod' standalone={false} org={createdOrg}
                   onSuccess={this.handlePaymentSuccess}
-                  onFailure={this.handlePaymentFailure} />
+                  onFailure={this.handlePaymentFailure}
+                  onChange={this.handlePaymentChange} />
 
               </Panel>
 

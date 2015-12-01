@@ -149,9 +149,21 @@ export default class CollaboratorList extends React.Component {
 
   render() {
     const { collaborators, container, shared } = this.props,
-          { newCollaborator, adding, addFailed } = this.state,
+          { newCollaborator, adding, addFailed, host, plan } = this.state,
+          canUpgrade = plan ? !planStore.plansForUpgrade(plan).isEmpty() : false,
+          org  = plan ? plan.org : false,
           { makeHref } = this.context.router,
-          newOrgURL = makeHref('new-org');
+          newOrgURL = makeHref('new-org'),
+          subscriptionsUpgradeURL = host ? makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug }) : null;
+
+    var choices = [];
+    if (canUpgrade) {
+      choices.push('upgrade your subscription');
+    } 
+    if (!org) {
+      choices.push('create an organization');
+    }
+    const choicesDescriptor = choices.join(' or ');
 
     return (
       <div className='collaborator-list-component'>
@@ -190,11 +202,16 @@ export default class CollaboratorList extends React.Component {
             <Modal.Title>Add More Collaborators</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>You have reached the maximum number of collaborators permitted on your subscription. To add more collaborators, please create an organization.</p>
+            <p>You have reached the maximum number of collaborators allowed on your subscription. To add more collaborators, please {choicesDescriptor}.</p>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.handleCloseCollabLimitModal}>Close</Button>
-            <Button bsStyle='primary' href={newOrgURL}>Create Organization</Button>
+            {canUpgrade && subscriptionsUpgradeURL ? (
+              <Button bsStyle='primary' href={subscriptionsUpgradeURL}>Upgrade Subscription</Button>
+            ) : null}
+            {!org ? (
+              <Button bsStyle='primary' href={newOrgURL}>Create Organization</Button>
+            ) : null}
           </Modal.Footer>
         </Modal>
       </div>
