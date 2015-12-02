@@ -18,6 +18,7 @@ export default {
   EventDashboardViewedHost: "Dashboard Viewed Host",
   EventDashboardViewedHostImages: "Dashboard Viewed Host Images",
   EventDashboardViewedHostSnapshots: "Dashboard Viewed Host Snapshots",
+  EventDashboardViewedTeamSnapshots: "Dashboard Viewed Team Snapshots",
   EventDashboardViewedHostRegistries: "Dashboard Viewed Host Registries",
   EventDashboardViewedHostVolumes: "Dashboard Viewed Host Volumes",
   EventDashboardViewedNewContainer: "Dashboard Viewed New Container",

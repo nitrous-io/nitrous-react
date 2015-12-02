@@ -21,6 +21,7 @@ import HostCreating from 'components/host-creating';
 import HostSystem from 'components/host-system';
 import HostImages from 'components/host-images';
 import HostSnapshots from 'components/host-snapshots';
+import TeamSnapshots from 'components/team-snapshots';
 import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerCollaborators from 'components/container-collaborators';
@@ -96,8 +97,10 @@ export default (
         <Route name='container-ports' path='projects/:containerSlug/ports' handler={ContainerPorts} />
 
         <Route name='host-images' path='images' handler={HostImages} />
-        <Route name='host-snapshots' path='snapshots' handler={HostSnapshots} />
         <Route name='host-system' path='system' handler={HostSystem} />
+
+        <Route name='host-snapshots' path='snapshots' handler={HostSnapshots} />
+        <Route name='team-snapshots' path='team-snapshots' handler={TeamSnapshots} />
       </Route>
 
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />

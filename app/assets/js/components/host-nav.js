@@ -31,7 +31,7 @@ export default class HostNav extends React.Component {
   }
 
   handleSelectTeamSnapshotsTab = () => {
-    this.context.router.transitionTo('team-snapshots');
+    this.context.router.transitionTo('team-snapshots', { hostSlug: this.props.host.slug });
   }
 
   render() {
