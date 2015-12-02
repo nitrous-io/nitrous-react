@@ -121,7 +121,7 @@ export default class ContextSwitcher extends React.Component {
     };
 
     const contextMenu = (
-      <OverlayTrigger placement='top' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
+      <OverlayTrigger placement='left' rootClose overlay={(<Tooltip id='context-switcher-tooltip'>Switch Dashboard Context</Tooltip>)}>
         <DropdownButton title={buttonTitle} id='context-switcher-dropdown' bsStyle='link'>
           <MenuItem header>Personal</MenuItem>
           <MenuItem href={makeHref('user-host')}>{withGravatar(user)}</MenuItem>
