@@ -1,0 +1,53 @@
+.local-snapshot-list-component
+  .snapshot-list-item
+    height: 185px
+
+    .ui-card
+      width: 100%
+      height: 100%
+
+    .ui-card-body
+      height: 100%
+
+    h4
+      margin-top: 0
+      margin-right: 32px
+      font-weight: 400
+
+    .info
+      white-space: nowrap
+      text-overflow: ellipsis
+      overflow: hidden
+      font-size: 13px
+      color: rgba($gray,.8)
+
+    .aux-info
+      position: absolute
+      bottom: 0
+      right: 0
+      font-size: 13px
+      color: rgba($gray,.8)
+      opacity: 0 // Shown only on hover/focus.
+
+    .buttons
+      position: absolute
+      right: 0
+      top: 0
+
+      .borderless
+        border: 0
+
+        .btn-default:hover
+          background-color: transparent
+          box-shadow: none
+          color: $brand-primary
+
+        &.open > .btn-default.dropdown-toggle
+          background-color: transparent
+          box-shadow: none
+          color: $brand-primary
+
+  .snapshot-list-item:hover, .snapshot-list-item:focus
+    .aux-info
+      opacity: 1
+      +transition(all 0.5s)

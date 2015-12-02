@@ -17,6 +17,7 @@ export default {
   EventDashboardViewedContainerCustomDomain: "Dashboard Viewed Container Custom Domain",
   EventDashboardViewedHost: "Dashboard Viewed Host",
   EventDashboardViewedHostImages: "Dashboard Viewed Host Images",
+  EventDashboardViewedHostSnapshots: "Dashboard Viewed Host Snapshots",
   EventDashboardViewedHostRegistries: "Dashboard Viewed Host Registries",
   EventDashboardViewedHostVolumes: "Dashboard Viewed Host Volumes",
   EventDashboardViewedNewContainer: "Dashboard Viewed New Container",

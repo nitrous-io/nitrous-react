@@ -39,7 +39,7 @@ export default class HostImages extends React.Component {
     return (
       <div className='host-images-component container'>
         <ContextSwitcher selectedHost={host} />
-        <HostNav host={host} activeTab='images' />
+        <HostNav host={host} activeTab='local-snapshots' />
         <div className='inner-container'>
           <ImageList manageImages host={host} />
 
