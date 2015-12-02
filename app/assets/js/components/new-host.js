@@ -139,6 +139,7 @@ export default class NewHost extends React.Component {
     if (orgSub) {
       return orgSub.first();
     }
+    return null;
   }
 
   planStoreDidChange = () => {
@@ -214,14 +215,14 @@ export default class NewHost extends React.Component {
   hostsLimitReached() {
     const { org } = this.context;
     if (org) {
-      return org.usedHosts >= org.maxHosts;
+      return org.usedHosts >= org.validMaxHosts;
     }
     return false;
   }
 
   isOrgOwner() {
     const { org } = this.context;
-    if (org.role) {
+    if (org && org.role) {
       return org.role === 'owner';
     }
     return false;
@@ -292,7 +293,8 @@ export default class NewHost extends React.Component {
   render() {
     const org = this.context.org,
           { subscription, regions, creating, paymentFailed } = this.state,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null,
+          selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
+          disableCreate = creating || this.hostsLimitReached(),
           { makeHref } = this.context.router,
           subscriptionsUpgradeURL = (subscription && org) ? makeHref('org-subscriptions-upgrade', { subscriptionSlug: subscription.slug, orgSlug: org.slug }, { prev: 'new-org-host'}) : null;
 
@@ -301,10 +303,10 @@ export default class NewHost extends React.Component {
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
           {this.hostsLimitReached() ? (
-            <p className='hint'>
+            <Alert bsStyle="info">
               <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
               {this.isOrgOwner() && this.canUpgrade() && subscriptionsUpgradeURL ? <span> - <a href={subscriptionsUpgradeURL}> Upgrade plan</a></span> : ''}
-            </p>
+            </Alert>
           ) : ''}
           <h2>New Workstation</h2>
           {this.renderPlanSelection()}
@@ -316,6 +318,7 @@ export default class NewHost extends React.Component {
                 return (
                   <RegionListItem key={`region-${region.slug}`} region={region}
                     selected={selectedRegionSlug === region.slug}
+                    disabled={this.hostsLimitReached()}
                     onSelect={this.handleRegionSelection} />
                 );
               })}
@@ -333,7 +336,7 @@ export default class NewHost extends React.Component {
             </Panel>
           ) : ''}
 
-          <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
+          <Button disabled={disableCreate} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
         </div>
       </div>
     );

@@ -53,4 +53,11 @@ export default class Org extends Record({
   get canLeave() {
     return this.role === 'member' || this.role === 'admin';
   }
+
+  get validMaxHosts() {
+    if (this.maxHosts) {
+      return this.maxHosts;
+    }
+    return this.plan.maxHosts;
+  }
 }
