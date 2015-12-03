@@ -4,11 +4,10 @@ import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
 
 import Host from 'records/host';
+import Org from 'records/org';
 import Image from 'records/image';
 import imageActions from 'actions/image-actions';
-import orgActions from 'actions/org-actions';
 import imageStore from 'stores/image-store';
-import orgStore from 'stores/org-store';
 import Fa from 'components/fa';
 
 export default class LocalSnapshotListItem extends React.Component {
@@ -16,44 +15,24 @@ export default class LocalSnapshotListItem extends React.Component {
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
+    org: PropTypes.instanceOf(Org),
     snapshot: PropTypes.instanceOf(Image).isRequired
-  }
+  };
 
-  constructor(props, context) {
-    super(props, context);
-
-    let org = null;
-    if (this.props.host.orgId) {
-      org = orgStore.orgByOrgId(this.props.host.orgId);
-    }
-
-    this.state = {
-      org,
-      showDeleteModal: false,
-      showShareModal: false,
-      processing: false
-    };
-  }
+  state = {
+    showDeleteModal: false,
+    showShareModal: false,
+    processing: false
+  };
 
   componentDidMount() {
-    orgStore.onChange(this.orgStoreDidChange);
-    orgActions.fetchAll();
     imageStore.on('removed', this.onImageRemoved);
     imageStore.on('remove-failed', this.onImageRemoveFailed);
   }
 
   componentWillUnmount() {
-    orgStore.offChange(this.orgStoreDidChange);
     imageStore.off('removed', this.onImageRemoved);
     imageStore.off('remove-failed', this.onImageRemoveFailed);
-  }
-
-  orgStoreDidChange = () => {
-    if (!this.props.host.orgId) {
-      return;
-    }
-    const org = orgStore.orgByOrgId(this.props.host.orgId);
-    this.setState({ org });
   }
 
   onImageRemoved = (data) => {
@@ -110,8 +89,8 @@ export default class LocalSnapshotListItem extends React.Component {
   }
 
   render() {
-    const { snapshot } = this.props,
-          { org, processing } = this.state;
+    const { org, snapshot } = this.props,
+          { processing } = this.state;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='local-snapshot-list-item-component snapshot-list-item'>

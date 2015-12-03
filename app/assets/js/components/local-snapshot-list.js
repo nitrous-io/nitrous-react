@@ -5,7 +5,9 @@ import { Grid, Row } from 'react-bootstrap';
 import Host from 'records/host';
 import Image from 'records/image';
 import imageActions from 'actions/image-actions';
+import orgActions from 'actions/org-actions';
 import imageStore from 'stores/image-store';
+import orgStore from 'stores/org-store';
 import LoadingIndicator from 'components/loading-indicator';
 import LocalSnapshotListItem from 'components/local-snapshot-list-item';
 
@@ -17,17 +19,43 @@ export default class LocalSnapshotList extends React.Component {
     snapshots: ImmutablePropTypes.mapOf(PropTypes.instanceOf(Image))
   }
 
-  state = {
-    snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug)
+  constructor(props, context) {
+    super(props, context);
+
+    let org = null;
+    if (this.props.host.orgId) {
+      org = orgStore.orgByOrgId(this.props.host.orgId);
+    }
+
+    this.state = {
+      org,
+      snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug)
+    };
   }
 
   componentDidMount() {
+    if (this.props.host.orgId) {
+      orgStore.onChange(this.orgStoreDidChange);
+      orgActions.fetchAll();
+    }
+
     imageStore.onChange(this.imageStoreDidChange);
     imageActions.fetchAllByHostSlug(this.props.host.slug);
   }
 
   componentWillUnmount() {
+    if (this.props.host.orgId) {
+      orgStore.offChange(this.orgStoreDidChange);
+    }
     imageStore.offChange(this.imageStoreDidChange);
+  }
+
+  orgStoreDidChange = () => {
+    if (!this.props.host.orgId) {
+      return;
+    }
+    const org = orgStore.orgByOrgId(this.props.host.orgId);
+    this.setState({ org });
   }
 
   imageStoreDidChange = () => {
@@ -35,7 +63,7 @@ export default class LocalSnapshotList extends React.Component {
   };
 
   render() {
-    const { snapshots } = this.state,
+    const { org, snapshots } = this.state,
           loading = snapshots == null;
 
     if (loading) {
@@ -61,7 +89,7 @@ export default class LocalSnapshotList extends React.Component {
             {snapshots.toList().map((snapshot) => {
               return (
                 <LocalSnapshotListItem key={`snapshot-${snapshot.id}`}
-                  host={this.props.host} snapshot={snapshot} />
+                  host={this.props.host} org={org} snapshot={snapshot} />
               );
             })}
           </Row>
