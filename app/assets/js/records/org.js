@@ -8,23 +8,27 @@ export default class Org extends Record({
   slug: null,
   email: null,
   name: null,
+  maxHosts: null,
   role: null,
   multiHost: false,
+  usedHosts: null,
   plan: null,
   createdAt: null,
   updatedAt: null
 }) {
-  static deserialize(p) {
+  static deserialize(o) {
     return new this({
-      id: p.id,
-      slug: p.slug,
-      email: p.email,
-      name: p.name,
-      role: p.role,
-      multiHost: p.multi_host,
-      plan: p.plan && Plan.deserialize(p.plan),
-      createdAt: p.created_at ? new Date(p.created_at) : null,
-      updatedAt: p.updated_at ? new Date(p.updated_at) : null
+      id: o.id,
+      slug: o.slug,
+      email: o.email,
+      name: o.name,
+      maxHosts: o.max_hosts,
+      usedHosts: o.used_hosts,
+      role: o.role,
+      multiHost: o.multi_host,
+      plan: o.plan && Plan.deserialize(o.plan),
+      createdAt: o.created_at ? new Date(o.created_at) : null,
+      updatedAt: o.updated_at ? new Date(o.updated_at) : null
     });
   }
 
@@ -48,5 +52,12 @@ export default class Org extends Record({
 
   get canLeave() {
     return this.role === 'member' || this.role === 'admin';
+  }
+
+  get validMaxHosts() {
+    if (this.maxHosts) {
+      return this.maxHosts;
+    }
+    return this.plan.maxHosts;
   }
 }

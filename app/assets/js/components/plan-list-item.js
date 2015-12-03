@@ -38,10 +38,6 @@ export default class PlanListItem extends React.Component {
       return (<Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>{price}/mo</Button>);
     }
 
-    if (plan.org) {
-      return (<p>Need more? Contact your Org Owner.</p>);
-    }
-
     return '';
   }
 

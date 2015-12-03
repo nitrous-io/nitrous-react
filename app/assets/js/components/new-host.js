@@ -7,14 +7,17 @@ import hostStore from 'stores/host-store';
 import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
 import userStore from 'stores/user-store';
+import subscriptionStore from 'stores/subscription-store';
 import hostActions from 'actions/host-actions';
 import paymentActions from 'actions/payment-actions';
 import planActions from 'actions/plan-actions';
+import subscriptionActions from 'actions/subscription-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
 import RegionListItem from 'components/region-list-item';
 import PaymentMethod from 'components/payment-method';
+import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 import snackbarActions from 'actions/snackbar-actions';
@@ -43,22 +46,27 @@ export default class NewHost extends React.Component {
     return billingStore.userBillingProfile;
   }
 
-  state = {
-    user: userStore.user,
-    billingProfile: this.findBillingProfile(),
-    plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
-    regions: regionStore.regions,
-    selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
-    selectedRegion: regionStore.regions.first(),
-    creating: false,
-    paymentFailed: false
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      user: userStore.user,
+      subscription: this.findSubscription(),
+      billingProfile: this.findBillingProfile(),
+      plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
+      regions: regionStore.regions,
+      selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
+      selectedRegion: regionStore.regions.first(),
+      creating: false,
+      paymentFailed: false
+    };
+  }
 
   componentDidMount() {
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
-    planActions.fetchAll();
-    regionActions.fetchAll();
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    this.fetchObjects();
 
     hostStore.on('create-initiated', this.onHostCreateInitiated);
     hostStore.on('create-failed', this.onHostCreateFailed);
@@ -74,9 +82,20 @@ export default class NewHost extends React.Component {
   componentWillUnmount() {
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
+    subscriptionStore.offChange(this.subscriptionStoreDidChange);
 
     hostStore.off('create-initiated', this.onHostCreateInitiated);
     hostStore.off('create-failed', this.onHostCreateFailed);
+  }
+
+  fetchObjects = (context=this.context) => {
+    planActions.fetchAll();
+    regionActions.fetchAll();
+
+    const { org } = context;
+    if (org && this.isOrgOwner()) {
+      subscriptionActions.fetchAllByOrgSlug(org.slug);
+    }
   }
 
   onHostCreateInitiated = (data) => {
@@ -108,6 +127,20 @@ export default class NewHost extends React.Component {
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
   };
+
+  subscriptionStoreDidChange = () => {
+    const subscription = this.findSubscription();
+    this.setState({ subscription });
+  };
+
+  findSubscription() {
+    const { org } = this.context,
+          orgSub = org ? subscriptionStore.orgSubscriptionsBySlug(org.slug) : null;
+    if (orgSub) {
+      return orgSub.first();
+    }
+    return null;
+  }
 
   planStoreDidChange = () => {
     this.setPlans();
@@ -179,6 +212,30 @@ export default class NewHost extends React.Component {
     return billingProfile && !billingProfile.hasCard;
   }
 
+  hostsLimitReached() {
+    const { org } = this.context;
+    if (org) {
+      return org.usedHosts >= org.validMaxHosts;
+    }
+    return false;
+  }
+
+  isOrgOwner() {
+    const { org } = this.context;
+    if (org && org.role) {
+      return org.role === 'owner';
+    }
+    return false;
+  }
+
+  canUpgrade() {
+    const { org } = this.context;
+    if (org) {
+      return !planStore.plansForUpgrade(org.plan).isEmpty();
+    }
+    return false;
+  }
+
   renderPlanSelection() {
     const org = this.context.org,
           { plans } = this.state,
@@ -235,13 +292,22 @@ export default class NewHost extends React.Component {
 
   render() {
     const org = this.context.org,
-          { regions, creating, paymentFailed } = this.state,
-          selectedRegionSlug = this.state.selectedRegion ? this.state.selectedRegion.slug : null;
+          { subscription, regions, creating, paymentFailed } = this.state,
+          selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
+          disableCreate = creating || this.hostsLimitReached(),
+          { makeHref } = this.context.router,
+          subscriptionsUpgradeURL = (subscription && org) ? makeHref('org-subscriptions-upgrade', { subscriptionSlug: subscription.slug, orgSlug: org.slug }, { prev: 'new-org-host'}) : null;
 
     return (
       <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
+          {this.hostsLimitReached() ? (
+            <Alert bsStyle="info">
+              <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
+              {this.isOrgOwner() && this.canUpgrade() && subscriptionsUpgradeURL ? <span> - <a href={subscriptionsUpgradeURL}> Upgrade plan</a></span> : ''}
+            </Alert>
+          ) : ''}
           <h2>New Workstation</h2>
           {this.renderPlanSelection()}
           <h3>Select Region</h3>
@@ -252,6 +318,7 @@ export default class NewHost extends React.Component {
                 return (
                   <RegionListItem key={`region-${region.slug}`} region={region}
                     selected={selectedRegionSlug === region.slug}
+                    disabled={this.hostsLimitReached()}
                     onSelect={this.handleRegionSelection} />
                 );
               })}
@@ -269,7 +336,7 @@ export default class NewHost extends React.Component {
             </Panel>
           ) : ''}
 
-          <Button disabled={creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
+          <Button disabled={disableCreate} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
         </div>
       </div>
     );
