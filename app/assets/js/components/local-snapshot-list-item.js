@@ -117,10 +117,17 @@ export default class LocalSnapshotListItem extends React.Component {
       <Col lg={3} md={4} sm={6} xs={12} className='local-snapshot-list-item-component snapshot-list-item'>
         <div className='ui-card'>
           <div className='ui-card-body'>
-            <h4>{snapshot.displayName}</h4>
-            <div className='info'>
-              created <TimeAgo date={snapshot.createdAt} />
+            <div className='snapshot-header'>
+              <div className='stack-icon' style={{ backgroundImage: `url(${Image.defaultStackIconUrl})` }}>
+                <div style={{ backgroundImage: `url(${snapshot.stackIconUrl})` }}></div>
+              </div>
+
+              <div className='info'>
+                <h4>{snapshot.displayName}</h4>
+                <span>created <TimeAgo date={snapshot.createdAt} /></span>
+              </div>
             </div>
+
             <div className='aux-info'>
               {prettyBytes(snapshot.virtualSize)}
             </div>
