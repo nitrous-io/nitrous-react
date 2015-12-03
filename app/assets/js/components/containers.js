@@ -1,8 +1,11 @@
 import React, { PropTypes } from 'react';
+import { Carousel, CarouselItem, Modal } from 'react-bootstrap';
 
 import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
 import containerStore from 'stores/container-store';
+import userStore from 'stores/user-store';
+import userActions from 'actions/user-actions';
 import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
 import containerActions from 'actions/container-actions';
@@ -21,16 +24,26 @@ export default class Containers extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired
   };
 
-  state = {
-    containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
-    announcements: announcementStore.announcementsByHostSlug(this.context.host.slug)
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    const user = userStore.user,
+          showOnboardingModal = (user && user.firstTime) ? user.firstTime : false;
+
+    this.state = {
+      containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
+      announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
+      user,
+      showOnboardingModal
+    };
+  }
 
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedProjects);
   }
 
   componentDidMount() {
+    userStore.onChange(this.userStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
@@ -51,9 +64,18 @@ export default class Containers extends React.Component {
   }
 
   componentWillUnmount() {
+    userStore.offChange(this.userStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
     hostStore.off('started', this.onHostStarted);
+  }
+
+  userStoreDidChange = () => {
+    const user = userStore.user;
+    this.setState({ user });
+    if (user && user.firstTime) {
+      this.setState({ showOnboardingModal: true });
+    }
   }
 
   containerStoreDidChange = () => {
@@ -69,6 +91,11 @@ export default class Containers extends React.Component {
     if (this.context.host.slug === host.slug) {
       containerActions.fetchAllByHostSlug(host.slug);
     }
+  };
+
+  hideOnboardingModal = () => {
+    this.setState({ showOnboardingModal: false });
+    userActions.dismissFirstTime();
   };
 
   render() {
@@ -95,6 +122,32 @@ export default class Containers extends React.Component {
           <AnnouncementAlert announcement={firstAnnouncement} />
         ) : ''}
         <ContainerList containers={containers} host={host} />
+
+        <Modal show={this.state.showOnboardingModal} onHide={this.hideOnboardingModal} dialogClassName='onboarding-modal'>
+          <Modal.Header closeButton>
+            <Modal.Title>Quick Tour</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Carousel prevIcon ='< Back' nextIcon='Next >'>
+              <CarouselItem>
+                <h2>Welcome to the new Nitrous</h2>
+                <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>
+              </CarouselItem>
+              <CarouselItem>
+                <h2>A whole new Dashboard</h2>
+                <p className='hint'>Simpler, faster, with access to your projects in one click</p>
+              </CarouselItem>
+              <CarouselItem>
+                <h2>Quick access to Shared Projects</h2>
+                <p className='hint'>Switch between your projects, your team&#39;s, and the ones shared with you</p>
+              </CarouselItem>
+              <CarouselItem>
+                <h2>All your settings in one place</h2>
+                <p className='hint'>No more hunting around, everything is where it should be</p>
+              </CarouselItem>
+            </Carousel>
+          </Modal.Body>
+        </Modal>
       </div>
     );
   }

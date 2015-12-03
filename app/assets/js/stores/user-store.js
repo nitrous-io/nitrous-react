@@ -52,6 +52,7 @@ class UserStore extends Store {
         this.emit('profile-update-failed');
         return;
       }
+      case 'user.dismiss-first-time-failed':
       default: return;
     }
     this.notifyChange();
