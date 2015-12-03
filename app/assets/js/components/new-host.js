@@ -295,6 +295,7 @@ export default class NewHost extends React.Component {
           { subscription, regions, creating, paymentFailed } = this.state,
           selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
           disableCreate = creating || this.hostsLimitReached(),
+          emailOwnerLink = (org && org.email) ? 'mailto:' + org.email + '?subject=Workstation Limit Reached' : null,
           { makeHref } = this.context.router,
           subscriptionsUpgradeURL = (subscription && org) ? makeHref('org-subscriptions-upgrade', { subscriptionSlug: subscription.slug, orgSlug: org.slug }, { prev: 'new-org-host'}) : null;
 
@@ -306,6 +307,7 @@ export default class NewHost extends React.Component {
             <Alert bsStyle="info">
               <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
               {this.isOrgOwner() && this.canUpgrade() && subscriptionsUpgradeURL ? <span> - <a href={subscriptionsUpgradeURL}> Upgrade plan</a></span> : ''}
+              {!this.isOrgOwner() && this.canUpgrade() && emailOwnerLink ? <span> - <a href={emailOwnerLink}> Notify owner</a></span> : ''}
             </Alert>
           ) : ''}
           <h2>New Workstation</h2>
