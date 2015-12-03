@@ -15,13 +15,16 @@ import planActions from 'actions/plan-actions';
 import subscriptionStore from 'stores/subscription-store';
 import subscriptionActions from 'actions/subscription-actions';
 import OrgPlanListItem from 'components/org-plan-list-item';
+import promocodeActions from 'actions/promocode-actions';
+import promocodeStore from 'stores/promocode-store';
 
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
 
   static propTypes = {
     query: PropTypes.shape({
-      edu: PropTypes.string
+      edu: PropTypes.string,
+      promo: PropTypes.string
     })
   };
 
@@ -47,6 +50,7 @@ export default class NewOrg extends React.Component {
       paymentFailed: false,
       paymentValid: false,
       plans: this.plansForScope(props),
+      promocode: null,
       selectedPlan: this.plansForScope(props).first()
     };
   }
@@ -61,6 +65,8 @@ export default class NewOrg extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    this.loadPromoCode(nextProps);
+
     this.setPlans(nextProps);
     planActions.fetchAll();
   }
@@ -68,19 +74,43 @@ export default class NewOrg extends React.Component {
   componentDidMount() {
     planStore.onChange(this.setPlans);
     orgStore.onChange(this.orgStoreDidChange);
+    promocodeStore.onChange(this.promocodeStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);
     subscriptionStore.on('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.on('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
 
     this.refs.orgNameField.getInputDOMNode().focus();
+
+    this.loadPromoCode();
+    planActions.fetchAll();
   }
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
-    planStore.offChange(this.setPlans);
+    planStore.offChange(this.planStoreDidChange);
+    promocodeStore.offChange(this.promocodeStoreDidChange);
     orgStore.off('create-failed', this.onOrgCreateFailed);
     subscriptionStore.off('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.off('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
+  }
+
+  loadPromoCode = (props=this.props) => {
+    const { promo } = props.query;
+    if (promo) {
+      promocodeActions.fetchBySlug(promo);
+    } else {
+      this.setState({ promocode: null });
+    }
+    promocodeActions.fetchAll();
+  }
+
+  promocodeStoreDidChange = () => {
+    const { promo } = this.props.query;
+    if (!promo) {
+      this.setState({ promocode: null });
+    }
+    const promocode = promocodeStore.promocodeBySlug(promo, true);
+    this.setState({ promocode });
   }
 
   orgStoreDidChange = () => {
@@ -167,10 +197,11 @@ export default class NewOrg extends React.Component {
   }
 
   handlePaymentSuccess = () => {
-    const { createdOrg, selectedPlan } = this.state;
+    const { createdOrg, selectedPlan, promocode } = this.state,
+          promocodeSlug = promocode && promocode.slug;
 
     if (selectedPlan) {
-      subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug);
+      subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug, promocodeSlug);
       return;
     }
 
@@ -224,7 +255,7 @@ export default class NewOrg extends React.Component {
   }
 
   renderPlanSelection() {
-    const { plans, selectedPlan } = this.state,
+    const { plans, selectedPlan, promocode } = this.state,
           selectedPlanSlug = selectedPlan && selectedPlan.slug;
 
     if (!plans) {
@@ -240,6 +271,7 @@ export default class NewOrg extends React.Component {
                 <OrgPlanListItem key={`plan-${plan.slug}`} plan={plan}
                   selected={selectedPlanSlug === plan.slug}
                   onSelect={this.handlePlanSelection}
+                  providedPromocode={promocode}
                 />
               );
             })}
