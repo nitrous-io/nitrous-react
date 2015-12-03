@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react';
-import { Grid, Row, Button, Modal } from 'react-bootstrap';
+import { Alert, Grid, Row, Button, Modal } from 'react-bootstrap';
 
 import PlanListItem from 'components/plan-list-item';
 import LoadingIndicator from 'components/loading-indicator';
+import Fa from 'components/fa';
 import subscriptionStore from 'stores/subscription-store';
 import planStore from 'stores/plan-store';
 import hostStore from 'stores/host-store';
@@ -154,7 +155,7 @@ export default class SubscriptionsUpgrade extends React.Component {
     if (!org || !subscription || !subscription.multiHost) {
       this.setState({ numberUsedHosts: null });
     }
-    const hosts = hostStore.hostsBySubSlug(subscription.slug),
+    const hosts = subscription ? hostStore.hostsBySubSlug(subscription.slug): null,
           len = hosts ? hosts.size : null;
 
     this.setState({ numberUsedHosts: len });
@@ -228,16 +229,27 @@ export default class SubscriptionsUpgrade extends React.Component {
           prevURLHint = this.props.query.prev,
           { makeHref } = router,
           billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing'),
-          newOrgHostURL = org ? makeHref('new-org-host', { orgSlug: org.slug }) : null;
+          newOrgHostURL = org ? makeHref('new-org-host', { orgSlug: org.slug }) : billingURL,
+          hostSlug = subscription ? subscription.hostSlug : null,
+          containerListURL = (!org && hostSlug) ? makeHref('host', { hostSlug }) : billingURL;
 
-    let prevURL = billingURL;
+    let prevURL = billingURL,
+        containersLimitReached = false;
     if (prevURLHint === 'new-org-host') {
       prevURL = newOrgHostURL;
+    } else if (prevURLHint === 'container-list') {
+      containersLimitReached = true;
+      prevURL = containerListURL;
     }
 
     return (
       <div className='subscriptions-upgrade-component'>
         <div className='container'>
+          {containersLimitReached ? (
+            <Alert bsStyle='info'>
+            <Fa icon='exclamation-circle' /> You have reached the maximum number of containers allowed for your subscription. Please upgrade to create more containers. 
+            </Alert>
+          ) : ''}
           <h2>Upgrade Your Subscription</h2>
           <p className='hint'>You will have a chance to review your changes before upgrading</p>
           <h3>Current Plan</h3>

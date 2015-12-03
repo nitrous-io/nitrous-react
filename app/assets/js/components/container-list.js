@@ -61,11 +61,20 @@ export default class ContainerList extends React.Component {
   }
 
   handleClickNewContainer = () => {
-    this.context.router.transitionTo('new-container', { hostSlug: this.props.host.slug });
+    const host = this.props.host;
+    if (!host) {
+      return;
+    }
+    if (!this.canCreateContainer() && !host.orgId) {
+      this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug }, { prev: 'container-list'});
+      return;
+    }
+    this.context.router.transitionTo('new-container', { hostSlug: host.slug });
   };
 
   render() {
-    const { containers, host } = this.props;
+    const { containers, host } = this.props,
+          isOrg = (host && host.orgId) ? true : false;
 
     return (
       <div className='container-list-component'>
@@ -80,7 +89,7 @@ export default class ContainerList extends React.Component {
                   container={container}
                   host={host} />);
               })}
-              {this.canCreateContainer() ? (
+              {!(!this.canCreateContainer() && isOrg) ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
                   <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
