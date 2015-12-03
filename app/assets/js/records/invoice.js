@@ -14,8 +14,9 @@ export default class Invoice extends Record({
   subscription: false
 }) {
   static deserialize(inv) {
+    const invID = inv.sid ? inv.sid : inv.id;
     return new this({
-      id: inv.id,
+      id: invID,
       userId: inv.user_id,
       totalCharge: inv.total_charge,
       periodStart: inv.period_start,

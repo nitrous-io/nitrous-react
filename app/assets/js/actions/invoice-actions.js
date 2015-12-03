@@ -2,12 +2,19 @@ import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
 
 class InvoiceActions {
-  fetchAll() {
-    const promise = authedAjax({
+  fetchAll(fromStripe) {
+    const opts = {
       type: 'GET',
       url: '/api/v0/billing/invoices',
       dataType: 'json'
-    }).then((data) => {
+    };
+    if (fromStripe) {
+      opts.data = {
+        'from_stripe': '1'
+      };
+    }
+    const promise = authedAjax(opts
+    ).then((data) => {
       dispatcher.dispatch({
         type: 'invoice.fetched-all',
         data: { data }
