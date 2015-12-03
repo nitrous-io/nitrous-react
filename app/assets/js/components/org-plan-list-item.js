@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, Badge } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import Plan from 'records/plan';

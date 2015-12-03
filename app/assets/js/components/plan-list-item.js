@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
-import { Col, Button, Label, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Col, Badge, Button, Label, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import classNames from 'classnames';
 
 import Fa from 'components/fa';
 import format from 'lib/format';
 import Plan from 'records/plan';
+import promocodeStore from 'stores/promocode-store';
 
 export default class PlanListItem extends React.Component {
   displayName = 'PlanListItem';
@@ -22,9 +23,38 @@ export default class PlanListItem extends React.Component {
     showHosts: PropTypes.bool
   };
 
+  state = {
+    promocode: null
+  };
+
+  componentDidMount() {
+    promocodeStore.onChange(this.loadPromoCode);
+    this.loadPromoCode();
+  }
+
+  componentWillUnmount() {
+    promocodeStore.offChange(this.loadPromoCode);
+  }
+
+  loadPromoCode = () => {
+    const { plan } = this.props,
+          promocode = promocodeStore.userPromocodeForPlanId(plan.id);
+    this.setState({ promocode });
+  }
+
   handleClick = () => {
     this.props.onSelect(this.props.plan);
   };
+
+  renderTrialInfo = () => {
+    const { promocode } = this.state;
+
+    if (!promocode) {
+      return;
+    }
+
+    return (<li><Badge>{promocode.trialInfo}</Badge></li>);
+  }
 
   renderAction() {
     const { disabled, plan, selected, currentPlan } = this.props,
@@ -94,6 +124,7 @@ export default class PlanListItem extends React.Component {
               </li>
               <li><span className='highlight'>{plan.memory}</span> Memory</li>
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
+              {this.renderTrialInfo()}
             </ul>
             {this.renderAction()}
           </div>
