@@ -11,6 +11,8 @@ import { randomPassword } from 'lib/random';
 import snackbarActions from 'actions/snackbar-actions';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
+import promocodeActions from 'actions/promocode-actions';
+import promocodeStore from 'stores/promocode-store';
 
 export default class Signup extends React.Component {
   displayName = 'Signup';
@@ -19,7 +21,8 @@ export default class Signup extends React.Component {
     query: PropTypes.shape({
       intent: PropTypes.string,
       gitHubUserName: PropTypes.string,
-      gitHubUserEmail: PropTypes.string
+      gitHubUserEmail: PropTypes.string,
+      promo: PropTypes.string
     })
   };
 
@@ -32,6 +35,11 @@ export default class Signup extends React.Component {
   }
 
   constructor(props, context) {
+    if (!props.query.promo) {
+      props.query.promo = localStorage.getItem('signup-promo');
+    } else {
+      localStorage.setItem('signup-promo', props.query.promo);
+    }
     super(props, context);
 
     const isViaGitHub = props.query.gitHubUserName &&
@@ -58,16 +66,42 @@ export default class Signup extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.loadPromoCode(nextProps);
+  }
+
   componentDidMount() {
     userStore.on('created', this.onUserCreated);
     userStore.on('create-failed', this.onUserCreateFailed);
+    promocodeStore.onChange(this.promocodeStoreDidChange);
     tokenStore.onChange(this.tokenStoreDidChange);
+
+    this.loadPromoCode();
   }
 
   componentWillUnmount() {
     userStore.off('created', this.onUserCreated);
     userStore.off('create-failed', this.onUserCreateFailed);
+    promocodeStore.offChange(this.promocodeStoreDidChange);
     tokenStore.offChange(this.tokenStoreDidChange);
+  }
+
+  loadPromoCode = (props=this.props) => {
+    const { promo } = props.query;
+    if (promo) {
+      promocodeActions.fetchBySlug(promo);
+    } else {
+      this.setState({ promocode: null });
+    }
+  }
+
+  promocodeStoreDidChange = () => {
+    const { promo } = this.props.query;
+    if (!promo) {
+      this.setState({ promocode: null });
+    }
+    const promocode = promocodeStore.promocodeBySlug(promo, true);
+    this.setState({ promocode });
   }
 
   onUserCreated = (data) => {
@@ -86,6 +120,8 @@ export default class Signup extends React.Component {
       // with the newly created account.
       return;
     }
+
+    localStorage.setItem('signup-promo', null);
 
     if (this.state.createOrg) {
       this.context.router.transitionTo('new-org');
@@ -119,8 +155,9 @@ export default class Signup extends React.Component {
 
     this.setState({ processing: true });
 
-    const { username, email, password, gitHubUserName } = this.state;
-    userActions.create({ username, email, password, gitHubUserName });
+    const { username, email, password, gitHubUserName, promocode } = this.state,
+          promocodeSlug = promocode && promocode.slug;
+    userActions.create({ username, email, password, gitHubUserName, promocodeSlug });
   }
 
   handleSignupWithGithub = () => {
@@ -135,7 +172,7 @@ export default class Signup extends React.Component {
 
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg } = this.state,
+            authorizing, processing, createOrg, promocode } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           missing = !(username && email && password && passwordConfirmation),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
@@ -147,6 +184,11 @@ export default class Signup extends React.Component {
           {isViaGitHub ? (
             <Alert bsStyle="success">
               <strong>Awesome!</strong> Check your information below.
+            </Alert>
+          ) : ''}
+          {promocode ? (
+            <Alert bsStyle='info'>
+              Promo <strong>{promocode.slug}</strong>: {promocode.trialInfo}
             </Alert>
           ) : ''}
           <form onSubmit={this.handleSubmit}>
