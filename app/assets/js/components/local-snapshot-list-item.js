@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, ButtonToolbar, Col, DropdownButton, MenuItem, Modal } from 'react-bootstrap';
+import { Alert, Button, ButtonToolbar, Col, DropdownButton, MenuItem, Modal } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
 
@@ -7,11 +7,18 @@ import Host from 'records/host';
 import Org from 'records/org';
 import Image from 'records/image';
 import imageActions from 'actions/image-actions';
+import snackbarActions from 'actions/snackbar-actions';
+import snapshotActions from 'actions/snapshot-actions';
 import imageStore from 'stores/image-store';
+import snapshotStore from 'stores/snapshot-store';
 import Fa from 'components/fa';
 
 export default class LocalSnapshotListItem extends React.Component {
   displayName = 'LocalSnapshotListItem';
+
+  static contextTypes = {
+    router: PropTypes.func.isRequired
+  };
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
@@ -22,17 +29,24 @@ export default class LocalSnapshotListItem extends React.Component {
   state = {
     showDeleteModal: false,
     showShareModal: false,
-    processing: false
+    processing: false,
+    publishError: null
   };
 
   componentDidMount() {
     imageStore.on('removed', this.onImageRemoved);
     imageStore.on('remove-failed', this.onImageRemoveFailed);
+
+    snapshotStore.on('published', this.onSnapshotPublished);
+    snapshotStore.on('publish-failed', this.onSnapshotPublishFailed);
   }
 
   componentWillUnmount() {
     imageStore.off('removed', this.onImageRemoved);
     imageStore.off('remove-failed', this.onImageRemoveFailed);
+
+    snapshotStore.off('published', this.onSnapshotPublished);
+    snapshotStore.off('publish-failed', this.onSnapshotPublishFailed);
   }
 
   onImageRemoved = (data) => {
@@ -54,8 +68,30 @@ export default class LocalSnapshotListItem extends React.Component {
     this.setState({ processing: false });
   }
 
+  onSnapshotPublished = (data) => {
+    const { snapshot } = data;
+    if (snapshot.imageId !== this.props.snapshot.id) {
+      return;
+    }
+
+    this.setState({ processing: false, showShareModal: false });
+    snackbarActions.post(`Snapshot published!`);
+    this.context.router.transitionTo('team-snapshots', { hostSlug: this.props.host.slug });
+  }
+
+  onSnapshotPublishFailed = (data) => {
+    const { orgSlug, hostId, imageId } = data;
+    if (this.props.org && orgSlug !== this.props.org.slug
+      || hostId !== this.props.host.id
+      || imageId !== this.props.snapshot.id) {
+      return;
+    }
+
+    this.setState({ processing: false, publishError: snapshotStore.lastError });
+  }
+
   handleShare = () => {
-    this.setState({ showShareModal: true });
+    this.setState({ showShareModal: true, publishError: null });
   }
 
   hideShareModal = () => {
@@ -68,7 +104,12 @@ export default class LocalSnapshotListItem extends React.Component {
 
   handleShareModalOK = () => {
     this.setState({ processing: true });
-    // TODO snapshotActions.share(this.props.snapshot.id);
+    if (!this.props.org) {
+      snackbarActions.post("You cannot share a snapshot from a workstation that does not belong to an organization.");
+      this.setState({ processing: false });
+      return;
+    }
+    snapshotActions.publish(this.props.org.slug, this.props.host.id, this.props.snapshot.id);
   }
 
   handleDelete = () => {
@@ -90,7 +131,7 @@ export default class LocalSnapshotListItem extends React.Component {
 
   render() {
     const { org, snapshot } = this.props,
-          { processing } = this.state;
+          { processing, publishError } = this.state;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='local-snapshot-list-item-component snapshot-list-item'>
@@ -134,11 +175,17 @@ export default class LocalSnapshotListItem extends React.Component {
             </Modal.Header>
 
             <Modal.Body>
+              {publishError ? (
+                <Alert bsStyle='danger'>There was an error trying to publish your snapshot: {publishError}.</Alert>
+              ) : ''}
+
               <p><strong>{snapshot.displayName}</strong> will be shared with members of your team in <strong>{org.name}</strong>.</p>
             </Modal.Body>
 
             <Modal.Footer>
-              <Button onClick={this.handleShareModalCancel}>Cancel</Button>
+              <Button
+                onClick={this.handleShareModalCancel}
+                disabled={processing}>Cancel</Button>
               <Button bsStyle='primary'
                 disabled={processing}
                 onClick={processing ? null : this.handleShareModalOK}>
