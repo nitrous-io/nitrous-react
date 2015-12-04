@@ -65,12 +65,12 @@ class OrgActions {
   }
 
   create(options) {
-    const { slug, name, email } = options;
+    const { slug, name, email, intent } = options;
     return authedAjax({
       type: 'POST',
       url: '/api/v0/orgs',
       dataType: 'json',
-      data: { slug, name, email }
+      data: { slug, name, email, intent }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'org.created',

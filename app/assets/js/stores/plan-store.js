@@ -42,11 +42,15 @@ class PlanStore extends Store {
   }
 
   get orgPlans() {
-    return this.plans.filter((p) => p.org);
+    return this.plans.filter((p) => p.org && !p.edu);
   }
 
   get orgMultiHostPlans() {
-    return this.multiHostPlans.filter((p) => p.org);
+    return this.multiHostPlans.filter((p) => p.org && !p.edu);
+  }
+
+  get eduPlans() {
+    return this.multiHostPlans.filter((p) => p.org && p.edu);
   }
 
   planById(id) {
@@ -58,7 +62,9 @@ class PlanStore extends Store {
   plansForUpgrade(plan) {
     let scope = this.personalPlans;
     if (plan.org) {
-      if (plan.maxHosts) {
+      if (plan.edu) {
+        scope = this.eduPlans;
+      } else if (plan.maxHosts) {
         scope = this.orgMultiHostPlans;
       } else {
         scope = this.orgPlans;
