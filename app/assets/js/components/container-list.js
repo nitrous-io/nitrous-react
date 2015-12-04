@@ -3,6 +3,7 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
+import templateActions from 'actions/template-actions';
 import Container from 'records/container';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
@@ -26,6 +27,8 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+
+    templateActions.fetchAll();
   }
 
   componentWillUnmount() {
@@ -53,7 +56,6 @@ export default class ContainerList extends React.Component {
     if (containerLimit === null) {
       return true;
     }
-
 
     return containers.size < containerLimit;
   }
