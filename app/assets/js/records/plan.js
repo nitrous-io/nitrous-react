@@ -27,6 +27,7 @@ export default class Plan extends Record({
   customDomain: false,
   customTemplates: false,
   org: false,
+  edu: false,
   trialPeriodDays: 0
 }) {
   static deserialize(p) {
@@ -57,6 +58,7 @@ export default class Plan extends Record({
       customDomain: !!p.custom_domain,
       customTemplates: !!p.custom_templates,
       org: !!p.org,
+      edu: !!p.edu,
       trialPeriodDays: p.trial_period_days
     });
   }

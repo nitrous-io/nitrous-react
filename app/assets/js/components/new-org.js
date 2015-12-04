@@ -19,6 +19,12 @@ import OrgPlanListItem from 'components/org-plan-list-item';
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
 
+  static propTypes = {
+    query: PropTypes.shape({
+      edu: PropTypes.string
+    })
+  };
+
   static contextTypes = {
     router: PropTypes.func.isRequired
   };
@@ -27,34 +33,51 @@ export default class NewOrg extends React.Component {
     Mp.track(MpEvents.EventViewedNewOrg);
   }
 
-  state = {
-    orgName: null,
-    orgNameValid: false,
-    orgEmail: null,
-    orgEmailValid: false,
-    orgSlug: null,
-    createdOrg: null,
-    processing: false,
-    paymentFailed: false,
-    paymentValid: false,
-    plans: planStore.orgMultiHostPlans,
-    selectedPlan: planStore.orgMultiHostPlans ? planStore.orgMultiHostPlans.first() : null
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      orgName: null,
+      orgNameValid: false,
+      orgEmail: null,
+      orgEmailValid: false,
+      orgSlug: null,
+      createdOrg: null,
+      processing: false,
+      paymentFailed: false,
+      paymentValid: false,
+      plans: this.plansForScope(props),
+      selectedPlan: this.plansForScope(props).first()
+    };
+  }
+
+  plansForScope = (props=this.props) => {
+    const { edu } = props.query;
+    if (edu) {
+      return planStore.eduPlans;
+    }
+
+    return planStore.orgMultiHostPlans;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setPlans(nextProps);
+    planActions.fetchAll();
+  }
 
   componentDidMount() {
-    planStore.onChange(this.planStoreDidChange);
+    planStore.onChange(this.setPlans);
     orgStore.onChange(this.orgStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);
     subscriptionStore.on('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.on('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
 
     this.refs.orgNameField.getInputDOMNode().focus();
-    planActions.fetchAll();
   }
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
-    planStore.offChange(this.planStoreDidChange);
+    planStore.offChange(this.setPlans);
     orgStore.off('create-failed', this.onOrgCreateFailed);
     subscriptionStore.off('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.off('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
@@ -80,8 +103,8 @@ export default class NewOrg extends React.Component {
     }
   }
 
-  planStoreDidChange = () => {
-    const plans = planStore.orgMultiHostPlans;
+  setPlans = () => {
+    const plans = this.plansForScope(this.props);
 
     this.setState({
       plans,
@@ -137,7 +160,10 @@ export default class NewOrg extends React.Component {
       return;
     }
 
-    orgActions.create({ name: orgName, email: orgEmail, slug: orgSlug });
+    const { edu } = this.props.query,
+          intent = edu ? "edu" : null;
+
+    orgActions.create({ name: orgName, email: orgEmail, slug: orgSlug, intent });
   }
 
   handlePaymentSuccess = () => {
