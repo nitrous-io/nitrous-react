@@ -12,6 +12,7 @@ import taskActions from 'actions/task-actions';
 import hostActions from 'actions/host-actions';
 import Org from 'records/org';
 import format from 'lib/format';
+import promocodeActions from 'actions/promocode-actions';
 
 export default class SubscriptionsUpgrade extends React.Component {
   displayName = 'SubscriptionsUpgrade';
@@ -76,6 +77,7 @@ export default class SubscriptionsUpgrade extends React.Component {
 
   fetchObjects = (context=this.context) => {
     planActions.fetchAll();
+    promocodeActions.fetchAll();
 
     const { org } = context;
     if (org) {

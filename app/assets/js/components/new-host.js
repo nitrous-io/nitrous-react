@@ -21,6 +21,7 @@ import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 import snackbarActions from 'actions/snackbar-actions';
+import promocodeActions from 'actions/promocode-actions';
 
 export default class NewHost extends React.Component {
   displayName = 'NewHost';
@@ -91,6 +92,7 @@ export default class NewHost extends React.Component {
   fetchObjects = (context=this.context) => {
     planActions.fetchAll();
     regionActions.fetchAll();
+    promocodeActions.fetchAll();
 
     const { org } = context;
     if (org && this.isOrgOwner()) {
