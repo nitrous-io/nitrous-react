@@ -18,7 +18,8 @@ export default class ContainerList extends React.Component {
 
   static propTypes = {
     containers: ImmutablePropTypes.listOf(PropTypes.instanceOf(Container)),
-    host: PropTypes.instanceOf(Host)
+    host: PropTypes.instanceOf(Host),
+    shared: PropTypes.bool
   };
 
   state = {
@@ -43,7 +44,7 @@ export default class ContainerList extends React.Component {
     const { containers, host } = this.props,
           { user } = this.state;
 
-    if (!host) {
+    if (!host || !containers) {
       return false;
     }
 
@@ -73,8 +74,11 @@ export default class ContainerList extends React.Component {
   };
 
   render() {
-    const { containers, host } = this.props,
-          isOrg = (host && host.orgId) ? true : false;
+    const { containers, host, shared } = this.props,
+          isOrg = host && host.orgId,
+          // If cannot create container, hide plus sign if under org, but
+          // show plus sign if individual sub to prompt upgrade.
+          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared;
 
     return (
       <div className='container-list-component'>
@@ -89,7 +93,7 @@ export default class ContainerList extends React.Component {
                   container={container}
                   host={host} />);
               })}
-              {!(!this.canCreateContainer() && isOrg) ? (
+              {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
                   <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />

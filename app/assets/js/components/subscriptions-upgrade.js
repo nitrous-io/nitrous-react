@@ -247,7 +247,7 @@ export default class SubscriptionsUpgrade extends React.Component {
         <div className='container'>
           {containersLimitReached ? (
             <Alert bsStyle='info'>
-            <Fa icon='exclamation-circle' /> You have reached the maximum number of containers allowed for your subscription. Please upgrade to create more containers. 
+            <Fa icon='exclamation-circle' /> You have reached the maximum number of projects allowed for your subscription. Please upgrade to create more projects.
             </Alert>
           ) : ''}
           <h2>Upgrade Your Subscription</h2>

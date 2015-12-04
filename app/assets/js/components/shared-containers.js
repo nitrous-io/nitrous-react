@@ -100,7 +100,7 @@ export default class SharedContainers extends React.Component {
               </ol>
             </div>
           ) : (
-            <ContainerList containers={containers} />
+            <ContainerList containers={containers} shared />
           )}
         </div>
       </div>
