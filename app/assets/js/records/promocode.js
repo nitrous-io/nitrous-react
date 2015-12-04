@@ -21,7 +21,8 @@ export default class Promocode extends Record({
 
     const parsed = duration(this.trialSeconds, 'seconds');
     if (parsed) {
-      return `${parsed.days()} day free trial`;
+      const dayWord = parsed.days() === 1 ? "day" : "days";
+      return `${parsed.days()} ${dayWord} free trial`;
     }
     return;
   }

@@ -188,7 +188,7 @@ export default class Signup extends React.Component {
           ) : ''}
           {promocode ? (
             <Alert bsStyle='info'>
-              Promo <strong>{promocode.slug}</strong>: {promocode.trialInfo}
+              Using Promo <strong>{promocode.slug}</strong>: {promocode.trialInfo}
             </Alert>
           ) : ''}
           <form onSubmit={this.handleSubmit}>
