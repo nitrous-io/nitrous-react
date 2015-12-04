@@ -58,6 +58,6 @@ export default class Org extends Record({
     if (this.maxHosts) {
       return this.maxHosts;
     }
-    return this.plan.maxHosts;
+    return this.plan ? this.plan.maxHosts : 0;
   }
 }
