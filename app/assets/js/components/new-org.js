@@ -87,7 +87,7 @@ export default class NewOrg extends React.Component {
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
-    planStore.offChange(this.planStoreDidChange);
+    planStore.offChange(this.setPlans);
     promocodeStore.offChange(this.promocodeStoreDidChange);
     orgStore.off('create-failed', this.onOrgCreateFailed);
     subscriptionStore.off('subscribed-org-plan', this.onSubscribedOrgPlan);
@@ -133,8 +133,8 @@ export default class NewOrg extends React.Component {
     }
   }
 
-  setPlans = () => {
-    const plans = this.plansForScope(this.props);
+  setPlans = (props=this.props) => {
+    const plans = this.plansForScope(props);
 
     this.setState({
       plans,
