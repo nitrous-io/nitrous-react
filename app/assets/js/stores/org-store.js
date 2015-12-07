@@ -41,7 +41,7 @@ class OrgStore extends Store {
       case 'org.create-failed': {
         const { slug, jqxhr } = action.data;
         this.handleErrorJqxhr(jqxhr);
-        this.emit('create-failed', { slug });
+        this.emit('create-failed', { slug, jqxhr });
         break;
       }
       case 'org.left': {
