@@ -19,7 +19,8 @@ export default class ContainerList extends React.Component {
   static propTypes = {
     containers: ImmutablePropTypes.listOf(PropTypes.instanceOf(Container)),
     host: PropTypes.instanceOf(Host),
-    shared: PropTypes.bool
+    shared: PropTypes.bool,
+    showTooltip: PropTypes.bool
   };
 
   state = {
@@ -74,7 +75,7 @@ export default class ContainerList extends React.Component {
   };
 
   render() {
-    const { containers, host, shared } = this.props,
+    const { containers, host, shared, showTooltip } = this.props,
           isOrg = host && host.orgId,
           // If cannot create container, hide plus sign if under org, but
           // show plus sign if individual sub to prompt upgrade.
@@ -97,6 +98,9 @@ export default class ContainerList extends React.Component {
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
                   <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
+                    {showTooltip ? (
+                      <div className='pin dashboard'></div>
+                    ) : ''}
                   </Button>
                 </Col>
               ) : ''}

@@ -1,0 +1,34 @@
+.containers-component
+  .pin
+    width: 18px
+    height: 18px
+    position: absolute
+    display: block
+    background: #FFF 
+    border-radius: 100%
+    border: 3px solid $brand-primary 
+    z-index: 2
+
+    &:before
+      content: ""
+      width: 72px
+      height: 72px
+      position: absolute
+      top: -29px
+      left: -29px
+      border-radius: 100%
+      background: $brand-primary
+      animation: pulse 2s infinite
+      z-index: 1
+
+  .dashboard
+    top: 55px 
+    left: 75px 
+
+  .context
+    top: 15px 
+    left: 115px 
+
+  .settings
+    left: 8px 
+    bottom: 14px

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Carousel, CarouselItem, Modal } from 'react-bootstrap';
+import $ from 'jquery';
 
 import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
@@ -34,6 +35,9 @@ export default class Containers extends React.Component {
       containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
       announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
       user,
+      showDashboardTooltip: false,
+      showContextTooltip: false,
+      showSettingsTooltip: false,
       showOnboardingModal
     };
   }
@@ -95,12 +99,59 @@ export default class Containers extends React.Component {
 
   hideOnboardingModal = () => {
     this.setState({ showOnboardingModal: false });
+    this.showRelevantTooltip('');
     userActions.dismissFirstTime();
   };
 
+  handleSlideTransition = () => {
+    const slides = {
+      dashboard: 1,
+      context: 2,
+      settings: 3
+    };
+
+    var activeIndex = $('.carousel-inner .active').index('.carousel-inner .item');
+    switch (activeIndex) {
+      case slides.dashboard: {
+        this.showRelevantTooltip('dashboard');
+        return;
+      }
+      case slides.context: {
+        this.showRelevantTooltip('context');
+        return;
+      }
+      case slides.settings: {
+        this.showRelevantTooltip('settings');
+        return;
+      }
+      default: {
+        this.showRelevantTooltip('');
+      }
+    }
+  };
+
+  showRelevantTooltip(slide) {
+    let dashboardTooltip = false,
+        contextTooltip = false,
+        settingsTooltip = false;
+
+    switch (slide) {
+      case 'dashboard': { dashboardTooltip = true; break; }
+      case 'context': { contextTooltip = true; break; }
+      case 'settings': { settingsTooltip = true; break; }
+      default: { break; }
+    }
+
+    this.setState({
+      showDashboardTooltip: dashboardTooltip,
+      showContextTooltip: contextTooltip,
+      showSettingsTooltip: settingsTooltip
+    });
+  }
+
   render() {
     const { host } = this.context,
-          { announcements } = this.state,
+          { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
           loading = host.isResuming;
@@ -116,19 +167,24 @@ export default class Containers extends React.Component {
 
     return (
       <div className='containers-component container'>
-        <ContextSwitcher selectedHost={host} />
+        <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
         ) : ''}
-        <ContainerList containers={containers} host={host} />
+
+        {showSettingsTooltip ? (
+          <div className='pin settings'></div>
+        ) : ''}
+
+        <ContainerList containers={containers} host={host} showTooltip={showDashboardTooltip} />
 
         <Modal show={this.state.showOnboardingModal} onHide={this.hideOnboardingModal} dialogClassName='onboarding-modal'>
-          <Modal.Header closeButton>
+          <Modal.Header closeButton backdrop='false'>
             <Modal.Title>Quick Tour</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Carousel prevIcon ='< Back' nextIcon='Next >'>
+            <Carousel prevIcon ='< Back' nextIcon='Next >' interval={0} onSlideEnd={this.handleSlideTransition}>
               <CarouselItem>
                 <h2>Welcome to the new Nitrous</h2>
                 <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>
