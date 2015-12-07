@@ -12,12 +12,14 @@ export default class OrgMembers extends React.Component {
   };
 
   render() {
-    const { org } = this.context;
+    const { org } = this.context,
+          canManage = org.roleAllowsMemberAdmin,
+          title = canManage ? "Manage Members" : "View Members";
 
     return (
       <div className='org-members-component'>
         <OrgNav org={org} activeTab='members'>
-          <Panel header={<h4>Manage Members</h4>}>
+          <Panel header={<h4>{title}</h4>}>
             <OrgMemberList org={org} />
           </Panel>
         </OrgNav>
