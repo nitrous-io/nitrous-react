@@ -53,6 +53,7 @@ class UserStore extends Store {
         return;
       }
       case 'user.dismiss-first-time-failed':
+      // no-op: user doesn't need to see error message if we could not update backend
       default: return;
     }
     this.notifyChange();

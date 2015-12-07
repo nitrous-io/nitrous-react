@@ -28,7 +28,7 @@ export default class Containers extends React.Component {
     super(props, context);
 
     const user = userStore.user,
-          showOnboardingModal = (user && user.firstTime) ? user.firstTime : false;
+          showOnboardingModal = user && user.firstTime;
 
     this.state = {
       containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
@@ -132,18 +132,22 @@ export default class Containers extends React.Component {
               <CarouselItem>
                 <h2>Welcome to the new Nitrous</h2>
                 <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>
+                <div className='logo-image'></div>
               </CarouselItem>
               <CarouselItem>
                 <h2>A whole new Dashboard</h2>
                 <p className='hint'>Simpler, faster, with access to your projects in one click</p>
+                <div className='dashboard-image'></div>
               </CarouselItem>
               <CarouselItem>
                 <h2>Quick access to Shared Projects</h2>
                 <p className='hint'>Switch between your projects, your team&#39;s, and the ones shared with you</p>
+                <div className='context-image'></div>
               </CarouselItem>
               <CarouselItem>
                 <h2>All your settings in one place</h2>
-                <p className='hint'>No more hunting around, everything is where it should be</p>
+                <p className='hint'>No more hunting around&mdash; everything is where it should be</p>
+                <div className='settings-image'></div>
               </CarouselItem>
             </Carousel>
           </Modal.Body>
