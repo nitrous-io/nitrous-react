@@ -227,8 +227,8 @@ export default class ImageList extends React.Component {
                 );
               }) : (
                 <tr>
-                  <td className="text-center" colSpan={5}>
-                    <p className="empty-state">No Snapshots</p>
+                  <td className='text-center' colSpan={5}>
+                    <p className='empty-state'>No Snapshots</p>
                   </td>
                 </tr>
               )}
@@ -264,8 +264,8 @@ export default class ImageList extends React.Component {
                 );
               }) : (
                 <tr>
-                  <td className="text-center" colSpan={5}>
-                    <p className="empty-state">No Images</p>
+                  <td className='text-center' colSpan={5}>
+                    <p className='empty-state'>No Images</p>
                   </td>
                 </tr>
               )}
@@ -311,7 +311,7 @@ export default class ImageList extends React.Component {
         : ''}
 
         {showDeleteModal ?
-          <Modal show={showDeleteModal} onHide={this.hidePushModal}>
+          <Modal show={showDeleteModal} onHide={this.hideDeleteModal}>
             <Modal.Header>
               <Modal.Title>Delete {`\`${targetImage.displayName}\``}?</Modal.Title>
             </Modal.Header>

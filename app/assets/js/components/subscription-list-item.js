@@ -105,7 +105,7 @@ export default class SubscriptionListItem extends React.Component {
           reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate",
           disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
           { makeHref } = this.context.router,
-          subscriptionsUpgradeURL = makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug });
+          subscriptionsUpgradeURL = makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }, { prev: 'billing' });
 
     let title = `Workstation ${subscription.hostSlug} – ${subscription.plan.name}`;
     if (subscription.multiHost) {

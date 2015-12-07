@@ -9,7 +9,8 @@ export default class RegionListItem extends React.Component {
   static propTypes = {
     region: PropTypes.instanceOf(Region).isRequired,
     selected: PropTypes.bool.isRequired,
-    onSelect: PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired,
+    disabled: PropTypes.bool
   };
 
   handleClick = () => {
@@ -17,8 +18,7 @@ export default class RegionListItem extends React.Component {
   };
 
   render() {
-    const region = this.props.region,
-          selected = this.props.selected;
+    const { region, selected, disabled } = this.props;
 
     return (
       <Col lg={2} md={3} sm={4} xs={6} className='region-list-item-component'>
@@ -26,7 +26,7 @@ export default class RegionListItem extends React.Component {
           <div className='ui-card-body'>
             <h4>{region.name}</h4>
             <div className='description'>{region.slug}</div>
-            <Button onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>Select</Button>
+            <Button disabled={disabled} onClick={this.handleClick} bsStyle={selected ? 'primary' : 'default'} block>Select</Button>
           </div>
         </div>
       </Col>

@@ -85,12 +85,12 @@ class SubscriptionActions {
     return promise;
   }
 
-  subscribeOrgPlan(orgSlug, planSlug) {
+  subscribeOrgPlan(orgSlug, planSlug, promoCode=null) {
     const promise = authedAjax({
       type: 'POST',
       url: `/api/v0/orgs/${orgSlug}/subscriptions`,
       dataType: 'json',
-      data: { plan: planSlug }
+      data: { plan: planSlug, promo_code: promoCode }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'subscription.subscribed-org-plan',

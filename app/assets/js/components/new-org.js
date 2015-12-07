@@ -15,9 +15,18 @@ import planActions from 'actions/plan-actions';
 import subscriptionStore from 'stores/subscription-store';
 import subscriptionActions from 'actions/subscription-actions';
 import OrgPlanListItem from 'components/org-plan-list-item';
+import promocodeActions from 'actions/promocode-actions';
+import promocodeStore from 'stores/promocode-store';
 
 export default class NewOrg extends React.Component {
   displayName = 'NewOrg';
+
+  static propTypes = {
+    query: PropTypes.shape({
+      edu: PropTypes.string,
+      promo: PropTypes.string
+    })
+  };
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -27,37 +36,82 @@ export default class NewOrg extends React.Component {
     Mp.track(MpEvents.EventViewedNewOrg);
   }
 
-  state = {
-    orgName: null,
-    orgNameValid: false,
-    orgEmail: null,
-    orgEmailValid: false,
-    orgSlug: null,
-    createdOrg: null,
-    processing: false,
-    paymentFailed: false,
-    paymentValid: false,
-    plans: planStore.orgMultiHostPlans,
-    selectedPlan: planStore.orgMultiHostPlans ? planStore.orgMultiHostPlans.first() : null
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      orgName: null,
+      orgNameValid: false,
+      orgEmail: null,
+      orgEmailValid: false,
+      orgSlug: null,
+      createdOrg: null,
+      processing: false,
+      paymentFailed: false,
+      paymentValid: false,
+      plans: this.plansForScope(props),
+      promocode: null,
+      selectedPlan: this.plansForScope(props).first(),
+      emailNotWhitelisted: false
+    };
+  }
+
+  plansForScope = (props=this.props) => {
+    const { edu } = props.query;
+    if (edu) {
+      return planStore.eduPlans;
+    }
+
+    return planStore.orgMultiHostPlans;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.loadPromoCode(nextProps);
+
+    this.setPlans(nextProps);
+    planActions.fetchAll();
+  }
 
   componentDidMount() {
-    planStore.onChange(this.planStoreDidChange);
+    planStore.onChange(this.setPlans);
     orgStore.onChange(this.orgStoreDidChange);
+    promocodeStore.onChange(this.promocodeStoreDidChange);
     orgStore.on('create-failed', this.onOrgCreateFailed);
     subscriptionStore.on('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.on('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
 
     this.refs.orgNameField.getInputDOMNode().focus();
+
+    this.loadPromoCode();
     planActions.fetchAll();
   }
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
-    planStore.offChange(this.planStoreDidChange);
+    planStore.offChange(this.setPlans);
+    promocodeStore.offChange(this.promocodeStoreDidChange);
     orgStore.off('create-failed', this.onOrgCreateFailed);
     subscriptionStore.off('subscribed-org-plan', this.onSubscribedOrgPlan);
     subscriptionStore.off('subscribe-org-plan-failed', this.onSubscribeOrgPlanFailed);
+  }
+
+  loadPromoCode = (props=this.props) => {
+    const { promo } = props.query;
+    if (promo) {
+      promocodeActions.fetchBySlug(promo);
+    } else {
+      this.setState({ promocode: null });
+    }
+    promocodeActions.fetchAll();
+  }
+
+  promocodeStoreDidChange = () => {
+    const { promo } = this.props.query;
+    if (!promo) {
+      this.setState({ promocode: null });
+    }
+    const promocode = promocodeStore.promocodeBySlug(promo, true);
+    this.setState({ promocode });
   }
 
   orgStoreDidChange = () => {
@@ -80,8 +134,8 @@ export default class NewOrg extends React.Component {
     }
   }
 
-  planStoreDidChange = () => {
-    const plans = planStore.orgMultiHostPlans;
+  setPlans = (props=this.props) => {
+    const plans = this.plansForScope(props);
 
     this.setState({
       plans,
@@ -90,10 +144,15 @@ export default class NewOrg extends React.Component {
   };
 
   onOrgCreateFailed = (data) => {
-    const { slug } = data;
+    const { slug, jqxhr } = data,
+          { responseJSON } = jqxhr;
     if (slug === this.state.orgSlug) {
       this.setState({ processing: false });
       this.refs.orgNameField.getInputDOMNode().focus();
+
+      if (responseJSON && responseJSON.error === 'not_edu_whitelisted') {
+        this.setState({ emailNotWhitelisted: true });
+      }
     }
   }
 
@@ -116,7 +175,7 @@ export default class NewOrg extends React.Component {
 
   handleOrgEmailChanged = (event) => {
     const orgEmail = event.target.value;
-    this.setState({ orgEmail, orgEmailValid: !!orgEmail.trim() });
+    this.setState({ orgEmail, orgEmailValid: !!orgEmail.trim(), emailNotWhitelisted: false });
   }
 
   handleClickCreateBtn = () => {
@@ -137,14 +196,18 @@ export default class NewOrg extends React.Component {
       return;
     }
 
-    orgActions.create({ name: orgName, email: orgEmail, slug: orgSlug });
+    const { edu } = this.props.query,
+          intent = edu ? "edu" : null;
+
+    orgActions.create({ name: orgName, email: orgEmail, slug: orgSlug, intent });
   }
 
   handlePaymentSuccess = () => {
-    const { createdOrg, selectedPlan } = this.state;
+    const { createdOrg, selectedPlan, promocode } = this.state,
+          promocodeSlug = promocode && promocode.slug;
 
     if (selectedPlan) {
-      subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug);
+      subscriptionActions.subscribeOrgPlan(createdOrg.slug, selectedPlan.slug, promocodeSlug);
       return;
     }
 
@@ -198,7 +261,7 @@ export default class NewOrg extends React.Component {
   }
 
   renderPlanSelection() {
-    const { plans, selectedPlan } = this.state,
+    const { plans, selectedPlan, promocode } = this.state,
           selectedPlanSlug = selectedPlan && selectedPlan.slug;
 
     if (!plans) {
@@ -214,6 +277,7 @@ export default class NewOrg extends React.Component {
                 <OrgPlanListItem key={`plan-${plan.slug}`} plan={plan}
                   selected={selectedPlanSlug === plan.slug}
                   onSelect={this.handlePlanSelection}
+                  providedPromocode={promocode}
                 />
               );
             })}
@@ -225,7 +289,9 @@ export default class NewOrg extends React.Component {
 
   render() {
     const { orgName, orgNameValid, orgEmail, orgEmailValid,
-            orgSlug, createdOrg, processing, paymentFailed } = this.state;
+            orgSlug, createdOrg, processing, paymentFailed, emailNotWhitelisted } = this.state,
+          emailHelpText = emailNotWhitelisted ? 'This email has not been whitelisted for Edu plans' : 'Receipts will be sent here',
+          emailError = emailNotWhitelisted || (orgEmail && !orgEmailValid);
 
     return (
       <div className='new-org-component container'>
@@ -254,9 +320,9 @@ export default class NewOrg extends React.Component {
                   ref='orgEmailField'
                   id='org-email'
                   label='Billing Email'
-                  bsStyle={orgEmail && !orgEmailValid ? 'error' : null}
+                  bsStyle={emailError ? 'error' : null}
                   value={orgEmail}
-                  help='Receipts will be sent here'
+                  help={emailHelpText}
                   disabled={createdOrg || processing}
                   onChange={this.handleOrgEmailChanged}
                   onKeyDown={this.handleKeyDown} />

@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
-import { Button } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import Plan from 'records/plan';
 import Fa from 'components/fa';
+import promocodeStore from 'stores/promocode-store';
+import Promocode from 'records/promocode';
 
 export default class OrgPlanListItem extends React.Component {
   displayName = 'OrgPlanListItem';
@@ -11,8 +13,28 @@ export default class OrgPlanListItem extends React.Component {
   static propTypes = {
     plan: PropTypes.instanceOf(Plan).isRequired,
     selected: PropTypes.bool.isRequired,
-    onSelect: PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired,
+    providedPromocode: PropTypes.instanceOf(Promocode)
   };
+
+  state = {
+    promocode: null
+  };
+
+  componentDidMount() {
+    promocodeStore.onChange(this.loadPromoCode);
+    this.loadPromoCode();
+  }
+
+  componentWillUnmount() {
+    promocodeStore.offChange(this.loadPromoCode);
+  }
+
+  loadPromoCode = () => {
+    const { plan } = this.props,
+          promocode = promocodeStore.userPromocodeForPlanId(plan.id);
+    this.setState({ promocode });
+  }
 
   handleClick = () => {
     this.props.onSelect(this.props.plan);
@@ -26,6 +48,22 @@ export default class OrgPlanListItem extends React.Component {
     }
 
     return `Up to ${plan.maxHosts} workstations`;
+  }
+
+  renderTrialInfo = () => {
+    const { providedPromocode, plan } = this.props;
+
+    let { promocode } = this.state;
+
+    if (!promocode && providedPromocode && providedPromocode.planIDs.has(plan.id)) {
+      promocode = providedPromocode;
+    }
+
+    if (!promocode) {
+      return;
+    }
+
+    return (<Badge>{promocode.trialInfo}</Badge>);
   }
 
   renderActionButton = () => {
@@ -47,6 +85,7 @@ export default class OrgPlanListItem extends React.Component {
       <tr onClick={this.handleClick} className={trClasses}>
         <td><strong>{plan.name}</strong></td>
         <td>${plan.priceDollars}/mo</td>
+        <td>{this.renderTrialInfo()}</td>
         <td>{this.workstationsTitle()}</td>
         <td className={actionClasses}>{this.renderActionButton()}</td>
       </tr>

@@ -42,11 +42,15 @@ class PlanStore extends Store {
   }
 
   get orgPlans() {
-    return this.plans.filter((p) => p.org);
+    return this.plans.filter((p) => p.org && !p.edu);
   }
 
   get orgMultiHostPlans() {
-    return this.multiHostPlans.filter((p) => p.org);
+    return this.multiHostPlans.filter((p) => p.org && !p.edu);
+  }
+
+  get eduPlans() {
+    return this.multiHostPlans.filter((p) => p.org && p.edu);
   }
 
   planById(id) {
@@ -58,7 +62,9 @@ class PlanStore extends Store {
   plansForUpgrade(plan) {
     let scope = this.personalPlans;
     if (plan.org) {
-      if (plan.maxHosts) {
+      if (plan.edu) {
+        scope = this.eduPlans;
+      } else if (plan.maxHosts) {
         scope = this.orgMultiHostPlans;
       } else {
         scope = this.orgPlans;
@@ -67,6 +73,12 @@ class PlanStore extends Store {
 
     const currentPlanPrice = plan.price;
     return scope.filter((p) => {
+      // when a user's existing plan type has a price change, filter the same
+      // plan from being offered in upgrades
+      const r = /basic|standard|plus/;
+      if (plan.slug.match(r) === p.slug.match(r) && plan.slug.match(r) !== null) {
+        return false;
+      }
       return p.price > currentPlanPrice;
     });
   }
