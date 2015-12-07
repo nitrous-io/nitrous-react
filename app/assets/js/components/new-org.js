@@ -51,7 +51,8 @@ export default class NewOrg extends React.Component {
       paymentValid: false,
       plans: this.plansForScope(props),
       promocode: null,
-      selectedPlan: this.plansForScope(props).first()
+      selectedPlan: this.plansForScope(props).first(),
+      emailNotWhitelisted: false
     };
   }
 
@@ -143,10 +144,15 @@ export default class NewOrg extends React.Component {
   };
 
   onOrgCreateFailed = (data) => {
-    const { slug } = data;
+    const { slug, jqxhr } = data,
+          { responseJSON } = jqxhr;
     if (slug === this.state.orgSlug) {
       this.setState({ processing: false });
       this.refs.orgNameField.getInputDOMNode().focus();
+
+      if (responseJSON && responseJSON.error === 'not_edu_whitelisted') {
+        this.setState({ emailNotWhitelisted: true });
+      }
     }
   }
 
@@ -169,7 +175,7 @@ export default class NewOrg extends React.Component {
 
   handleOrgEmailChanged = (event) => {
     const orgEmail = event.target.value;
-    this.setState({ orgEmail, orgEmailValid: !!orgEmail.trim() });
+    this.setState({ orgEmail, orgEmailValid: !!orgEmail.trim(), emailNotWhitelisted: false });
   }
 
   handleClickCreateBtn = () => {
@@ -283,7 +289,9 @@ export default class NewOrg extends React.Component {
 
   render() {
     const { orgName, orgNameValid, orgEmail, orgEmailValid,
-            orgSlug, createdOrg, processing, paymentFailed } = this.state;
+            orgSlug, createdOrg, processing, paymentFailed, emailNotWhitelisted } = this.state,
+          emailHelpText = emailNotWhitelisted ? 'This email has not been whitelisted for Edu plans' : 'Receipts will be sent here',
+          emailError = emailNotWhitelisted || (orgEmail && !orgEmailValid);
 
     return (
       <div className='new-org-component container'>
@@ -312,9 +320,9 @@ export default class NewOrg extends React.Component {
                   ref='orgEmailField'
                   id='org-email'
                   label='Billing Email'
-                  bsStyle={orgEmail && !orgEmailValid ? 'error' : null}
+                  bsStyle={emailError ? 'error' : null}
                   value={orgEmail}
-                  help='Receipts will be sent here'
+                  help={emailHelpText}
                   disabled={createdOrg || processing}
                   onChange={this.handleOrgEmailChanged}
                   onKeyDown={this.handleKeyDown} />
