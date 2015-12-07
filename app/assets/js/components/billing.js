@@ -294,7 +294,10 @@ export default class Billing extends React.Component {
           {workspaceInfo ? (
             <p>{workspaceInfo}</p>
           ) : ''}
-          {sub.currentPeriodEnd ? (
+          {sub.activeTrialEnd ? (
+            <p>Trial ends on <strong><Time value={sub.activeTrialEnd} format="MMM DD, YYYY" /></strong></p>
+          ) : ''}
+          {!sub.activeTrialEnd && sub.currentPeriodEnd ? (
             <p>Renews on <Time value={sub.currentPeriodEnd} format="MMM DD, YYYY" /></p>
           ) : ''}
         </div>
