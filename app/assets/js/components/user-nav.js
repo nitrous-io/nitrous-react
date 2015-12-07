@@ -26,7 +26,7 @@ export default class UserNav extends React.Component {
       <div className='user-nav-component container'>
         <Breadcrumb className='no-margin'>
           <BreadcrumbItem href={makeHref('dashboard')}>Dashboard</BreadcrumbItem>
-          <BreadcrumbItem active>User</BreadcrumbItem>
+          <BreadcrumbItem active>Personal Account</BreadcrumbItem>
         </Breadcrumb>
 
         <Grid className='ui-card-grid'>
