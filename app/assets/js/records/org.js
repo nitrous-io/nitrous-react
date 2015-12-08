@@ -46,6 +46,10 @@ export default class Org extends Record({
     return this.role === 'owner';
   }
 
+  get roleAllowsMemberView() {
+    return this.role === 'owner' || this.role === 'admin' || this.role === 'member';
+  }
+
   get roleAllowsMemberAdmin() {
     return this.role === 'owner' || this.role === 'admin';
   }
