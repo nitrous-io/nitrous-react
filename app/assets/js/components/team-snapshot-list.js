@@ -16,6 +16,7 @@ export default class TeamSnapshotList extends React.Component {
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
+    snapshotId: PropTypes.number,
     snapshots: ImmutablePropTypes.mapOf(PropTypes.instanceOf(Snapshot))
   }
 
@@ -63,7 +64,8 @@ export default class TeamSnapshotList extends React.Component {
             {snapshots.toList().map((snapshot) => {
               return (
                 <TeamSnapshotListItem key={`snapshot-${snapshot.id}`}
-                  host={this.props.host} snapshot={snapshot} />
+                  host={this.props.host} snapshot={snapshot}
+                  focus={snapshot.id === this.props.snapshotId} />
               );
             })}
           </Row>

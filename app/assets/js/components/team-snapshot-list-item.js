@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { ButtonToolbar, Col, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
+import classNames from 'classnames';
 
 import Host from 'records/host';
 import Snapshot from 'records/snapshot';
@@ -13,7 +14,8 @@ export default class TeamSnapshotListItem extends React.Component {
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
-    snapshot: PropTypes.instanceOf(Snapshot).isRequired
+    snapshot: PropTypes.instanceOf(Snapshot).isRequired,
+    focus: PropTypes.bool
   }
 
   state = {
@@ -37,12 +39,13 @@ export default class TeamSnapshotListItem extends React.Component {
   }
 
   render() {
-    const { snapshot } = this.props,
+    const { snapshot, focus } = this.props,
           { user } = this.state,
           isSelf = snapshot.ownerUsername === user.username;
 
     return (
-      <Col lg={3} md={4} sm={6} xs={12} className='team-snapshot-list-item-component snapshot-list-item'>
+      <Col lg={3} md={4} sm={6} xs={12}
+        className={classNames('team-snapshot-list-item-component', 'snapshot-list-item', { focus })}>
         <div className='ui-card'>
           <div className='ui-card-body'>
             <div className='snapshot-header'>
@@ -58,11 +61,8 @@ export default class TeamSnapshotListItem extends React.Component {
 
             <div className='owner'>
               <OverlayTrigger placement='top'
-                overlay={isSelf ? (
-                  <Tooltip id={`snapshot-${snapshot.id}-owner-tooltip`}>Created by you</Tooltip>
-                ) : (
-                  <Tooltip id={`snapshot-${snapshot.id}-owner-tooltip`}>Created by {snapshot.ownerDisplayName}</Tooltip>
-                )}>
+                overlay={<Tooltip id={`snapshot-${snapshot.id}-owner-tooltip`}>
+                  Created by {isSelf ? 'you' : snapshot.ownerDisplayName}</Tooltip>}>
                 <img className='gravatar' src={snapshot.ownerGravatar(40)} />
               </OverlayTrigger>
             </div>

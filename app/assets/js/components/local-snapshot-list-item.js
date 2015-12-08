@@ -76,7 +76,9 @@ export default class LocalSnapshotListItem extends React.Component {
 
     this.setState({ processing: false, showShareModal: false });
     snackbarActions.post(`Snapshot published!`);
-    this.context.router.transitionTo('team-snapshots', { hostSlug: this.props.host.slug });
+    this.context.router.transitionTo('team-snapshots',
+      { hostSlug: this.props.host.slug },
+      { snapshotId: snapshot.id });
   }
 
   onSnapshotPublishFailed = (data) => {
