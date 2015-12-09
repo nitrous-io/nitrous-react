@@ -128,7 +128,7 @@ export default class ContainerListItem extends React.Component {
             </Col>
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
-                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState} id={`container-actions-${container.id}`}>
+                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || host.isUnusable} id={`container-actions-${container.id}`}>
                   {container.state === 'running' ? [
                     <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
                     <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
@@ -141,7 +141,7 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title='Settings' id={`container-settings-${container.id}`}>
+                <DropdownButton title='Settings' disabled={host.isUnusable}  id={`container-settings-${container.id}`}>
                   {!shared ? (
                     <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
                   ) : ''}
