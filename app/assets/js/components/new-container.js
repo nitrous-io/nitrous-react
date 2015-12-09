@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Input, Tabs, Tab, Grid, Row, Button } from 'react-bootstrap';
 import Host from 'records/host';
+import containerStore from 'stores/container-store';
 import orgStore from 'stores/org-store';
 import userStore from 'stores/user-store';
 import templateStore from 'stores/template-store';
@@ -54,15 +55,20 @@ export default class NewContainer extends React.Component {
     templateStore.onChange(this.templateStoreDidChange);
     templateActions.fetchAll();
 
-    orgStore.onChange(this.onOrgStoreChanged);
+    orgStore.onChange(this.orgStoreDidChange);
     orgActions.fetchAll();
+
+    containerStore.on('creating', this.onContainerCreating);
+    containerStore.on('create-failed', this.onContainerCreateFailed);
 
     this.refs.generateNameBtn.generate();
   }
 
   componentWillUnmount() {
     templateStore.offChange(this.templateStoreDidChange);
-    orgStore.offChange(this.onOrgStoreChanged);
+    orgStore.offChange(this.orgStoreDidChange);
+    containerStore.off('creating', this.onContainerCreating);
+    containerStore.off('create-failed', this.onContainerCreateFailed);
   }
 
   templateStoreDidChange = () => {
@@ -73,8 +79,24 @@ export default class NewContainer extends React.Component {
     }
   };
 
-  onOrgStoreChanged = () => {
+  orgStoreDidChange = () => {
     this.setState({ org: orgStore.orgByOrgId(this.context.host.orgId) });
+  };
+
+  onContainerCreating = (data) => {
+    const { name, hostSlug, requestId } = data;
+    if ((this.state.projectName === name) && (this.context.host.slug === hostSlug)) {
+      this.context.router.transitionTo('container-creating',
+        { hostSlug },
+        { name, requestId });
+    }
+  };
+
+  onContainerCreateFailed = (data) => {
+    const { name, hostSlug } = data;
+    if ((this.state.projectName === name) && (this.context.host.slug === hostSlug)) {
+      this.setState({ creating: false });
+    }
   };
 
   handleTemplateSelection = (template) => {
@@ -141,48 +163,29 @@ export default class NewContainer extends React.Component {
 
     this.setState({ creating: true });
 
-    const { projectName, selectedImage, selectedImageType } = this.state,
+    const { projectName, selectedImage, selectedImageType, selectedSnapshot } = this.state,
           { host } = this.context,
-          publishAllPorts = true;
+          publishAll = true;
     let template = null,
         privileged = false,
-        updateImage = false;
+        skipPull = false;
 
-    switch (selectedImageType) {
-      case imageTypeTemplate: {
-        template = templateStore.templates.find((t) => t.image === selectedImage);
-        privileged = template.privileged;
-        updateImage = true;
-        break;
-      }
-      case imageTypeRepo: {
-        updateImage = true;
-        break;
-      }
+    if (selectedImageType === imageTypeTemplate) {
+      template = templateStore.templates.find((t) => t.image === selectedImage);
+      privileged = template.privileged;
+    }
+    if (selectedImageType === imageTypeLocalSnapshot) {
+      skipPull = true;
     }
 
-    switch (selectedImageType) {
-      case imageTypeTemplate:
-      case imageTypeLocalSnapshot:
-      case imageTypeRepo: {
-        containerActions.create(
-          projectName, selectedImage, template, host, updateImage, privileged, publishAllPorts
-        ).then((imageId) => {
-          this.context.router.transitionTo('container-creating',
-            { hostSlug: host.slug },
-            { name: projectName, imageId });
-        }).catch(() => {
-          this.setState({ creating: false });
-        });
-      }
-      case imageTypeTeamSnapshot: {
-        const { selectedSnapshot } = this.state;
-
-        console.log('create from team snapshot', selectedSnapshot);
-
-        break;
-      }
-    }
+    containerActions.createAtomic(projectName, host, {
+      imageRepo: selectedImage,
+      template,
+      snapshot: selectedSnapshot,
+      privileged,
+      publishAll,
+      skipPull
+    });
   };
 
   isValid() {
