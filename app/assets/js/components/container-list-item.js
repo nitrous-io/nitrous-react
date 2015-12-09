@@ -6,10 +6,12 @@ import Container from 'records/container';
 import containerActions from 'actions/container-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import ContainerState from 'components/container-state';
+import Template from 'records/template';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import SnapshotContainer from 'components/snapshot-container';
+import templateStore from 'stores/template-store';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -25,7 +27,20 @@ export default class ContainerListItem extends React.Component {
 
   state = {
     slugConfirmation: null, // slug entered by user in the termination confirmation dialog
-    showSnapshotModal: false
+    showSnapshotModal: false,
+    templates: templateStore.templates
+  };
+
+  componentDidMount() {
+    templateStore.onChange(this.templateStoreDidChange);
+  }
+
+  componentWillUnmount() {
+    templateStore.offChange(this.templateStoreDidChange);
+  }
+
+  templateStoreDidChange = () => {
+    this.setState({ templates: templateStore.templates });
   };
 
   handleStop = () => {
@@ -66,6 +81,16 @@ export default class ContainerListItem extends React.Component {
     snackbarActions.post('Snapshot successfully created.');
   }
 
+  getTemplate(container) {
+    const { templates } = this.state;
+    if (container && container.image && templates) {
+      return templates.find((t) => {
+        return t.image === container.image;
+      });
+    }
+    return null;
+  }
+
   render() {
     const { container, host } = this.props,
           { showSnapshotModal } = this.state,
@@ -80,17 +105,27 @@ export default class ContainerListItem extends React.Component {
             makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug })),
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
-            makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug }));
+            makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
+          template = container ? this.getTemplate(container) : null;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
         <div className='ui-card'>
           <div className='ui-card-body'>
-            <h4>{container.displayName}</h4>
-            <div className='info'>
-              <ContainerState state={container.state} />
-              <SelectableText className='slug'>{container.slug}</SelectableText>
-            </div>
+            <Col lg={3} md={3} sm={3} xs={2}>
+            {template ? (
+              <div className='template-icon' style={{ backgroundImage: `url(${template.iconUrl})` }}></div>
+            ) : (
+              <div className='default-template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}></div>
+            )}
+            </Col>
+            <Col lg={9} md={9} sm={9} xs={10}>
+              <h4>{container.displayName}</h4>
+              <div className='info'>
+                <ContainerState state={container.state} />
+                <SelectableText className='slug'>{container.slug}</SelectableText>
+              </div>
+            </Col>
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
                 <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState} id={`container-actions-${container.id}`}>
