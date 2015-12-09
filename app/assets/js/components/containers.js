@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Alert } from 'react-bootstrap';
 
 import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
@@ -12,6 +13,7 @@ import ContainerList from 'components/container-list';
 import ContextSwitcher from 'components/context-switcher';
 import HostNav from 'components/host-nav';
 import LoadingIndicator from 'components/loading-indicator';
+import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 
@@ -103,7 +105,8 @@ export default class Containers extends React.Component {
           { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
-          loading = host.isResuming;
+          loading = host.isResuming,
+          troubleshootURL = 'https://community.nitrous.io/docs/troubleshooting-connection-issues';
 
     if (loading) {
       return (
@@ -117,6 +120,11 @@ export default class Containers extends React.Component {
     return (
       <div className='containers-component container'>
         <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
+        {host.isUnusable ? (
+          <Alert bsStyle='info'>
+            <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href={troubleshootURL} target='_blank'>Troubleshooting Connection Issues</a>.
+          </Alert>
+        ) : ''}
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
