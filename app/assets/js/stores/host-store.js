@@ -180,6 +180,12 @@ class HostStore extends Store {
     });
   }
 
+  get orgHosts() {
+    return this._hosts.filter((h) => {
+      return h.orgId && h.isActive && !h.shared;
+    });
+  }
+
   hostsBySubSlug(subSlug) {
     return this._subHosts.get(subSlug) || OrderedMap();
   }
