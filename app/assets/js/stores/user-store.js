@@ -52,8 +52,11 @@ class UserStore extends Store {
         this.emit('profile-update-failed');
         return;
       }
-      case 'user.dismiss-first-time-failed':
-      // no-op: user doesn't need to see error message if we could not update backend
+      case 'user.dismiss-first-time-failed': {
+        // temporarily set firstTime value to prevent disruptive onboarding message.
+        this._user = this._user.set('firstTime', false);
+        break;
+      }
       default: return;
     }
     this.notifyChange();
