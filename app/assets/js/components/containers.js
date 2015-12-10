@@ -120,7 +120,7 @@ export default class Containers extends React.Component {
     return (
       <div className='containers-component container'>
         <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
-        {host.isUnusable ? (
+        {host.isUnusable && !host.isResuming ? (
           <Alert bsStyle='info'>
             <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href={troubleshootURL} target='_blank'>Troubleshooting Connection Issues</a>.
           </Alert>
