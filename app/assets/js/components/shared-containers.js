@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert, Grid, Row, Col, Thumbnail } from 'react-bootstrap';
 
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
@@ -12,11 +12,7 @@ import Fa from 'components/fa';
 
 const communityURL = 'https://community.nitrous.io',
       pairProgramURL = communityURL + '/tutorials/conducting-interviews-pair-programming',
-      tmuxURL = communityURL + '/tutorials/getting-started-with-tmux',
-      baseImagesURL = 'https://s3.amazonaws.com/nitrous-community/images/',
-      selectCollabURL = baseImagesURL + 'pair_dashboard_select_collab.png',
-      addedCollabURL = baseImagesURL + 'pair_added_collab.png',
-      liveEditURL = baseImagesURL + 'pair_live_edit.png';
+      tmuxURL = communityURL + '/tutorials/getting-started-with-tmux';
 
 export default class SharedContainers extends React.Component {
   displayName = 'SharedContainers';
@@ -75,22 +71,33 @@ export default class SharedContainers extends React.Component {
         <div className='container'>
           <ContextSwitcher shared />
           {containers.isEmpty() ? (
-            <div className='intro-guide'>
+            <div className='shared-intro-guide'>
               <Alert bsStyle="info">
                 <Fa icon='exclamation-circle' /> Oops, it appears you don&#39;t have any shared projects
               </Alert>
 
-              <h2>What are Shared Projects?</h2>
-              <p>Shared projects allow you to collaborate with one or more users on a single Nitrous project.</p>
-
-              <h2>How do I view shared projects?</h2>
-              <p>You need to be added to a project as a collaborator. To add a collaborator, the owner of a project can go to their project&#39;s settings and add the user:</p>
-              <img src={selectCollabURL} alt="select_collab" />
-              <img src={addedCollabURL} alt="added_collab" />
-
-              <h2>How does it work?</h2>
-              <p>Open your Nitrous web IDE and start editing files in real time with your collaborator:</p>
-              <img src={liveEditURL} alt="live_edit" />
+              <Grid className='ui-card-grid'>
+                <Row>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/add-collab.png' className='shared-intro-thumbnail'>
+                      <h3>Adding Collaborators</h3>
+                      <p>On your project dashboard, select <strong>Manage Collaborators</strong> from <strong>Settings</strong>.</p>
+                    </Thumbnail>
+                  </Col>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/manage-collab.png' className='shared-intro-thumbnail'>
+                      <h3>Managing Collaborators</h3>
+                      <p>You can add or remove collaborators with one click.</p>
+                    </Thumbnail>
+                  </Col>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/live-edit.png' className='shared-intro-thumbnail'>
+                      <h3>Code Together</h3>
+                      <p>Launch the Web IDE and code together in real-time.</p>
+                    </Thumbnail>
+                  </Col>
+                </Row>
+              </Grid>
 
               <h2>More information</h2>
               <p>Visit our tutorials to find out more about collaborating on Nitrous:</p>
