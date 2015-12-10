@@ -147,6 +147,18 @@ class UserActions {
       data: params
     });
   }
+
+  dismissFirstTime() {
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/user/dismiss_first_time'
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.dismiss-first-time-failed',
+        data: { jqxhr }
+      });
+    });
+  }
 }
 
 export default new UserActions();

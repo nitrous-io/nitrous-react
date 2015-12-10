@@ -21,6 +21,7 @@ export default class ContextSwitcher extends React.Component {
   static propTypes = {
     selectedHost: PropTypes.instanceOf(Host),
     selectedOrg: PropTypes.instanceOf(Org),
+    showTooltip: PropTypes.bool,
     shared: PropTypes.bool
   }
 
@@ -78,7 +79,7 @@ export default class ContextSwitcher extends React.Component {
   };
 
   render() {
-    const { selectedHost } = this.props,
+    const { selectedHost, showTooltip } = this.props,
           { user, sharedContainerCount } = this.state,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
@@ -102,6 +103,9 @@ export default class ContextSwitcher extends React.Component {
         <span>
           <img className='gravatar' src={obj.gravatar(40)} />
           {obj.displayName}
+          {showTooltip ? (
+            <div className='pin context'></div>
+          ) : ''}
         </span>
       ) : '';
     };

@@ -7,6 +7,7 @@ import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
 import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
+import OnboardingModal from 'components/onboarding-modal';
 import ContainerList from 'components/container-list';
 import ContextSwitcher from 'components/context-switcher';
 import HostNav from 'components/host-nav';
@@ -21,10 +22,17 @@ export default class Containers extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired
   };
 
-  state = {
-    containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
-    announcements: announcementStore.announcementsByHostSlug(this.context.host.slug)
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
+      announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
+      showDashboardTooltip: false,
+      showContextTooltip: false,
+      showSettingsTooltip: false
+    };
+  }
 
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedProjects);
@@ -71,9 +79,28 @@ export default class Containers extends React.Component {
     }
   };
 
+  showRelevantTooltip = (slide) => {
+    let showDashboardTooltip = false,
+        showContextTooltip = false,
+        showSettingsTooltip = false;
+
+    switch (slide) {
+      case 'dashboard': { showDashboardTooltip = true; break; }
+      case 'context': { showContextTooltip = true; break; }
+      case 'settings': { showSettingsTooltip = true; break; }
+      default: { break; }
+    }
+
+    this.setState({
+      showDashboardTooltip,
+      showContextTooltip,
+      showSettingsTooltip
+    });
+  };
+
   render() {
     const { host } = this.context,
-          { announcements } = this.state,
+          { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
           loading = host.isResuming;
@@ -89,12 +116,19 @@ export default class Containers extends React.Component {
 
     return (
       <div className='containers-component container'>
-        <ContextSwitcher selectedHost={host} />
+        <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
         ) : ''}
-        <ContainerList containers={containers} host={host} />
+
+        {showSettingsTooltip ? (
+          <div className='pin settings'></div>
+        ) : ''}
+
+        <ContainerList containers={containers} host={host} showTooltip={showDashboardTooltip} />
+
+        <OnboardingModal activeSlide={this.showRelevantTooltip} />
       </div>
     );
   }
