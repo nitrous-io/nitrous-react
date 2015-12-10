@@ -12,6 +12,10 @@ export default class FirstStart extends React.Component {
           orgs = orgStore.orgs;
 
     if (userHosts.size === 0 && orgs.size > 0) {
+      const orgHost = hostStore.orgHosts.first();
+      if (orgHost) {
+        return transition.redirect('host', { hostSlug: orgHost.slug });
+      }
       return transition.redirect('org', { orgSlug: orgs.first().slug });
     }
 

@@ -32,17 +32,17 @@ export default class HostNav extends React.Component {
   }
 
   render() {
-    const { activeTab } = this.props,
+    const { activeTab, host } = this.props,
           { advanced } = userStore;
 
     return (
       <div className='host-nav-component'>
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
-          <NavItem onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
-          <NavItem onSelect={this.handleSelectImagesTab} eventKey='images'>
+          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
+          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectImagesTab} eventKey='images'>
             {advanced ? 'Images' : 'Snapshots'}
           </NavItem>
-          <NavItem onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
+          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
         </Nav>
       </div>
     );

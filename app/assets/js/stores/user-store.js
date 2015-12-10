@@ -52,6 +52,11 @@ class UserStore extends Store {
         this.emit('profile-update-failed');
         return;
       }
+      case 'user.dismiss-first-time-failed': {
+        // temporarily set firstTime value to prevent disruptive onboarding message.
+        this._user = this._user.set('firstTime', false);
+        break;
+      }
       default: return;
     }
     this.notifyChange();

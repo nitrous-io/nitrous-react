@@ -1,4 +1,6 @@
 import React from 'react';
+import { Alert, Grid, Row, Col, Thumbnail } from 'react-bootstrap';
+
 import containerStore from 'stores/container-store';
 import containerActions from 'actions/container-actions';
 import collaboratorStore from 'stores/collaborator-store';
@@ -6,6 +8,11 @@ import userStore from 'stores/user-store';
 import snackbarActions from 'actions/snackbar-actions';
 import ContextSwitcher from 'components/context-switcher';
 import ContainerList from 'components/container-list';
+import Fa from 'components/fa';
+
+const communityURL = 'https://community.nitrous.io',
+      pairProgramURL = communityURL + '/tutorials/conducting-interviews-pair-programming',
+      tmuxURL = communityURL + '/tutorials/getting-started-with-tmux';
 
 export default class SharedContainers extends React.Component {
   displayName = 'SharedContainers';
@@ -63,7 +70,45 @@ export default class SharedContainers extends React.Component {
       <div className='shared-containers-component'>
         <div className='container'>
           <ContextSwitcher shared />
-          <ContainerList containers={containers} />
+          {containers.isEmpty() ? (
+            <div className='shared-intro-guide'>
+              <Alert bsStyle="info">
+                <Fa icon='exclamation-circle' /> Oops, it appears you don&#39;t have any shared projects
+              </Alert>
+
+              <Grid className='ui-card-grid'>
+                <Row>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/add-collab.png' className='shared-intro-thumbnail'>
+                      <h3>Adding Collaborators</h3>
+                      <p>On your project dashboard, select <strong>Manage Collaborators</strong> from <strong>Settings</strong>.</p>
+                    </Thumbnail>
+                  </Col>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/manage-collab.png' className='shared-intro-thumbnail'>
+                      <h3>Managing Collaborators</h3>
+                      <p>You can add or remove collaborators with one click.</p>
+                    </Thumbnail>
+                  </Col>
+                  <Col lg={4} md={4} sm={6} xs={6}>
+                    <Thumbnail src='/assets/images/live-edit.png' className='shared-intro-thumbnail'>
+                      <h3>Code Together</h3>
+                      <p>Launch the Web IDE and code together in real-time.</p>
+                    </Thumbnail>
+                  </Col>
+                </Row>
+              </Grid>
+
+              <h2>More information</h2>
+              <p>Visit our tutorials to find out more about collaborating on Nitrous:</p>
+              <ol>
+                <li><a href={pairProgramURL} target='_blank'>Pair programming on Nitrous</a></li>
+                <li><a href={tmuxURL} target='_blank'>Setting up tmux</a></li>
+              </ol>
+            </div>
+          ) : (
+            <ContainerList containers={containers} shared />
+          )}
         </div>
       </div>
     );

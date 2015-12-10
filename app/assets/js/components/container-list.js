@@ -3,6 +3,7 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
+import templateActions from 'actions/template-actions';
 import Container from 'records/container';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
@@ -17,7 +18,9 @@ export default class ContainerList extends React.Component {
 
   static propTypes = {
     containers: ImmutablePropTypes.listOf(PropTypes.instanceOf(Container)),
-    host: PropTypes.instanceOf(Host)
+    host: PropTypes.instanceOf(Host),
+    shared: PropTypes.bool,
+    showTooltip: PropTypes.bool
   };
 
   state = {
@@ -26,6 +29,8 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+
+    templateActions.fetchAll();
   }
 
   componentWillUnmount() {
@@ -40,7 +45,7 @@ export default class ContainerList extends React.Component {
     const { containers, host } = this.props,
           { user } = this.state;
 
-    if (!host) {
+    if (!host || !containers) {
       return false;
     }
 
@@ -54,16 +59,27 @@ export default class ContainerList extends React.Component {
       return true;
     }
 
-
     return containers.size < containerLimit;
   }
 
   handleClickNewContainer = () => {
-    this.context.router.transitionTo('new-container', { hostSlug: this.props.host.slug });
+    const host = this.props.host;
+    if (!host) {
+      return;
+    }
+    if (!this.canCreateContainer() && !host.orgId) {
+      this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug }, { prev: 'container-list'});
+      return;
+    }
+    this.context.router.transitionTo('new-container', { hostSlug: host.slug });
   };
 
   render() {
-    const { containers, host } = this.props;
+    const { containers, host, shared, showTooltip } = this.props,
+          isOrg = host && host.orgId,
+          // If cannot create container, hide plus sign if under org, but
+          // show plus sign if individual sub to prompt upgrade.
+          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared;
 
     return (
       <div className='container-list-component'>
@@ -78,10 +94,13 @@ export default class ContainerList extends React.Component {
                   container={container}
                   host={host} />);
               })}
-              {this.canCreateContainer() ? (
+              {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
+                    {showTooltip ? (
+                      <div className='pin dashboard'></div>
+                    ) : ''}
                   </Button>
                 </Col>
               ) : ''}
