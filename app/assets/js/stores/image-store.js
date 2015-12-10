@@ -78,7 +78,9 @@ class ImageStore extends Store {
         break;
       }
       case 'image.fetch-all-by-host-slug-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
+        const { jqxhr, hostSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('fetch-all-by-host-slug-failed', { hostSlug });
         break;
       }
       // from events-socket

@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import ImmutablePropTypes from 'react-immutable-proptypes';
-import { Grid, Row } from 'react-bootstrap';
+import { Alert, Button, Grid, Row } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import Host from 'records/host';
@@ -19,33 +18,55 @@ export default class TeamSnapshotList extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
     snapshotId: PropTypes.number,
-    snapshots: ImmutablePropTypes.mapOf(PropTypes.instanceOf(Snapshot)),
     selectMode: PropTypes.bool,
     selectedSnapshot: PropTypes.instanceOf(Snapshot),
     onSelect: PropTypes.func
   }
 
   state = {
-    snapshots: snapshotStore.snapshotsByOrgSlug(this.props.org.slug)
+    snapshots: snapshotStore.snapshotsByOrgSlug(this.props.org.slug),
+    failed: false
   }
 
   componentDidMount() {
     snapshotStore.onChange(this.snapshotStoreDidChange);
+    snapshotStore.on('fetch-all-by-org-slug-failed', this.onSnapshotStoreFetchFailed);
     snapshotActions.fetchAllByOrgSlug(this.props.org.slug);
   }
 
   componentWillUnmount() {
     snapshotStore.offChange(this.snapshotStoreDidChange);
+    snapshotStore.off('fetch-all-by-org-slug-failed', this.onSnapshotStoreFetchFailed);
   }
 
   snapshotStoreDidChange = () => {
     this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(this.props.org.slug) });
-  };
+  }
+
+  onSnapshotStoreFetchFailed = () => {
+    this.setState({ failed: true });
+  }
+
+  handleRetry = () => {
+    snapshotActions.fetchAllByOrgSlug(this.props.org.slug);
+    this.setState({ failed: false });
+  }
 
   render() {
     const { selectMode, selectedSnapshot, onSelect } = this.props,
-          { snapshots } = this.state,
+          { snapshots, failed } = this.state,
           loading = snapshots == null;
+
+    if (failed) {
+      return (
+        <div className='snapshot-list-component team'>
+          <Alert bsStyle='danger'>
+            <p>There was an error loading snapshots.</p>
+            <p><Button onClick={this.handleRetry}>Retry</Button></p>
+          </Alert>
+        </div>
+      );
+    }
 
     if (loading) {
       return (

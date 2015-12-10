@@ -1,10 +1,8 @@
 import React, { PropTypes } from 'react';
-import ImmutablePropTypes from 'react-immutable-proptypes';
-import { Grid, Row } from 'react-bootstrap';
+import { Alert, Button, Grid, Row } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import Host from 'records/host';
-import Image from 'records/image';
 import imageActions from 'actions/image-actions';
 import orgActions from 'actions/org-actions';
 import imageStore from 'stores/image-store';
@@ -18,7 +16,6 @@ export default class LocalSnapshotList extends React.Component {
 
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
-    snapshots: ImmutablePropTypes.mapOf(PropTypes.instanceOf(Image)),
     selectMode: PropTypes.bool,
     selectedSnapshotRepo: PropTypes.string,
     onSelect: PropTypes.func
@@ -34,7 +31,8 @@ export default class LocalSnapshotList extends React.Component {
 
     this.state = {
       org,
-      snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug)
+      snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug),
+      failed: false
     };
   }
 
@@ -45,6 +43,7 @@ export default class LocalSnapshotList extends React.Component {
     }
 
     imageStore.onChange(this.imageStoreDidChange);
+    imageStore.on('fetch-all-by-host-slug-failed', this.onImageStoreFetchFailed);
     imageActions.fetchAllByHostSlug(this.props.host.slug);
   }
 
@@ -53,6 +52,7 @@ export default class LocalSnapshotList extends React.Component {
       orgStore.offChange(this.orgStoreDidChange);
     }
     imageStore.offChange(this.imageStoreDidChange);
+    imageStore.off('fetch-all-by-host-slug-failed', this.onImageStoreFetchFailed);
   }
 
   orgStoreDidChange = () => {
@@ -65,12 +65,32 @@ export default class LocalSnapshotList extends React.Component {
 
   imageStoreDidChange = () => {
     this.setState({ snapshots: imageStore.snapshotsByHostSlug(this.props.host.slug) });
-  };
+  }
+
+  onImageStoreFetchFailed = () => {
+    this.setState({ failed: true });
+  }
+
+  handleRetry = () => {
+    imageActions.fetchAllByHostSlug(this.props.host.slug);
+    this.setState({ failed: false });
+  }
 
   render() {
     const { selectMode, selectedSnapshotRepo, onSelect } = this.props,
-          { org, snapshots } = this.state,
+          { org, snapshots, failed } = this.state,
           loading = snapshots == null;
+
+    if (failed) {
+      return (
+        <div className='snapshot-list-component local'>
+          <Alert bsStyle='danger'>
+            <p>There was an error loading snapshots on this workstation.</p>
+            <p><Button onClick={this.handleRetry}>Retry</Button></p>
+          </Alert>
+        </div>
+      );
+    }
 
     if (loading) {
       return (
@@ -83,7 +103,7 @@ export default class LocalSnapshotList extends React.Component {
     if (!snapshots || snapshots.size === 0) {
       return (
         <div className='snapshot-list-component local'>
-          <p>There are no snapshots.</p>
+          <p>There are no snapshots on this workstation.</p>
         </div>
       );
     }
