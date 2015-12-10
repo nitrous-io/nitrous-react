@@ -82,7 +82,7 @@ export default class ContainerList extends React.Component {
               })}
               {this.canCreateContainer() ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
                   </Button>
                 </Col>
