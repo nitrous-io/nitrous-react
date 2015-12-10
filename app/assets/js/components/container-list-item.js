@@ -112,20 +112,16 @@ export default class ContainerListItem extends React.Component {
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
         <div className='ui-card'>
           <div className='ui-card-body'>
-            <Col lg={3} md={3} sm={3} xs={2}>
             {template ? (
               <div className='template-icon' style={{ backgroundImage: `url(${template.iconUrl})` }}></div>
             ) : (
               <div className='default-template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}></div>
             )}
-            </Col>
-            <Col lg={9} md={9} sm={9} xs={10}>
-              <h4>{container.displayName}</h4>
-              <div className='info'>
-                <ContainerState state={container.state} />
-                <SelectableText className='slug'>{container.slug}</SelectableText>
-              </div>
-            </Col>
+            <h4>{container.displayName}</h4>
+            <div className='info'>
+              <ContainerState state={container.state} />
+              <SelectableText className='slug'>{container.slug}</SelectableText>
+            </div>
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
                 <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || host.isUnusable} id={`container-actions-${container.id}`}>
