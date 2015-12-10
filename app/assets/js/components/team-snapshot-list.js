@@ -53,7 +53,7 @@ export default class TeamSnapshotList extends React.Component {
   }
 
   render() {
-    const { selectMode, selectedSnapshot, onSelect } = this.props,
+    const { host, org, selectMode, selectedSnapshot, onSelect } = this.props,
           { snapshots, failed } = this.state,
           loading = snapshots == null;
 
@@ -99,7 +99,7 @@ export default class TeamSnapshotList extends React.Component {
               } else {
                 return (
                   <TeamSnapshotListItem key={`snapshot-${snapshot.id}`}
-                    host={this.props.host} snapshot={snapshot}
+                    host={host} snapshot={snapshot} org={org}
                     focus={snapshot.id === this.props.snapshotId} />
                 );
               }

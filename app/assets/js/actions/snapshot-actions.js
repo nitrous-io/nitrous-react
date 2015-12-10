@@ -45,6 +45,26 @@ class SnapshotActions {
     });
     return promise;
   }
+
+  delete(orgSlug, snapshotId) {
+    const promise = authedAjax({
+      type: 'DELETE',
+      url: `/api/v0/orgs/${orgSlug}/snapshots/${snapshotId}`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'snapshot.deleted',
+        data: { data, orgSlug, snapshotId }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'snapshot.delete-failed',
+        data: { jqxhr, orgSlug, snapshotId }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new SnapshotActions();

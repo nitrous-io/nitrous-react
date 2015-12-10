@@ -14,7 +14,6 @@ class SnapshotStore extends Store {
         const snapshots = OrderedSet(data.snapshots.map(function(d) {
           return Snapshot.deserialize(d);
         }));
-
         const sorted = snapshots.sortBy((a) => a.createdAt).reverse();
 
         this._snapshotsByOrgSlug = this._snapshotsByOrgSlug.set(orgSlug, sorted);
@@ -31,6 +30,24 @@ class SnapshotStore extends Store {
         const { jqxhr, orgSlug, hostId, imageId } = action.data;
         this._lastError = jqxhr.errorMessage;
         this.emit('publish-failed', { orgSlug, hostId, imageId });
+        break;
+      }
+      case 'snapshot.deleted': {
+        const { orgSlug, snapshotId } = action.data;
+
+        let snapshots = this._snapshotsByOrgSlug.get(orgSlug) || OrderedSet();
+        snapshots = snapshots.filter((a) => a.id !== snapshotId);
+        const sorted = snapshots.sortBy((a) => a.createdAt).reverse();
+
+        this._snapshotsByOrgSlug = this._snapshotsByOrgSlug.set(orgSlug, sorted);
+        this._lastError = null;
+        this.emit('deleted', { orgSlug, snapshotId });
+        break;
+      }
+      case 'snapshot.delete-failed': {
+        const { jqxhr, orgSlug, snapshotId } = action.data;
+        this._lastError = jqxhr.errorMessage;
+        this.emit('delete-failed', { orgSlug, snapshotId });
         break;
       }
       case 'events:snapshot.published': {
