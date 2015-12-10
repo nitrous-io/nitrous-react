@@ -1,6 +1,9 @@
 import React, { PropTypes } from 'react';
 import { Nav, NavItem } from 'react-bootstrap';
+
 import Host from 'records/host';
+import orgActions from 'actions/org-actions';
+import orgStore from 'stores/org-store';
 
 export default class HostNav extends React.Component {
   displayName = 'HostNav';
@@ -17,6 +20,27 @@ export default class HostNav extends React.Component {
   static defaultProps = {
     activeTab: 'containers'
   };
+
+  state = {
+    org: this.props.host.orgId ? orgStore.orgByOrgId(this.props.host.orgId) : null
+  };
+
+  componentDidMount() {
+    if (this.props.host.orgId) {
+      orgStore.onChange(this.orgStoreDidChange);
+      orgActions.fetchAll();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.host.orgId) {
+      orgStore.offChange(this.orgStoreDidChange);
+    }
+  }
+
+  orgStoreDidChange = () => {
+    this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
+  }
 
   handleSelectContainersTab = () => {
     this.context.router.transitionTo('containers', { hostSlug: this.props.host.slug });
@@ -35,14 +59,15 @@ export default class HostNav extends React.Component {
   }
 
   render() {
-    const { activeTab, host } = this.props;
+    const { activeTab, host } = this.props,
+          { org } = this.state;
 
     return (
       <div className='host-nav-component'>
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
           <NavItem disabled={host.isUnusable} onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
           <NavItem disabled={host.isUnusable} onSelect={this.handleSelectMySnapshotsTab} eventKey='local-snapshots'>My Snapshots</NavItem>
-          {host.orgId ? (
+          {org && org.roleAllowsSnapshotRead ? (
             <NavItem disabled={host.isUnusable} onSelect={this.handleSelectTeamSnapshotsTab} eventKey='team-snapshots'>Team Snapshots</NavItem>
           ) : ''}
           <NavItem disabled={host.isUnusable} onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>

@@ -81,7 +81,8 @@ export default class TeamSnapshotListItem extends React.Component {
   render() {
     const { snapshot, org, focus } = this.props,
           { user, processing } = this.state,
-          isSelf = snapshot.ownerUsername === user.username;
+          isOwner = snapshot.ownerUsername === user.username,
+          deleteAllowed = isOwner || org.roleAllowsSnapshotDelete;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12}
@@ -102,7 +103,7 @@ export default class TeamSnapshotListItem extends React.Component {
             <div className='owner'>
               <OverlayTrigger placement='top'
                 overlay={<Tooltip id={`snapshot-${snapshot.id}-owner-tooltip`}>
-                  Created by {isSelf ? 'you' : snapshot.ownerDisplayName}</Tooltip>}>
+                  Created by {isOwner ? 'you' : snapshot.ownerDisplayName}</Tooltip>}>
                 <img className='gravatar' src={snapshot.ownerGravatar(40)} />
               </OverlayTrigger>
             </div>
@@ -113,33 +114,37 @@ export default class TeamSnapshotListItem extends React.Component {
               </div>
             ) : ''}
 
-            <ButtonToolbar className='buttons'>
-              <DropdownButton noCaret className='borderless' id={`snapshot-actions-${snapshot.id}`}
-                title={<Fa icon='ellipsis-v' />}>
-                <MenuItem onSelect={this.handleDelete}>
-                  <Fa icon='trash' /> Delete
-                </MenuItem>
-              </DropdownButton>
-            </ButtonToolbar>
+            {deleteAllowed ? (
+              <ButtonToolbar className='buttons'>
+                <DropdownButton noCaret className='borderless' id={`snapshot-actions-${snapshot.id}`}
+                  title={<Fa icon='ellipsis-v' />}>
+                  <MenuItem onSelect={this.handleDelete}>
+                    <Fa icon='trash' /> Delete
+                  </MenuItem>
+                </DropdownButton>
+              </ButtonToolbar>
+            ) : ''}
           </div>
         </div>
 
-        <Modal show={this.state.showDeleteModal} onHide={this.hideDeleteModal}>
-          <Modal.Header>
-            <Modal.Title>Delete Snapshot</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p><strong>{snapshot.displayName}</strong> will be deleted will no longer be available to other members of <strong>{org.displayName}</strong>.</p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={this.handleDeleteModalCancel}>Cancel</Button>
-            <Button bsStyle='danger'
-              disabled={processing}
-              onClick={processing ? null : this.handleDeleteModalOK}>
-              {processing ? 'Deleting...' : 'Delete'}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        {deleteAllowed ? (
+          <Modal show={this.state.showDeleteModal} onHide={this.hideDeleteModal}>
+            <Modal.Header>
+              <Modal.Title>Delete Snapshot</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p><strong>{snapshot.displayName}</strong> will be deleted and will no longer be available to other members of <strong>{org.displayName}</strong>.</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.handleDeleteModalCancel}>Cancel</Button>
+              <Button bsStyle='danger'
+                disabled={processing}
+                onClick={processing ? null : this.handleDeleteModalOK}>
+                {processing ? 'Deleting...' : 'Delete'}
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        ) : ''}
       </Col>
     );
   }

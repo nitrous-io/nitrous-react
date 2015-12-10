@@ -54,6 +54,18 @@ export default class Org extends Record({
     return this.role === 'owner' || this.role === 'admin';
   }
 
+  get roleAllowsSnapshotRead() {
+    return this.role === 'owner' || this.role === 'admin' || this.role === 'member';
+  }
+
+  get roleAllowsSnapshotPublish() {
+    return this.role === 'owner' || this.role === 'admin' || this.role === 'member';
+  }
+
+  get roleAllowsSnapshotDelete() {
+    return this.role === 'owner' || this.role === 'admin';
+  }
+
   get canLeave() {
     return this.role === 'member' || this.role === 'admin';
   }

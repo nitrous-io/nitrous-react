@@ -133,7 +133,8 @@ export default class LocalSnapshotListItem extends React.Component {
 
   render() {
     const { org, snapshot } = this.props,
-          { processing, publishError } = this.state;
+          { processing, publishError } = this.state,
+          shareAllowed = org && org.roleAllowsSnapshotPublish;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='local-snapshot-list-item-component snapshot-list-item'>
@@ -157,7 +158,7 @@ export default class LocalSnapshotListItem extends React.Component {
             <ButtonToolbar className='buttons'>
               <DropdownButton noCaret className='borderless' id={`snapshot-actions-${snapshot.id}`}
                 title={<Fa icon='ellipsis-v' />}>
-                {org ? (
+                {shareAllowed ? (
                   <MenuItem onSelect={this.handleShare}>
                     <Fa icon='cloud-upload' /> Share with Team
                   </MenuItem>
@@ -170,7 +171,7 @@ export default class LocalSnapshotListItem extends React.Component {
           </div>
         </div>
 
-        {org ? (
+        {shareAllowed ? (
           <Modal show={this.state.showShareModal} onHide={this.hideShareModal}>
             <Modal.Header>
               <Modal.Title>Share Snapshot with Team</Modal.Title>
