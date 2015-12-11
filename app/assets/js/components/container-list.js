@@ -96,7 +96,7 @@ export default class ContainerList extends React.Component {
               })}
               {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' disabled={host.isUnusable} onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={host && host.isUnusable} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
                     {showTooltip ? (
                       <div className='pin dashboard'></div>
