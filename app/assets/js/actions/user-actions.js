@@ -152,6 +152,11 @@ class UserActions {
     return authedAjax({
       type: 'POST',
       url: '/api/v0/user/dismiss_first_time'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.dismissed-first-time',
+        data: { data }
+      });
     }).catch((jqxhr) => {
       dispatcher.dispatch({
         type: 'user.dismiss-first-time-failed',

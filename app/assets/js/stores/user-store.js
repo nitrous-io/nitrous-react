@@ -52,6 +52,12 @@ class UserStore extends Store {
         this.emit('profile-update-failed');
         return;
       }
+      case 'user.dismissed-first-time': {
+        const { data } = action.data;
+        this._user = User.deserialize(data.user);
+        this._lastError = null;
+        break;
+      }
       case 'user.dismiss-first-time-failed': {
         // temporarily set firstTime value to prevent disruptive onboarding message.
         this._user = this._user.set('firstTime', false);
