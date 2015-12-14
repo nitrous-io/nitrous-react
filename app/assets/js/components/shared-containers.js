@@ -79,19 +79,19 @@ export default class SharedContainers extends React.Component {
               <Grid className='ui-card-grid'>
                 <Row>
                   <Col lg={4} md={4} sm={6} xs={6}>
-                    <Thumbnail src='/assets/images/add-collab.png' className='shared-intro-thumbnail'>
+                    <Thumbnail src='/app/assets/images/add-collab.png' className='shared-intro-thumbnail'>
                       <h3>Adding Collaborators</h3>
                       <p>On your project dashboard, select <strong>Manage Collaborators</strong> from <strong>Settings</strong>.</p>
                     </Thumbnail>
                   </Col>
                   <Col lg={4} md={4} sm={6} xs={6}>
-                    <Thumbnail src='/assets/images/manage-collab.png' className='shared-intro-thumbnail'>
+                    <Thumbnail src='/app/assets/images/manage-collab.png' className='shared-intro-thumbnail'>
                       <h3>Managing Collaborators</h3>
                       <p>You can add or remove collaborators with one click.</p>
                     </Thumbnail>
                   </Col>
                   <Col lg={4} md={4} sm={6} xs={6}>
-                    <Thumbnail src='/assets/images/live-edit.png' className='shared-intro-thumbnail'>
+                    <Thumbnail src='/app/assets/images/live-edit.png' className='shared-intro-thumbnail'>
                       <h3>Code Together</h3>
                       <p>Launch the Web IDE and code together in real-time.</p>
                     </Thumbnail>
