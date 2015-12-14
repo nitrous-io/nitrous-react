@@ -66,4 +66,19 @@ export default class Plan extends Record({
   get priceDollars() {
     return this.price / 100.0;
   }
+
+  get isStandard() {
+    const planTypeRe = /standard/;
+    return this.slug.match(planTypeRe);
+  }
+
+  get isBasic() {
+    const planTypeRe = /basic/;
+    return this.slug.match(planTypeRe);
+  }
+
+  get isPlus() {
+    const planTypeRe = /plus/;
+    return this.slug.match(planTypeRe);
+  }
 }
