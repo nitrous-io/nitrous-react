@@ -72,11 +72,12 @@ class PlanStore extends Store {
     }
 
     const currentPlanPrice = plan.price;
+    const planTypeRe = /basic|standard|plus/;
+    const currentPlanType = plan.slug.match(planTypeRe);
     return scope.filter((p) => {
       // when a user's existing plan type has a price change, filter the same
       // plan from being offered in upgrades
-      const r = /basic|standard|plus/;
-      if (plan.slug.match(r) === p.slug.match(r) && plan.slug.match(r) !== null) {
+      if (currentPlanType !== null && JSON.stringify(currentPlanType) === JSON.stringify(p.slug.match(planTypeRe))) {
         return false;
       }
       return p.price > currentPlanPrice;
