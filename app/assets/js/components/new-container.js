@@ -42,6 +42,7 @@ export default class NewContainer extends React.Component {
     projectName: null,
     creating: false,
     templates: templateStore.templates,
+    selectedTab: 'templates',
     selectedImageType: imageTypeTemplate,
 
     // Either selectedImage or selectedSnapshot should be set.
@@ -97,6 +98,16 @@ export default class NewContainer extends React.Component {
     if ((this.state.projectName === name) && (this.context.host.slug === hostSlug)) {
       this.setState({ creating: false });
     }
+  };
+
+  handleTabSelected = (key) => {
+    // Clear selected image/snapshot when user changes tabs.
+    this.setState({
+      selectedTab: key,
+      selectedImageType: null,
+      selectedImage: null,
+      selectedSnapshot: null
+    });
   };
 
   handleTemplateSelection = (template) => {
@@ -198,7 +209,7 @@ export default class NewContainer extends React.Component {
 
   render() {
     const { org, projectName, creating, templates,
-            selectedImageType, selectedImage, selectedSnapshot } = this.state,
+            selectedImageType, selectedImage, selectedSnapshot, selectedTab } = this.state,
           { host } = this.context,
           { advanced } = userStore;
 
@@ -215,7 +226,9 @@ export default class NewContainer extends React.Component {
               buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
           </div>
 
-          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'>
+          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'
+            activeKey={selectedTab}
+            onSelect={this.handleTabSelected}>
             <Tab eventKey='templates' title='Nitrous Templates'>
               <Grid className='ui-card-grid'>
                 <Row>
