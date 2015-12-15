@@ -92,10 +92,17 @@ export default class PlanListItem extends React.Component {
   renderTemplateIcons() {
     const { plan } = this.props;
 
-    if (!plan
-        && !plan.isBasic
+    if (!plan) {
+      return;
+    }
+
+    if (!plan.isBasic
         && !plan.isStandard
         && !plan.isPlus) {
+      return;
+    }
+
+    if (plan.org) {
       return;
     }
 

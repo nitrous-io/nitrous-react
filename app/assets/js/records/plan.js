@@ -78,6 +78,9 @@ export default class Plan extends Record({
   }
 
   get isPlus() {
+    if (this.org) {
+      return false;
+    }
     const planTypeRe = /plus/;
     return this.slug.match(planTypeRe);
   }
