@@ -88,7 +88,7 @@ export default class Signup extends React.Component {
 
   loadPromoCode = (props=this.props) => {
     const { promo } = props.query;
-    if (promo) {
+    if (promo && promo !== 'null') {
       promocodeActions.fetchBySlug(promo);
     } else {
       this.setState({ promocode: null });
