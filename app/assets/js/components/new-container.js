@@ -236,11 +236,13 @@ export default class NewContainer extends React.Component {
                 onSelect={this.handleLocalSnapshotSelection} />
             </Tab>
 
-            <Tab eventKey='team-snapshots' title='Team Snapshots'>
-              <TeamSnapshotList selectMode host={host} org={org}
-                selectedSnapshot={selectedSnapshot}
-                onSelect={this.handleTeamSnapshotSelection} />
-            </Tab>
+            {org ? (
+              <Tab eventKey='team-snapshots' title='Team Snapshots'>
+                <TeamSnapshotList selectMode host={host} org={org}
+                  selectedSnapshot={selectedSnapshot}
+                  onSelect={this.handleTeamSnapshotSelection} />
+              </Tab>
+            ): ''}
 
             {advanced ? (
               <Tab eventKey='registries' title='Docker Repositories'>
