@@ -131,9 +131,41 @@ export default class LocalSnapshotListItem extends React.Component {
     imageActions.remove(this.props.host.slug, this.props.snapshot.id);
   }
 
+  renderShareModal() {
+    const { org, snapshot } = this.props,
+          { processing, publishError } = this.state;
+
+    return (
+      <Modal show={this.state.showShareModal} onHide={this.hideShareModal}>
+        <Modal.Header>
+          <Modal.Title>Share Snapshot with Team</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {publishError ? (
+            <Alert bsStyle='danger'>There was an error trying to publish your snapshot: {publishError}.</Alert>
+          ) : ''}
+
+          <p><strong>{snapshot.displayName}</strong> will be shared with members of your team in <strong>{org.name}</strong>.</p>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            onClick={this.handleShareModalCancel}
+            disabled={processing}>Cancel</Button>
+          <Button bsStyle='primary'
+            disabled={processing}
+            onClick={processing ? null : this.handleShareModalOK}>
+            {processing ? 'Sharing...' : 'Share with Team'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
   render() {
     const { org, snapshot } = this.props,
-          { processing, publishError } = this.state,
+          { processing } = this.state,
           shareAllowed = org && org.roleAllowsSnapshotPublish;
 
     return (
@@ -171,32 +203,7 @@ export default class LocalSnapshotListItem extends React.Component {
           </div>
         </div>
 
-        {shareAllowed ? (
-          <Modal show={this.state.showShareModal} onHide={this.hideShareModal}>
-            <Modal.Header>
-              <Modal.Title>Share Snapshot with Team</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-              {publishError ? (
-                <Alert bsStyle='danger'>There was an error trying to publish your snapshot: {publishError}.</Alert>
-              ) : ''}
-
-              <p><strong>{snapshot.displayName}</strong> will be shared with members of your team in <strong>{org.name}</strong>.</p>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button
-                onClick={this.handleShareModalCancel}
-                disabled={processing}>Cancel</Button>
-              <Button bsStyle='primary'
-                disabled={processing}
-                onClick={processing ? null : this.handleShareModalOK}>
-                {processing ? 'Sharing...' : 'Share with Team'}
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        ) : ''}
+        {shareAllowed ? this.renderShareModal() : ''}
 
         <Modal show={this.state.showDeleteModal} onHide={this.hideDeleteModal}>
           <Modal.Header>
