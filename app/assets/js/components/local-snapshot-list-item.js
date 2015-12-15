@@ -12,6 +12,7 @@ import snapshotActions from 'actions/snapshot-actions';
 import imageStore from 'stores/image-store';
 import snapshotStore from 'stores/snapshot-store';
 import Fa from 'components/fa';
+import Mp from 'lib/mp';
 
 export default class LocalSnapshotListItem extends React.Component {
   displayName = 'LocalSnapshotListItem';
@@ -76,6 +77,9 @@ export default class LocalSnapshotListItem extends React.Component {
 
     this.setState({ processing: false, showShareModal: false });
     snackbarActions.post(`Snapshot published!`);
+
+    Mp.increment('snapshots-published');
+
     this.context.router.transitionTo('team-snapshots',
       { hostSlug: this.props.host.slug },
       { snapshotId: snapshot.id });
