@@ -7,6 +7,7 @@ import Fa from 'components/fa';
 import format from 'lib/format';
 import Plan from 'records/plan';
 import promocodeStore from 'stores/promocode-store';
+import RecommendTemplateList from 'components/recommend-template-list';
 
 export default class PlanListItem extends React.Component {
   displayName = 'PlanListItem';
@@ -88,6 +89,28 @@ export default class PlanListItem extends React.Component {
     );
   }
 
+  renderTemplateIcons() {
+    const { plan } = this.props;
+
+    if (!plan) {
+      return;
+    }
+
+    if (!plan.isBasic
+        && !plan.isStandard
+        && !plan.isPlus) {
+      return;
+    }
+
+    if (plan.org) {
+      return;
+    }
+
+    return (
+      <RecommendTemplateList plan={plan} />
+    );
+  }
+
   render() {
     const { plan, selected, activeTrialEnd } = this.props,
           isTrialPlan = this.props.trialEligible && plan.trialPeriodDays > 0;
@@ -125,6 +148,7 @@ export default class PlanListItem extends React.Component {
               <li><span className='highlight'>{plan.memory}</span> Memory</li>
               <li><span className='highlight'>{plan.storage}</span> Storage</li>
               {this.renderTrialInfo()}
+              {this.renderTemplateIcons()}
             </ul>
             {this.renderAction()}
           </div>
