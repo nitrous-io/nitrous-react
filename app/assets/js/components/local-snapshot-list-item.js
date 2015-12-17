@@ -109,7 +109,7 @@ export default class LocalSnapshotListItem extends React.Component {
   }
 
   handleShareModalOK = () => {
-    this.setState({ processing: true });
+    this.setState({ processing: true, publishError: null });
     if (!this.props.org) {
       snackbarActions.post("You cannot share a snapshot from a workstation that does not belong to an organization.");
       this.setState({ processing: false });
