@@ -1,13 +1,17 @@
 import React, { PropTypes } from 'react';
 import { Input, Tabs, Tab, Grid, Row, Button } from 'react-bootstrap';
 import Host from 'records/host';
+import containerStore from 'stores/container-store';
+import orgStore from 'stores/org-store';
 import userStore from 'stores/user-store';
 import templateStore from 'stores/template-store';
+import orgActions from 'actions/org-actions';
 import templateActions from 'actions/template-actions';
 import containerActions from 'actions/container-actions';
 import ContextSwitcher from 'components/context-switcher';
 import TemplateListItem from 'components/template-list-item';
-import ImageList from 'components/image-list';
+import LocalSnapshotList from 'components/local-snapshot-list';
+import TeamSnapshotList from 'components/team-snapshot-list';
 import Registries from 'components/registries';
 import GenerateRandomNameButton from 'components/generate-random-name-button';
 import keypather from 'keypather';
@@ -17,7 +21,8 @@ import MpEvents from 'lib/mp-events';
 const keypath = keypather();
 
 const imageTypeTemplate = 'template',
-      imageTypeImage = 'image',
+      imageTypeLocalSnapshot = 'local-snapshot',
+      imageTypeTeamSnapshot = 'team-snapshot',
       imageTypeRepo = 'repo';
 
 export default class NewContainer extends React.Component {
@@ -33,43 +38,99 @@ export default class NewContainer extends React.Component {
   }
 
   state = {
+    org: orgStore.orgByOrgId(this.context.host.orgId),
     projectName: null,
     creating: false,
     templates: templateStore.templates,
+    selectedTab: 'templates',
     selectedImageType: imageTypeTemplate,
-    selectedImage: keypath.get(templateStore, 'templates.first().image')
+
+    // Either selectedImage or selectedSnapshot should be set.
+    //   selectedImage: image repository to use to create container
+    //   selectedSnapshot: snapshot to use to create container
+    selectedImage: keypath.get(templateStore, 'templates.first().image'),
+    selectedSnapshot: null
   };
 
   componentDidMount() {
     templateStore.onChange(this.templateStoreDidChange);
     templateActions.fetchAll();
 
+    orgStore.onChange(this.orgStoreDidChange);
+    orgActions.fetchAll();
+
+    containerStore.on('creating', this.onContainerCreating);
+    containerStore.on('create-failed', this.onContainerCreateFailed);
+
     this.refs.generateNameBtn.generate();
   }
 
   componentWillUnmount() {
     templateStore.offChange(this.templateStoreDidChange);
+    orgStore.offChange(this.orgStoreDidChange);
+    containerStore.off('creating', this.onContainerCreating);
+    containerStore.off('create-failed', this.onContainerCreateFailed);
   }
 
   templateStoreDidChange = () => {
     const { templates } = templateStore;
+    this.setState({ templates });
+    if (!this.state.selectedImage && !this.state.selectedSnapshot) {
+      this.setState({ selectedImage: keypath.get(templates, 'first().image') });
+    }
+  };
+
+  orgStoreDidChange = () => {
+    this.setState({ org: orgStore.orgByOrgId(this.context.host.orgId) });
+  };
+
+  onContainerCreating = (data) => {
+    const { name, hostSlug, requestId } = data;
+    if ((this.state.projectName === name) && (this.context.host.slug === hostSlug)) {
+      this.context.router.transitionTo('container-creating',
+        { hostSlug },
+        { name, requestId });
+    }
+  };
+
+  onContainerCreateFailed = (data) => {
+    const { name, hostSlug } = data;
+    if ((this.state.projectName === name) && (this.context.host.slug === hostSlug)) {
+      this.setState({ creating: false });
+    }
+  };
+
+  handleTabSelected = (key) => {
+    // Clear selected image/snapshot when user changes tabs.
     this.setState({
-      templates,
-      selectedImage: this.state.selectedImage || keypath.get(templates, 'first().image')
+      selectedTab: key,
+      selectedImageType: null,
+      selectedImage: null,
+      selectedSnapshot: null
     });
   };
 
   handleTemplateSelection = (template) => {
     this.setState({
       selectedImageType: imageTypeTemplate,
-      selectedImage: template.image
+      selectedImage: template.image,
+      selectedSnapshot: null // Clear any previously selected snapshot.
     });
   };
 
-  handleImageSelection = (image) => {
+  handleLocalSnapshotSelection = (snapshot) => {
     this.setState({
-      selectedImageType: imageTypeImage,
-      selectedImage: image.repo
+      selectedImageType: imageTypeLocalSnapshot,
+      selectedImage: snapshot.repo,
+      selectedSnapshot: null // Clear any previously selected snapshot.
+    });
+  };
+
+  handleTeamSnapshotSelection = (snapshot) => {
+    this.setState({
+      selectedImageType: imageTypeTeamSnapshot,
+      selectedImage: null, // Clear any previously selected image.
+      selectedSnapshot: snapshot
     });
   };
 
@@ -83,7 +144,8 @@ export default class NewContainer extends React.Component {
     if (this.refs.repoRadioBtn.getChecked()) {
       this.setState({
         selectedImageType: imageTypeRepo,
-        selectedImage: repo
+        selectedImage: repo,
+        selectedSnapshot: null // Clear any previously selected snapshot.
       }, () => {
         const repoField = this.refs.repoField.getInputDOMNode();
         repoField.select();
@@ -94,7 +156,6 @@ export default class NewContainer extends React.Component {
 
   handleChangeRepoField = () => {
     const repo = this.refs.repoField.getValue();
-
     this.setState({ selectedImage: repo });
   };
 
@@ -107,39 +168,48 @@ export default class NewContainer extends React.Component {
   };
 
   handleClickCreateBtn = () => {
-    this.setState({ creating: true });
-
-    const { projectName, selectedImage } = this.state,
-          { host } = this.context,
-          publishAll = true,
-          updateImage = (this.state.selectedImageType !== imageTypeImage);
-
-    let template = null;
-    if (this.state.selectedImageType === imageTypeTemplate) {
-      template = templateStore.templates.find((t) => {
-        return t.image === selectedImage;
-      });
+    if (!this.isValid()) {
+      return;
     }
 
-    const privileged = template ? template.privileged : false;
+    this.setState({ creating: true });
 
-    containerActions.create(
-      projectName, selectedImage, template, host, updateImage, privileged, publishAll
-    ).then((imageId) => {
-      this.context.router.transitionTo('container-creating',
-        { hostSlug: host.slug },
-        { name: projectName, imageId });
-    }).catch(() => {
-      this.setState({ creating: false });
+    const { projectName, selectedImage, selectedImageType, selectedSnapshot } = this.state,
+          { host } = this.context,
+          publishAll = true;
+    let template = null,
+        privileged = false,
+        skipPull = false;
+
+    if (selectedImageType === imageTypeTemplate) {
+      template = templateStore.templates.find((t) => t.image === selectedImage);
+      privileged = template.privileged;
+    }
+    if (selectedImageType === imageTypeLocalSnapshot) {
+      skipPull = true;
+    }
+
+    containerActions.createAtomic(projectName, host, {
+      imageRepo: selectedImage,
+      template,
+      snapshot: selectedSnapshot,
+      privileged,
+      publishAll,
+      skipPull
     });
   };
 
-  get isValid() {
-    return !!(this.state.projectName && this.state.selectedImageType && this.state.selectedImage);
+  isValid() {
+    const { projectName, selectedImageType, selectedImage, selectedSnapshot } = this.state;
+    if (!projectName) return false;
+    if (!selectedImageType) return false;
+    if (!selectedImage && !selectedSnapshot) return false;
+    return true;
   }
 
   render() {
-    const { projectName, creating, templates, selectedImageType, selectedImage } = this.state,
+    const { org, projectName, creating, templates,
+            selectedImageType, selectedImage, selectedSnapshot, selectedTab } = this.state,
           { host } = this.context,
           { advanced } = userStore;
 
@@ -148,7 +218,17 @@ export default class NewContainer extends React.Component {
         <ContextSwitcher selectedHost={host} />
         <div className='container'>
           <h2>New Project</h2>
-          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'>
+
+          <h3>Project Name</h3>
+          <div className='project-name'>
+            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
+              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
+              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
+          </div>
+
+          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'
+            activeKey={selectedTab}
+            onSelect={this.handleTabSelected}>
             <Tab eventKey='templates' title='Nitrous Templates'>
               <Grid className='ui-card-grid'>
                 <Row>
@@ -162,11 +242,21 @@ export default class NewContainer extends React.Component {
                 </Row>
               </Grid>
             </Tab>
-            <Tab eventKey='images' title={advanced ? 'My Images' : 'My Snapshots'}>
-              <ImageList host={host}
-                selectedImage={selectedImage}
-                onSelect={this.handleImageSelection} />
+
+            <Tab eventKey='local-snapshots' title='My Snapshots'>
+              <LocalSnapshotList selectMode host={host}
+                selectedSnapshotRepo={selectedImage}
+                onSelect={this.handleLocalSnapshotSelection} />
             </Tab>
+
+            {org ? (
+              <Tab eventKey='team-snapshots' title='Team Snapshots'>
+                <TeamSnapshotList selectMode host={host} org={org}
+                  selectedSnapshot={selectedSnapshot}
+                  onSelect={this.handleTeamSnapshotSelection} />
+              </Tab>
+            ): ''}
+
             {advanced ? (
               <Tab eventKey='registries' title='Docker Repositories'>
                 <Registries showDisconnect={false} host={this.context.host} />
@@ -179,14 +269,12 @@ export default class NewContainer extends React.Component {
               </Tab>
             ) : ''}
           </Tabs>
-          <hr />
-          <h3>Project Name</h3>
-          <div className='project-name'>
-            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
-              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
-              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
-          </div>
-          <Button disabled={!this.isValid || creating} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>Create Project</Button>
+
+          <Button className='create-btn' bsStyle='primary'
+            disabled={!this.isValid() || creating}
+            onClick={this.handleClickCreateBtn}>
+            Create Project
+          </Button>
         </div>
       </div>
     );

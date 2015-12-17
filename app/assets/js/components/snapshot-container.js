@@ -16,7 +16,7 @@ export default class SnapshotContainer extends React.Component {
   };
 
   state = {
-    name: null,
+    name: this.props.container.displayName,
     processing: false
   };
 
@@ -41,12 +41,10 @@ export default class SnapshotContainer extends React.Component {
     if (nextContainer.slug === container.slug && nextProps.show === this.props.show) {
       return; // no change, do not bother
     }
-
-    const date = new Date(),
-          name = `${nextProps.container.name} ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-    this.setState({ name, processing: false }, () => {
+    this.setState({ processing: false }, () => {
       if (nextProps.show) {
         this.refs.name.getInputDOMNode().focus();
+        this.refs.name.getInputDOMNode().select();
       }
     });
   }

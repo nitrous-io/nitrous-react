@@ -3,27 +3,23 @@ import dispatcher from 'app-dispatcher';
 
 class ImageActions {
   fetchAllByHostSlug(hostSlug) {
-    return authedAjax({
+    const promise = authedAjax({
       type: 'GET',
       url: `/api/v0/hosts/${hostSlug}/images`,
       dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
         type: 'image.fetched-all-by-host-slug',
-        data: {
-          data,
-          hostSlug
-        }
-      });
-    }).catch((jqxhr) => {
-      dispatcher.dispatch({
-        type: 'image.fetch-all-by-host-slug-failed',
-        data: {
-          jqxhr,
-          hostSlug
-        }
+        data: { data, hostSlug }
       });
     });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'image.fetch-all-by-host-slug-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
   }
 
   pull(hostSlug, repository, update) {

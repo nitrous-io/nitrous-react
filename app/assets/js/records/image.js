@@ -39,11 +39,21 @@ export default class Image extends Record({
     return this.tag && this.tag.startsWith('__snapshot__');
   }
 
-  get isPulledImage() {
-    return !this.isSnapshot;
+  get stack() {
+    const matches = this.slug.match(/nitrous\/([^:]+)$/);
+    if (matches) {
+      return matches[1];
+    }
+    return null;
   }
 
-  get isBlank() {
-    return this.actualSize === 0 && this.virtualSize === 0;
+  static defaultStackIconUrl = makeStackIconUrl();
+
+  get stackIconUrl() {
+    return this.stack ? makeStackIconUrl(this.stack) : '';
   }
+}
+
+function makeStackIconUrl(stack='nitrous') {
+  return `https://nitrous-image-icons-update.s3.amazonaws.com/${stack}.png`;
 }
