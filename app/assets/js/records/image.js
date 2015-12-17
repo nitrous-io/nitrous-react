@@ -8,6 +8,8 @@ export default class Image extends Record({
   tag: null,
   userId: null,
   hostId: null,
+  stack: null,
+  isSnapshot: null,
   actualSize: 0,
   virtualSize: 0,
   builtAt: null,
@@ -23,6 +25,8 @@ export default class Image extends Record({
       tag: p.tag,
       userId: p.user_id,
       hostId: p.host_id,
+      stack: p.stack,
+      isSnapshot: p.is_snapshot,
       actualSize: p.actual_size,
       virtualSize: p.virtual_size,
       builtAt: p.built_at ? new Date(p.built_at) : null,
@@ -33,18 +37,6 @@ export default class Image extends Record({
 
   get displayName() {
     return this.name || this.repo;
-  }
-
-  get isSnapshot() {
-    return this.tag && this.tag.startsWith('__snapshot__');
-  }
-
-  get stack() {
-    const matches = this.slug.match(/nitrous\/([^:]+)$/);
-    if (matches) {
-      return matches[1];
-    }
-    return null;
   }
 
   static defaultStackIconUrl = makeStackIconUrl();
