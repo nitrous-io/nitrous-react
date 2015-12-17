@@ -11,6 +11,7 @@ import snackbarActions from 'actions/snackbar-actions';
 import snapshotActions from 'actions/snapshot-actions';
 import imageStore from 'stores/image-store';
 import snapshotStore from 'stores/snapshot-store';
+import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
 
@@ -162,7 +163,12 @@ export default class LocalSnapshotListItem extends React.Component {
           <Button bsStyle='primary'
             disabled={processing}
             onClick={processing ? null : this.handleShareModalOK}>
-            {processing ? 'Sharing...' : 'Share with Team'}
+            {processing ? (
+              <div>
+                <span>Sharing...</span>
+                <LoadingIndicator />
+              </div>
+            ) : 'Share with team'}
           </Button>
         </Modal.Footer>
       </Modal>
