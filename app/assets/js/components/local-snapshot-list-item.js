@@ -151,6 +151,8 @@ export default class LocalSnapshotListItem extends React.Component {
           ) : ''}
 
           <p><strong>{snapshot.displayName}</strong> will be shared with members of your team in <strong>{org.name}</strong>.</p>
+
+          <Alert bsStyle='warning'><p>Please ensure that your snapshot does not contain your personal security credentials such as SSH keys, heroku logins and AWS credentials before sharing it with your team!</p></Alert>
         </Modal.Body>
 
         <Modal.Footer>
