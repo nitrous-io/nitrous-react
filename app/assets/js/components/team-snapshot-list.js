@@ -17,7 +17,6 @@ export default class TeamSnapshotList extends React.Component {
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
-    snapshotId: PropTypes.number,
     selectMode: PropTypes.bool,
     selectedSnapshot: PropTypes.instanceOf(Snapshot),
     onSelect: PropTypes.func
@@ -99,8 +98,7 @@ export default class TeamSnapshotList extends React.Component {
               } else {
                 return (
                   <TeamSnapshotListItem key={`snapshot-${snapshot.id}`}
-                    host={host} snapshot={snapshot} org={org}
-                    focus={snapshot.id === this.props.snapshotId} />
+                    host={host} snapshot={snapshot} org={org} />
                 );
               }
             })}

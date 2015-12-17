@@ -19,8 +19,7 @@ export default class TeamSnapshotListItem extends React.Component {
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
-    snapshot: PropTypes.instanceOf(Snapshot).isRequired,
-    focus: PropTypes.bool
+    snapshot: PropTypes.instanceOf(Snapshot).isRequired
   }
 
   state = {
@@ -79,14 +78,14 @@ export default class TeamSnapshotListItem extends React.Component {
   }
 
   render() {
-    const { snapshot, org, focus } = this.props,
+    const { snapshot, org } = this.props,
           { user, processing } = this.state,
           isOwner = snapshot.ownerUsername === user.username,
           deleteAllowed = isOwner || org.roleAllowsSnapshotDelete;
 
     return (
       <Col lg={3} md={4} sm={6} xs={12}
-        className={classNames('team-snapshot-list-item-component', 'snapshot-list-item', { focus })}>
+        className={classNames('team-snapshot-list-item-component', 'snapshot-list-item')}>
         <div className='ui-card'>
           <div className='ui-card-body'>
             <div className='snapshot-header'>
