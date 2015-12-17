@@ -17,12 +17,6 @@ export default class TeamSnapshots extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired
   };
 
-  static propTypes = {
-    query: PropTypes.shape({
-      snapshotId: PropTypes.string // Query parameters are always strings.
-    })
-  };
-
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedTeamSnapshots);
   }
@@ -47,7 +41,6 @@ export default class TeamSnapshots extends React.Component {
   render() {
     const { host } = this.context,
           { org } = this.state,
-          snapshotId = this.props.query ? parseInt(this.props.query.snapshotId, 10) : null,
           loading = host.isResuming || !org;
 
     if (loading) {
@@ -64,7 +57,7 @@ export default class TeamSnapshots extends React.Component {
         <ContextSwitcher selectedHost={host} />
         <HostNav host={host} activeTab='team-snapshots' />
         <div className='inner-container'>
-          <TeamSnapshotList host={host} org={org} snapshotId={snapshotId} />
+          <TeamSnapshotList host={host} org={org} />
         </div>
       </div>
     );

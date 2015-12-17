@@ -13,7 +13,6 @@ import imageStore from 'stores/image-store';
 import snapshotStore from 'stores/snapshot-store';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
-import Mp from 'lib/mp';
 
 export default class LocalSnapshotListItem extends React.Component {
   displayName = 'LocalSnapshotListItem';
@@ -39,6 +38,7 @@ export default class LocalSnapshotListItem extends React.Component {
     imageStore.on('removed', this.onImageRemoved);
     imageStore.on('remove-failed', this.onImageRemoveFailed);
 
+    snapshotStore.on('publishing', this.onSnapshotPublishing);
     snapshotStore.on('published', this.onSnapshotPublished);
     snapshotStore.on('publish-failed', this.onSnapshotPublishFailed);
   }
@@ -47,6 +47,7 @@ export default class LocalSnapshotListItem extends React.Component {
     imageStore.off('removed', this.onImageRemoved);
     imageStore.off('remove-failed', this.onImageRemoveFailed);
 
+    snapshotStore.off('publishing', this.onSnapshotPublishing);
     snapshotStore.off('published', this.onSnapshotPublished);
     snapshotStore.off('publish-failed', this.onSnapshotPublishFailed);
   }
@@ -70,20 +71,23 @@ export default class LocalSnapshotListItem extends React.Component {
     this.setState({ processing: false });
   }
 
+  onSnapshotPublishing = (data) => {
+    const { imageId } = data,
+          { snapshot } = this.props;
+    if (imageId !== snapshot.id) {
+      return;
+    }
+
+    this.hideShareModal();
+  }
+
   onSnapshotPublished = (data) => {
     const { snapshot } = data;
     if (snapshot.imageId !== this.props.snapshot.id) {
       return;
     }
 
-    this.setState({ processing: false, showShareModal: false });
-    snackbarActions.post(`Snapshot published!`);
-
-    Mp.increment('snapshots-published');
-
-    this.context.router.transitionTo('team-snapshots',
-      { hostSlug: this.props.host.slug },
-      { snapshotId: snapshot.id });
+    this.setState({ processing: false });
   }
 
   onSnapshotPublishFailed = (data) => {
