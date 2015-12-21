@@ -152,6 +152,15 @@ class Mp {
     this.mixpanel.register({ 'First Time': 'FALSE' });
   }
 
+  increment(property, value=1) {
+    if (typeof property === 'object') {
+      this.mixpanel.people.increment(property);
+      return;
+    }
+
+    this.mixpanel.people.increment(property, value);
+  }
+
   get mixpanel() {
     if (!window.mixpanel) {
       return {}; // return stub (similar if blocked by ads)

@@ -1,6 +1,5 @@
 import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
-import ContainerCreation from 'lib/container-creation';
 
 class ContainerActions {
   fetchAllByHostSlug(hostSlug) {
@@ -150,11 +149,36 @@ class ContainerActions {
     });
   }
 
-  create(name, imageRepo, template, host, updateImage, privileged, publishAll) {
-    const containerCreation = new ContainerCreation(
-      name, imageRepo, template, host, updateImage, privileged, publishAll
-    );
-    return containerCreation.begin();
+  createAtomic(name, host, opts) {
+    const { imageRepo, template, snapshot, privileged, publishAll, skipPull } = opts;
+
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/containers/create_atomic`,
+      data: {
+        name,
+        host: host.slug,
+        image: imageRepo,
+        template: template ? template.slug : null,
+        snapshot_id: snapshot ? snapshot.id : null,
+        privileged,
+        publish_all: publishAll,
+        skip_pull: skipPull
+      },
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'container.creating',
+        data: { data, name, hostSlug: host.slug }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.create-failed',
+        data: { jqxhr, name, hostSlug: host.slug }
+      });
+    });
+    return promise;
   }
 }
 

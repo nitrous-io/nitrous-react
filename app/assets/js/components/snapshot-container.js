@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Input, Button, Modal } from 'react-bootstrap';
+import { Alert, Input, Button, Modal } from 'react-bootstrap';
 
 import Container from 'records/container';
 import containerStore from 'stores/container-store';
@@ -16,7 +16,7 @@ export default class SnapshotContainer extends React.Component {
   };
 
   state = {
-    name: null,
+    name: this.props.container.displayName,
     processing: false
   };
 
@@ -41,12 +41,10 @@ export default class SnapshotContainer extends React.Component {
     if (nextContainer.slug === container.slug && nextProps.show === this.props.show) {
       return; // no change, do not bother
     }
-
-    const date = new Date(),
-          name = `${nextProps.container.name} ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-    this.setState({ name, processing: false }, () => {
+    this.setState({ processing: false }, () => {
       if (nextProps.show) {
         this.refs.name.getInputDOMNode().focus();
+        this.refs.name.getInputDOMNode().select();
       }
     });
   }
@@ -109,9 +107,9 @@ export default class SnapshotContainer extends React.Component {
         </Modal.Header>
         <form onSubmit={this.handleSubmit}>
           <Modal.Body>
-            <Input ref='name' id='snapshot-name' label='Snapshot Name'
-              type='text' placeholder='My Awesome Project'
-              required value={name} onChange={this.handleNameChanged} />
+            <Alert bsStyle='warning'><p>Any security credentials in your project, such as SSH keys, heroku logins and AWS credentials will be part of the snapshot!</p></Alert>
+            <Input ref='name' id='snapshot-name' label='Snapshot Name' required
+              type='text' value={name} onChange={this.handleNameChanged} />
           </Modal.Body>
           <Modal.Footer>
             <Button ref='modalCancel' onClick={onHide}>Cancel</Button>

@@ -1,13 +1,15 @@
 import React, { PropTypes } from 'react';
 import { Nav, NavItem } from 'react-bootstrap';
+
 import Host from 'records/host';
-import userStore from 'stores/user-store';
+import orgActions from 'actions/org-actions';
+import orgStore from 'stores/org-store';
 
 export default class HostNav extends React.Component {
   displayName = 'HostNav';
 
   static contextTypes = {
-    router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
+    router: PropTypes.func.isRequired
   };
 
   static propTypes = {
@@ -19,6 +21,27 @@ export default class HostNav extends React.Component {
     activeTab: 'containers'
   };
 
+  state = {
+    org: this.props.host.orgId ? orgStore.orgByOrgId(this.props.host.orgId) : null
+  };
+
+  componentDidMount() {
+    if (this.props.host.orgId) {
+      orgStore.onChange(this.orgStoreDidChange);
+      orgActions.fetchAll();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.host.orgId) {
+      orgStore.offChange(this.orgStoreDidChange);
+    }
+  }
+
+  orgStoreDidChange = () => {
+    this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
+  }
+
   handleSelectContainersTab = () => {
     this.context.router.transitionTo('containers', { hostSlug: this.props.host.slug });
   }
@@ -27,21 +50,26 @@ export default class HostNav extends React.Component {
     this.context.router.transitionTo('host-system', { hostSlug: this.props.host.slug });
   }
 
-  handleSelectImagesTab = () => {
-    this.context.router.transitionTo('host-images', { hostSlug: this.props.host.slug });
+  handleSelectMySnapshotsTab = () => {
+    this.context.router.transitionTo('host-snapshots', { hostSlug: this.props.host.slug });
+  }
+
+  handleSelectTeamSnapshotsTab = () => {
+    this.context.router.transitionTo('team-snapshots', { hostSlug: this.props.host.slug });
   }
 
   render() {
     const { activeTab, host } = this.props,
-          { advanced } = userStore;
+          { org } = this.state;
 
     return (
       <div className='host-nav-component'>
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
           <NavItem disabled={host.isUnusable} onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
-          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectImagesTab} eventKey='images'>
-            {advanced ? 'Images' : 'Snapshots'}
-          </NavItem>
+          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectMySnapshotsTab} eventKey='local-snapshots'>My Snapshots</NavItem>
+          {org && org.roleAllowsSnapshotRead ? (
+            <NavItem disabled={host.isUnusable} onSelect={this.handleSelectTeamSnapshotsTab} eventKey='team-snapshots'>Team Snapshots</NavItem>
+          ) : ''}
           <NavItem disabled={host.isUnusable} onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
         </Nav>
       </div>

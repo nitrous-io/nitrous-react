@@ -63,10 +63,15 @@ class ContainerStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'container.creating': {
+        const { name, hostSlug, data } = action.data,
+              requestId = data.request_id;
+        this.emit('creating', { name, hostSlug, requestId });
+        break;
+      }
       case 'container.create-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         const { name, hostSlug } = action.data;
-        snackbarActions.post(`Failed to create project “${name}”!`);
         this.emit('create-failed', { name, hostSlug });
         break;
       }
@@ -88,6 +93,20 @@ class ContainerStore extends Store {
         break;
       }
       // from events-socket
+      case 'events:container.create-failed': {
+        const { name, error } = action.data,
+              requestId = action.data.request_id,
+              hostSlug = action.data.host_slug;
+        if (error) {
+          if (error.includes('freighter')) {
+            snackbarActions.post(`Failed to create “${name}”!`);
+          } else {
+            snackbarActions.post(error);
+          }
+        }
+        this.emit('create-failed', { name, hostSlug, requestId });
+        break;
+      }
       case 'events:container.reconfigured': {
         const { config, container } = action.data,
               c = Container.deserialize(container),
@@ -136,7 +155,8 @@ class ContainerStore extends Store {
 
         if (action.type === 'events:container.created') {
           snackbarActions.post(`Your project “${c.displayName}” was created successfully.`);
-          this.emit('created', { container: c, hostSlug });
+          const requestId = action.data.request_id;
+          this.emit('created', { container: c, hostSlug, requestId });
         }
 
         if (action.type === 'events:container.destroyed') {
