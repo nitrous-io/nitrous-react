@@ -55,6 +55,16 @@ class SnapshotStore extends Store {
         this.emit('deleted', { orgSlug, snapshotId });
         break;
       }
+      case 'events:snapshot.deleted': {
+        const snapshot = Snapshot.deserialize(action.data.snapshot);
+
+        this._snapshotsByOrgSlug = this._snapshotsByOrgSlug.map((snapshots) => {
+          return snapshots.filter((s) => s.id !== snapshot.id);
+        });
+
+        this._lastError = null;
+        break;
+      }
       case 'snapshot.delete-failed': {
         const { jqxhr, orgSlug, snapshotId } = action.data;
         this._lastError = jqxhr.errorMessage;
