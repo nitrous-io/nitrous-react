@@ -18,6 +18,7 @@ export default class OrgMember extends Record({
   email: null,
   orgId: null,
   orgSlug: null,
+  pendingEmail: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -31,6 +32,7 @@ export default class OrgMember extends Record({
       email: p.email,
       orgId: p.org_id,
       orgSlug: p.org_slug,
+      pendingEmail: p.pending_email,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
@@ -39,14 +41,13 @@ export default class OrgMember extends Record({
   gravatar(size=72) {
     if (this.email) {
       return `https://secure.gravatar.com/avatar/${md5(this.email)}?default=retro&secure=true&size=${size}`;
+    } else if (this.pendingEmail) {
+      return `https://secure.gravatar.com/avatar/${md5(this.pendingEmail)}?default=retro&secure=true&size=${size}`;
     }
   }
 
   get displayName() {
-    if (this.username && this.name) {
-      return `${this.username} (${this.name})`;
-    }
-    return this.username || this.email;
+    return this.username || this.pendingEmail;
   }
 
   get allowedRoles() {

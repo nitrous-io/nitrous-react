@@ -57,7 +57,7 @@ export default class OrgMemberList extends React.Component {
     if (this.state.adding) {
       const { newMember } = this.state;
       const added = members.find((member) => {
-        return member.username === newMember || member.email === newMember;
+        return member.username === newMember || member.email === newMember || member.pendingEmail === newMember;
       });
       if (added) {
         this.setState({ adding: false, addFailed: false, newMember: null });
@@ -178,7 +178,10 @@ export default class OrgMemberList extends React.Component {
                       <img className='gravatar' src={member.gravatar(72)} />
                     </Col>
                     <Col lg={9} md={9} sm={9} xs={2} className='collaborator-name'>
-                      <strong>{member.username}</strong>
+                      <strong>{member.displayName}</strong>
+                      {member.pendingEmail ? (
+                        <span> (pending)</span>
+                      ) : ''}
                       {canEditRole ? (
                         <select className='form-control org-member-role'
                           value={member.role}
