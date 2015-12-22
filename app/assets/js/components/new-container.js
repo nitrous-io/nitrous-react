@@ -33,6 +33,13 @@ export default class NewContainer extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired
   };
 
+  static propTypes = {
+    query: PropTypes.shape({
+      tab: PropTypes.string,
+      image: PropTypes.string
+    })
+  };
+
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedNewContainer);
   }
@@ -42,13 +49,13 @@ export default class NewContainer extends React.Component {
     projectName: null,
     creating: false,
     templates: templateStore.templates,
-    selectedTab: 'templates',
+    selectedTab: this.props.query.tab || 'templates',
     selectedImageType: imageTypeTemplate,
 
     // Either selectedImage or selectedSnapshot should be set.
     //   selectedImage: image repository to use to create container
     //   selectedSnapshot: snapshot to use to create container
-    selectedImage: keypath.get(templateStore, 'templates.first().image'),
+    selectedImage: this.props.query.image || keypath.get(templateStore, 'templates.first().image'),
     selectedSnapshot: null
   };
 
