@@ -45,20 +45,48 @@ export default class NewContainer extends React.Component {
     Mp.track(MpEvents.EventDashboardViewedNewContainer);
   }
 
-  state = {
-    org: orgStore.orgByOrgId(this.context.host.orgId),
-    projectName: null,
-    creating: false,
-    templates: templateStore.templates,
-    selectedTab: this.props.query.tab || 'templates',
-    selectedImageType: imageTypeTemplate,
+  constructor(props, context) {
+    super(props, context);
 
-    // Either selectedImage or selectedSnapshotId should be set.
-    //   selectedImage: image repository to use to create container
-    //   selectedSnapshotId: ID of snapshot to use to create container
-    selectedImage: this.props.query.image || keypath.get(templateStore, 'templates.first().image'),
-    selectedSnapshotId: this.props.query.snapshotId ? parseInt(this.props.query.snapshotId, 10) : null
-  };
+    let selectedTab = 'templates',
+        selectedImageType = imageTypeTemplate,
+        selectedImage = null,
+        selectedSnapshotId = null;
+
+    switch (props.query.tab) {
+      case 'local-snapshots': {
+        selectedTab = props.query.tab;
+        selectedImageType = imageTypeLocalSnapshot;
+        selectedImage = props.query.image;
+        break;
+      }
+      case 'team-snapshots': {
+        selectedTab = props.query.tab;
+        selectedImageType = imageTypeTeamSnapshot;
+        selectedSnapshotId = parseInt(props.query.snapshotId, 10);
+        break;
+      }
+      default: {
+        selectedImage = keypath.get(templateStore, 'templates.first().image');
+        break;
+      }
+    }
+
+    this.state = {
+      org: orgStore.orgByOrgId(this.context.host.orgId),
+      projectName: null,
+      creating: false,
+      templates: templateStore.templates,
+      selectedTab,
+      selectedImageType,
+
+      // Either selectedImage or selectedSnapshotId should be set.
+      //   selectedImage: image repository to use to create container
+      //   selectedSnapshotId: ID of snapshot to use to create container
+      selectedImage,
+      selectedSnapshotId
+    };
+  }
 
   componentDidMount() {
     templateStore.onChange(this.templateStoreDidChange);
@@ -175,7 +203,8 @@ export default class NewContainer extends React.Component {
     });
   };
 
-  handleClickCreateBtn = () => {
+  handleSubmit = (event) => {
+    event.preventDefault();
     if (!this.isValid()) {
       return;
     }
@@ -227,62 +256,63 @@ export default class NewContainer extends React.Component {
         <div className='container'>
           <h2>New Project</h2>
 
-          <h3>Project Name</h3>
-          <div className='project-name'>
-            <Input ref='projectNameField' type='text' placeholder='Name your Project...'
-              required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
-              buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
-          </div>
+          <form onSubmit={this.handleSubmit}>
+            <h3>Project Name</h3>
+            <div className='project-name'>
+              <Input ref='projectNameField' type='text' placeholder='Name your Project...'
+                required disabled={creating} value={projectName} onChange={this.handleChangeProjectNameField}
+                buttonAfter={<GenerateRandomNameButton ref='generateNameBtn' onGenerate={this.handleRandomNameGenerated} />} />
+            </div>
 
-          <Tabs defaultActiveKey='templates' className='ui-centered-tabs'
-            activeKey={selectedTab}
-            onSelect={this.handleTabSelected}>
-            <Tab eventKey='templates' title='Nitrous Templates'>
-              <Grid className='ui-card-grid'>
-                <Row>
-                  {templates.toList().map((template) => {
-                    return (
-                      <TemplateListItem key={`template-${template.slug}`} template={template}
-                        selected={selectedImage === template.image}
-                        onSelect={this.handleTemplateSelection} />
-                    );
-                  })}
-                </Row>
-              </Grid>
-            </Tab>
-
-            <Tab eventKey='local-snapshots' title='My Snapshots'>
-              <LocalSnapshotList selectMode host={host}
-                selectedSnapshotRepo={selectedImage}
-                onSelect={this.handleLocalSnapshotSelection} />
-            </Tab>
-
-            {org ? (
-              <Tab eventKey='team-snapshots' title='Team Snapshots'>
-                <TeamSnapshotList selectMode host={host} org={org}
-                  selectedSnapshotId={selectedSnapshotId}
-                  onSelect={this.handleTeamSnapshotSelection} />
+            <Tabs defaultActiveKey='templates' className='ui-centered-tabs'
+              activeKey={selectedTab}
+              onSelect={this.handleTabSelected}>
+              <Tab eventKey='templates' title='Nitrous Templates'>
+                <Grid className='ui-card-grid'>
+                  <Row>
+                    {templates.toList().map((template) => {
+                      return (
+                        <TemplateListItem key={`template-${template.slug}`} template={template}
+                          selected={selectedImage === template.image}
+                          onSelect={this.handleTemplateSelection} />
+                      );
+                    })}
+                  </Row>
+                </Grid>
               </Tab>
-            ): ''}
 
-            {advanced ? (
-              <Tab eventKey='registries' title='Docker Repositories'>
-                <Registries showDisconnect={false} host={this.context.host} />
-                <div className='custom-repo'>
-                  <Input ref='repoRadioBtn' type='radio' label='Use Image from Docker Repo:'
-                    checked={selectedImageType === imageTypeRepo} onChange={this.handleClickRepoRadioBtn} />
-                  <Input ref='repoField' type='text' placeholder='registry/repo:tag'
-                    disabled={selectedImageType !== imageTypeRepo} onChange={this.handleChangeRepoField} />
-                </div>
+              <Tab eventKey='local-snapshots' title='My Snapshots'>
+                <LocalSnapshotList selectMode host={host}
+                  selectedSnapshotRepo={selectedImage}
+                  onSelect={this.handleLocalSnapshotSelection} />
               </Tab>
-            ) : ''}
-          </Tabs>
 
-          <Button className='create-btn' bsStyle='primary'
-            disabled={!this.isValid() || creating}
-            onClick={this.handleClickCreateBtn}>
-            Create Project
-          </Button>
+              {org ? (
+                <Tab eventKey='team-snapshots' title='Team Snapshots'>
+                  <TeamSnapshotList selectMode host={host} org={org}
+                    selectedSnapshotId={selectedSnapshotId}
+                    onSelect={this.handleTeamSnapshotSelection} />
+                </Tab>
+              ): ''}
+
+              {advanced ? (
+                <Tab eventKey='registries' title='Docker Repositories'>
+                  <Registries showDisconnect={false} host={this.context.host} />
+                  <div className='custom-repo'>
+                    <Input ref='repoRadioBtn' type='radio' label='Use Image from Docker Repo:'
+                      checked={selectedImageType === imageTypeRepo} onChange={this.handleClickRepoRadioBtn} />
+                    <Input ref='repoField' type='text' placeholder='registry/repo:tag'
+                      disabled={selectedImageType !== imageTypeRepo} onChange={this.handleChangeRepoField} />
+                  </div>
+                </Tab>
+              ) : ''}
+            </Tabs>
+
+            <Button className='create-btn' bsStyle='primary' type='submit'
+              disabled={!this.isValid() || creating}>
+              Create Project
+            </Button>
+          </form>
         </div>
       </div>
     );
