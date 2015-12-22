@@ -33,6 +33,14 @@ export default class NewContainer extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired
   };
 
+  static propTypes = {
+    query: PropTypes.shape({
+      tab: PropTypes.string,
+      image: PropTypes.string,
+      snapshotId: PropTypes.string
+    })
+  };
+
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedNewContainer);
   }
@@ -42,14 +50,14 @@ export default class NewContainer extends React.Component {
     projectName: null,
     creating: false,
     templates: templateStore.templates,
-    selectedTab: 'templates',
+    selectedTab: this.props.query.tab || 'templates',
     selectedImageType: imageTypeTemplate,
 
-    // Either selectedImage or selectedSnapshot should be set.
+    // Either selectedImage or selectedSnapshotId should be set.
     //   selectedImage: image repository to use to create container
-    //   selectedSnapshot: snapshot to use to create container
-    selectedImage: keypath.get(templateStore, 'templates.first().image'),
-    selectedSnapshot: null
+    //   selectedSnapshotId: ID of snapshot to use to create container
+    selectedImage: this.props.query.image || keypath.get(templateStore, 'templates.first().image'),
+    selectedSnapshotId: this.props.query.snapshotId ? parseInt(this.props.query.snapshotId, 10) : null
   };
 
   componentDidMount() {
@@ -75,7 +83,7 @@ export default class NewContainer extends React.Component {
   templateStoreDidChange = () => {
     const { templates } = templateStore;
     this.setState({ templates });
-    if (!this.state.selectedImage && !this.state.selectedSnapshot) {
+    if (!this.state.selectedImage && !this.state.selectedSnapshotId) {
       this.setState({ selectedImage: keypath.get(templates, 'first().image') });
     }
   };
@@ -106,7 +114,7 @@ export default class NewContainer extends React.Component {
       selectedTab: key,
       selectedImageType: null,
       selectedImage: null,
-      selectedSnapshot: null
+      selectedSnapshotId: null
     });
   };
 
@@ -114,7 +122,7 @@ export default class NewContainer extends React.Component {
     this.setState({
       selectedImageType: imageTypeTemplate,
       selectedImage: template.image,
-      selectedSnapshot: null // Clear any previously selected snapshot.
+      selectedSnapshotId: null // Clear any previously selected snapshot.
     });
   };
 
@@ -122,7 +130,7 @@ export default class NewContainer extends React.Component {
     this.setState({
       selectedImageType: imageTypeLocalSnapshot,
       selectedImage: snapshot.repo,
-      selectedSnapshot: null // Clear any previously selected snapshot.
+      selectedSnapshotId: null // Clear any previously selected snapshot.
     });
   };
 
@@ -130,7 +138,7 @@ export default class NewContainer extends React.Component {
     this.setState({
       selectedImageType: imageTypeTeamSnapshot,
       selectedImage: null, // Clear any previously selected image.
-      selectedSnapshot: snapshot
+      selectedSnapshotId: snapshot.id
     });
   };
 
@@ -145,7 +153,7 @@ export default class NewContainer extends React.Component {
       this.setState({
         selectedImageType: imageTypeRepo,
         selectedImage: repo,
-        selectedSnapshot: null // Clear any previously selected snapshot.
+        selectedSnapshotId: null // Clear any previously selected snapshot.
       }, () => {
         const repoField = this.refs.repoField.getInputDOMNode();
         repoField.select();
@@ -174,7 +182,7 @@ export default class NewContainer extends React.Component {
 
     this.setState({ creating: true });
 
-    const { projectName, selectedImage, selectedImageType, selectedSnapshot } = this.state,
+    const { projectName, selectedImage, selectedImageType, selectedSnapshotId } = this.state,
           { host } = this.context,
           publishAll = true;
     let template = null,
@@ -192,7 +200,7 @@ export default class NewContainer extends React.Component {
     containerActions.createAtomic(projectName, host, {
       imageRepo: selectedImage,
       template,
-      snapshot: selectedSnapshot,
+      snapshotId: selectedSnapshotId,
       privileged,
       publishAll,
       skipPull
@@ -200,16 +208,16 @@ export default class NewContainer extends React.Component {
   };
 
   isValid() {
-    const { projectName, selectedImageType, selectedImage, selectedSnapshot } = this.state;
+    const { projectName, selectedImageType, selectedImage, selectedSnapshotId } = this.state;
     if (!projectName) return false;
     if (!selectedImageType) return false;
-    if (!selectedImage && !selectedSnapshot) return false;
+    if (!selectedImage && !selectedSnapshotId) return false;
     return true;
   }
 
   render() {
     const { org, projectName, creating, templates,
-            selectedImageType, selectedImage, selectedSnapshot, selectedTab } = this.state,
+            selectedImageType, selectedImage, selectedSnapshotId, selectedTab } = this.state,
           { host } = this.context,
           { advanced } = userStore;
 
@@ -252,7 +260,7 @@ export default class NewContainer extends React.Component {
             {org ? (
               <Tab eventKey='team-snapshots' title='Team Snapshots'>
                 <TeamSnapshotList selectMode host={host} org={org}
-                  selectedSnapshot={selectedSnapshot}
+                  selectedSnapshotId={selectedSnapshotId}
                   onSelect={this.handleTeamSnapshotSelection} />
               </Tab>
             ): ''}
