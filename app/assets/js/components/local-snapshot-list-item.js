@@ -101,7 +101,7 @@ export default class LocalSnapshotListItem extends React.Component {
     this.setState({ processing: false, publishError: snapshotStore.lastError });
   }
 
-  handleRestoreClicked = () => {
+  handleRestore = () => {
     this.context.router.transitionTo('new-container',
       { hostSlug: this.props.host.slug },
       { tab: 'local-snapshots', image: this.props.snapshot.repo });
@@ -207,7 +207,7 @@ export default class LocalSnapshotListItem extends React.Component {
 
             <div className='aux-info'>
               <span className='size'>{prettyBytes(snapshot.virtualSize)}</span>
-              <Button bsStyle='default' onClick={this.handleRestoreClicked}>Restore</Button>
+              <Button bsStyle='default' onClick={this.handleRestore}>Restore</Button>
             </div>
 
             <ButtonToolbar className='buttons'>
