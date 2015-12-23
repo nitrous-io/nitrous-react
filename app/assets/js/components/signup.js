@@ -24,8 +24,7 @@ export default class Signup extends React.Component {
       gitHubUserEmail: PropTypes.string,
       promo: PropTypes.string,
 
-      invite: PropTypes.string,
-      org: PropTypes.string
+      invite: PropTypes.string
     })
   };
 
@@ -47,8 +46,8 @@ export default class Signup extends React.Component {
 
     const isViaGitHub = props.query.gitHubUserName &&
                         props.query.gitHubUserEmail,
-          isInvitedByOrg = props.query.invite &&
-                           props.query.org;
+          isInvited = props.query.invite;
+
     let password = null,
         username = null,
         email = null;
@@ -66,10 +65,10 @@ export default class Signup extends React.Component {
       processing: false,
       authorizing: false,
       isViaGitHub,
-      isInvitedByOrg,
+      isInvited,
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
       createOrg: this.props.query.intent === 'org',
-      inviteCode: this.props.query.invite
+      inviteCode: isInvited ? this.props.query.invite : null
     };
   }
 
@@ -163,10 +162,10 @@ export default class Signup extends React.Component {
     this.setState({ processing: true });
 
     const { username, email, password, gitHubUserName, promocode,
-            inviteCode, isInvitedByOrg } = this.state,
+            inviteCode } = this.state,
           promocodeSlug = promocode && promocode.slug;
     userActions.create({ username, email, password, gitHubUserName, promocodeSlug,
-                         inviteCode, isInvitedByOrg });
+                         inviteCode });
   }
 
   handleSignupWithGithub = () => {
@@ -181,7 +180,7 @@ export default class Signup extends React.Component {
 
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg, promocode, isInvitedByOrg } = this.state,
+            authorizing, processing, createOrg, promocode, isInvited } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           missing = !(username && email && password && passwordConfirmation),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
@@ -219,17 +218,15 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            {isInvitedByOrg ? (
+            {isInvited ? (
               <Alert bsStyle='info'>
                 Create an account below to start coding on your workstation.
               </Alert>
-            ) : ''}
-
-            {!isInvitedByOrg ? (
+            ) : (
               <Input type='checkbox' label='Create an organization after sign up'
                 checked={createOrg}
                 onChange={this.handleCreateOrgChanged} />
-            ) : ''}
+            )}
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={
