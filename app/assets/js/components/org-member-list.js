@@ -118,7 +118,7 @@ export default class OrgMemberList extends React.Component {
   }
 
   handleRemoveMember = (member) => {
-    const memberIdentifier = member.username || member.email;
+    const memberIdentifier = member.username || member.email || member.pendingEmail;
     orgMemberActions.remove(this.props.org.slug, memberIdentifier);
   }
 
