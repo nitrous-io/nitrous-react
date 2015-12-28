@@ -117,12 +117,12 @@ export default class TeamSnapshotListItem extends React.Component {
               </OverlayTrigger>
             </div>
 
-            {snapshot.filesize ? (
-              <div className='aux-info'>
+            <div className='aux-info'>
+              {snapshot.filesize ? (
                 <span className='size'>{prettyBytes(snapshot.filesize)}</span>
-                <Button bsStyle='default' onClick={this.handleRestore}>Restore</Button>
-              </div>
-            ) : ''}
+              ) : ''}
+              <Button bsStyle='default' onClick={this.handleRestore}>Restore</Button>
+            </div>
 
             {deleteAllowed ? (
               <ButtonToolbar className='buttons'>
