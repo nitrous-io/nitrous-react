@@ -60,7 +60,14 @@
       right: 0
       font-size: 13px
       color: rgba($gray,.8)
-      opacity: 0 // Shown only on hover/focus.
+
+      span.size
+        margin-right: 8px
+        opacity: 0 // Shown only on hover/focus.
+
+      button:hover
+        background-color: $brand-primary
+        color: #fff
 
     .buttons
       position: absolute
@@ -82,8 +89,9 @@
 
   .snapshot-list-item:hover, .snapshot-list-item:focus
     .aux-info
-      opacity: 1
-      +transition(all 0.5s)
+      span.size
+        opacity: 1
+        +transition(all 0.5s)
 
   .snapshot-list-item.selected
     .ui-card
@@ -92,3 +100,11 @@
 .snapshot-list-component.selectable
   button
     text-align: left
+
+  .selected
+    .info
+      span
+        color: $gray-lighter
+
+    .aux-info
+      color: $gray-lighter

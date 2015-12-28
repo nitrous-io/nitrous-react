@@ -4,7 +4,6 @@ import classNames from 'classnames';
 
 import Host from 'records/host';
 import Org from 'records/org';
-import Snapshot from 'records/snapshot';
 import snapshotActions from 'actions/snapshot-actions';
 import snapshotStore from 'stores/snapshot-store';
 import LoadingIndicator from 'components/loading-indicator';
@@ -18,7 +17,7 @@ export default class TeamSnapshotList extends React.Component {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
     selectMode: PropTypes.bool,
-    selectedSnapshot: PropTypes.instanceOf(Snapshot),
+    selectedSnapshotId: PropTypes.number,
     onSelect: PropTypes.func
   }
 
@@ -52,7 +51,7 @@ export default class TeamSnapshotList extends React.Component {
   }
 
   render() {
-    const { host, org, selectMode, selectedSnapshot, onSelect } = this.props,
+    const { host, org, selectMode, selectedSnapshotId, onSelect } = this.props,
           { snapshots, failed } = this.state,
           loading = snapshots == null;
 
@@ -92,7 +91,7 @@ export default class TeamSnapshotList extends React.Component {
                 return (
                   <SelectableTeamSnapshot key={`snapshot-${snapshot.id}`}
                     snapshot={snapshot}
-                    selected={selectedSnapshot && selectedSnapshot.id === snapshot.id}
+                    selected={selectedSnapshotId === snapshot.id}
                     onSelect={onSelect} />
                 );
               } else {

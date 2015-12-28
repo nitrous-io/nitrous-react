@@ -16,6 +16,10 @@ import Fa from 'components/fa';
 export default class TeamSnapshotListItem extends React.Component {
   displayName = 'TeamSnapshotListItem';
 
+  static contextTypes = {
+    router: PropTypes.func.isRequired
+  };
+
   static propTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
     org: PropTypes.instanceOf(Org).isRequired,
@@ -58,6 +62,12 @@ export default class TeamSnapshotListItem extends React.Component {
       this.setState({ processing: false });
       snackbarActions.post(`Failed to delete snapshot “${this.props.snapshot.displayName}”!`);
     }
+  }
+
+  handleRestore = () => {
+    this.context.router.transitionTo('new-container',
+      { hostSlug: this.props.host.slug },
+      { tab: 'team-snapshots', snapshotId: this.props.snapshot.id });
   }
 
   handleDelete = () => {
@@ -109,7 +119,8 @@ export default class TeamSnapshotListItem extends React.Component {
 
             {snapshot.filesize ? (
               <div className='aux-info'>
-                {prettyBytes(snapshot.filesize)}
+                <span className='size'>{prettyBytes(snapshot.filesize)}</span>
+                <Button bsStyle='default' onClick={this.handleRestore}>Restore</Button>
               </div>
             ) : ''}
 
