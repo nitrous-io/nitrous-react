@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
 
@@ -25,7 +25,8 @@ export default class HostSystem extends React.Component {
   state = {
     stats: null,
     plan: planStore.planById(this.context.host.planId),
-    region: regionStore.regionById(this.context.host.regionId)
+    region: regionStore.regionById(this.context.host.regionId),
+    hostTroubleshooting: false
   };
 
   componentDidMount() {
@@ -33,6 +34,9 @@ export default class HostSystem extends React.Component {
     hostStore.on('started', this.onHostStarted);
     planStore.onChange(this.planStoreDidChange);
     regionStore.onChange(this.regionStoreDidChange);
+
+    hostStore.on('soft-restart-failed', this.onHostSoftRestartFailed);
+    hostStore.on('soft-restarted', this.onHostSoftRestarted);
 
     if (!this.context.host.isResuming) {
       hostActions.fetchStats(this.context.host.slug);
@@ -53,6 +57,9 @@ export default class HostSystem extends React.Component {
     hostStore.off('started', this.onHostStarted);
     planStore.offChange(this.planStoreDidChange);
     regionStore.offChange(this.regionStoreDidChange);
+
+    hostStore.off('soft-restart-failed', this.onHostSoftRestartFailed);
+    hostStore.off('soft-restarted', this.onHostSoftRestarted);
   }
 
   hostStatsStoreDidChange = () => {
@@ -68,6 +75,22 @@ export default class HostSystem extends React.Component {
     }
   }
 
+  onHostSoftRestartFailed = (data) => {
+    const { hostSlug } = data;
+    if (this.context.host.slug === hostSlug) {
+      snackbarActions.post(`Failed to troubleshoot ${hostSlug}!`);
+      this.setState({ hostTroubleshooting: false });
+    }
+  }
+
+  onHostSoftRestarted = (data) => {
+    const { host } = data;
+    if (this.context.host.slug === host.slug) {
+      snackbarActions.post(`Troubleshooting ${host.slug} is complete. Please try to access your workstation now.`);
+      this.setState({ hostTroubleshooting: false });
+    }
+  }
+
   planStoreDidChange = () => {
     this.setState({ plan: planStore.planById(this.context.host.planId) });
   }
@@ -76,8 +99,13 @@ export default class HostSystem extends React.Component {
     this.setState({ region: regionStore.regionById(this.context.host.regionId) });
   }
 
+  handleTroubleshootHost = () => {
+    this.setState({ hostTroubleshooting: true });
+    hostActions.softRestart(this.context.host.slug);
+  };
+
   render() {
-    const { stats, plan, region } = this.state,
+    const { stats, plan, region, hostTroubleshooting } = this.state,
           { host } = this.context,
           loading = host.isResuming;
 
@@ -127,6 +155,16 @@ export default class HostSystem extends React.Component {
             <tr>
               <th>Created</th>
               <td><TimeAgo date={host.createdAt} /></td>
+            </tr>
+            <tr>
+              <th>Diagnostics</th>
+              <td>
+                <Button bsStyle='primary'
+                  disabled={hostTroubleshooting}
+                  onClick={this.handleTroubleshootHost}>
+                  {hostTroubleshooting ? 'Troubleshooting...' : 'Troubleshoot Workstation'}
+                </Button>
+              </td>
             </tr>
           </Table>
 
