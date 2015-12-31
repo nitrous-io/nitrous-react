@@ -99,10 +99,6 @@ export default class OrgMemberList extends React.Component {
     }
 
     switch (errorMessage) {
-      case orgMemberStore.NOT_ALLOWED: {
-        snackbarActions.post('You do not have sufficient privileges to perform this action.');
-        break;
-      }
       case orgMemberStore.MEMBER_NOT_FOUND: {
         snackbarActions.post(`${member} doesn't have a Nitrous account.`);
         break;
