@@ -88,6 +88,18 @@ class HostStore extends Store {
         break;
       }
       // from events-socket
+      case 'events:host.soft-restarting': {
+        const { host } = action.data;
+        taskActions.update(`host-soft-restart-${host.slug}`, `Troubleshooting ${host.slug}...`);
+        break;
+      }
+      case 'events:host.soft-restarted': {
+        const { host } = action.data;
+        taskActions.done(`host-soft-restart-${host.slug}`);
+        this.emit('soft-restarted', { host });
+        this._lastError = null;
+        break;
+      }
       case 'events:host.creating': {
         const { id, slug, progress } = action.data;
         if (!id || !slug || !progress) {
@@ -108,18 +120,6 @@ class HostStore extends Store {
       case 'events:host.started':
       case 'events:host.restarting':
       case 'events:host.restarted':
-      case 'events:host.soft-restarting': {
-        const { host } = action.data;
-        taskActions.update(`host-soft-restart-${host.slug}`, `Troubleshooting ${host.slug}...`);
-        break;
-      }
-      case 'events:host.soft-restarted': {
-        const { host } = action.data;
-        taskActions.done(`host-soft-restart-${host.slug}`);
-        this.emit('soft-restarted', { host });
-        this._lastError = null;
-        break;
-      }
       case 'events:host.stopping':
       case 'events:host.stopped':
       case 'events:host.updated':
