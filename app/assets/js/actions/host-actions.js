@@ -162,6 +162,21 @@ class HostActions {
     });
     return promise;
   }
+
+  softRestart(hostSlug) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/hosts/${hostSlug}/soft_restart`,
+      dataType: 'json'
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'host.soft-restart-failed',
+        data: { jqxhr, hostSlug }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new HostActions();
