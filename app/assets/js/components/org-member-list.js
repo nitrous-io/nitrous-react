@@ -114,15 +114,13 @@ export default class OrgMemberList extends React.Component {
   }
 
   handleRemoveMember = (member) => {
-    const memberIdentifier = member.username || member.email || member.pendingEmail;
-    orgMemberActions.remove(this.props.org.slug, memberIdentifier);
+    orgMemberActions.remove(this.props.org.slug, member.identifier);
   }
 
   handleMemberRoleChanged = (event, member) => {
-    const memberIdentifier = member.username || member.email,
-          newRole = event.target.value;
+    const newRole = event.target.value;
     this.setState({ updatingMember: member });
-    orgMemberActions.update(this.props.org.slug, memberIdentifier, newRole);
+    orgMemberActions.update(this.props.org.slug, member.identifier, newRole);
   }
 
   handleAddMember = (event) => {
