@@ -1,6 +1,8 @@
 import Store from 'stores/store';
+import userStore from 'stores/user-store';
 import Org from 'records/org';
-import { OrderedMap } from 'immutable';
+import OrgMember from 'records/org-member';
+import { OrderedMap, OrderedSet } from 'immutable';
 
 class OrgStore extends Store {
   _orgs = OrderedMap(); // <K: OrgSlug, V: Org>
@@ -53,6 +55,42 @@ class OrgStore extends Store {
       case 'org.leave-failed': {
         const { jqxhr } = action.data;
         this.handleErrorJqxhr(jqxhr);
+        break;
+      }
+      case 'events:org-member.removed': {
+        const orgSlug = action.data.org_slug,
+              username = action.data.username;
+
+        if (!userStore.user || userStore.user.username !== username) {
+          return;
+        }
+
+        this._orgs = this._orgs.delete(orgSlug);
+        this._lastError = null;
+        break;
+      }
+      case 'events:org-member.changed': {
+        const orgSlug = action.data.org_slug,
+              members = OrderedSet(action.data.members.map((d) => {
+                return OrgMember.deserialize(d);
+              }));
+
+        const currentMember = members.find((m) => m.username === userStore.user.username);
+        if (!currentMember) {
+          return;
+        }
+
+        let org = this._orgs.get(orgSlug);
+        if (!org) {
+          // When the current user is added to an org, we emit an event
+          // informing clients to explictly refresh org data.
+          this.emit('refresh-required');
+          return;
+        }
+        org = org.set('role', currentMember.role);
+
+        this._orgs = this._orgs.set(orgSlug, org);
+        this._lastError = null;
         break;
       }
       default: return;

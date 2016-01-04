@@ -80,7 +80,26 @@ class HostStore extends Store {
         this.emit('respec_failed', { hostSlug });
         break;
       }
+      case 'host.soft-restart-failed': {
+        const { jqxhr, hostSlug } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        taskActions.fail(`host-soft-restart-${hostSlug}`);
+        this.emit('soft-restart-failed', { hostSlug });
+        break;
+      }
       // from events-socket
+      case 'events:host.soft-restarting': {
+        const { host } = action.data;
+        taskActions.update(`host-soft-restart-${host.slug}`, `Troubleshooting ${host.slug}...`);
+        break;
+      }
+      case 'events:host.soft-restarted': {
+        const { host } = action.data;
+        taskActions.done(`host-soft-restart-${host.slug}`);
+        this.emit('soft-restarted', { host });
+        this._lastError = null;
+        break;
+      }
       case 'events:host.creating': {
         const { id, slug, progress } = action.data;
         if (!id || !slug || !progress) {
