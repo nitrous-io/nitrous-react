@@ -26,14 +26,20 @@ export default class Orgs extends React.Component {
   componentDidMount() {
     orgStore.onChange(this.orgStoreDidChange);
     orgActions.fetchAll();
+    orgStore.on('refresh-required', this.onOrgStoreRefreshRequired);
   }
 
   componentWillUnmount() {
     orgStore.offChange(this.orgStoreDidChange);
+    orgStore.off('refresh-required', this.onOrgStoreRefreshRequired);
   }
 
   orgStoreDidChange = () => {
     this.setState({ orgs: orgStore.orgs, orgToLeave: null, orgLeaveConfirmation: null });
+  }
+
+  onOrgStoreRefreshRequired = () => {
+    orgActions.fetchAll();
   }
 
   handleShowLeaveOrg = (org) => {

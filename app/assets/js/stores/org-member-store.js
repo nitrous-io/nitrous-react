@@ -65,6 +65,31 @@ class OrgMemberStore extends Store {
         this.emit(event, { orgSlug, member, errorMessage });
         break;
       }
+      case 'events:org-member.changed': {
+        const orgSlug = action.data.org_slug,
+              members = OrderedSet(action.data.members.map((d) => {
+                return OrgMember.deserialize(d);
+              }));
+
+        this._membersByOrgSlug = this._membersByOrgSlug.set(orgSlug, members);
+        this._lastError = null;
+        break;
+      }
+      case 'events:org-member.removed': {
+        const orgSlug = action.data.org_slug,
+              username = action.data.username;
+
+        let members = this._membersByOrgSlug.get(orgSlug);
+        if (members == null) {
+          break;
+        }
+
+        members = this._membersByOrgSlug.get(orgSlug).filter((m) => m.username !== username);
+
+        this._membersByOrgSlug = this._membersByOrgSlug.set(orgSlug, members);
+        this._lastError = null;
+        break;
+      }
       default: return;
     }
     this.notifyChange();
