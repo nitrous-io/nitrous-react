@@ -50,6 +50,10 @@ export default class OrgMember extends Record({
     return this.username || this.pendingEmail;
   }
 
+  get identifier() {
+    return this.username || this.email || this.pendingEmail;
+  }
+
   get allowedRoles() {
     return Roles.allowedFor(this.role);
   }

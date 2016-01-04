@@ -86,7 +86,7 @@ export default class HostSystem extends React.Component {
   onHostSoftRestarted = (data) => {
     const { host } = data;
     if (this.context.host.slug === host.slug) {
-      snackbarActions.post(`Troubleshooting ${host.slug} is complete. Please try to access your workstation now.`);
+      snackbarActions.post(`Troubleshooting of ${host.slug} is complete. Please try to access your workstation now.`);
       this.setState({ hostTroubleshooting: false });
     }
   }
