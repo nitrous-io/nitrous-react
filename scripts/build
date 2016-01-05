@@ -6,7 +6,6 @@ if [ -z "$CDN_ADDRESS" ]; then
   exit 1
 fi
 
-npm test
 ./node_modules/.bin/gulp dist
 
 # Get version from package.json
