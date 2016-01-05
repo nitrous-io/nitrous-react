@@ -32,6 +32,20 @@ class InvoiceStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
+      case 'invoice.paid': {
+        const { data, invoiceId } = action.data,
+              inv = Invoice.deserialize(data.invoice);
+        this._userInvoices = this.userInvoices.set(inv.id, inv);
+        this.emit('paid', { invoiceId, inv });
+        this._lastError = null;
+        break;
+      }
+      case 'invoice.pay-failed': {
+        const { jqxhr, invoiceId } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('pay-failed', { invoiceId });
+        return; // do not notify of change
+      }
       default: return;
     }
     this.notifyChange();

@@ -42,4 +42,11 @@ export default class Invoice extends Record({
   get title() {
     return this.items[0].description.replace("Subscription to", "").trim();
   }
+
+  get manuallyPayable() {
+    if (this.state === 'paid' || this.state === 'deferred') {
+      return false;
+    }
+    return this.state === 'failed' || this.state === 'attempted';
+  }
 }
