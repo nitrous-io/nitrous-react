@@ -20,9 +20,6 @@ class PendingMemberStore extends Store {
         break;
       }
       case 'pending-member.fetch-failed': {
-        const { code } = action.data;
-        // We display our own error message if code is invalid instead of reflecting the error msg from the backend
-        this.emit('fetch-failed', { code });
         break;
       }
       default: return;

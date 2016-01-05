@@ -88,9 +88,7 @@ export default class Signup extends React.Component {
     if (this.props.query.invite) {
       pendingMemberActions.fetchPendingMemberByCode(this.props.query.invite);
     }
-
     pendingMemberStore.on('fetched', this.onFetchedPendingMember);
-    pendingMemberStore.on('fetch-failed', this.onFetchPendingMemberFailed);
 
     this.loadPromoCode();
   }
@@ -102,20 +100,12 @@ export default class Signup extends React.Component {
     tokenStore.offChange(this.tokenStoreDidChange);
 
     pendingMemberStore.off('fetched', this.onFetchedPendingMember);
-    pendingMemberStore.off('fetch-failed', this.onFetchPendingMemberFailed);
   }
 
   onFetchedPendingMember = (data) => {
     const { member, code } = data;
     if (this.props.query.invite && code === this.props.query.invite) {
       this.setState({ pendingMember: member });
-    }
-  }
-
-  onFetchPendingMemberFailed = (data) => {
-    const { code } = data;
-    if (this.props.query.invite && code === this.props.query.invite) {
-      snackbarActions.post('Error: Invalid invite code');
     }
   }
 
@@ -252,7 +242,7 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            {isInvited ? (
+            {isInvited && pendingMember ? (
               <Alert bsStyle='info'>
                 Create an account below to start coding on your workstation.
               </Alert>
@@ -261,6 +251,12 @@ export default class Signup extends React.Component {
                 checked={createOrg}
                 onChange={this.handleCreateOrgChanged} />
             )}
+
+            {isInvited && !pendingMember ? (
+              <Alert bsStyle='danger'>
+                <Fa icon='exclamation-circle' /> Invalid invite code
+              </Alert>
+            ) : ''}
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={
