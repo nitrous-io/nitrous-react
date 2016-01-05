@@ -1,10 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FormControls, Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
+import pendingMemberActions from 'actions/pending-member-actions';
+import pendingMemberStore from 'stores/pending-member-store';
 import tokenStore from 'stores/token-store';
 import userStore from 'stores/user-store';
 import { randomPassword } from 'lib/random';
@@ -68,7 +70,8 @@ export default class Signup extends React.Component {
       isInvited,
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
       createOrg: this.props.query.intent === 'org',
-      inviteCode: isInvited ? this.props.query.invite : null
+      inviteCode: isInvited ? this.props.query.invite : null,
+      pendingMember: null
     };
   }
 
@@ -82,6 +85,13 @@ export default class Signup extends React.Component {
     promocodeStore.onChange(this.promocodeStoreDidChange);
     tokenStore.onChange(this.tokenStoreDidChange);
 
+    if (this.props.query.invite) {
+      pendingMemberActions.fetchPendingMemberByCode(this.props.query.invite);
+    }
+
+    pendingMemberStore.on('fetched', this.onFetchedPendingMember);
+    pendingMemberStore.on('fetch-failed', this.onFetchPendingMemberFailed);
+
     this.loadPromoCode();
   }
 
@@ -90,6 +100,23 @@ export default class Signup extends React.Component {
     userStore.off('create-failed', this.onUserCreateFailed);
     promocodeStore.offChange(this.promocodeStoreDidChange);
     tokenStore.offChange(this.tokenStoreDidChange);
+
+    pendingMemberStore.off('fetched', this.onFetchedPendingMember);
+    pendingMemberStore.off('fetch-failed', this.onFetchPendingMemberFailed);
+  }
+
+  onFetchedPendingMember = (data) => {
+    const { member, code } = data;
+    if (this.props.query.invite && code === this.props.query.invite) {
+      this.setState({ pendingMember: member });
+    }
+  }
+
+  onFetchPendingMemberFailed = (data) => {
+    const { code } = data;
+    if (this.props.query.invite && code === this.props.query.invite) {
+      snackbarActions.post('Error: Invalid invite code');
+    }
   }
 
   loadPromoCode = (props=this.props) => {
@@ -164,6 +191,7 @@ export default class Signup extends React.Component {
     const { username, email, password, gitHubUserName, promocode,
             inviteCode } = this.state,
           promocodeSlug = promocode && promocode.slug;
+
     userActions.create({ username, email, password, gitHubUserName, promocodeSlug,
                          inviteCode });
   }
@@ -180,9 +208,10 @@ export default class Signup extends React.Component {
 
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg, promocode, isInvited } = this.state,
+            authorizing, processing, createOrg, promocode, isInvited, pendingMember } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
-          missing = !(username && email && password && passwordConfirmation),
+          signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
+          missing = !(username && signupEmail && password && passwordConfirmation),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
 
     return (
@@ -203,9 +232,13 @@ export default class Signup extends React.Component {
             <Input type='text' placeholder='Username' required
               value={username}
               onChange={this.handleUsernameChanged} />
-            <Input type='email' placeholder='Email' required
-              value={email}
-              onChange={this.handleEmailChanged} />
+            {isInvited && pendingMember ? (
+              <FormControls.Static type='email' value={pendingMember.pendingEmail} />
+            ) : (
+              <Input type='email' placeholder='Email' required
+                value={email}
+                onChange={this.handleEmailChanged} />
+            )}
             {isViaGitHub ? '' : (
               <Input type='password' placeholder='Password' required
                 value={password}
