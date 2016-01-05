@@ -188,11 +188,12 @@ export default class Signup extends React.Component {
 
     this.setState({ processing: true });
 
-    const { username, email, password, gitHubUserName, promocode,
+    const { username, email, pendingMember, password, gitHubUserName, promocode,
             inviteCode } = this.state,
+          signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           promocodeSlug = promocode && promocode.slug;
 
-    userActions.create({ username, email, password, gitHubUserName, promocodeSlug,
+    userActions.create({ username, signupEmail, password, gitHubUserName, promocodeSlug,
                          inviteCode });
   }
 
