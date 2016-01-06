@@ -84,11 +84,11 @@ export default class Signup extends React.Component {
     userStore.on('create-failed', this.onUserCreateFailed);
     promocodeStore.onChange(this.promocodeStoreDidChange);
     tokenStore.onChange(this.tokenStoreDidChange);
+    pendingMemberStore.onChange(this.pendingMemberStoreDidChange);
 
     if (this.props.query.invite) {
       pendingMemberActions.fetchPendingMemberByCode(this.props.query.invite);
     }
-    pendingMemberStore.on('fetched', this.onFetchedPendingMember);
 
     this.loadPromoCode();
   }
@@ -98,15 +98,13 @@ export default class Signup extends React.Component {
     userStore.off('create-failed', this.onUserCreateFailed);
     promocodeStore.offChange(this.promocodeStoreDidChange);
     tokenStore.offChange(this.tokenStoreDidChange);
-
-    pendingMemberStore.off('fetched', this.onFetchedPendingMember);
+    pendingMemberStore.offChange(this.pendingMemberStoreDidChange);
   }
 
-  onFetchedPendingMember = (data) => {
-    const { member, code } = data;
-    if (this.props.query.invite && code === this.props.query.invite) {
-      this.setState({ pendingMember: member });
-    }
+  pendingMemberStoreDidChange = () => {
+    const { invite } = this.props.query,
+          pendingMember = invite ? pendingMemberStore.pendingMemberByInviteCode(invite) : null;
+    this.setState({ pendingMember });
   }
 
   loadPromoCode = (props=this.props) => {
