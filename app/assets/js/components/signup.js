@@ -148,6 +148,14 @@ export default class Signup extends React.Component {
       this.context.router.transitionTo('new-org');
       return;
     }
+
+    const pendingMember = this.state.pendingMember,
+          isInvitedCollaborator = pendingMember && pendingMember.containerId;
+    if (isInvitedCollaborator) {
+      this.context.router.transitionTo('shared-containers');
+      return;
+    }
+
     this.context.router.transitionTo('dashboard');
   }
 

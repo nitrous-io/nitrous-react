@@ -16,6 +16,8 @@ class PendingMemberStore extends Store {
           member = OrgMember.deserialize(data.member);
         } else if (data.type === 'collab') {
           member = Collaborator.deserialize(data.member);
+        } else {
+          return;
         }
         this._pendingMembers = this._pendingMembers.set(code, member);
 
