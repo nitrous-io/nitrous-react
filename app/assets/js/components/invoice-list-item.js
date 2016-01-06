@@ -39,7 +39,7 @@ export default class InvoiceListItem extends React.Component {
         paying: false,
         showModal: false
       });
-      snackbarActions.post(`Payment submitted successfully`);
+      snackbarActions.post(`Payment of ${inv.totalChargeDollars} processed successfully`);
     }
   }
 
