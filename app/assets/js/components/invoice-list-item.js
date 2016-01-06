@@ -32,9 +32,9 @@ export default class InvoiceListItem extends React.Component {
   }
 
   onInvoicePaid = (data) => {
-    const { invoiceId } = data;
+    const { inv } = data;
 
-    if (this.props.invoice.id === invoiceId) {
+    if (this.props.invoice.id === inv.id) {
       this.setState({
         paying: false,
         showModal: false
@@ -46,7 +46,7 @@ export default class InvoiceListItem extends React.Component {
   onInvoicePayFailed = (data) => {
     const { invoiceId } = data;
 
-    if (this.props.invoice.id === invoiceId) {
+    if (this.props.invoice.id === invoiceId ) {
       this.setState({
         paying: false,
         showModal: false
