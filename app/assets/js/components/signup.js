@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { FormControls, Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
@@ -221,13 +221,9 @@ export default class Signup extends React.Component {
             <Input type='text' placeholder='Username' required
               value={username}
               onChange={this.handleUsernameChanged} />
-            {isInvited && pendingMember ? (
-              <FormControls.Static type='email' value={pendingMember.pendingEmail} />
-            ) : (
-              <Input type='email' placeholder='Email' required
-                value={email}
-                onChange={this.handleEmailChanged} />
-            )}
+            <Input type='email' disabled={isInvited && pendingMember} placeholder='Email' required
+              value={signupEmail}
+              onChange={this.handleEmailChanged} />
             {isViaGitHub ? '' : (
               <Input type='password' placeholder='Password' required
                 value={password}
