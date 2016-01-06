@@ -1,4 +1,4 @@
-import { Modal, Button, Table } from 'react-bootstrap';
+import { Label, Modal, Button, Table } from 'react-bootstrap';
 import React, { PropTypes } from 'react';
 
 import Invoice from 'records/invoice';
@@ -77,17 +77,19 @@ export default class InvoiceListItem extends React.Component {
           { paying } = this.state,
           invoiceTitle = stringUtil.titleize(invoice.title),
           invoiceCharge = format.currency(invoice.totalChargeDollars),
-          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars);
+          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars),
+          invoiceFailedNotice = invoice.manuallyPayable ? <Label bsStyle='default'>Charge failed!</Label> : null;
+          
 
     return (
       <tr>
-        <td>{invoiceTitle}</td>
+        <td>{invoiceTitle} {invoiceFailedNotice}</td>
         <td><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></td>
         <td>{invoiceCharge}</td>
         <td>
-          <a onClick={this.handleViewOrPayInvoice} className='btn btn-default'>
+          <Button onClick={this.handleViewOrPayInvoice} bsStyle={invoice.manuallyPayable ? 'danger' : 'default'}>
             {invoice.manuallyPayable ? 'Pay Now' : 'View'}
-          </a>
+          </Button>
 
           <Modal show={this.state.showModal} onHide={this.hideModal} backdrop='static'>
             <Modal.Header>
@@ -118,7 +120,7 @@ export default class InvoiceListItem extends React.Component {
                 <Button ref='modalCancel' onClick={this.handleCloseModal}>Close</Button>
               ) : ''}
               {invoice.manuallyPayable ? (
-                <Button ref='modalPay' bsStyle='primary' disabled={paying} onClick={this.handlePayInvoice}>{paying ? 'Processing' : 'Pay Now'}</Button>
+                <Button ref='modalPay' bsStyle='danger' disabled={paying} onClick={this.handlePayInvoice}>{paying ? 'Processing...' : 'Pay Now'}</Button>
               ) : ''}
             </Modal.Footer>
           </Modal>
