@@ -211,7 +211,8 @@ export default class Signup extends React.Component {
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           missing = !(username && signupEmail && password && passwordConfirmation),
-          submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
+          submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation),
+          inviteMsg = (pendingMember && pendingMember.containerId) ? 'collaborating' : 'coding on your workstation';
 
     return (
       <div className='signup-component login-screen'>
@@ -248,7 +249,7 @@ export default class Signup extends React.Component {
 
             {isInvited && pendingMember ? (
               <Alert bsStyle='info'>
-                Create an account below to start coding on your workstation.
+                Create an account below to start {inviteMsg}.
               </Alert>
             ) : (
               <Input type='checkbox' label='Create an organization after sign up'
