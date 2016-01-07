@@ -71,7 +71,8 @@ export default class Signup extends React.Component {
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
       createOrg: this.props.query.intent === 'org',
       inviteCode: isInvited ? this.props.query.invite : null,
-      pendingMember: null
+      pendingMember: null,
+      invalidCode: false
     };
   }
 
@@ -103,8 +104,9 @@ export default class Signup extends React.Component {
 
   pendingMemberStoreDidChange = () => {
     const { invite } = this.props.query,
-          pendingMember = invite ? pendingMemberStore.pendingMemberByInviteCode(invite) : null;
-    this.setState({ pendingMember });
+          pendingMember = invite ? pendingMemberStore.pendingMemberByInviteCode(invite) : null,
+          invalidCode = pendingMember ? false : true;
+    this.setState({ pendingMember, invalidCode });
   }
 
   loadPromoCode = (props=this.props) => {
@@ -205,7 +207,7 @@ export default class Signup extends React.Component {
 
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg, promocode, isInvited, pendingMember } = this.state,
+            authorizing, processing, createOrg, promocode, isInvited, pendingMember, invalidCode } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           missing = !(username && signupEmail && password && passwordConfirmation),
@@ -254,7 +256,7 @@ export default class Signup extends React.Component {
                 onChange={this.handleCreateOrgChanged} />
             )}
 
-            {isInvited && !pendingMember ? (
+            {isInvited && invalidCode ? (
               <Alert bsStyle='danger'>
                 <Fa icon='exclamation-circle' /> Invalid invite code
               </Alert>
