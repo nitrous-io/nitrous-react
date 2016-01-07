@@ -5,6 +5,8 @@ import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
+import pendingMemberActions from 'actions/pending-member-actions';
+import pendingMemberStore from 'stores/pending-member-store';
 import tokenStore from 'stores/token-store';
 import userStore from 'stores/user-store';
 import { randomPassword } from 'lib/random';
@@ -68,7 +70,9 @@ export default class Signup extends React.Component {
       isInvited,
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
       createOrg: this.props.query.intent === 'org',
-      inviteCode: isInvited ? this.props.query.invite : null
+      inviteCode: isInvited ? this.props.query.invite : null,
+      pendingMember: null,
+      invalidCode: false
     };
   }
 
@@ -81,6 +85,11 @@ export default class Signup extends React.Component {
     userStore.on('create-failed', this.onUserCreateFailed);
     promocodeStore.onChange(this.promocodeStoreDidChange);
     tokenStore.onChange(this.tokenStoreDidChange);
+    pendingMemberStore.onChange(this.pendingMemberStoreDidChange);
+
+    if (this.props.query.invite) {
+      pendingMemberActions.fetchPendingMemberByCode(this.props.query.invite);
+    }
 
     this.loadPromoCode();
   }
@@ -90,6 +99,14 @@ export default class Signup extends React.Component {
     userStore.off('create-failed', this.onUserCreateFailed);
     promocodeStore.offChange(this.promocodeStoreDidChange);
     tokenStore.offChange(this.tokenStoreDidChange);
+    pendingMemberStore.offChange(this.pendingMemberStoreDidChange);
+  }
+
+  pendingMemberStoreDidChange = () => {
+    const { invite } = this.props.query,
+          pendingMember = invite ? pendingMemberStore.pendingMemberByInviteCode(invite) : null,
+          invalidCode = pendingMember ? false : true;
+    this.setState({ pendingMember, invalidCode });
   }
 
   loadPromoCode = (props=this.props) => {
@@ -133,6 +150,14 @@ export default class Signup extends React.Component {
       this.context.router.transitionTo('new-org');
       return;
     }
+
+    const pendingMember = this.state.pendingMember,
+          isInvitedCollaborator = pendingMember && pendingMember.containerId;
+    if (isInvitedCollaborator) {
+      this.context.router.transitionTo('shared-containers');
+      return;
+    }
+
     this.context.router.transitionTo('dashboard');
   }
 
@@ -161,10 +186,12 @@ export default class Signup extends React.Component {
 
     this.setState({ processing: true });
 
-    const { username, email, password, gitHubUserName, promocode,
+    const { username, email, pendingMember, password, gitHubUserName, promocode,
             inviteCode } = this.state,
+          signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           promocodeSlug = promocode && promocode.slug;
-    userActions.create({ username, email, password, gitHubUserName, promocodeSlug,
+
+    userActions.create({ username, signupEmail, password, gitHubUserName, promocodeSlug,
                          inviteCode });
   }
 
@@ -180,10 +207,12 @@ export default class Signup extends React.Component {
 
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg, promocode, isInvited } = this.state,
+            authorizing, processing, createOrg, promocode, isInvited, pendingMember, invalidCode } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
-          missing = !(username && email && password && passwordConfirmation),
-          submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation);
+          signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
+          missing = !(username && signupEmail && password && passwordConfirmation),
+          submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation),
+          inviteMsg = (pendingMember && pendingMember.containerId) ? 'collaborating' : 'coding on your workstation';
 
     return (
       <div className='signup-component login-screen'>
@@ -203,8 +232,8 @@ export default class Signup extends React.Component {
             <Input type='text' placeholder='Username' required
               value={username}
               onChange={this.handleUsernameChanged} />
-            <Input type='email' placeholder='Email' required
-              value={email}
+            <Input type='email' disabled={isInvited && pendingMember} placeholder='Email' required
+              value={signupEmail}
               onChange={this.handleEmailChanged} />
             {isViaGitHub ? '' : (
               <Input type='password' placeholder='Password' required
@@ -218,15 +247,21 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            {isInvited ? (
+            {isInvited && pendingMember ? (
               <Alert bsStyle='info'>
-                Create an account below to start coding on your workstation.
+                Create an account below to start {inviteMsg}.
               </Alert>
             ) : (
               <Input type='checkbox' label='Create an organization after sign up'
                 checked={createOrg}
                 onChange={this.handleCreateOrgChanged} />
             )}
+
+            {isInvited && invalidCode ? (
+              <Alert bsStyle='danger'>
+                <Fa icon='exclamation-circle' /> Invalid invite code
+              </Alert>
+            ) : ''}
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={

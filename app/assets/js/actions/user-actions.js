@@ -32,12 +32,12 @@ class UserActions {
   }
 
   create(options) {
-    const { username, email, password, gitHubUserName, promocodeSlug,
+    const { username, signupEmail, password, gitHubUserName, promocodeSlug,
             inviteCode } = options;
     return ajax({
       type: 'POST',
       url: '/api/v0/users',
-      data: { username, email, password, github_username: gitHubUserName, promo_code: promocodeSlug,
+      data: { username, email: signupEmail, password, github_username: gitHubUserName, promo_code: promocodeSlug,
               invite_code: inviteCode }
     }).then((data) => {
       dispatcher.dispatch({
