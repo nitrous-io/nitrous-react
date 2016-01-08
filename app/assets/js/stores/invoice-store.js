@@ -32,7 +32,6 @@ class InvoiceStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         return; // do not notify of change
       }
-      case 'invoice.paid':
       case 'invoice.pay-failed': {
         const { jqxhr, invoiceId } = action.data;
         this.handleErrorJqxhr(jqxhr);
@@ -42,10 +41,17 @@ class InvoiceStore extends Store {
       // from events-socket
       case 'events:invoice.updated': {
         const { invoice } = action.data,
-              inv = Invoice.deserialize(invoice);
-        this._userInvoices = this.userInvoices.set(inv.id, inv);
+              inv = Invoice.deserialize(invoice),
+              orgInv = this.orgInvoiceByInvoiceId(inv.id);
+
+        if (!orgInv) {
+          this._userInvoices = this.userInvoices.set(inv.id, inv);
+        }
+        // FIXME: Update this._orgInvoices
+
         this.emit('paid', { inv });
         this._lastError = null;
+        break;
       }
       default: return;
     }
@@ -58,6 +64,14 @@ class InvoiceStore extends Store {
 
   orgInvoicesBySlug(orgSlug) {
     return this._orgInvoices.get(orgSlug);
+  }
+
+  orgInvoiceByInvoiceId(invoiceId) {
+    return this._orgInvoices.find((orgInvs) => {
+      return orgInvs.find((inv) => {
+        return inv.id === invoiceId;
+      });
+    });
   }
 }
 

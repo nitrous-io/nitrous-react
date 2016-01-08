@@ -54,11 +54,6 @@ class InvoiceActions {
       type: 'POST',
       url: `/api/v0/invoices/${invoiceId}/pay`,
       dataType: 'json'
-    }).then((data) => {
-      dispatcher.dispatch({
-        type: 'invoice.paid',
-        data: { data, invoiceId }
-      });
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
