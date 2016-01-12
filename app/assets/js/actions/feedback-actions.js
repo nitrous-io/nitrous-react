@@ -1,5 +1,4 @@
 import { authedAjax }  from 'lib/ajax';
-// import dispatcher from 'app-dispatcher';
 
 class FeedbackActions {
   send(subject, message) {
@@ -15,7 +14,7 @@ class FeedbackActions {
         currentURL: window.location.href
       }
     });
-    
+
     return promise;
   }
 }

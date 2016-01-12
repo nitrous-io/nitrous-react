@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge,
-  Navbar, Modal, Input, Button } from 'react-bootstrap';
+import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge, Navbar } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Org from 'records/org';
@@ -9,9 +8,8 @@ import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
 import subscriptionStore from 'stores/subscription-store';
 import containerStore from 'stores/container-store';
-import feedbackActions from 'actions/feedback-actions';
-import snackbarActions from 'actions/snackbar-actions';
 import subscriptionActions from 'actions/subscription-actions';
+import SendFeedback from 'components/send-feedback';
 import TimeAgo from 'react-timeago';
 import $ from 'jquery';
 
@@ -34,10 +32,7 @@ export default class ContextSwitcher extends React.Component {
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
     sharedContainerCount: containerStore.sharedContainers.size,
-    showFeedbackModal: false,
-    subject: null,
-    message: null,
-    sending: false
+    showSendFeedback: false
   };
 
   componentDidMount() {
@@ -86,44 +81,17 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ trialSubscription: subscriptionStore.trialSubscription });
   };
 
-  handleShowFeedbackModal = () => {
-    this.setState({ showFeedbackModal: true }, () => {
-      const subjectField = this.refs.subjectField.getInputDOMNode();
-      subjectField.select();
-      subjectField.focus();
-    });
+  handleShowSendFeedback = () => {
+    this.setState({ showSendFeedback: true });
   };
 
-  handleSubjectChanged = (event) => {
-    this.setState({ subject: event.target.value });
-  };
-
-  handleMessageChanged = (event) => {
-    this.setState({ message: event.target.value });
-  };
-
-  handleHideFeedbackModal = () => {
-    this.setState({ showFeedbackModal: false });
-  };
-
-  handleSendFeedback = () => {
-    this.setState({ sending: true });
-
-    const { subject, message } = this.state;
-    feedbackActions.send(subject, message).then(() => {
-      this.setState({ sending: false, subject: null, message: null });
-      this.handleHideFeedbackModal();
-      snackbarActions.post('Thanks for your feedback!');
-    }).catch(() => {
-      this.setState({ sending: false });
-      snackbarActions.post('Failed to send your feedback, please try again or send an email to support@nitrous.io.');
-    });
-  };
+  handleHideSendFeedback = () => {
+    this.setState({ showSendFeedback: false });
+  }
 
   render() {
     const { selectedHost, showTooltip } = this.props,
-          { user, sharedContainerCount,
-            showFeedbackModal, subject, message, sending } = this.state,
+          { user, sharedContainerCount, showSendFeedback } = this.state,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
@@ -195,7 +163,7 @@ export default class ContextSwitcher extends React.Component {
           ) : ''}
           <MenuItem href={makeHref('new-org')} eventKey='create-org'>Create Organization...</MenuItem>
           <MenuItem divider />
-          <MenuItem onSelect={this.handleShowFeedbackModal}>Send Feedback</MenuItem>
+          <MenuItem onSelect={this.handleShowSendFeedback}>Send Feedback</MenuItem>
         </DropdownButton>
       </OverlayTrigger>
     );
@@ -235,35 +203,7 @@ export default class ContextSwitcher extends React.Component {
           <Badge>Trial ends in <TimeAgo date={currentSubscription.activeTrialEnd} formatter={timeAgoFormatter} /></Badge>
         ) : ''}
 
-        <Modal show={showFeedbackModal} onHide={this.handleHideFeedbackModal}>
-          <Modal.Header>
-            <Modal.Title>Send Feedback</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <label htmlFor='subject-field'>Subject</label>
-            <Input id='subject-field'
-              ref='subjectField'
-              type='text'
-              disabled={sending}
-              value={subject}
-              onChange={this.handleSubjectChanged} />
-
-            <label htmlFor='message-field'>Message</label>
-            <Input id='message-field' required
-              type='textarea' rows='5'
-              disabled={sending}
-              value={message}
-              onChange={this.handleMessageChanged} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button ref='modalCancel' onClick={this.handleHideFeedbackModal}>Cancel</Button>
-            <Button bsStyle='primary'
-              disabled={sending || message === '' || message == null}
-              onClick={sending ? null : this.handleSendFeedback}>
-              {sending ? 'Sending...' : 'Send'}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <SendFeedback show={showSendFeedback} onHide={this.handleHideSendFeedback} />
       </Navbar>
     );
   }
