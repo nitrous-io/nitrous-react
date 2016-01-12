@@ -8,10 +8,14 @@ import planStore from 'stores/plan-store';
 import regionStore from 'stores/region-store';
 import userStore from 'stores/user-store';
 import subscriptionStore from 'stores/subscription-store';
+import tokenStore from 'stores/token-store';
 import hostActions from 'actions/host-actions';
 import paymentActions from 'actions/payment-actions';
 import planActions from 'actions/plan-actions';
+import promocodeActions from 'actions/promocode-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import subscriptionActions from 'actions/subscription-actions';
+import userActions from 'actions/user-actions';
 import regionActions from 'actions/region-actions';
 import ContextSwitcher from 'components/context-switcher';
 import PlanListItem from 'components/plan-list-item';
@@ -20,8 +24,6 @@ import PaymentMethod from 'components/payment-method';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
-import snackbarActions from 'actions/snackbar-actions';
-import promocodeActions from 'actions/promocode-actions';
 
 export default class NewHost extends React.Component {
   displayName = 'NewHost';
@@ -52,6 +54,7 @@ export default class NewHost extends React.Component {
 
     this.state = {
       user: userStore.user,
+      token: tokenStore.token,
       subscription: this.findSubscription(),
       billingProfile: this.findBillingProfile(),
       plans: this.context.org ? planStore.orgPlans : planStore.personalPlans,
@@ -156,6 +159,10 @@ export default class NewHost extends React.Component {
     });
   };
 
+  handleResendConfirmation = () => {
+    userActions.resendConfirmation({ appToken: this.state.token });
+  }
+
   handlePlanSelection = (plan) => {
     this.setState({ selectedPlan: plan });
   };
@@ -199,7 +206,7 @@ export default class NewHost extends React.Component {
   };
 
   // Whether user is allowed to add a payment method.
-  // Individual context: always allowed.
+  // Individual context: allowed if user has confirmed their email address.
   // Org context: only owners are allowed to add a payment method.
   canAddPayment = () => {
     const { org } = this.context;
@@ -277,7 +284,7 @@ export default class NewHost extends React.Component {
 
     return (
       <div>
-        <h3>{"Your organization's plan"}</h3>
+        <h3>{`Your organization's plan`}</h3>
         <Grid className='ui-card-grid'>
           <Row>
             <PlanListItem key={`plan-${orgPlan.slug}`} plan={orgPlan}
@@ -294,7 +301,7 @@ export default class NewHost extends React.Component {
 
   render() {
     const org = this.context.org,
-          { subscription, regions, creating, paymentFailed } = this.state,
+          { user, subscription, regions, creating, paymentFailed } = this.state,
           selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
           disableCreate = creating || this.hostsLimitReached(),
           emailOwnerLink = (org && org.email) ? 'mailto:' + org.email + '?subject=Workstation Limit Reached' : null,
@@ -305,6 +312,21 @@ export default class NewHost extends React.Component {
       <div className='new-host-component'>
         <div className='container'>
           <ContextSwitcher selectedOrg={org} />
+
+          {!user.confirmed ? (
+            <Alert bsStyle='warning' className='unconfirmed-email clearfix'>
+              <p>
+                Your email address <strong>{user.unverifiedEmail}</strong> is
+                unconfirmed. Please check your inbox for our confirmation
+                email.
+              </p>
+              <Button bsStyle='default' onClick={this.handleResendConfirmation}>
+                <Fa icon='paper-plane' />
+                Re-send Confirmation Email
+              </Button>
+            </Alert>
+          ) : ''}
+
           {this.hostsLimitReached() ? (
             <Alert bsStyle="info">
               <Fa icon='exclamation-circle' /> You have reached the maximum number of workstations allowed for your organization
@@ -312,6 +334,7 @@ export default class NewHost extends React.Component {
               {!this.isOrgOwner() && this.canUpgrade() && emailOwnerLink ? <span> - <a href={emailOwnerLink}> Notify owner</a></span> : ''}
             </Alert>
           ) : ''}
+
           <h2>New Workstation</h2>
           {this.renderPlanSelection()}
           <h3>Select Region</h3>
