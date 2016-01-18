@@ -41,13 +41,17 @@ class InvoiceStore extends Store {
       // from events-socket
       case 'events:invoice.updated': {
         const { invoice } = action.data,
-              inv = Invoice.deserialize(invoice),
-              orgInv = this.orgInvoiceByInvoiceId(inv.id);
+              inv = Invoice.deserialize(invoice);
+        let orgInvoices = this.orgInvoicesByInvoiceId(inv.id);
 
-        if (!orgInv) {
+        if (!orgInvoices) {
           this._userInvoices = this.userInvoices.set(inv.id, inv);
+        } else {
+          const orgInvoicesWithOrgSlugKey = this.orgInvoicesWithOrgSlugKeyByInvoicesKeyValueObject(orgInvoices),
+                orgSlug = orgInvoicesWithOrgSlugKey.keySeq().first();
+          orgInvoices = orgInvoices.set(inv.id, inv);
+          this._orgInvoices = this._orgInvoices.set(orgSlug, orgInvoices);
         }
-        // FIXME: Update this._orgInvoices
 
         this.emit('paid', { inv });
         this._lastError = null;
@@ -66,11 +70,19 @@ class InvoiceStore extends Store {
     return this._orgInvoices.get(orgSlug);
   }
 
-  orgInvoiceByInvoiceId(invoiceId) {
-    return this._orgInvoices.find((orgInvs) => {
-      return orgInvs.find((inv) => {
-        return inv.id === invoiceId;
+  // Returns the Value in _orgInvoices (ie. V: <K: id, V: Invoice>) without the orgSlug key.
+  orgInvoicesByInvoiceId(invoiceId) {
+    return this._orgInvoices.find((invoices) => {
+      return invoices.find((invoice) => {
+        return invoice.id === invoiceId;
       });
+    });
+  }
+
+  // Returns the _orgInvoices object with orgSlug as its key by matching its Value (ie. V: <K: id, V: Invoice>) to the given invoices key-value object.
+  orgInvoicesWithOrgSlugKeyByInvoicesKeyValueObject(invoicesObj) {
+    return this._orgInvoices.find((invoices) => {
+      return invoices === invoicesObj;
     });
   }
 }
