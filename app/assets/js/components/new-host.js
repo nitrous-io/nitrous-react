@@ -62,7 +62,9 @@ export default class NewHost extends React.Component {
       selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
       selectedRegion: regionStore.regions.first(),
       creating: false,
-      paymentFailed: false
+      paymentFailed: false,
+      resendingConfirmation: false,
+      confirmationResent: false
     };
   }
 
@@ -160,7 +162,13 @@ export default class NewHost extends React.Component {
   };
 
   handleResendConfirmation = () => {
-    userActions.resendConfirmation({ appToken: this.state.token });
+    this.setState({ resendingConfirmation: true });
+    userActions.resendConfirmation({ appToken: this.state.token }).then(() => {
+      this.setState({ resendingConfirmation: false, confirmationResent: true });
+    }).catch(() => {
+      this.setState({ resendingConfirmation: false });
+      snackbarActions.post('Unable to resend confirmation email, please contact support.');
+    });
   }
 
   handlePlanSelection = (plan) => {
@@ -301,7 +309,8 @@ export default class NewHost extends React.Component {
 
   render() {
     const org = this.context.org,
-          { user, subscription, regions, creating, paymentFailed } = this.state,
+          { user, subscription, regions, creating, paymentFailed,
+            resendingConfirmation, confirmationResent } = this.state,
           selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
           disableCreate = creating || this.hostsLimitReached(),
           emailOwnerLink = (org && org.email) ? 'mailto:' + org.email + '?subject=Workstation Limit Reached' : null,
@@ -320,10 +329,18 @@ export default class NewHost extends React.Component {
                 unconfirmed. Please check your inbox for our confirmation
                 email.
               </p>
-              <Button bsStyle='default' onClick={this.handleResendConfirmation}>
-                <Fa icon='paper-plane' />
-                Re-send Confirmation Email
-              </Button>
+              {confirmationResent ? (
+                <Button bsStyle='default' disabled>
+                  <Fa icon='paper-plane' /> Sent!
+                </Button>
+              ) : (
+                <Button bsStyle='default'
+                  disabled={resendingConfirmation}
+                  onClick={this.handleResendConfirmation}>
+                  <Fa icon='paper-plane' />
+                  {resendingConfirmation ? 'Sending...' : 'Re-send Confirmation Email'}
+                </Button>
+              )}
             </Alert>
           ) : ''}
 
