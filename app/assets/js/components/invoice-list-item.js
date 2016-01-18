@@ -74,12 +74,9 @@ export default class InvoiceListItem extends React.Component {
 
   render() {
     const { invoice } = this.props,
-          { paying } = this.state,
           invoiceTitle = stringUtil.titleize(invoice.title),
-          invoiceCharge = format.currency(invoice.totalChargeDollars),
-          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars),
-          invoiceFailedNotice = invoice.manuallyPayable ? <Label bsStyle='default'>Charge failed!</Label> : null;
-          
+          invoiceFailedNotice = invoice.manuallyPayable ? <Label bsStyle='default'>Charge failed!</Label> : null,
+          invoiceCharge = format.currency(invoice.totalChargeDollars);
 
     return (
       <tr>
@@ -90,42 +87,50 @@ export default class InvoiceListItem extends React.Component {
           <Button onClick={this.handleViewOrPayInvoice} bsStyle={invoice.manuallyPayable ? 'danger' : 'default'}>
             {invoice.manuallyPayable ? 'Pay Now' : 'View'}
           </Button>
-
-          <Modal show={this.state.showModal} onHide={this.hideModal} backdrop='static'>
-            <Modal.Header>
-              <Modal.Title><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Table responsive>
-                <tbody>
-                  <tr>
-                    <td>Subscription to {invoiceTitle}</td>
-                    <td>{invoiceCharge}</td>
-                  </tr>
-                  {invoice.creditAvailable ? (
-                    <tr>
-                      <td>Credits applied</td>
-                      <td>({invoiceCreditAvailable})</td>
-                    </tr>
-                  ) : ''}
-                  <tr>
-                    <td><strong>Total Charge</strong></td>
-                    <td><strong>{invoiceCharge}</strong></td>
-                  </tr>
-                </tbody>
-              </Table>
-            </Modal.Body>
-            <Modal.Footer>
-              {!paying ? (
-                <Button ref='modalCancel' onClick={this.handleCloseModal}>Close</Button>
-              ) : ''}
-              {invoice.manuallyPayable ? (
-                <Button ref='modalPay' bsStyle='danger' disabled={paying} onClick={this.handlePayInvoice}>{paying ? 'Processing...' : 'Pay Now'}</Button>
-              ) : ''}
-            </Modal.Footer>
-          </Modal>
+          {this.renderModal()}
         </td>
       </tr>
+    );
+  }
+
+  renderModal() {
+    const { invoice } = this.props,
+          { paying } = this.state,
+          invoiceTitle = stringUtil.titleize(invoice.title),
+          invoiceCharge = format.currency(invoice.totalChargeDollars);
+
+    return (
+      <Modal show={this.state.showModal} onHide={this.hideModal}>
+        <Modal.Header>
+          <Modal.Title>{invoiceTitle}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Table responsive>
+            <tbody>
+              {invoice.items.map((item) => {
+                return (
+                  <tr key={`invoiceitem-${item.id}`}>
+                    <td>{item.description}</td>
+                    <td>{format.currency(item.amountDollars)}</td>
+                  </tr>
+                );
+              })}
+              <tr>
+                <td><strong>Total Charge</strong></td>
+                <td><strong>{invoiceCharge}</strong></td>
+              </tr>
+            </tbody>
+          </Table>
+        </Modal.Body>
+        <Modal.Footer>
+          {!paying ? (
+            <Button ref='modalCancel' onClick={this.handleCloseModal}>Close</Button>
+          ) : ''}
+          {invoice.manuallyPayable ? (
+            <Button ref='modalPay' bsStyle='danger' disabled={paying} onClick={this.handlePayInvoice}>{paying ? 'Processing...' : 'Pay Now'}</Button>
+          ) : ''}
+        </Modal.Footer>
+      </Modal>
     );
   }
 }

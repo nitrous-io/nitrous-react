@@ -1,7 +1,10 @@
 import { Record } from 'immutable';
 
+import InvoiceItem from 'records/invoice-item';
+
 export default class Invoice extends Record({
   id: null,
+  description: null,
   userId: null,
   totalCharge: null,
   periodStart: null,
@@ -14,10 +17,15 @@ export default class Invoice extends Record({
   subscription: false
 }) {
   static deserialize(inv) {
+    // presence of sid means invoice is from stripe json instead of db
     const invID = inv.sid ? inv.sid : inv.id;
+    const invItems = (inv.items || []).map((item) => {
+      return InvoiceItem.deserialize(item);
+    });
     return new this({
       id: invID,
       userId: inv.user_id,
+      description: inv.description,
       totalCharge: inv.total_charge,
       periodStart: inv.period_start,
       periodEnd: inv.period_end,
@@ -25,8 +33,7 @@ export default class Invoice extends Record({
       attempted: inv.attempted,
       totalCredit: inv.totalCredit,
       creditAvailable: inv.creditAvailable,
-      // FIXME: Deserialize items to InvoiceItem
-      items: inv.items,      
+      items: invItems,
       subscription: inv.subscription
     });
   }
@@ -40,6 +47,10 @@ export default class Invoice extends Record({
   }
 
   get title() {
+    if (this.description) {
+      return this.description;
+    }
+    // TODO: below is deprecated once stripe invoices are live
     return this.items[0].description.replace("Subscription to", "").trim();
   }
 
