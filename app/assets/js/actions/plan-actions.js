@@ -6,10 +6,7 @@ class PlanActions {
     const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/plans',
-      dataType: 'json',
-      data: {
-        eligible: true
-      }
+      dataType: 'json'
     });
     promise.then((data) => {
       dispatcher.dispatch({
