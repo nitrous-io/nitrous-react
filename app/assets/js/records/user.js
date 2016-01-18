@@ -7,6 +7,7 @@ export default class User extends Record({
   username: null,
   email: null,
   unconfirmedEmail: null,
+  confirmed: null,
   name: null,
   firstTime: false,
   admin: false,
@@ -24,6 +25,7 @@ export default class User extends Record({
       username: p.username,
       email: p.email,
       unconfirmedEmail: p.unconfirmed_email,
+      confirmed: p.confirmed,
       name: p.name,
       firstTime: p.first_time,
       admin: !!p.admin,
@@ -45,5 +47,16 @@ export default class User extends Record({
 
   get displayName() {
     return this.name || this.username;
+  }
+
+  // unconfirmedEmail: this is present when the user has updated their email.
+  // Otherwise, the email field stores the unconfirmed email address they used
+  // when they signed up.
+  get unverifiedEmail() {
+    if (this.confirmed) {
+      return null;
+    }
+
+    return this.unconfirmedEmail || this.email;
   }
 }

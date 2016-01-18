@@ -2,7 +2,6 @@ import { Record } from 'immutable';
 
 export default class Plan extends Record({
   id: null,
-  basePlanId: null,
   slug: null,
   name: null,
   description: null,
@@ -21,11 +20,6 @@ export default class Plan extends Record({
   maxSnapshots: 0,
   maxHosts: 0,
   maxCollaborators: 1,
-  cleanPreview: false,
-  desktopApp: false,
-  ssh: false,
-  customDomain: false,
-  customTemplates: false,
   org: false,
   edu: false,
   trialPeriodDays: 0
@@ -33,7 +27,6 @@ export default class Plan extends Record({
   static deserialize(p) {
     return new this({
       id: p.id,
-      basePlanId: p.base_plan_id,
       slug: p.slug,
       name: p.name,
       description: p.description,
@@ -52,11 +45,6 @@ export default class Plan extends Record({
       maxSnapshots: p.max_snapshots,
       maxHosts: p.max_hosts || 0,
       maxCollaborators: p.max_collaborators,
-      cleanPreview: !!p.clean_preview,
-      desktopApp: !!p.desktop_app,
-      ssh: !!p.ssh,
-      customDomain: !!p.custom_domain,
-      customTemplates: !!p.custom_templates,
       org: !!p.org,
       edu: !!p.edu,
       trialPeriodDays: p.trial_period_days

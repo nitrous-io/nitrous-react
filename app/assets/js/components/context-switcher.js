@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge, Navbar } from 'react-bootstrap';
+
 import Host from 'records/host';
 import Org from 'records/org';
 import userStore from 'stores/user-store';
@@ -8,6 +9,7 @@ import hostStore from 'stores/host-store';
 import subscriptionStore from 'stores/subscription-store';
 import containerStore from 'stores/container-store';
 import subscriptionActions from 'actions/subscription-actions';
+import SendFeedback from 'components/send-feedback';
 import TimeAgo from 'react-timeago';
 import $ from 'jquery';
 
@@ -29,7 +31,8 @@ export default class ContextSwitcher extends React.Component {
     user: userStore.user,
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
-    sharedContainerCount: containerStore.sharedContainers.size
+    sharedContainerCount: containerStore.sharedContainers.size,
+    showSendFeedback: false
   };
 
   componentDidMount() {
@@ -78,9 +81,17 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ trialSubscription: subscriptionStore.trialSubscription });
   };
 
+  handleShowSendFeedback = () => {
+    this.setState({ showSendFeedback: true });
+  };
+
+  handleHideSendFeedback = () => {
+    this.setState({ showSendFeedback: false });
+  }
+
   render() {
     const { selectedHost, showTooltip } = this.props,
-          { user, sharedContainerCount } = this.state,
+          { user, sharedContainerCount, showSendFeedback } = this.state,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
@@ -151,6 +162,8 @@ export default class ContextSwitcher extends React.Component {
             <MenuItem href={makeHref('orgs')} eventKey='manage-orgs'>Manage Organizations...</MenuItem>
           ) : ''}
           <MenuItem href={makeHref('new-org')} eventKey='create-org'>Create Organization...</MenuItem>
+          <MenuItem divider />
+          <MenuItem onSelect={this.handleShowSendFeedback}>Send Feedback</MenuItem>
         </DropdownButton>
       </OverlayTrigger>
     );
@@ -189,6 +202,8 @@ export default class ContextSwitcher extends React.Component {
         {currentSubscription && currentSubscription.activeTrialEnd ? (
           <Badge>Trial ends in <TimeAgo date={currentSubscription.activeTrialEnd} formatter={timeAgoFormatter} /></Badge>
         ) : ''}
+
+        <SendFeedback show={showSendFeedback} onHide={this.handleHideSendFeedback} />
       </Navbar>
     );
   }
