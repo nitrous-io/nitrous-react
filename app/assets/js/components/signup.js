@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
@@ -15,6 +16,7 @@ import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 import promocodeActions from 'actions/promocode-actions';
 import promocodeStore from 'stores/promocode-store';
+import Captcha from 'lib/captcha';
 
 export default class Signup extends React.Component {
   displayName = 'Signup';
@@ -72,8 +74,11 @@ export default class Signup extends React.Component {
       createOrg: this.props.query.intent === 'org',
       inviteCode: isInvited ? this.props.query.invite : null,
       pendingMember: null,
-      invalidCode: false
+      invalidCode: false,
+      captchaToken: null,
     };
+
+    Captcha.setHandlerForTokenChange(this.handleChangeCaptcha.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -187,12 +192,12 @@ export default class Signup extends React.Component {
     this.setState({ processing: true });
 
     const { username, email, pendingMember, password, gitHubUserName, promocode,
-            inviteCode } = this.state,
+            inviteCode, captchaToken } = this.state,
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           promocodeSlug = promocode && promocode.slug;
 
     userActions.create({ username, signupEmail, password, gitHubUserName, promocodeSlug,
-                         inviteCode });
+                         inviteCode, captchaToken });
   }
 
   handleSignupWithGithub = () => {
@@ -205,12 +210,17 @@ export default class Signup extends React.Component {
     });
   }
 
+  handleChangeCaptcha = (value) => {
+    this.setState({captchaToken: value});
+  }
+
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
-            authorizing, processing, createOrg, promocode, isInvited, pendingMember, invalidCode } = this.state,
+            authorizing, processing, createOrg, promocode, isInvited, pendingMember,
+            invalidCode, captchaToken } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
-          missing = !(username && signupEmail && password && passwordConfirmation),
+          missing = !(username && signupEmail && password && passwordConfirmation && captchaToken),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation),
           inviteMsg = (pendingMember && pendingMember.containerId) ? 'collaborating' : 'coding on your workstation';
 
@@ -276,6 +286,8 @@ export default class Signup extends React.Component {
                 </OverlayTrigger>
               )}
             </ButtonToolbar>
+
+            <ReCAPTCHA sitekey={Captcha.siteKey} onChange={Captcha.onTokenChange()} />
           </form>
         </Panel>
         <div className='misc-links'>
@@ -285,5 +297,4 @@ export default class Signup extends React.Component {
       </div>
     );
   }
-
 }
