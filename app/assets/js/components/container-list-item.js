@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Col, ButtonToolbar, Button, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Col, ButtonToolbar, Button, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Container from 'records/container';
@@ -12,6 +12,8 @@ import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import SnapshotContainer from 'components/snapshot-container';
 import templateStore from 'stores/template-store';
+import snapshotStore from 'stores/snapshot-store';
+import orgStore from 'stores/org-store';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -25,18 +27,34 @@ export default class ContainerListItem extends React.Component {
     host: PropTypes.instanceOf(Host)
   };
 
-  state = {
-    slugConfirmation: null, // slug entered by user in the termination confirmation dialog
-    showSnapshotModal: false,
-    templates: templateStore.templates
-  };
+  constructor(props, context) {
+    super(props, context);
+
+    const org = props.host.orgId ? orgStore.orgByOrgId(props.host.orgId) : null;
+
+    this.state = {
+      slugConfirmation: null, // slug entered by user in the termination confirmation dialog
+      showSnapshotModal: false,
+      templates: templateStore.templates,
+      snapshots: snapshotStore.snapshotsByOrgSlug(org.slug)
+    };
+  }
 
   componentDidMount() {
     templateStore.onChange(this.templateStoreDidChange);
+    snapshotStore.onChange(this.snapshotStoreDidChange);
   }
 
   componentWillUnmount() {
     templateStore.offChange(this.templateStoreDidChange);
+    snapshotStore.offChange(this.snapshotStoreDidChange);
+  }
+
+  snapshotStoreDidChange = () => {
+    if (this.props.host.orgId) {
+      const org = orgStore.orgByOrgId(this.props.host.orgId);
+      this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
+    }
   }
 
   templateStoreDidChange = () => {
@@ -91,6 +109,16 @@ export default class ContainerListItem extends React.Component {
     return null;
   }
 
+  getSnapshot(snapshotId) {
+    const { snapshots } = this.state;
+    if (snapshots) {
+      return snapshots.find((snapshot) => {
+        return snapshot.id === snapshotId;
+      });
+    }
+    return null;
+  }
+
   render() {
     const { container, host } = this.props,
           { showSnapshotModal } = this.state,
@@ -106,7 +134,9 @@ export default class ContainerListItem extends React.Component {
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
             makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
-          template = container ? this.getTemplate(container) : null;
+          template = container ? this.getTemplate(container) : null,
+          snapshot = (container && container.snapshotId) ? this.getSnapshot(container.snapshotId) : null,
+          snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -117,11 +147,21 @@ export default class ContainerListItem extends React.Component {
             ) : (
               <div className='default-template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}></div>
             )}
-            <h4>{container.displayName}</h4>
-            <div className='info'>
-              <ContainerState state={container.state} />
-              <SelectableText className='slug'>{container.slug}</SelectableText>
+            <div className='text-info'>
+              <h4>{container.displayName}</h4>
+              <div className='info'>
+                <ContainerState state={container.state} />
+                <SelectableText className='slug'>{container.slug}</SelectableText>
+              </div>
+              <div className='snapshot-info'>
+                {container.snapshotId ? (
+                  <OverlayTrigger placement='right' overlay={<Tooltip id='snapshot-tooltip'>Created from {snapshotName}</Tooltip>}>
+                    <span><Fa icon="camera" /></span>
+                  </OverlayTrigger>
+                ) : ''}
+              </div>
             </div>
+
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
                 <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || host && host.isUnusable} id={`container-actions-${container.id}`}>
