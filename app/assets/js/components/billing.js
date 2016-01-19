@@ -26,10 +26,6 @@ export default class Billing extends React.Component {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
-  static propTypes = {
-    fromStripe: PropTypes.bool
-  };
-
   static willTransitionTo() {
     Mp.track(MpEvents.EventDashboardViewedBilling);
   }
@@ -118,7 +114,7 @@ export default class Billing extends React.Component {
     if (org) {
       invoiceActions.fetchAllByOrgSlug(org.slug);
     } else {
-      invoiceActions.fetchAll(this.props.fromStripe);
+      invoiceActions.fetchAll();
     }
   }
 
