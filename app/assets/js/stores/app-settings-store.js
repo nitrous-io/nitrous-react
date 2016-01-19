@@ -1,5 +1,6 @@
 import Store from 'stores/store';
 import Mp from 'lib/mp';
+import Captcha from 'lib/captcha';
 
 class AppSettingsStore extends Store {
   handleAction(action) {
@@ -11,6 +12,10 @@ class AppSettingsStore extends Store {
         if (action.data.mixpanel_token) {
           Mp.init(action.data.mixpanel_token);
         }
+        if (action.data.captcha_key) {
+          Captcha.init(action.data.captcha_key);
+        }
+
         break;
       }
       default: return;
