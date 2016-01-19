@@ -48,6 +48,21 @@ class InvoiceActions {
     });
     return promise;
   }
+
+  pay(invoiceId) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/invoices/${invoiceId}/pay`,
+      dataType: 'json'
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'invoice.pay-failed',
+        data: { jqxhr, invoiceId }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new InvoiceActions();

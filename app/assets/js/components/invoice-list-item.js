@@ -1,6 +1,10 @@
+import { Label, Modal, Button, Table } from 'react-bootstrap';
 import React, { PropTypes } from 'react';
+
 import Invoice from 'records/invoice';
-import { Modal, Button, Table } from 'react-bootstrap';
+import invoiceActions from 'actions/invoice-actions';
+import invoiceStore from 'stores/invoice-store';
+import snackbarActions from 'actions/snackbar-actions';
 import Time from 'react-time';
 import stringUtil from 'lib/string-util';
 import format from 'lib/format';
@@ -13,10 +17,45 @@ export default class InvoiceListItem extends React.Component {
   };
 
   state = {
-    showModal: false
+    showModal: false,
+    paying: false
   };
 
-  handleViewInvoice = () => {
+  componentDidMount() {
+    invoiceStore.on('paid', this.onInvoicePaid);
+    invoiceStore.on('pay-failed', this.onInvoicePayFailed);
+  }
+
+  componentWillUnmount() {
+    invoiceStore.off('paid', this.onInvoicePaid);
+    invoiceStore.off('pay-failed', this.onInvoicePayFailed);
+  }
+
+  onInvoicePaid = (data) => {
+    const { inv } = data;
+
+    if (this.props.invoice.id === inv.id) {
+      this.setState({
+        paying: false,
+        showModal: false
+      });
+      snackbarActions.post(`Payment of ${inv.totalChargeDollars} processed successfully`);
+    }
+  }
+
+  onInvoicePayFailed = (data) => {
+    const { invoiceId } = data;
+
+    if (this.props.invoice.id === invoiceId ) {
+      this.setState({
+        paying: false,
+        showModal: false
+      });
+      snackbarActions.post(`Failed to submit payment!`);
+    }
+  }
+
+  handleViewOrPayInvoice = () => {
     this.setState({ showModal: true });
   };
 
@@ -28,21 +67,31 @@ export default class InvoiceListItem extends React.Component {
     this.hideModal();
   };
 
+  handlePayInvoice = () => {
+    this.setState({ paying: true });
+    invoiceActions.pay(this.props.invoice.id);
+  };
+
   render() {
     const { invoice } = this.props,
+          { paying } = this.state,
           invoiceTitle = stringUtil.titleize(invoice.title),
           invoiceCharge = format.currency(invoice.totalChargeDollars),
-          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars);
+          invoiceCreditAvailable = format.currency(invoice.creditAvailableDollars),
+          invoiceFailedNotice = invoice.manuallyPayable ? <Label bsStyle='default'>Charge failed!</Label> : null;
+          
 
     return (
       <tr>
-        <td>{invoiceTitle}</td>
+        <td>{invoiceTitle} {invoiceFailedNotice}</td>
         <td><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></td>
         <td>{invoiceCharge}</td>
         <td>
-          <a onClick={this.handleViewInvoice} className='btn btn-default'>View</a>
+          <Button onClick={this.handleViewOrPayInvoice} bsStyle={invoice.manuallyPayable ? 'danger' : 'default'}>
+            {invoice.manuallyPayable ? 'Pay Now' : 'View'}
+          </Button>
 
-          <Modal show={this.state.showModal} onHide={this.hideModal}>
+          <Modal show={this.state.showModal} onHide={this.hideModal} backdrop='static'>
             <Modal.Header>
               <Modal.Title><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></Modal.Title>
             </Modal.Header>
@@ -67,7 +116,12 @@ export default class InvoiceListItem extends React.Component {
               </Table>
             </Modal.Body>
             <Modal.Footer>
-              <Button ref='modalCancel' onClick={this.handleCloseModal}>Close</Button>
+              {!paying ? (
+                <Button ref='modalCancel' onClick={this.handleCloseModal}>Close</Button>
+              ) : ''}
+              {invoice.manuallyPayable ? (
+                <Button ref='modalPay' bsStyle='danger' disabled={paying} onClick={this.handlePayInvoice}>{paying ? 'Processing...' : 'Pay Now'}</Button>
+              ) : ''}
             </Modal.Footer>
           </Modal>
         </td>
