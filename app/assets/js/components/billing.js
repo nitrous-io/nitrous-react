@@ -189,7 +189,7 @@ export default class Billing extends React.Component {
         <Table responsive hover>
           <thead>
             <tr>
-              <th>Subscription</th>
+              <th>Invoice</th>
               <th>Date</th>
               <th>Amount</th>
               <th>Details</th>

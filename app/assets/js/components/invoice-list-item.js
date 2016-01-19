@@ -6,7 +6,6 @@ import invoiceActions from 'actions/invoice-actions';
 import invoiceStore from 'stores/invoice-store';
 import snackbarActions from 'actions/snackbar-actions';
 import Time from 'react-time';
-import stringUtil from 'lib/string-util';
 import format from 'lib/format';
 
 export default class InvoiceListItem extends React.Component {
@@ -39,7 +38,7 @@ export default class InvoiceListItem extends React.Component {
         paying: false,
         showModal: false
       });
-      snackbarActions.post(`Payment of ${inv.totalChargeDollars} processed successfully`);
+      snackbarActions.post(`Payment of ${inv.amountDollars} processed successfully`);
     }
   }
 
@@ -74,14 +73,13 @@ export default class InvoiceListItem extends React.Component {
 
   render() {
     const { invoice } = this.props,
-          invoiceTitle = stringUtil.titleize(invoice.title),
           invoiceFailedNotice = invoice.manuallyPayable ? <Label bsStyle='default'>Charge failed!</Label> : null,
-          invoiceCharge = format.currency(invoice.totalChargeDollars);
+          invoiceCharge = format.currency(invoice.amountDollars);
 
     return (
       <tr>
-        <td>{invoiceTitle} {invoiceFailedNotice}</td>
-        <td><Time value={invoice.periodEnd} format="YYYY-MM-DD" /></td>
+        <td>{invoice.description} {invoiceFailedNotice}</td>
+        <td><Time value={invoice.periodStart} format="YYYY-MM-DD" /></td>
         <td>{invoiceCharge}</td>
         <td>
           <Button onClick={this.handleViewOrPayInvoice} bsStyle={invoice.manuallyPayable ? 'danger' : 'default'}>
@@ -96,13 +94,12 @@ export default class InvoiceListItem extends React.Component {
   renderModal() {
     const { invoice } = this.props,
           { paying } = this.state,
-          invoiceTitle = stringUtil.titleize(invoice.title),
-          invoiceCharge = format.currency(invoice.totalChargeDollars);
+          invoiceCharge = format.currency(invoice.amountDollars);
 
     return (
       <Modal show={this.state.showModal} onHide={this.hideModal}>
         <Modal.Header>
-          <Modal.Title>{invoiceTitle}</Modal.Title>
+          <Modal.Title>{invoice.description}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table responsive>
@@ -116,7 +113,7 @@ export default class InvoiceListItem extends React.Component {
                 );
               })}
               <tr>
-                <td><strong>Total Charge</strong></td>
+                <td><strong>Total</strong></td>
                 <td><strong>{invoiceCharge}</strong></td>
               </tr>
             </tbody>
