@@ -257,6 +257,8 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
+            <ReCAPTCHA className="captcha" sitekey={Captcha.siteKey} onChange={Captcha.onTokenChange()} />
+
             {isInvited && pendingMember ? (
               <Alert bsStyle='info'>
                 Create an account below to start {inviteMsg}.
@@ -286,8 +288,6 @@ export default class Signup extends React.Component {
                 </OverlayTrigger>
               )}
             </ButtonToolbar>
-
-            <ReCAPTCHA sitekey={Captcha.siteKey} onChange={Captcha.onTokenChange()} />
           </form>
         </Panel>
         <div className='misc-links'>
