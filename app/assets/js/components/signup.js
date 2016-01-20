@@ -139,7 +139,8 @@ export default class Signup extends React.Component {
   }
 
   onUserCreateFailed = () => {
-    this.setState({ processing: false });
+    this.setState({ processing: false, captchaToken: null });
+    Captcha.reset();
   }
 
   tokenStoreDidChange = () => {

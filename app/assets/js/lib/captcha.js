@@ -23,6 +23,13 @@ class Captcha {
   get siteKey() {
     return this._siteKey;
   }
+
+  reset() {
+    if (!window.grecaptcha) {
+      return;
+    }
+    window.grecaptcha.reset();
+  }
 }
 
 export default new Captcha();
