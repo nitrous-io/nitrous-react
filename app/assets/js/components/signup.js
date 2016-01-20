@@ -75,7 +75,7 @@ export default class Signup extends React.Component {
       inviteCode: isInvited ? this.props.query.invite : null,
       pendingMember: null,
       invalidCode: false,
-      captchaToken: null,
+      captchaToken: null
     };
 
     Captcha.setHandlerForTokenChange(this.handleChangeCaptcha.bind(this));
@@ -221,7 +221,7 @@ export default class Signup extends React.Component {
             invalidCode, captchaToken } = this.state,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
-          missing = !(username && signupEmail && password && passwordConfirmation && captchaToken),
+          missing = !(username && signupEmail && password && passwordConfirmation && (!Captcha.isInitialized() || Captcha.isInitialized() && captchaToken)),
           submitDisabled = authorizing || processing || missing || (password !== passwordConfirmation),
           inviteMsg = (pendingMember && pendingMember.containerId) ? 'collaborating' : 'coding on your workstation';
 
@@ -258,7 +258,9 @@ export default class Signup extends React.Component {
                 onChange={this.handlePasswordConfirmationChanged} />
             )}
 
-            <ReCAPTCHA className="captcha" sitekey={Captcha.siteKey} onChange={Captcha.onTokenChange()} />
+            {Captcha.isInitialized() ? (
+              <ReCAPTCHA className="captcha" sitekey={Captcha.siteKey} onChange={Captcha.onTokenChange()} />
+            ) : ''}
 
             {isInvited && pendingMember ? (
               <Alert bsStyle='info'>

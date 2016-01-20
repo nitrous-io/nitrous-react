@@ -1,11 +1,12 @@
 class Captcha {
   _siteKey = null
 
-  constructor() {
-  }
-
   init(siteKey) {
     this._siteKey = siteKey;
+  }
+
+  isInitialized() {
+    return !!this._siteKey;
   }
 
   setHandlerForTokenChange(handler) {
