@@ -74,7 +74,8 @@ export default class Billing extends React.Component {
     invoices: this.findInvoices(),
     loadingSubscriptions: true,
     loadingInvoices: true,
-    fetchingHosts: false
+    fetchingHosts: false,
+    invoicesErrorMessage: null
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -89,9 +90,10 @@ export default class Billing extends React.Component {
   }
 
   componentDidMount() {
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    invoiceStore.onChange(this.invoiceStoreDidChange);
     hostStore.on('fetched-sub-hosts', this.onSubHostsFetched);
     hostStore.on('terminated', this.handleHostTerminated);
-    subscriptionStore.onChange(this.subscriptionStoreDidChange);
     this.fetchObjects();
   }
 
@@ -106,14 +108,9 @@ export default class Billing extends React.Component {
     const { org } = context;
     if (org) {
       subscriptionActions.fetchAllByOrgSlug(org.slug);
-    } else {
-      subscriptionActions.fetchAll();
-    }
-
-    invoiceStore.onChange(this.invoiceStoreDidChange);
-    if (org) {
       invoiceActions.fetchAllByOrgSlug(org.slug);
     } else {
+      subscriptionActions.fetchAll();
       invoiceActions.fetchAll();
     }
   }
@@ -144,7 +141,11 @@ export default class Billing extends React.Component {
   }
 
   invoiceStoreDidChange = () => {
-    this.setState({ loadingInvoices: false, invoices: this.findInvoices() });
+    this.setState({
+      loadingInvoices: false,
+      invoices: this.findInvoices(),
+      invoicesErrorMessage: invoiceStore.lastError
+    });
   };
 
   onSubHostsFetched = () => {
@@ -177,8 +178,8 @@ export default class Billing extends React.Component {
   }
 
   renderInvoices = () => {
-    const { invoices, loadingInvoices } = this.state,
-          showInvoices = invoices && invoices.count();
+    const { invoices, loadingInvoices, invoicesErrorMessage } = this.state,
+          showInvoices = invoices && invoices.count() && !invoicesErrorMessage;
 
     if (showInvoices) {
       return (
@@ -199,6 +200,12 @@ export default class Billing extends React.Component {
             })}
           </tbody>
         </Table>
+      );
+    }
+
+    if (invoicesErrorMessage) {
+      return (
+        <p>Error loading invoices. Please contact support.</p>
       );
     }
 
