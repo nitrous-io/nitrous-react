@@ -225,7 +225,10 @@ export default class NewHost extends React.Component {
   };
 
   requiresPayment() {
-    const { billingProfile } = this.state;
+    const { billingProfile, selectedPlan } = this.state;
+    if (selectedPlan && selectedPlan.price === 0) {
+      return false;
+    }
     return billingProfile && !billingProfile.hasCard;
   }
 

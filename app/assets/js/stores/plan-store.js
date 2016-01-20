@@ -27,7 +27,7 @@ class PlanStore extends Store {
 
   get plans() {
     return this._plans.filter((p) => {
-      return !p.hidden && !p.maxHosts && p.subscription && p.price > 0;
+      return !p.hidden && !p.maxHosts && p.subscription;
     });
   }
 
