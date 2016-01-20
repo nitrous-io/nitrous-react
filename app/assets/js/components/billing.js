@@ -13,6 +13,7 @@ import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
 import SubHostListItem from 'components/sub-host-list-item';
 import LoadingIndicator from 'components/loading-indicator';
+import SendFeedback from 'components/send-feedback';
 import Org from 'records/org';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
@@ -75,7 +76,8 @@ export default class Billing extends React.Component {
     loadingSubscriptions: true,
     loadingInvoices: true,
     fetchingHosts: false,
-    invoicesErrorMessage: null
+    invoicesErrorMessage: null,
+    showSendFeedback: false
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -102,6 +104,14 @@ export default class Billing extends React.Component {
     invoiceStore.offChange(this.invoiceStoreDidChange);
     hostStore.off('fetched-sub-hosts', this.onSubHostsFetched);
     hostStore.off('terminated', this.handleHostTerminated);
+  }
+
+  handleShowSendFeedback = () => {
+    this.setState({ showSendFeedback: true });
+  };
+
+  handleHideSendFeedback = () => {
+    this.setState({ showSendFeedback: false });
   }
 
   fetchObjects = (context=this.context) => {
@@ -205,7 +215,13 @@ export default class Billing extends React.Component {
 
     if (invoicesErrorMessage) {
       return (
-        <p>Error loading invoices. Please contact support.</p>
+        <p>
+          Error loading invoices. Please&nbsp;
+          <a onClick={(e) => {
+            e.preventDefault();
+            this.handleShowSendFeedback();
+          }} href="#/">contact support</a>.
+        </p>
       );
     }
 
@@ -321,7 +337,7 @@ export default class Billing extends React.Component {
   }
 
   render() {
-    const { billingProfile } = this.state,
+    const { billingProfile, showSendFeedback } = this.state,
           { org } = this.context,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router,
@@ -391,6 +407,7 @@ export default class Billing extends React.Component {
         <Panel header={<h4>Billing History</h4>}>
           {this.renderInvoices()}
         </Panel>
+        <SendFeedback show={showSendFeedback} onHide={this.handleHideSendFeedback} />
       </div>
     );
   }
