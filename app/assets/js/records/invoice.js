@@ -1,46 +1,33 @@
 import { Record } from 'immutable';
 
+import InvoiceItem from 'records/invoice-item';
+
 export default class Invoice extends Record({
   id: null,
+  description: null,
+  amount: null,
   userId: null,
-  totalCharge: null,
   periodStart: null,
-  periodEnd: null,
   state: null,
-  attempted: null,
-  totalCredit: null,
-  creditAvailable: null,
-  items: null,
-  subscription: false
+  items: null
 }) {
   static deserialize(inv) {
-    const invID = inv.sid ? inv.sid : inv.id;
+    const invItems = (inv.items || []).map((item) => {
+      return InvoiceItem.deserialize(item);
+    });
     return new this({
-      id: invID,
-      userId: inv.user_id,
-      totalCharge: inv.total_charge,
+      id: inv.sid,
+      description: inv.description,
+      amount: inv.amount,
+      userId: inv.userId,
       periodStart: inv.period_start,
-      periodEnd: inv.period_end,
       state: inv.state,
-      attempted: inv.attempted,
-      totalCredit: inv.totalCredit,
-      creditAvailable: inv.creditAvailable,
-      // FIXME: Deserialize items to InvoiceItem
-      items: inv.items,      
-      subscription: inv.subscription
+      items: invItems
     });
   }
 
-  get totalChargeDollars() {
-    return this.totalCharge / 100.0;
-  }
-
-  get creditAvailableDollars() {
-    return this.creditAvailable / 100.0;
-  }
-
-  get title() {
-    return this.items[0].description.replace("Subscription to", "").trim();
+  get amountDollars() {
+    return this.amount / 100.0;
   }
 
   get manuallyPayable() {

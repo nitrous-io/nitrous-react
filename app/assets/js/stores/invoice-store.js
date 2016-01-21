@@ -30,7 +30,7 @@ class InvoiceStore extends Store {
           this._userInvoices = null;
         }
         this.handleErrorJqxhr(action.data.jqxhr);
-        return; // do not notify of change
+        break;
       }
       case 'invoice.pay-failed': {
         const { jqxhr, invoiceId } = action.data;
