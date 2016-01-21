@@ -163,7 +163,7 @@ export default class Billing extends React.Component {
   }
 
   renderSubscriptions = () => {
-    const { subscriptions, loadingSubscriptions } = this.state,
+    const { subscriptions, loadingSubscriptions, billingProfile } = this.state,
           showSubscriptions = subscriptions && subscriptions.count();
 
     if (showSubscriptions) {
@@ -172,7 +172,10 @@ export default class Billing extends React.Component {
           <tbody>
             {subscriptions.toList().map((subscription) => {
               return (
-                <SubscriptionListItem key={`subscription-${subscription.slug}`} subscription={subscription} />
+                <SubscriptionListItem
+                  key={`subscription-${subscription.slug}`}
+                  billingProfile={billingProfile}
+                  subscription={subscription} />
               );
             })}
           </tbody>
