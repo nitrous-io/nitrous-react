@@ -15,7 +15,7 @@ class Captcha {
 
   onTokenChange() {
     if (!window.onCaptchaChange) {
-      return {};
+      return () => {};
     }
 
     return window.onCaptchaChange;
