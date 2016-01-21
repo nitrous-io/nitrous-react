@@ -18,6 +18,8 @@ export default class PaymentMethod extends React.Component {
   }
 
   static propTypes = {
+    nextURLHint: PropTypes.string,
+    subscriptionSlug: PropTypes.string,
     standalone: PropTypes.bool,
     onSuccess: PropTypes.func,
     onFailure: PropTypes.func,
@@ -64,6 +66,12 @@ export default class PaymentMethod extends React.Component {
 
     if (this.props.standalone) {
       snackbarActions.post('Payment updated successfully');
+
+      if (this.props.nextURLHint === 'upgrade' && this.props.subscriptionSlug) {
+        this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: this.props.subscriptionSlug }, { prev: 'billing' });
+        return;
+      }
+
       const org = this.props.org || this.context.org;
       if (org) {
         this.context.router.transitionTo('org-billing', { orgSlug: org.slug });

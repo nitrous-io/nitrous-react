@@ -108,7 +108,7 @@ export default class SubscriptionListItem extends React.Component {
           disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
           { makeHref } = this.context.router,
           subscriptionsUpgradeURL = (billingProfile && billingProfile.hasCard) ?
-            makeHref('payment-method', {}, { next: 'upgrade' }) :
+            makeHref('payment-method', {}, { next: 'upgrade', subscription: subscription.slug }) :
             makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }, { prev: 'billing' });
 
     let title = `Workstation ${subscription.hostSlug} – ${subscription.plan.name}`;

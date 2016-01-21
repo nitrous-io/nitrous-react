@@ -11,6 +11,11 @@ export default class BillingPaymentMethod extends React.Component {
     org: PropTypes.instanceOf(Org)
   }
 
+  static propTypes = {
+    nextURLHint: PropTypes.string,
+    subscriptionSlug: PropTypes.string
+  };
+
   findBillingProfile = () => {
     const org = this.context.org;
     if (org) {
@@ -25,7 +30,8 @@ export default class BillingPaymentMethod extends React.Component {
 
   render() {
     const { billingProfile } = this.state,
-          { org } = this.context;
+          { org } = this.context,
+          { nextURLHint, subscriptionSlug } = this.props;
 
     return (
       <div className='billing-payment-method-component'>
@@ -38,7 +44,9 @@ export default class BillingPaymentMethod extends React.Component {
             )}
           </h4>
         }>
-          <PaymentMethod standalone />
+          <PaymentMethod standalone
+           nextURLHint={nextURLHint}
+           subscriptionSlug={subscriptionSlug} />
         </Panel>
       </div>
     );
