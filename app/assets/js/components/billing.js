@@ -13,6 +13,7 @@ import SubscriptionListItem from 'components/subscription-list-item';
 import InvoiceListItem from 'components/invoice-list-item';
 import SubHostListItem from 'components/sub-host-list-item';
 import LoadingIndicator from 'components/loading-indicator';
+import SendFeedback from 'components/send-feedback';
 import Org from 'records/org';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
@@ -24,10 +25,6 @@ export default class Billing extends React.Component {
   static contextTypes = {
     org: PropTypes.instanceOf(Org),
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
-  };
-
-  static propTypes = {
-    fromStripe: PropTypes.bool
   };
 
   static willTransitionTo() {
@@ -78,7 +75,9 @@ export default class Billing extends React.Component {
     invoices: this.findInvoices(),
     loadingSubscriptions: true,
     loadingInvoices: true,
-    fetchingHosts: false
+    fetchingHosts: false,
+    invoicesErrorMessage: null,
+    showSendFeedback: false
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -93,9 +92,10 @@ export default class Billing extends React.Component {
   }
 
   componentDidMount() {
+    subscriptionStore.onChange(this.subscriptionStoreDidChange);
+    invoiceStore.onChange(this.invoiceStoreDidChange);
     hostStore.on('fetched-sub-hosts', this.onSubHostsFetched);
     hostStore.on('terminated', this.handleHostTerminated);
-    subscriptionStore.onChange(this.subscriptionStoreDidChange);
     this.fetchObjects();
   }
 
@@ -106,19 +106,22 @@ export default class Billing extends React.Component {
     hostStore.off('terminated', this.handleHostTerminated);
   }
 
+  handleShowSendFeedback = () => {
+    this.setState({ showSendFeedback: true });
+  };
+
+  handleHideSendFeedback = () => {
+    this.setState({ showSendFeedback: false });
+  }
+
   fetchObjects = (context=this.context) => {
     const { org } = context;
     if (org) {
       subscriptionActions.fetchAllByOrgSlug(org.slug);
-    } else {
-      subscriptionActions.fetchAll();
-    }
-
-    invoiceStore.onChange(this.invoiceStoreDidChange);
-    if (org) {
       invoiceActions.fetchAllByOrgSlug(org.slug);
     } else {
-      invoiceActions.fetchAll(this.props.fromStripe);
+      subscriptionActions.fetchAll();
+      invoiceActions.fetchAll();
     }
   }
 
@@ -148,7 +151,11 @@ export default class Billing extends React.Component {
   }
 
   invoiceStoreDidChange = () => {
-    this.setState({ loadingInvoices: false, invoices: this.findInvoices() });
+    this.setState({
+      loadingInvoices: false,
+      invoices: this.findInvoices(),
+      invoicesErrorMessage: invoiceStore.lastError
+    });
   };
 
   onSubHostsFetched = () => {
@@ -181,15 +188,15 @@ export default class Billing extends React.Component {
   }
 
   renderInvoices = () => {
-    const { invoices, loadingInvoices } = this.state,
-          showInvoices = invoices && invoices.count();
+    const { invoices, loadingInvoices, invoicesErrorMessage } = this.state,
+          showInvoices = invoices && invoices.count() && !invoicesErrorMessage;
 
     if (showInvoices) {
       return (
         <Table responsive hover>
           <thead>
             <tr>
-              <th>Subscription</th>
+              <th>Invoice</th>
               <th>Date</th>
               <th>Amount</th>
               <th>Details</th>
@@ -203,6 +210,18 @@ export default class Billing extends React.Component {
             })}
           </tbody>
         </Table>
+      );
+    }
+
+    if (invoicesErrorMessage) {
+      return (
+        <p>
+          Error loading invoices. Please&nbsp;
+          <a onClick={(e) => {
+            e.preventDefault();
+            this.handleShowSendFeedback();
+          }} href="#/">contact support</a>.
+        </p>
       );
     }
 
@@ -318,7 +337,7 @@ export default class Billing extends React.Component {
   }
 
   render() {
-    const { billingProfile } = this.state,
+    const { billingProfile, showSendFeedback } = this.state,
           { org } = this.context,
           { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile,
           { makeHref } = this.context.router,
@@ -388,6 +407,7 @@ export default class Billing extends React.Component {
         <Panel header={<h4>Billing History</h4>}>
           {this.renderInvoices()}
         </Panel>
+        <SendFeedback show={showSendFeedback} onHide={this.handleHideSendFeedback} />
       </div>
     );
   }

@@ -3,6 +3,9 @@ const format = {
     if (isNaN(val)) {
       return;
     }
+    if (val < 0) {
+      return '-$' + Math.abs(val).toFixed(2);
+    }
     return '$' + val.toFixed(2);
   },
 

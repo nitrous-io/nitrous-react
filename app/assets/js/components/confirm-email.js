@@ -48,6 +48,7 @@ export default class ConfirmEmail extends React.Component {
     this.setState({ processed: false, processing: true, tokenIncorrect: false });
     userActions.confirmEmail(token).then((json) => {
       tokenActions.setToken(json.access_token);
+      userActions.fetch();
     }).catch((jqxhr) => {
       const { responseJSON } = jqxhr;
       this.setState({ processing: false });

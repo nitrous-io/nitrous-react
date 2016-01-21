@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Alert, Grid, Row, Button, Panel } from 'react-bootstrap';
+import { Alert, Grid, Row, Col, Button } from 'react-bootstrap';
 
 import Org from 'records/org';
 import billingStore from 'stores/billing-store';
@@ -62,7 +62,9 @@ export default class NewHost extends React.Component {
       selectedPlan: this.context.org ? planStore.orgPlans.first() : planStore.personalPlans.first(),
       selectedRegion: regionStore.regions.first(),
       creating: false,
-      paymentFailed: false
+      paymentFailed: false,
+      resendingConfirmation: false,
+      confirmationResent: false
     };
   }
 
@@ -160,7 +162,13 @@ export default class NewHost extends React.Component {
   };
 
   handleResendConfirmation = () => {
-    userActions.resendConfirmation({ appToken: this.state.token });
+    this.setState({ resendingConfirmation: true });
+    userActions.resendConfirmation({ appToken: this.state.token }).then(() => {
+      this.setState({ resendingConfirmation: false, confirmationResent: true });
+    }).catch(() => {
+      this.setState({ resendingConfirmation: false });
+      snackbarActions.post('Unable to resend confirmation email, please contact support.');
+    });
   }
 
   handlePlanSelection = (plan) => {
@@ -217,7 +225,10 @@ export default class NewHost extends React.Component {
   };
 
   requiresPayment() {
-    const { billingProfile } = this.state;
+    const { billingProfile, selectedPlan } = this.state;
+    if (selectedPlan && selectedPlan.price === 0) {
+      return false;
+    }
     return billingProfile && !billingProfile.hasCard;
   }
 
@@ -243,6 +254,13 @@ export default class NewHost extends React.Component {
       return !planStore.plansForUpgrade(org.plan).isEmpty();
     }
     return false;
+  }
+
+  submitDisabled() {
+    const { creating, user } = this.state;
+    return (user && !user.confirmed)
+      || creating
+      || this.hostsLimitReached();
   }
 
   renderPlanSelection() {
@@ -301,9 +319,9 @@ export default class NewHost extends React.Component {
 
   render() {
     const org = this.context.org,
-          { user, subscription, regions, creating, paymentFailed } = this.state,
+          { user, subscription, regions, creating, paymentFailed,
+            resendingConfirmation, confirmationResent } = this.state,
           selectedRegionSlug = (this.state.selectedRegion && !this.hostsLimitReached()) ? this.state.selectedRegion.slug : null,
-          disableCreate = creating || this.hostsLimitReached(),
           emailOwnerLink = (org && org.email) ? 'mailto:' + org.email + '?subject=Workstation Limit Reached' : null,
           { makeHref } = this.context.router,
           subscriptionsUpgradeURL = (subscription && org) ? makeHref('org-subscriptions-upgrade', { subscriptionSlug: subscription.slug, orgSlug: org.slug }, { prev: 'new-org-host'}) : null;
@@ -314,16 +332,24 @@ export default class NewHost extends React.Component {
           <ContextSwitcher selectedOrg={org} />
 
           {!user.confirmed ? (
-            <Alert bsStyle='warning' className='unconfirmed-email clearfix'>
+            <Alert bsStyle='danger' className='unconfirmed-email clearfix'>
               <p>
                 Your email address <strong>{user.unverifiedEmail}</strong> is
                 unconfirmed. Please check your inbox for our confirmation
                 email.
               </p>
-              <Button bsStyle='default' onClick={this.handleResendConfirmation}>
-                <Fa icon='paper-plane' />
-                Re-send Confirmation Email
-              </Button>
+              {confirmationResent ? (
+                <Button bsStyle='default' disabled>
+                  <Fa icon='paper-plane' /> Sent!
+                </Button>
+              ) : (
+                <Button bsStyle='default'
+                  disabled={resendingConfirmation}
+                  onClick={this.handleResendConfirmation}>
+                  <Fa icon='paper-plane' />
+                  {resendingConfirmation ? 'Sending...' : 'Re-send Confirmation Email'}
+                </Button>
+              )}
             </Alert>
           ) : ''}
 
@@ -336,8 +362,10 @@ export default class NewHost extends React.Component {
           ) : ''}
 
           <h2>New Workstation</h2>
+
           {this.renderPlanSelection()}
-          <h3>Select Region</h3>
+
+          <h3>Select a Region</h3>
           <p className='hint'>Select the region closest to you for best performance</p>
           <Grid className='ui-card-grid'>
             <Row>
@@ -353,17 +381,28 @@ export default class NewHost extends React.Component {
           </Grid>
 
           {this.canAddPayment() && this.requiresPayment() ? (
-            <Panel header={<h4>Payment Method</h4>} className='payment-method'>
-              {paymentFailed ? (
-                <Alert bsStyle='danger'><p>There is an error with your payment details below.</p></Alert>
-              ) : ''}
-              <PaymentMethod standalone={false}
-                onSuccess={this.handlePaymentSuccess}
-                onFailure={this.handlePaymentFailure} />
-            </Panel>
+            <Grid className='ui-card-grid'>
+              <Row>
+                <Col lg={6} md={6} sm={6} xs={12}>
+                  <h3>Enter your Payment Method</h3>
+                  {paymentFailed ? (
+                    <Alert bsStyle='danger'>
+                      <p>There is an error with your payment details below.</p>
+                    </Alert>
+                  ) : ''}
+                  <PaymentMethod standalone={false}
+                    onSuccess={this.handlePaymentSuccess}
+                    onFailure={this.handlePaymentFailure} />
+                </Col>
+              </Row>
+            </Grid>
           ) : ''}
 
-          <Button disabled={disableCreate} className='create-btn' bsStyle='primary' onClick={this.handleClickCreateBtn}>{creating ? 'Creating Workstation...' : 'Create Workstation'}</Button>
+          <Button bsStyle='primary' className='create-btn'
+            disabled={this.submitDisabled()}
+            onClick={this.handleClickCreateBtn}>
+            {creating ? 'Creating Workstation...' : 'Create Workstation'}
+          </Button>
         </div>
       </div>
     );

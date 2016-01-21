@@ -53,7 +53,7 @@ export default class ResendConfirmation extends React.Component {
       this.setState({ processed: true, processing: false });
     }).catch(() => {
       this.setState({ processing: true });
-      snackbarActions.post('Unable to resend confirmation, please contact support.');
+      snackbarActions.post('Unable to resend confirmation email, please contact support.');
     });
   }
 
