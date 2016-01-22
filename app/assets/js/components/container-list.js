@@ -3,7 +3,9 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
+import orgStore from 'stores/org-store';
 import templateActions from 'actions/template-actions';
+import snapshotActions from 'actions/snapshot-actions';
 import Container from 'records/container';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
@@ -30,7 +32,14 @@ export default class ContainerList extends React.Component {
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
 
+    // TODO: refactor so that template and snapshot are passed as props to child components,
+    // instead of finding each template and snapshot from the child component
     templateActions.fetchAll();
+
+    if (this.props.host.orgId) {
+      const org = orgStore.orgByOrgId(this.props.host.orgId);
+      snapshotActions.fetchAllByOrgSlug(org.slug);
+    }
   }
 
   componentWillUnmount() {
