@@ -134,8 +134,8 @@ export default class ContainerListItem extends React.Component {
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
             makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
-          template = container ? this.getTemplate(container) : null,
-          snapshot = (container && container.snapshotId) ? this.getSnapshot(container.snapshotId) : null,
+          template = this.getTemplate(container),
+          snapshot = container.snapshotId ? this.getSnapshot(container.snapshotId) : null,
           snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (
