@@ -4,6 +4,7 @@ import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
+import snapshotStore from 'stores/snapshot-store';
 import templateActions from 'actions/template-actions';
 import snapshotActions from 'actions/snapshot-actions';
 import Container from 'records/container';
@@ -25,8 +26,16 @@ export default class ContainerList extends React.Component {
     showTooltip: PropTypes.bool
   };
 
-  state = {
-    user: userStore.user
+  constructor(props, context) {
+    super(props, context);
+
+    const org = props.host.orgId ? orgStore.orgByOrgId(props.host.orgId) : null,
+          orgSlug = org ? org.slug : null;
+
+    this.state = {
+      user: userStore.user,
+      snapshots: snapshotStore.snapshotsByOrgSlug(orgSlug)
+    };
   }
 
   componentDidMount() {
@@ -40,14 +49,33 @@ export default class ContainerList extends React.Component {
       const org = orgStore.orgByOrgId(this.props.host.orgId);
       snapshotActions.fetchAllByOrgSlug(org.slug);
     }
+    snapshotStore.onChange(this.snapshotStoreDidChange);
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    snapshotStore.offChange(this.snapshotStoreDidChange);
   }
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  snapshotStoreDidChange = () => {
+    if (this.props.host.orgId) {
+      const org = orgStore.orgByOrgId(this.props.host.orgId);
+      this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
+    }
+  }
+
+  getSnapshot(container) {
+    const { snapshots } = this.state;
+    if (snapshots) {
+      return snapshots.find((snapshot) => {
+        return snapshot.id === container.snapshotId;
+      });
+    }
+    return null;
   }
 
   canCreateContainer = () => {
@@ -101,6 +129,7 @@ export default class ContainerList extends React.Component {
                 return (<ContainerListItem
                   key={`container-${container.slug}`}
                   container={container}
+                  snapshot={this.getSnapshot(container)}
                   host={host} />);
               })}
               {showAddContainer ? (
