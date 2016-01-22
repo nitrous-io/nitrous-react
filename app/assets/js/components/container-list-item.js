@@ -3,16 +3,15 @@ import { Col, ButtonToolbar, Button, DropdownButton, MenuItem, OverlayTrigger, T
 
 import Host from 'records/host';
 import Container from 'records/container';
+import Template from 'records/template';
 import Snapshot from 'records/snapshot';
 import containerActions from 'actions/container-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import ContainerState from 'components/container-state';
-import Template from 'records/template';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import SnapshotContainer from 'components/snapshot-container';
-import templateStore from 'stores/template-store';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -24,6 +23,7 @@ export default class ContainerListItem extends React.Component {
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired,
     host: PropTypes.instanceOf(Host),
+    template: PropTypes.instanceOf(Template),
     snapshot: PropTypes.instanceOf(Snapshot)
   };
 
@@ -32,22 +32,9 @@ export default class ContainerListItem extends React.Component {
 
     this.state = {
       slugConfirmation: null, // slug entered by user in the termination confirmation dialog
-      showSnapshotModal: false,
-      templates: templateStore.templates
+      showSnapshotModal: false
     };
   }
-
-  componentDidMount() {
-    templateStore.onChange(this.templateStoreDidChange);
-  }
-
-  componentWillUnmount() {
-    templateStore.offChange(this.templateStoreDidChange);
-  }
-
-  templateStoreDidChange = () => {
-    this.setState({ templates: templateStore.templates });
-  };
 
   handleStop = () => {
     containerActions.stop(this.props.container);
@@ -87,18 +74,8 @@ export default class ContainerListItem extends React.Component {
     snackbarActions.post('Snapshot successfully created.');
   }
 
-  getTemplate(container) {
-    const { templates } = this.state;
-    if (container && container.image && templates) {
-      return templates.find((t) => {
-        return t.image === container.image;
-      });
-    }
-    return null;
-  }
-
   render() {
-    const { container, host, snapshot } = this.props,
+    const { container, host, snapshot, template } = this.props,
           { showSnapshotModal } = this.state,
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
@@ -112,7 +89,6 @@ export default class ContainerListItem extends React.Component {
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
             makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
-          template = this.getTemplate(container),
           snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (

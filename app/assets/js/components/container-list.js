@@ -4,6 +4,7 @@ import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
+import templateStore from 'stores/template-store';
 import snapshotStore from 'stores/snapshot-store';
 import templateActions from 'actions/template-actions';
 import snapshotActions from 'actions/snapshot-actions';
@@ -34,6 +35,7 @@ export default class ContainerList extends React.Component {
 
     this.state = {
       user: userStore.user,
+      templates: templateStore.templates,
       snapshots: snapshotStore.snapshotsByOrgSlug(orgSlug)
     };
   }
@@ -41,9 +43,8 @@ export default class ContainerList extends React.Component {
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
 
-    // TODO: refactor so that template and snapshot are passed as props to child components,
-    // instead of finding each template and snapshot from the child component
     templateActions.fetchAll();
+    templateStore.onChange(this.templateStoreDidChange);
 
     if (this.props.host.orgId) {
       const org = orgStore.orgByOrgId(this.props.host.orgId);
@@ -54,6 +55,7 @@ export default class ContainerList extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    templateStore.offChange(this.templateStoreDidChange);
     snapshotStore.offChange(this.snapshotStoreDidChange);
   }
 
@@ -61,11 +63,25 @@ export default class ContainerList extends React.Component {
     this.setState({ user: userStore.user });
   }
 
+  templateStoreDidChange = () => {
+    this.setState({ templates: templateStore.templates });
+  };
+
   snapshotStoreDidChange = () => {
     if (this.props.host.orgId) {
       const org = orgStore.orgByOrgId(this.props.host.orgId);
       this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
     }
+  }
+
+  getTemplate(container) {
+    const { templates } = this.state;
+    if (container && container.image && templates) {
+      return templates.find((t) => {
+        return t.image === container.image;
+      });
+    }
+    return null;
   }
 
   getSnapshot(container) {
@@ -129,8 +145,9 @@ export default class ContainerList extends React.Component {
                 return (<ContainerListItem
                   key={`container-${container.slug}`}
                   container={container}
-                  snapshot={this.getSnapshot(container)}
-                  host={host} />);
+                  host={host}
+                  template = {this.getTemplate(container)}
+                  snapshot={this.getSnapshot(container)} />);
               })}
               {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
