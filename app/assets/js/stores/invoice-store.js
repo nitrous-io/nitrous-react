@@ -47,7 +47,7 @@ class InvoiceStore extends Store {
         if (!orgInvoices) {
           this._userInvoices = this.userInvoices.set(inv.id, inv);
         } else {
-          const orgInvoicesWithOrgSlugKey = this.orgInvoicesWithOrgSlugKeyByInvoicesKeyValueObject(orgInvoices),
+          const orgInvoicesWithOrgSlugKey = this.orgInvoicesByInvoices(orgInvoices),
                 orgSlug = orgInvoicesWithOrgSlugKey.keySeq().first();
           orgInvoices = orgInvoices.set(inv.id, inv);
           this._orgInvoices = this._orgInvoices.set(orgSlug, orgInvoices);
@@ -72,17 +72,17 @@ class InvoiceStore extends Store {
 
   // Returns the Value in _orgInvoices (ie. V: <K: id, V: Invoice>) without the orgSlug key.
   orgInvoicesByInvoiceId(invoiceId) {
-    return this._orgInvoices.find((invoices) => {
-      return invoices.find((invoice) => {
-        return invoice.id === invoiceId;
+    return this._orgInvoices.find((invs) => {
+      return invs.find((inv) => {
+        return inv.id === invoiceId;
       });
     });
   }
 
   // Returns the _orgInvoices object with orgSlug as its key by matching its Value (ie. V: <K: id, V: Invoice>) to the given invoices key-value object.
-  orgInvoicesWithOrgSlugKeyByInvoicesKeyValueObject(invoicesObj) {
-    return this._orgInvoices.find((invoices) => {
-      return invoices === invoicesObj;
+  orgInvoicesByInvoices(invoices) {
+    return this._orgInvoices.find((invs) => {
+      return invs === invoices;
     });
   }
 }

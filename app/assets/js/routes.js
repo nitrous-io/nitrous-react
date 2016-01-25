@@ -83,7 +83,7 @@ export default (
         <Route name='org-billing' path='billing' handler={OrgBilling} />
         <Route name='org-payment-method' path='billing/payment-method' handler={OrgBillingPaymentMethod} />
 
-        <Route name='org-subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' query=':prev' handler={SubscriptionsUpgrade} />
+        <Route name='org-subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
       </Route>
 
       <Route name='host' path='workstations/:hostSlug' handler={Host}>
@@ -113,7 +113,7 @@ export default (
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
 
-      <Route name='subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' query=':prev' handler={SubscriptionsUpgrade} />
+      <Route name='subscriptions-upgrade' path='subscriptions/:subscriptionSlug/upgrade' handler={SubscriptionsUpgrade} />
 
     </Route>
 

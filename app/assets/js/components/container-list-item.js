@@ -3,17 +3,15 @@ import { Col, ButtonToolbar, Button, DropdownButton, MenuItem, OverlayTrigger, T
 
 import Host from 'records/host';
 import Container from 'records/container';
+import Template from 'records/template';
+import Snapshot from 'records/snapshot';
 import containerActions from 'actions/container-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import ContainerState from 'components/container-state';
-import Template from 'records/template';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import SnapshotContainer from 'components/snapshot-container';
-import templateStore from 'stores/template-store';
-import snapshotStore from 'stores/snapshot-store';
-import orgStore from 'stores/org-store';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -24,42 +22,19 @@ export default class ContainerListItem extends React.Component {
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired,
-    host: PropTypes.instanceOf(Host)
+    host: PropTypes.instanceOf(Host),
+    template: PropTypes.instanceOf(Template),
+    snapshot: PropTypes.instanceOf(Snapshot)
   };
 
   constructor(props, context) {
     super(props, context);
 
-    const org = props.host.orgId ? orgStore.orgByOrgId(props.host.orgId) : null;
-
     this.state = {
       slugConfirmation: null, // slug entered by user in the termination confirmation dialog
-      showSnapshotModal: false,
-      templates: templateStore.templates,
-      snapshots: snapshotStore.snapshotsByOrgSlug(org.slug)
+      showSnapshotModal: false
     };
   }
-
-  componentDidMount() {
-    templateStore.onChange(this.templateStoreDidChange);
-    snapshotStore.onChange(this.snapshotStoreDidChange);
-  }
-
-  componentWillUnmount() {
-    templateStore.offChange(this.templateStoreDidChange);
-    snapshotStore.offChange(this.snapshotStoreDidChange);
-  }
-
-  snapshotStoreDidChange = () => {
-    if (this.props.host.orgId) {
-      const org = orgStore.orgByOrgId(this.props.host.orgId);
-      this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
-    }
-  }
-
-  templateStoreDidChange = () => {
-    this.setState({ templates: templateStore.templates });
-  };
 
   handleStop = () => {
     containerActions.stop(this.props.container);
@@ -99,28 +74,8 @@ export default class ContainerListItem extends React.Component {
     snackbarActions.post('Snapshot successfully created.');
   }
 
-  getTemplate(container) {
-    const { templates } = this.state;
-    if (container && container.image && templates) {
-      return templates.find((t) => {
-        return t.image === container.image;
-      });
-    }
-    return null;
-  }
-
-  getSnapshot(snapshotId) {
-    const { snapshots } = this.state;
-    if (snapshots) {
-      return snapshots.find((snapshot) => {
-        return snapshot.id === snapshotId;
-      });
-    }
-    return null;
-  }
-
   render() {
-    const { container, host } = this.props,
+    const { container, host, snapshot, template } = this.props,
           { showSnapshotModal } = this.state,
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
@@ -134,8 +89,6 @@ export default class ContainerListItem extends React.Component {
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
             makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
-          template = this.getTemplate(container),
-          snapshot = container.snapshotId ? this.getSnapshot(container.snapshotId) : null,
           snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (
