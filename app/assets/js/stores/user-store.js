@@ -95,6 +95,10 @@ class UserStore extends Store {
     return this._usageRemaining;
   }
 
+  hasUsageRemaining() {
+    return this._usageRemaining > 0;
+  }
+
   _tickUsageRemaining() {
     if (this._usageRemaining <= 0) {
       clearTimeout(this._timer);
