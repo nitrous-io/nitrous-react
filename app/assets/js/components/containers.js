@@ -34,7 +34,9 @@ export default class Containers extends React.Component {
       announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
       showDashboardTooltip: false,
       showContextTooltip: false,
-      showSettingsTooltip: false
+      showSettingsTooltip: false,
+      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
+      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
     };
   }
 
@@ -104,7 +106,9 @@ export default class Containers extends React.Component {
 
   render() {
     const { host } = this.context,
-          { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
+          { announcements, showDashboardTooltip,
+            showContextTooltip, showSettingsTooltip,
+            quotaRunningOut, quotaReached } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
           loading = host.isResuming,
@@ -121,10 +125,16 @@ export default class Containers extends React.Component {
 
     const buildAlert = () => {
       const subscriptionsUpgradeURL = this.context.router.makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug });
-      if (host.isFree && !userStore.hasUsageRemaining()) {
+      if (quotaReached) {
         return (
           <Alert bsStyle='warning'>
             <Fa icon='exclamation-circle' /> You have reached the monthly quota of your plan - <a href={subscriptionsUpgradeURL}>Upgrade plan</a>
+          </Alert>
+        );
+      } else if (quotaRunningOut) {
+        return (
+          <Alert bsStyle='warning'>
+            <Fa icon='exclamation-circle' /> You have almost reached the monthly quota of your plan. Consider <a href={subscriptionsUpgradeURL}>upgrading your plan</a>.
           </Alert>
         );
       } else if (host.isUnusable && !host.isResuming) {
