@@ -101,6 +101,7 @@ class UserStore extends Store {
 
   _tickUsageRemaining() {
     if (this._usageRemaining <= 0) {
+      this.emit('usage-remaining.quota-reached');
       clearTimeout(this._timer);
       return;
     }
@@ -116,7 +117,7 @@ class UserStore extends Store {
       this._tickUsageRemaining();
     }, 1000);
 
-    this.emit('usage-remaining-tick');
+    this.emit('usage-remaining.tick');
   }
 }
 
