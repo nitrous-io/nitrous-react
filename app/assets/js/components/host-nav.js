@@ -32,7 +32,7 @@ export default class HostNav extends React.Component {
       orgStore.onChange(this.orgStoreDidChange);
       orgActions.fetchAll();
     }
-    userStore.on('usage-remaining.quota-reached', this.usageQuotaDidReach);
+    userStore.on('usage-remaining.quota-reached', this.onQuotaReached);
   }
 
   componentWillUnmount() {
@@ -45,7 +45,7 @@ export default class HostNav extends React.Component {
     this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
   }
 
-  usageQuotaDidReach = () => {
+  onQuotaReached = () => {
     this.setState({ quotaReached: true });
   }
 

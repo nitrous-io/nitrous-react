@@ -43,7 +43,7 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.quota-reached', this.usageQuotaDidReach);
+    userStore.on('usage-remaining.quota-reached', this.onQuotaReached);
 
     templateActions.fetchAll();
     templateStore.onChange(this.templateStoreDidChange);
@@ -65,7 +65,7 @@ export default class ContainerList extends React.Component {
     this.setState({ user: userStore.user });
   }
 
-  usageQuotaDidReach = () => {
+  onQuotaReached = () => {
     this.setState({ quotaReached: true });
   }
 
