@@ -6,6 +6,7 @@ import announcementStore from 'stores/announcement-store';
 import containerStore from 'stores/container-store';
 import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
+import userStore from 'stores/user-store';
 import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import OnboardingModal from 'components/onboarding-modal';
@@ -21,7 +22,8 @@ export default class Containers extends React.Component {
   displayName = 'Containers';
 
   static contextTypes = {
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(Host).isRequired,
+    router: PropTypes.func.isRequired
   };
 
   constructor(props, context) {
@@ -32,7 +34,9 @@ export default class Containers extends React.Component {
       announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
       showDashboardTooltip: false,
       showContextTooltip: false,
-      showSettingsTooltip: false
+      showSettingsTooltip: false,
+      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
+      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
     };
   }
 
@@ -102,7 +106,9 @@ export default class Containers extends React.Component {
 
   render() {
     const { host } = this.context,
-          { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
+          { announcements, showDashboardTooltip,
+            showContextTooltip, showSettingsTooltip,
+            quotaRunningOut, quotaReached } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
           loading = host.isResuming,
@@ -117,14 +123,35 @@ export default class Containers extends React.Component {
       );
     }
 
-    return (
-      <div className='containers-component container'>
-        <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
-        {host.isUnusable && !host.isResuming ? (
+    const buildAlert = () => {
+      const subscriptionsUpgradeURL = this.context.router.makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug });
+      if (quotaReached) {
+        return (
+          <Alert bsStyle='warning'>
+            <Fa icon='exclamation-circle' /> You have reached the monthly quota of your plan - <a href={subscriptionsUpgradeURL}>Upgrade plan</a>
+          </Alert>
+        );
+      } else if (quotaRunningOut) {
+        return (
+          <Alert bsStyle='warning'>
+            <Fa icon='exclamation-circle' /> You have almost reached the monthly quota of your plan. Consider <a href={subscriptionsUpgradeURL}>upgrading your plan</a>.
+          </Alert>
+        );
+      } else if (host.isUnusable && !host.isResuming) {
+        return (
           <Alert bsStyle='info'>
             <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href={troubleshootURL} target='_blank'>Troubleshooting Connection Issues</a>.
           </Alert>
-        ) : ''}
+        );
+      } else {
+        return '';
+      }
+    };
+
+    return (
+      <div className='containers-component container'>
+        <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
+        {buildAlert()}
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />

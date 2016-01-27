@@ -24,7 +24,8 @@ export default class ContainerListItem extends React.Component {
     container: PropTypes.instanceOf(Container).isRequired,
     host: PropTypes.instanceOf(Host),
     template: PropTypes.instanceOf(Template),
-    snapshot: PropTypes.instanceOf(Snapshot)
+    snapshot: PropTypes.instanceOf(Snapshot),
+    isDisabled: PropTypes.bool
   };
 
   constructor(props, context) {
@@ -75,7 +76,7 @@ export default class ContainerListItem extends React.Component {
   }
 
   render() {
-    const { container, host, snapshot, template } = this.props,
+    const { container, host, snapshot, template, isDisabled } = this.props,
           { showSnapshotModal } = this.state,
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
@@ -117,7 +118,7 @@ export default class ContainerListItem extends React.Component {
 
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
-                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || host && host.isUnusable} id={`container-actions-${container.id}`}>
+                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || isDisabled} id={`container-actions-${container.id}`}>
                   {container.state === 'running' ? [
                     <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
                     <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
@@ -130,7 +131,7 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title='Settings' disabled={host && host.isUnusable}  id={`container-settings-${container.id}`}>
+                <DropdownButton title='Settings' disabled={isDisabled}  id={`container-settings-${container.id}`}>
                   {!shared ? (
                     <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
                   ) : ''}
@@ -145,7 +146,7 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Ports...' : 'Manage Ports...'}
                   </MenuItem>
                 </DropdownButton>
-                {container.canOpenIDE ? (
+                {container.canOpenIDE && !isDisabled ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
                 ) : ''}
               </ButtonToolbar>

@@ -35,6 +35,7 @@ export default class ContainerList extends React.Component {
 
     this.state = {
       user: userStore.user,
+      quotaReached: userStore.usageRemaining <= 0,
       templates: templateStore.templates,
       snapshots: snapshotStore.snapshotsByOrgSlug(orgSlug)
     };
@@ -42,6 +43,7 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.quota-reached', this.usageQuotaDidReach);
 
     templateActions.fetchAll();
     templateStore.onChange(this.templateStoreDidChange);
@@ -61,6 +63,10 @@ export default class ContainerList extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  usageQuotaDidReach = () => {
+    this.setState({ quotaReached: true });
   }
 
   templateStoreDidChange = () => {
@@ -130,9 +136,11 @@ export default class ContainerList extends React.Component {
   render() {
     const { containers, host, shared, showTooltip } = this.props,
           isOrg = host && host.orgId,
+          { quotaReached } = this.state,
           // If cannot create container, hide plus sign if under org, but
           // show plus sign if individual sub to prompt upgrade.
-          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared;
+          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared,
+          isDisabled = (host && host.isUnusable) || quotaReached;
 
     return (
       <div className='container-list-component'>
@@ -147,11 +155,12 @@ export default class ContainerList extends React.Component {
                   container={container}
                   host={host}
                   template = {this.getTemplate(container)}
-                  snapshot={this.getSnapshot(container)} />);
+                  snapshot={this.getSnapshot(container)}
+                  isDisabled={isDisabled} />);
               })}
               {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' disabled={host && host.isUnusable} onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={isDisabled} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
                     {showTooltip ? (
                       <div className='pin dashboard'></div>

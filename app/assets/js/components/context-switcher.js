@@ -10,6 +10,7 @@ import subscriptionStore from 'stores/subscription-store';
 import containerStore from 'stores/container-store';
 import subscriptionActions from 'actions/subscription-actions';
 import SendFeedback from 'components/send-feedback';
+import format from 'lib/format';
 import TimeAgo from 'react-timeago';
 import $ from 'jquery';
 
@@ -29,6 +30,7 @@ export default class ContextSwitcher extends React.Component {
 
   state = {
     user: userStore.user,
+    usageRemaining: userStore.usageRemaining,
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
     sharedContainerCount: containerStore.sharedContainers.size,
@@ -37,6 +39,7 @@ export default class ContextSwitcher extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.tick', this.usageRemainingDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
@@ -65,6 +68,10 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ user: userStore.user });
   };
 
+  usageRemainingDidChange = () => {
+    this.setState({ usageRemaining: userStore.usageRemaining });
+  };
+
   orgStoreDidChange = () => {
     this.setState({ orgs: orgStore.orgs });
   };
@@ -91,7 +98,7 @@ export default class ContextSwitcher extends React.Component {
 
   render() {
     const { selectedHost, showTooltip } = this.props,
-          { user, sharedContainerCount, showSendFeedback } = this.state,
+          { user, sharedContainerCount, showSendFeedback, usageRemaining } = this.state,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
@@ -198,6 +205,14 @@ export default class ContextSwitcher extends React.Component {
             {contextMenu}
           </ButtonGroup>
         )}
+
+        {selectedHost && selectedHost.free && usageRemaining <= 60*60*5 ? (
+          <Badge>
+            {usageRemaining > 0 ?
+              `${format.usageRemaining(usageRemaining)} remaining for this month`
+            : 'No more free quota this month'}
+          </Badge>
+        ) : ''}
 
         {currentSubscription && currentSubscription.activeTrialEnd ? (
           <Badge>Trial ends in <TimeAgo date={currentSubscription.activeTrialEnd} formatter={timeAgoFormatter} /></Badge>
