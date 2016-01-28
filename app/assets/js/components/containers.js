@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Alert } from 'react-bootstrap';
+import { Link } from 'react-router';
 
 import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
@@ -104,15 +105,56 @@ export default class Containers extends React.Component {
     });
   };
 
+  renderAlert() {
+    const { host } = this.context,
+          { quotaRunningOut, quotaReached } = this.state;
+
+    if (quotaReached) {
+      return (
+        <Alert bsStyle='warning'>
+          <Fa icon='exclamation-circle' /> You have reached the monthly quota of your plan.
+          {' '}
+          {host.subscriptionSlug ? (
+            <span>
+              <Link to='subscriptions-upgrade'
+                params={{ subscriptionSlug: host.subscriptionSlug }}>Upgrade your plan</Link>
+              {' '}
+              for unlimited usage.
+            </span>
+          ) : ''}
+        </Alert>
+      );
+    } else if (quotaRunningOut) {
+      return (
+        <Alert bsStyle='warning'>
+          <Fa icon='exclamation-circle' /> You have almost reached the monthly quota of your plan.
+          {' '}
+          {host.subscriptionSlug ? (
+            <span>
+              Consider <Link to='subscriptions-upgrade'
+                params={{ subscriptionSlug: host.subscriptionSlug }}>upgrading your plan</Link>.
+            </span>
+          ) : ''}
+        </Alert>
+      );
+    } else if (host.isUnusable && !host.isResuming) {
+      return (
+        <Alert bsStyle='info'>
+          <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href='https://community.nitrous.io/docs/troubleshooting-connection-issues' target='_blank'>Troubleshooting Connection Issues</a>.
+        </Alert>
+      );
+    } else {
+      return '';
+    }
+  }
+
   render() {
     const { host } = this.context,
           { announcements, showDashboardTooltip,
-            showContextTooltip, showSettingsTooltip,
-            quotaRunningOut, quotaReached } = this.state,
+            showContextTooltip, showSettingsTooltip } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
-          loading = host.isResuming,
-          troubleshootURL = 'https://community.nitrous.io/docs/troubleshooting-connection-issues';
+          loading = host.isResuming;
 
     if (loading) {
       return (
@@ -123,35 +165,10 @@ export default class Containers extends React.Component {
       );
     }
 
-    const buildAlert = () => {
-      const subscriptionsUpgradeURL = this.context.router.makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug });
-      if (quotaReached) {
-        return (
-          <Alert bsStyle='warning'>
-            <Fa icon='exclamation-circle' /> You have reached the monthly quota of your plan - <a href={subscriptionsUpgradeURL}>Upgrade plan</a>
-          </Alert>
-        );
-      } else if (quotaRunningOut) {
-        return (
-          <Alert bsStyle='warning'>
-            <Fa icon='exclamation-circle' /> You have almost reached the monthly quota of your plan. Consider <a href={subscriptionsUpgradeURL}>upgrading your plan</a>.
-          </Alert>
-        );
-      } else if (host.isUnusable && !host.isResuming) {
-        return (
-          <Alert bsStyle='info'>
-            <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href={troubleshootURL} target='_blank'>Troubleshooting Connection Issues</a>.
-          </Alert>
-        );
-      } else {
-        return '';
-      }
-    };
-
     return (
       <div className='containers-component container'>
         <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
-        {buildAlert()}
+        {this.renderAlert()}
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />
