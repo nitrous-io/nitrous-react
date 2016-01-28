@@ -21,7 +21,8 @@ export default class AccountSettings extends React.Component {
     newPasswordConfirm: null,
     existingPassword: null,
     connectingToGitHub: false,
-    advanced: userStore.advanced
+    advanced: userStore.advanced,
+    requireExistingPassword: !userStore.user.userProfile.authorizedGitHubUserName
   };
 
   static willTransitionTo() {
@@ -50,7 +51,8 @@ export default class AccountSettings extends React.Component {
       newPasswordConfirm: null,
       existingPassword: null,
       connectingToGitHub: false,
-      advanced: userStore.advanced
+      advanced: userStore.advanced,
+      requireExistingPassword: !userStore.user.userProfile.authorizedGitHubUserName
     });
     snackbarActions.post('Account details updated successfully.');
   }
@@ -121,8 +123,9 @@ export default class AccountSettings extends React.Component {
   }
 
   submitDisabled() {
-    const { updating, email, newPassword, newPasswordConfirm, existingPassword } = this.state;
-    return updating || !email || (newPassword !== newPasswordConfirm) || (newPassword && !existingPassword);
+    const { updating, email, newPassword, newPasswordConfirm, existingPassword, requireExistingPassword } = this.state;
+    return updating || !email || (newPassword !== newPasswordConfirm) ||
+           (newPassword && !existingPassword && requireExistingPassword);
   }
 
   renderGitHubConnectButton() {
@@ -169,7 +172,8 @@ export default class AccountSettings extends React.Component {
             newPassword,
             newPasswordConfirm,
             existingPassword,
-            advanced
+            advanced,
+            requireExistingPassword
           } = this.state;
 
     const { unconfirmedEmail, userProfile } = this.state.user,
@@ -203,7 +207,7 @@ export default class AccountSettings extends React.Component {
                     help={(showPasswordConfirmError ? 'Passwords do not match' : null)}
                     disabled={updating} value={newPasswordConfirm} onChange={this.handleChangeNewPasswordConfirmField} />
                 ) : ''}
-                {(newPassword || existingPassword) ? (
+                {((newPassword || existingPassword) && requireExistingPassword) ? (
                   <Input label='Existing Password' type='password' placeholder='Your existing password...'
                     help={(showExistingPasswordError ? 'Please enter your existing password' : null)}
                     disabled={updating} value={existingPassword} onChange={this.handleChangeExistingPasswordField} />
