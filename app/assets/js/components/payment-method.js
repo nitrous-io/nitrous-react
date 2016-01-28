@@ -65,7 +65,7 @@ export default class PaymentMethod extends React.Component {
     this.setState({ saving: false });
 
     if (this.props.standalone) {
-      snackbarActions.post('Payment updated successfully');
+      snackbarActions.post('Payment details updated successfully');
 
       if (this.props.nextURLHint === 'upgrade' && this.props.subscriptionSlug) {
         this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: this.props.subscriptionSlug }, { prev: 'billing' });
