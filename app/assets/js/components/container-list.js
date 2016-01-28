@@ -57,6 +57,7 @@ export default class ContainerList extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.quota-reached', this.onQuotaReached);
     templateStore.offChange(this.templateStoreDidChange);
     snapshotStore.offChange(this.snapshotStoreDidChange);
   }
