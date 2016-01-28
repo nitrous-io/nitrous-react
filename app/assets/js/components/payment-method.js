@@ -143,11 +143,6 @@ export default class PaymentMethod extends React.Component {
     this.setState({ expirationMonth: value }, () => {
       this.bubbleChange();
     });
-
-    const parsed = expiration.month.parse(value);
-    if (expiration.month.isValid(parsed) && value.toString().length === 2) {
-      this.refs.expirationYear.getInputDOMNode().focus();
-    }
   };
 
   handleChangeExpirationYearField = () => {
@@ -235,11 +230,11 @@ export default class PaymentMethod extends React.Component {
 
   expirationValidationMessage() {
     const { expirationMonth, expirationYear } = this.state;
-    if ((expirationMonth || expirationYear) && !this.expirationMonthValid()) {
+    if ((expirationMonth && expirationYear) && !this.expirationMonthValid()) {
       return 'Please enter a valid month';
     }
 
-    if ((expirationMonth || expirationYear) && !this.expirationYearValid()) {
+    if ((expirationMonth && expirationYear) && !this.expirationYearValid()) {
       return 'Please enter a valid year';
     }
 
