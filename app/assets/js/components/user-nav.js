@@ -35,6 +35,7 @@ export default class UserNav extends React.Component {
               <Nav bsStyle='pills' stacked activeKey={activeTab}>
                 <NavItem href={makeHref('account-settings')} eventKey='account'>Account Settings</NavItem>
                 <NavItem href={makeHref('billing')} eventKey='billing'>Billing</NavItem>
+                <NavItem href={makeHref('bonus')} eventKey='bonus'>Bonus Hours</NavItem>
               </Nav>
             </Col>
             <Col lg={10} md={10} sm={9} xs={12}>
