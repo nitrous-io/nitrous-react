@@ -5,11 +5,25 @@ export default class BonusList extends React.Component {
   displayName = 'BonusList';
 
   componentDidMount() {
-    // https://dev.twitter.com/web/javascript/loading
-    window.twttr.widgets.load();
+    var twttr = window.twttr,
+        FB = window.FB;
 
+    // Initialize JS SDKs
+    // https://dev.twitter.com/web/javascript/loading
+    twttr.widgets.load();
     // https://developers.facebook.com/docs/reference/javascript/FB.XFBML.parse
-    window.FB.XFBML.parse();
+    FB.XFBML.parse();
+
+    // https://dev.twitter.com/web/javascript/events
+    twttr.events.bind('follow', this.onEarnBonus('follow-twitter'));
+    twttr.events.bind('tweet', this.onEarnBonus('tweet'));
+
+    // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
+    FB.Event.subscribe('edge.create', this.onEarnBonus('like-facebook'));
+  }
+
+  onEarnBonus(action) {
+
   }
 
   render() {
