@@ -68,6 +68,15 @@ class UserStore extends Store {
         this._user = this._user.set('firstTime', false);
         break;
       }
+      case 'user.account-deleted': {
+        this.emit('account-deleted');
+        return;
+      }
+      case 'user.account-delete-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('account-delete-failed');
+        return;
+      }
       default: return;
     }
     this.notifyChange();

@@ -166,6 +166,32 @@ class UserActions {
       });
     });
   }
+
+  canDeleteAccount() {
+    return authedAjax({
+      type: 'GET',
+      url: '/api/v0/user/can_delete'
+    });
+  }
+
+  deleteUser() {
+    const promise = authedAjax({
+      type: 'DELETE',
+      url: '/api/v0/user'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.account-deleted',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.account-delete-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new UserActions();

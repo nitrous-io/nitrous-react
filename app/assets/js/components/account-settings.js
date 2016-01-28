@@ -1,12 +1,16 @@
 import React from 'react';
+import { Panel, Alert, Input, Button } from 'react-bootstrap';
+
 import userStore from 'stores/user-store';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
-import { Panel, Alert, Input, Button } from 'react-bootstrap';
 import UserNav from 'components/user-nav';
 import Fa from 'components/fa';
+import PromptModal from 'components/prompt-modal';
+import SelectableText from 'components/selectable-text';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
+import stringUtil from 'lib/string-util';
 
 export default class AccountSettings extends React.Component {
   displayName = 'AccountSettings';
@@ -21,7 +25,12 @@ export default class AccountSettings extends React.Component {
     newPasswordConfirm: null,
     existingPassword: null,
     connectingToGitHub: false,
-    advanced: userStore.advanced
+    advanced: userStore.advanced,
+
+    canDeleteAccount: false,
+    cannotDeleteAccountReason: 'You cannot delete your account at this time',
+    deleting: false,
+    usernameConfirmation: null
   };
 
   static willTransitionTo() {
@@ -29,13 +38,29 @@ export default class AccountSettings extends React.Component {
   }
 
   componentDidMount() {
+    userActions.canDeleteAccount().then(() => {
+      this.setState({canDeleteAccount: true});
+    }).catch((jqxhr) => {
+      if (jqxhr.status === 500) {
+        return; // use default reason
+      }
+      const { responseJSON } = jqxhr;
+      if (responseJSON && responseJSON.error_description) {
+        this.setState({cannotDeleteAccountReason: responseJSON.error_description});
+      }
+    });
+
     userStore.onChange(this.userStoreDidChange);
     userStore.on('update-failed', this.onUserUpdateFailed);
+    userStore.on('account-deleted', this.onAccountDeleted);
+    userStore.on('account-delete-failed', this.onAccountDeleteFailed);
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
     userStore.off('update-failed', this.onUserUpdateFailed);
+    userStore.off('account-deleted', this.onAccountDeleted);
+    userStore.off('account-delete-failed', this.onAccountDeleteFailed);
   }
 
   userStoreDidChange = () => {
@@ -57,6 +82,21 @@ export default class AccountSettings extends React.Component {
 
   onUserUpdateFailed = () => {
     this.setState({ updating: false, updatingProfile: false });
+  }
+
+  onAccountDeleted = () => {
+    this.setState({ deleting: false });
+    snackbarActions.post('Your account has been deleted');
+    // give user time to read the snackbar message
+    window.setTimeout(() => {
+      // subset of tokenStore token.invalidate
+      localStorage.removeItem('token');
+      location.href = '/';
+    }, 2000);
+  }
+
+  onAccountDeleteFailed = () => {
+    this.setState({ deleting: false });
   }
 
   handleChangeNameField = (event) => {
@@ -120,6 +160,21 @@ export default class AccountSettings extends React.Component {
     });
   }
 
+  handleClickDeleteAccount = () => {
+    this.setState({ usernameConfirmation: '' }, () => {
+      this.refs.deleteAccountModal.show();
+    });
+  }
+
+  handleDeleteAccountModalTextInput = (text) => {
+    this.setState({ usernameConfirmation: text });
+  }
+
+  handleDeleteAccountModalOK = () => {
+    this.setState({ deleting: true });
+    userActions.deleteUser();
+  }
+
   submitDisabled() {
     const { updating, email, newPassword, newPasswordConfirm, existingPassword } = this.state;
     return updating || !email || (newPassword !== newPasswordConfirm) || (newPassword && !existingPassword);
@@ -169,10 +224,13 @@ export default class AccountSettings extends React.Component {
             newPassword,
             newPasswordConfirm,
             existingPassword,
-            advanced
+            advanced,
+            canDeleteAccount,
+            cannotDeleteAccountReason,
+            deleting
           } = this.state;
 
-    const { unconfirmedEmail, userProfile } = this.state.user,
+    const { unconfirmedEmail, userProfile, username } = this.state.user,
           newPasswordMatch = (newPassword === newPasswordConfirm),
           showPasswordConfirmError = newPasswordConfirm && !newPasswordMatch,
           showExistingPasswordError = newPasswordMatch && !existingPassword,
@@ -232,6 +290,27 @@ export default class AccountSettings extends React.Component {
               </div>
               <Button type='submit' bsStyle='primary' disabled={updatingProfile}>{updatingProfile ? 'Saving...' : 'Apply'}</Button>
             </form>
+          </Panel>
+
+          <Panel header={<h4>Delete my Account</h4>}>
+            {canDeleteAccount ? (
+              <Button onClick={this.handleClickDeleteAccount} disabled={deleting} type='submit' bsStyle='danger'>{deleting ? 'Deleting...' : 'Delete Account'}</Button>
+            ) : (
+              <Alert bsSize='xsmall' bsStyle='info'>
+                <Fa icon='info-circle' /> {stringUtil.capitalize(cannotDeleteAccountReason)}
+              </Alert>
+            )}
+            <PromptModal ref='deleteAccountModal' okButtonLabel='Delete My Account' okButtonStyle='danger'
+              okButtonDisabled={this.state.usernameConfirmation !== username} placeholder={username}
+              onOK={this.handleDeleteAccountModalOK} onTextInput={this.handleDeleteAccountModalTextInput}>
+              <p>This action <strong>CANNOT</strong> be undone!</p>
+              <p>Deleting your account is irreversible.</p>
+              <p>
+                Please type your username
+                (<SelectableText><strong>{username}</strong></SelectableText>)
+                to confirm:
+              </p>
+            </PromptModal>
           </Panel>
         </UserNav>
       </div>
