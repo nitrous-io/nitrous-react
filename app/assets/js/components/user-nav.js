@@ -3,12 +3,18 @@ import { Grid, Row, Col, Nav, NavItem } from 'react-bootstrap';
 import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
 import BreadcrumbItem from 'components/bootstrap-backports/breadcrumb-item';
 
+import userStore from 'stores/user-store';
+
 export default class UserNav extends React.Component {
   displayName = 'UserNav';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
+
+  state = {
+    user: userStore.user
+  }
 
   static propTypes = {
     activeTab: PropTypes.string.isRequired,
@@ -20,7 +26,8 @@ export default class UserNav extends React.Component {
 
   render() {
     const { makeHref } = this.context.router,
-          { activeTab } = this.props;
+          { activeTab } = this.props,
+          { user } = this.state;
 
     return (
       <div className='user-nav-component container'>
@@ -35,7 +42,9 @@ export default class UserNav extends React.Component {
               <Nav bsStyle='pills' stacked activeKey={activeTab}>
                 <NavItem href={makeHref('account-settings')} eventKey='account'>Account Settings</NavItem>
                 <NavItem href={makeHref('billing')} eventKey='billing'>Billing</NavItem>
-                <NavItem href={makeHref('bonus')} eventKey='bonus'>Bonus Hours</NavItem>
+                {user.usageRemaining ? (
+                  <NavItem href={makeHref('bonus')} eventKey='bonus'>Bonus Hours</NavItem>
+                ) : ''}
               </Nav>
             </Col>
             <Col lg={10} md={10} sm={9} xs={12}>
