@@ -77,6 +77,17 @@ class UserStore extends Store {
         this.emit('account-delete-failed');
         return;
       }
+      case 'user.added-bonus': {
+        const { data } = action.data;
+        this._user = User.deserialize(data.user);
+        this.emit('added-bonus');
+        this._lastError = null;
+        break;
+      }
+      case 'user.add-bonus-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
       default: return;
     }
     this.notifyChange();

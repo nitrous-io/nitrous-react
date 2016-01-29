@@ -1,6 +1,10 @@
 import React from 'react';
 import { Table, Panel } from 'react-bootstrap';
 
+import userActions from 'actions/user-actions';
+import snackbarActions from 'actions/snackbar-actions';
+import userStore from 'stores/user-store';
+
 export default class BonusList extends React.Component {
   displayName = 'BonusList';
 
@@ -15,15 +19,33 @@ export default class BonusList extends React.Component {
     FB.XFBML.parse();
 
     // https://dev.twitter.com/web/javascript/events
-    twttr.events.bind('follow', this.onEarnBonus('follow-twitter'));
-    twttr.events.bind('tweet', this.onEarnBonus('tweet'));
+    twttr.events.bind('follow', this.onFollow);
+    twttr.events.bind('tweet', this.onTweet);
 
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
-    FB.Event.subscribe('edge.create', this.onEarnBonus('like-facebook'));
+    FB.Event.subscribe('edge.create', this.onLikeFacebook);
+
+    userStore.on('added-bonus', this.onAddedBonus);
   }
 
-  onEarnBonus(action) {
+  componentDidUnmount() {
+    userStore.off('added-bonus', this.onAddedBonus);
+  }
 
+  onAddedBonus = () => {
+    snackbarActions.post(`Your monthly quota has been increased.`);
+  }
+
+  onFollow() {
+    userActions.addBonus('follow-twitter');
+  }
+
+  onTweet() {
+    userActions.addBonus('tweet');
+  }
+
+  onLikeFacebook() {
+    userActions.addBonus('like-facebook');
   }
 
   render() {
