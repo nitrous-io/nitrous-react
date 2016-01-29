@@ -3,7 +3,8 @@ import { Grid, Row, Col, Nav, NavItem } from 'react-bootstrap';
 import Breadcrumb from 'components/bootstrap-backports/breadcrumb';
 import BreadcrumbItem from 'components/bootstrap-backports/breadcrumb-item';
 
-import userStore from 'stores/user-store';
+import hostStore from 'stores/host-store';
+import hostActions from 'actions/host-actions';
 
 export default class UserNav extends React.Component {
   displayName = 'UserNav';
@@ -12,8 +13,36 @@ export default class UserNav extends React.Component {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
-  state = {
-    user: userStore.user
+  constructor(props, context) {
+    super(props, context);
+
+    const hosts = hostStore.userHosts,
+          hasFreeHost = !this.hasFreeHost(hosts).isEmpty();
+ 
+    this.state = {
+      hasFreeHost
+    };
+  }
+
+  componentDidMount() {
+    hostActions.fetchAll();
+    hostStore.onChange(this.hostStoreDidChange);
+  }
+
+  componentWillUnmount() {
+    hostStore.offChange(this.hostStoreDidChange);
+  }
+
+  hostStoreDidChange = () => {
+    const hosts = hostStore.userHosts,
+          hasFreeHost = !this.hasFreeHost(hosts).isEmpty();
+    this.setState({ hasFreeHost });
+  }
+
+  hasFreeHost(hosts) {
+    return hosts.find((h) => {
+      return h.free;
+    });
   }
 
   static propTypes = {
@@ -26,8 +55,8 @@ export default class UserNav extends React.Component {
 
   render() {
     const { makeHref } = this.context.router,
-          { activeTab } = this.props,
-          { user } = this.state;
+          { hasFreeHost } = this.state,
+          { activeTab } = this.props;
 
     return (
       <div className='user-nav-component container'>
@@ -42,7 +71,7 @@ export default class UserNav extends React.Component {
               <Nav bsStyle='pills' stacked activeKey={activeTab}>
                 <NavItem href={makeHref('account-settings')} eventKey='account'>Account Settings</NavItem>
                 <NavItem href={makeHref('billing')} eventKey='billing'>Billing</NavItem>
-                {user.usageRemaining ? (
+                {hasFreeHost ? (
                   <NavItem href={makeHref('bonus')} eventKey='bonus'>Bonus Hours</NavItem>
                 ) : ''}
               </Nav>
