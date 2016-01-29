@@ -1,11 +1,13 @@
 import React, { PropTypes } from 'react';
 import { Alert } from 'react-bootstrap';
+import { Link } from 'react-router';
 
 import Host from 'records/host';
 import announcementStore from 'stores/announcement-store';
 import containerStore from 'stores/container-store';
 import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
+import userStore from 'stores/user-store';
 import containerActions from 'actions/container-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import OnboardingModal from 'components/onboarding-modal';
@@ -21,7 +23,8 @@ export default class Containers extends React.Component {
   displayName = 'Containers';
 
   static contextTypes = {
-    host: PropTypes.instanceOf(Host).isRequired
+    host: PropTypes.instanceOf(Host).isRequired,
+    router: PropTypes.func.isRequired
   };
 
   constructor(props, context) {
@@ -32,7 +35,9 @@ export default class Containers extends React.Component {
       announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
       showDashboardTooltip: false,
       showContextTooltip: false,
-      showSettingsTooltip: false
+      showSettingsTooltip: false,
+      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
+      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
     };
   }
 
@@ -100,13 +105,56 @@ export default class Containers extends React.Component {
     });
   };
 
+  renderAlert() {
+    const { host } = this.context,
+          { quotaRunningOut, quotaReached } = this.state;
+
+    if (quotaReached) {
+      return (
+        <Alert bsStyle='warning'>
+          <Fa icon='exclamation-circle' /> You have reached the monthly quota of your plan.
+          {' '}
+          {host.subscriptionSlug ? (
+            <span>
+              <Link to='subscriptions-upgrade'
+                params={{ subscriptionSlug: host.subscriptionSlug }}>Upgrade your plan</Link>
+              {' '}
+              for unlimited usage.
+            </span>
+          ) : ''}
+        </Alert>
+      );
+    } else if (quotaRunningOut) {
+      return (
+        <Alert bsStyle='warning'>
+          <Fa icon='exclamation-circle' /> You have almost reached the monthly quota of your plan.
+          {' '}
+          {host.subscriptionSlug ? (
+            <span>
+              Consider <Link to='subscriptions-upgrade'
+                params={{ subscriptionSlug: host.subscriptionSlug }}>upgrading your plan</Link>.
+            </span>
+          ) : ''}
+        </Alert>
+      );
+    } else if (host.isUnusable && !host.isResuming) {
+      return (
+        <Alert bsStyle='info'>
+          <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href='https://community.nitrous.io/docs/troubleshooting-connection-issues' target='_blank'>Troubleshooting Connection Issues</a>.
+        </Alert>
+      );
+    } else {
+      return '';
+    }
+  }
+
   render() {
     const { host } = this.context,
-          { announcements, showDashboardTooltip, showContextTooltip, showSettingsTooltip } = this.state,
+          { announcements, showDashboardTooltip,
+            showContextTooltip, showSettingsTooltip } = this.state,
           firstAnnouncement = announcements && announcements.size > 0 ? announcements.first() : null,
           containers = this.state.containers ? this.state.containers.toList() : null,
-          loading = host.isResuming,
-          troubleshootURL = 'https://community.nitrous.io/docs/troubleshooting-connection-issues';
+          loading = host.isResuming;
 
     if (loading) {
       return (
@@ -120,11 +168,7 @@ export default class Containers extends React.Component {
     return (
       <div className='containers-component container'>
         <ContextSwitcher selectedHost={host} showTooltip={showContextTooltip} />
-        {host.isUnusable && !host.isResuming ? (
-          <Alert bsStyle='info'>
-            <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href={troubleshootURL} target='_blank'>Troubleshooting Connection Issues</a>.
-          </Alert>
-        ) : ''}
+        {this.renderAlert()}
         <HostNav host={host} activeTab='containers' />
         {firstAnnouncement ? (
           <AnnouncementAlert announcement={firstAnnouncement} />

@@ -99,4 +99,12 @@ export default class Host extends Record({
   get isUnusable() {
     return this.state !== 'running';
   }
+
+  get isStopped() {
+    return this.state === 'stopped';
+  }
+
+  get isFree() {
+    return this.plan === 'free';
+  }
 }

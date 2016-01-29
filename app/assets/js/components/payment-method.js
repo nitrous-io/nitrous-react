@@ -18,6 +18,8 @@ export default class PaymentMethod extends React.Component {
   }
 
   static propTypes = {
+    nextURLHint: PropTypes.string,
+    subscriptionSlug: PropTypes.string,
     standalone: PropTypes.bool,
     onSuccess: PropTypes.func,
     onFailure: PropTypes.func,
@@ -63,7 +65,13 @@ export default class PaymentMethod extends React.Component {
     this.setState({ saving: false });
 
     if (this.props.standalone) {
-      snackbarActions.post('Payment updated successfully');
+      snackbarActions.post('Payment details updated successfully');
+
+      if (this.props.nextURLHint === 'upgrade' && this.props.subscriptionSlug) {
+        this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: this.props.subscriptionSlug }, { prev: 'billing' });
+        return;
+      }
+
       const org = this.props.org || this.context.org;
       if (org) {
         this.context.router.transitionTo('org-billing', { orgSlug: org.slug });
@@ -135,11 +143,6 @@ export default class PaymentMethod extends React.Component {
     this.setState({ expirationMonth: value }, () => {
       this.bubbleChange();
     });
-
-    const parsed = expiration.month.parse(value);
-    if (expiration.month.isValid(parsed) && value.toString().length === 2) {
-      this.refs.expirationYear.getInputDOMNode().focus();
-    }
   };
 
   handleChangeExpirationYearField = () => {
@@ -227,11 +230,11 @@ export default class PaymentMethod extends React.Component {
 
   expirationValidationMessage() {
     const { expirationMonth, expirationYear } = this.state;
-    if ((expirationMonth || expirationYear) && !this.expirationMonthValid()) {
+    if ((expirationMonth && expirationYear) && !this.expirationMonthValid()) {
       return 'Please enter a valid month';
     }
 
-    if ((expirationMonth || expirationYear) && !this.expirationYearValid()) {
+    if ((expirationMonth && expirationYear) && !this.expirationYearValid()) {
       return 'Please enter a valid year';
     }
 

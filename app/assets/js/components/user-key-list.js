@@ -120,20 +120,6 @@ export default class UserKeyList extends React.Component {
       );
     }
 
-    if (host.free) {
-      return (
-        <div className='user-key-list-component'>
-          <Alert bsStyle='info'>
-            {shared ? (
-              <p><Fa icon='info-circle' /> You do not have SSH access to this shared project because the owner is a free user.</p>
-            ) : (
-              <p><Fa icon='info-circle' /> SSH access to your project is only available to paid users.</p>
-            )}
-          </Alert>
-        </div>
-      );
-    }
-
     return (
       <div className='user-key-list-component'>
         <p className='hint'> <Fa icon='info-circle' /> Register public keys from your machine so you can access your project via SSH.</p>

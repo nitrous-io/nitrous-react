@@ -4,6 +4,7 @@ import { Nav, NavItem } from 'react-bootstrap';
 import Host from 'records/host';
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
+import userStore from 'stores/user-store';
 
 export default class HostNav extends React.Component {
   displayName = 'HostNav';
@@ -22,7 +23,8 @@ export default class HostNav extends React.Component {
   };
 
   state = {
-    org: this.props.host.orgId ? orgStore.orgByOrgId(this.props.host.orgId) : null
+    org: this.props.host.orgId ? orgStore.orgByOrgId(this.props.host.orgId) : null,
+    quotaReached: userStore.usageRemaining <= 0
   };
 
   componentDidMount() {
@@ -30,6 +32,7 @@ export default class HostNav extends React.Component {
       orgStore.onChange(this.orgStoreDidChange);
       orgActions.fetchAll();
     }
+    userStore.on('usage-remaining.quota-reached', this.onQuotaReached);
   }
 
   componentWillUnmount() {
@@ -40,6 +43,10 @@ export default class HostNav extends React.Component {
 
   orgStoreDidChange = () => {
     this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
+  }
+
+  onQuotaReached = () => {
+    this.setState({ quotaReached: true });
   }
 
   handleSelectContainersTab = () => {
@@ -60,17 +67,18 @@ export default class HostNav extends React.Component {
 
   render() {
     const { activeTab, host } = this.props,
-          { org } = this.state;
+          { org, quotaReached } = this.state,
+          disableTab = host.isUnusable || quotaReached;
 
     return (
       <div className='host-nav-component'>
         <Nav className='ui-centered-tabs' bsStyle='tabs' activeKey={activeTab}>
-          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
-          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectMySnapshotsTab} eventKey='local-snapshots'>My Snapshots</NavItem>
+          <NavItem disabled={disableTab} onSelect={this.handleSelectContainersTab} eventKey='containers'>Projects</NavItem>
+          <NavItem disabled={disableTab} onSelect={this.handleSelectMySnapshotsTab} eventKey='local-snapshots'>My Snapshots</NavItem>
           {org && org.roleAllowsSnapshotRead ? (
-            <NavItem disabled={host.isUnusable} onSelect={this.handleSelectTeamSnapshotsTab} eventKey='team-snapshots'>Team Snapshots</NavItem>
+            <NavItem disabled={disableTab} onSelect={this.handleSelectTeamSnapshotsTab} eventKey='team-snapshots'>Team Snapshots</NavItem>
           ) : ''}
-          <NavItem disabled={host.isUnusable} onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
+          <NavItem disabled={disableTab} onSelect={this.handleSelectSystemTab} eventKey='system'>System</NavItem>
         </Nav>
       </div>
     );

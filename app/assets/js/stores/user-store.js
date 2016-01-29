@@ -1,15 +1,20 @@
 import Store from 'stores/store';
 import User from 'records/user';
 import UserProfile from 'records/user-profile';
+import hostStore from 'stores/host-store';
 
 class UserStore extends Store {
   _user = null; // <User>
+  _usageRemaining = -1;
+  _timer = null;
 
   handleAction(action) {
     switch (action.type) {
       case 'user.fetched': {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
+        this._usageRemaining = this._user.usageRemaining;
+        this._tickUsageRemaining();
         this._lastError = null;
         break;
       }
@@ -84,6 +89,35 @@ class UserStore extends Store {
       return !!this.userProfile.advanced;
     }
     return false;
+  }
+
+  get usageRemaining() {
+    return this._usageRemaining;
+  }
+
+  hasUsageRemaining() {
+    return this._usageRemaining > 0;
+  }
+
+  _tickUsageRemaining() {
+    if (this._usageRemaining <= 0) {
+      this.emit('usage-remaining.quota-reached');
+      clearTimeout(this._timer);
+      return;
+    }
+
+    // Stop countdown when the free user host is stopped
+    // Assume user only has 1 free host
+    if (hostStore.stoppedFreeHosts.size !== 0) {
+      return;
+    }
+
+    this._usageRemaining = this._usageRemaining - 1;
+    this._timer = setTimeout(() => {
+      this._tickUsageRemaining();
+    }, 1000);
+
+    this.emit('usage-remaining.tick');
   }
 }
 

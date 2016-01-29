@@ -4,6 +4,7 @@ import HostRecord from 'records/host';
 import hostActions from 'actions/host-actions';
 import taskActions from 'actions/task-actions';
 import hostStore from 'stores/host-store';
+import userStore from 'stores/user-store';
 
 export default class Host extends React.Component {
   displayName = 'Host';
@@ -47,7 +48,7 @@ export default class Host extends React.Component {
     hostActions.fetchOne(this.props.params.hostSlug);
 
     const host = hostStore.liveHosts.get(this.props.params.hostSlug);
-    if (host && host.state === 'stopped') {
+    if (host && host.state === 'stopped' && userStore.hasUsageRemaining()) {
       hostActions.start(host.slug);
       taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
     }
@@ -60,7 +61,7 @@ export default class Host extends React.Component {
       this.setState({ host });
       hostActions.fetchOne(hostSlug);
 
-      if (host && host.state === 'stopped') {
+      if (host && host.state === 'stopped' && userStore.hasUsageRemaining()) {
         hostActions.start(host.slug);
         taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
       }

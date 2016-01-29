@@ -3,7 +3,11 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
+import orgStore from 'stores/org-store';
+import templateStore from 'stores/template-store';
+import snapshotStore from 'stores/snapshot-store';
 import templateActions from 'actions/template-actions';
+import snapshotActions from 'actions/snapshot-actions';
 import Container from 'records/container';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
@@ -23,22 +27,78 @@ export default class ContainerList extends React.Component {
     showTooltip: PropTypes.bool
   };
 
-  state = {
-    user: userStore.user
+  constructor(props, context) {
+    super(props, context);
+
+    const org = props.host.orgId ? orgStore.orgByOrgId(props.host.orgId) : null,
+          orgSlug = org ? org.slug : null;
+
+    this.state = {
+      user: userStore.user,
+      quotaReached: userStore.usageRemaining <= 0,
+      templates: templateStore.templates,
+      snapshots: snapshotStore.snapshotsByOrgSlug(orgSlug)
+    };
   }
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.quota-reached', this.onQuotaReached);
 
     templateActions.fetchAll();
+    templateStore.onChange(this.templateStoreDidChange);
+
+    if (this.props.host.orgId) {
+      const org = orgStore.orgByOrgId(this.props.host.orgId);
+      snapshotActions.fetchAllByOrgSlug(org.slug);
+    }
+    snapshotStore.onChange(this.snapshotStoreDidChange);
   }
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.quota-reached', this.onQuotaReached);
+    templateStore.offChange(this.templateStoreDidChange);
+    snapshotStore.offChange(this.snapshotStoreDidChange);
   }
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  onQuotaReached = () => {
+    this.setState({ quotaReached: true });
+  }
+
+  templateStoreDidChange = () => {
+    this.setState({ templates: templateStore.templates });
+  };
+
+  snapshotStoreDidChange = () => {
+    if (this.props.host.orgId) {
+      const org = orgStore.orgByOrgId(this.props.host.orgId);
+      this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
+    }
+  }
+
+  getTemplate(container) {
+    const { templates } = this.state;
+    if (container && container.image && templates) {
+      return templates.find((t) => {
+        return t.image === container.image;
+      });
+    }
+    return null;
+  }
+
+  getSnapshot(container) {
+    const { snapshots } = this.state;
+    if (snapshots) {
+      return snapshots.find((snapshot) => {
+        return snapshot.id === container.snapshotId;
+      });
+    }
+    return null;
   }
 
   canCreateContainer = () => {
@@ -77,9 +137,11 @@ export default class ContainerList extends React.Component {
   render() {
     const { containers, host, shared, showTooltip } = this.props,
           isOrg = host && host.orgId,
+          { quotaReached } = this.state,
           // If cannot create container, hide plus sign if under org, but
           // show plus sign if individual sub to prompt upgrade.
-          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared;
+          showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared,
+          isDisabled = (host && host.isUnusable) || quotaReached;
 
     return (
       <div className='container-list-component'>
@@ -92,11 +154,14 @@ export default class ContainerList extends React.Component {
                 return (<ContainerListItem
                   key={`container-${container.slug}`}
                   container={container}
-                  host={host} />);
+                  host={host}
+                  template = {this.getTemplate(container)}
+                  snapshot={this.getSnapshot(container)}
+                  isDisabled={isDisabled} />);
               })}
               {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' disabled={host && host.isUnusable} onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={isDisabled} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
                     {showTooltip ? (
                       <div className='pin dashboard'></div>

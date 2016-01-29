@@ -193,6 +193,12 @@ class HostStore extends Store {
     });
   }
 
+  get stoppedFreeHosts() {
+    return this._hosts.filter((h) => {
+      return h.state === 'stopped' && h.plan === 'free';
+    });
+  }
+
   get userHosts() {
     return this._hosts.filter((h) => {
       return !h.orgId && h.isActive && !h.shared;

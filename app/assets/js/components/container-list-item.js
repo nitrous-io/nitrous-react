@@ -1,17 +1,17 @@
 import React, { PropTypes } from 'react';
-import { Col, ButtonToolbar, Button, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Col, ButtonToolbar, Button, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Container from 'records/container';
+import Template from 'records/template';
+import Snapshot from 'records/snapshot';
 import containerActions from 'actions/container-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import ContainerState from 'components/container-state';
-import Template from 'records/template';
 import Fa from 'components/fa';
 import PromptModal from 'components/prompt-modal';
 import SelectableText from 'components/selectable-text';
 import SnapshotContainer from 'components/snapshot-container';
-import templateStore from 'stores/template-store';
 
 export default class ContainerListItem extends React.Component {
   displayName = 'ContainerListItem';
@@ -22,26 +22,20 @@ export default class ContainerListItem extends React.Component {
 
   static propTypes = {
     container: PropTypes.instanceOf(Container).isRequired,
-    host: PropTypes.instanceOf(Host)
+    host: PropTypes.instanceOf(Host),
+    template: PropTypes.instanceOf(Template),
+    snapshot: PropTypes.instanceOf(Snapshot),
+    isDisabled: PropTypes.bool
   };
 
-  state = {
-    slugConfirmation: null, // slug entered by user in the termination confirmation dialog
-    showSnapshotModal: false,
-    templates: templateStore.templates
-  };
+  constructor(props, context) {
+    super(props, context);
 
-  componentDidMount() {
-    templateStore.onChange(this.templateStoreDidChange);
+    this.state = {
+      slugConfirmation: null, // slug entered by user in the termination confirmation dialog
+      showSnapshotModal: false
+    };
   }
-
-  componentWillUnmount() {
-    templateStore.offChange(this.templateStoreDidChange);
-  }
-
-  templateStoreDidChange = () => {
-    this.setState({ templates: templateStore.templates });
-  };
 
   handleStop = () => {
     containerActions.stop(this.props.container);
@@ -81,18 +75,8 @@ export default class ContainerListItem extends React.Component {
     snackbarActions.post('Snapshot successfully created.');
   }
 
-  getTemplate(container) {
-    const { templates } = this.state;
-    if (container && container.image && templates) {
-      return templates.find((t) => {
-        return t.image === container.image;
-      });
-    }
-    return null;
-  }
-
   render() {
-    const { container, host } = this.props,
+    const { container, host, snapshot, template, isDisabled } = this.props,
           { showSnapshotModal } = this.state,
           shared = !host,
           ideURL = `/ide/#/${container.slug}`,
@@ -106,7 +90,7 @@ export default class ContainerListItem extends React.Component {
           portsURL = (shared ?
             makeHref('shared-container-ports', { containerSlug: container.slug }) :
             makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
-          template = container ? this.getTemplate(container) : null;
+          snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} className='container-list-item-component container-list-item'>
@@ -117,14 +101,24 @@ export default class ContainerListItem extends React.Component {
             ) : (
               <div className='default-template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}></div>
             )}
-            <h4>{container.displayName}</h4>
-            <div className='info'>
-              <ContainerState state={container.state} />
-              <SelectableText className='slug'>{container.slug}</SelectableText>
+            <div className='text-info'>
+              <h4>{container.displayName}</h4>
+              <div className='info'>
+                <ContainerState state={container.state} />
+                <SelectableText className='slug'>{container.slug}</SelectableText>
+              </div>
+              <div className='snapshot-info'>
+                {container.snapshotId ? (
+                  <OverlayTrigger placement='right' overlay={<Tooltip id='snapshot-tooltip'>Created from {snapshotName}</Tooltip>}>
+                    <span><Fa icon="camera" /></span>
+                  </OverlayTrigger>
+                ) : ''}
+              </div>
             </div>
+
             {container.state !== 'terminated' ? (
               <ButtonToolbar className='buttons'>
-                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || host && host.isUnusable} id={`container-actions-${container.id}`}>
+                <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || isDisabled} id={`container-actions-${container.id}`}>
                   {container.state === 'running' ? [
                     <MenuItem key='cm1' onSelect={this.handleStop}>Stop</MenuItem>,
                     <MenuItem key='cm2' onSelect={this.handleRestart}>Restart</MenuItem>
@@ -137,7 +131,7 @@ export default class ContainerListItem extends React.Component {
                     ] : '')
                   ] : ''}
                 </DropdownButton>
-                <DropdownButton title='Settings' disabled={host && host.isUnusable}  id={`container-settings-${container.id}`}>
+                <DropdownButton title='Settings' disabled={isDisabled}  id={`container-settings-${container.id}`}>
                   {!shared ? (
                     <MenuItem disabled={container.snapshotDisabled} onSelect={this.handleShowSnapshot}>Snapshot...</MenuItem>
                   ) : ''}
@@ -152,7 +146,7 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Ports...' : 'Manage Ports...'}
                   </MenuItem>
                 </DropdownButton>
-                {container.canOpenIDE ? (
+                {container.canOpenIDE && !isDisabled ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
                 ) : ''}
               </ButtonToolbar>
