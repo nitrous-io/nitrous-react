@@ -2,11 +2,17 @@ import React from 'react';
 import { Table, Panel } from 'react-bootstrap';
 
 import userActions from 'actions/user-actions';
+import bonusUseActions from 'actions/bonus-use-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import userStore from 'stores/user-store';
+import bonusUseStore from 'stores/bonus-use-store';
 
 export default class BonusList extends React.Component {
   displayName = 'BonusList';
+
+  state = {
+    bonusUses: bonusUseStore.bonusUses
+  }
 
   componentDidMount() {
     var twttr = window.twttr,
@@ -26,10 +32,24 @@ export default class BonusList extends React.Component {
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
 
     userStore.on('added-bonus', this.onAddedBonus);
+
+    bonusUseActions.fetchAll();
+    bonusUseStore.onChange(this.bonusUseStoreDidChange);
+    userStore.onChange(this.userStoreDidChange);
   }
 
   componentDidUnmount() {
     userStore.off('added-bonus', this.onAddedBonus);
+    bonusUseStore.offChange(this.bonusUseStoreDidChange);
+    userStore.offChange(this.userStoreDidChange);
+  }
+
+  bonusUseStoreDidChange = () => {
+    this.setState({ bonusUses: bonusUseStore.bonusUses });
+  }
+
+  userStoreDidChange = () => {
+    this.setState({ bonusUses: bonusUseStore.bonusUses });
   }
 
   onAddedBonus = () => {
@@ -49,6 +69,8 @@ export default class BonusList extends React.Component {
   }
 
   render() {
+    const { bonusUses } = this.state;
+
     return (
       <div className='bonus-tasks-component'>
         <Panel header={<h4>Get Bonus Hours</h4>}>
@@ -61,59 +83,67 @@ export default class BonusList extends React.Component {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  Follow @Nitrous on Twitter
-                </td>
-                <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                  <a className="twitter-follow-button"
-                    href="https://twitter.com/Nitrous"
-                    data-show-count="false">
-                    Follow @Nitrous</a>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Tweet about @Nitrous
-                </td>
-                <td>
-                  5 extra hours/mo
-                </td>
-                <td>
-                  <a className="twitter-share-button"
-                    href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
-                    Tweet</a>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Like us on facebook
-                </td>
-                <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                  <div className="fb-like"
-                    data-href="https://www.facebook.com/NitrousIO/"
-                    data-layout="button"
-                    data-action="like"
-                    data-show-faces="false"></div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Share about us on facebook
-                </td>
-                <td>
-                  5 extra hours/mo
-                </td>
-                <td>
-                  <div className="fb-share-button" data-href="https://facebook.com/NitrousIO/" data-layout="button"></div>
-                </td>
-              </tr>
+              {!bonusUses.has(1) ? (
+                <tr>
+                  <td>
+                    Follow @Nitrous on Twitter
+                  </td>
+                  <td>
+                    3 extra hours/mo
+                  </td>
+                  <td>
+                    <a className="twitter-follow-button"
+                      href="https://twitter.com/Nitrous"
+                      data-show-count="false">
+                      Follow @Nitrous</a>
+                  </td>
+                </tr>
+              ) : ''}
+              {!bonusUses.has(2) ? (
+                <tr>
+                  <td>
+                    Tweet about @Nitrous
+                  </td>
+                  <td>
+                    5 extra hours/mo
+                  </td>
+                  <td>
+                    <a className="twitter-share-button"
+                      href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
+                      Tweet</a>
+                  </td>
+                </tr>
+              ) : ''}
+              {!bonusUses.has(3) ? (
+                <tr>
+                  <td>
+                    Like us on Facebook
+                  </td>
+                  <td>
+                    3 extra hours/mo
+                  </td>
+                  <td>
+                    <div className="fb-like"
+                      data-href="https://www.facebook.com/NitrousIO/"
+                      data-layout="button"
+                      data-action="like"
+                      data-show-faces="false"></div>
+                  </td>
+                </tr>
+              ) : ''}
+              {!bonusUses.has(4) ? (
+                <tr>
+                  <td>
+                    Share about us on Facebook
+                  </td>
+                  <td>
+                    5 extra hours/mo
+                  </td>
+                  <td>
+                    <div className="fb-share-button" data-href="https://facebook.com/NitrousIO/" data-layout="button"></div>
+                  </td>
+                </tr>
+              ) : ''}
             </tbody>
           </Table>
         </Panel>
