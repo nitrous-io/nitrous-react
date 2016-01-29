@@ -101,12 +101,10 @@ export default class ContainerListItem extends React.Component {
             ) : (
               <div className='default-template-icon' style={{ backgroundImage: `url(${Template.defaultIconUrl})` }}></div>
             )}
-            <div className='text-info'>
+            <div className='info'>
               <h4>{container.displayName}</h4>
-              <div className='info'>
-                <ContainerState state={container.state} />
-                <SelectableText className='slug'>{container.slug}</SelectableText>
-              </div>
+              <ContainerState state={container.state} />
+              <SelectableText className='slug'>{container.slug}</SelectableText>
               <div className='snapshot-info'>
                 {container.snapshotId ? (
                   <OverlayTrigger placement='right' overlay={<Tooltip id='snapshot-tooltip'>Created from {snapshotName}</Tooltip>}>
