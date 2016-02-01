@@ -30,7 +30,7 @@ export default class ContainerList extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const org = props.host.orgId ? orgStore.orgByOrgId(props.host.orgId) : null,
+    const org = (props.host && props.host.orgId) ? orgStore.orgByOrgId(props.host.orgId) : null,
           orgSlug = org ? org.slug : null;
 
     this.state = {
@@ -48,8 +48,8 @@ export default class ContainerList extends React.Component {
     templateActions.fetchAll();
     templateStore.onChange(this.templateStoreDidChange);
 
-    if (this.props.host.orgId) {
-      const org = orgStore.orgByOrgId(this.props.host.orgId);
+    if (this.getOrgId()) {
+      const org = orgStore.orgByOrgId(this.getOrgId());
       snapshotActions.fetchAllByOrgSlug(org.slug);
     }
     snapshotStore.onChange(this.snapshotStoreDidChange);
@@ -75,8 +75,8 @@ export default class ContainerList extends React.Component {
   };
 
   snapshotStoreDidChange = () => {
-    if (this.props.host.orgId) {
-      const org = orgStore.orgByOrgId(this.props.host.orgId);
+    if (this.getOrgid()) {
+      const org = orgStore.orgByOrgId(this.getOrgid());
       this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
     }
   }
@@ -97,6 +97,13 @@ export default class ContainerList extends React.Component {
       return snapshots.find((snapshot) => {
         return snapshot.id === container.snapshotId;
       });
+    }
+    return null;
+  }
+
+  getOrgId() {
+    if (this.props.host) {
+      return this.props.host.orgId;
     }
     return null;
   }
