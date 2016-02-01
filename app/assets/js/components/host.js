@@ -48,7 +48,7 @@ export default class Host extends React.Component {
     hostActions.fetchOne(this.props.params.hostSlug);
 
     const host = hostStore.liveHosts.get(this.props.params.hostSlug);
-    if (host && host.state === 'stopped' && userStore.hasUsageRemaining()) {
+    if (this.shouldResumeHost(host)) {
       hostActions.start(host.slug);
       taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
     }
@@ -61,7 +61,7 @@ export default class Host extends React.Component {
       this.setState({ host });
       hostActions.fetchOne(hostSlug);
 
-      if (host && host.state === 'stopped' && userStore.hasUsageRemaining()) {
+      if (this.shouldResumeHost(host)) {
         hostActions.start(host.slug);
         taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
       }
@@ -87,6 +87,15 @@ export default class Host extends React.Component {
 
   getChildContext() {
     return { host: this.state.host };
+  }
+
+  shouldResumeHost(host) {
+    if (!host || host.state !== 'stopped') return false;
+
+    // Don't resume free host if user has no more usage remaining.
+    if (host.free && !userStore.hasUsageRemaining()) return false;
+
+    return true;
   }
 
   render() {
