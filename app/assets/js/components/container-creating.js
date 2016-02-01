@@ -76,7 +76,7 @@ export default class ContainerCreating extends React.Component {
       <div className='container-creating-component'>
         {done ? (
           <div className='container done'>
-            <h2>Your container &ldquo;{name}&rdquo; is ready!</h2>
+            <h2>Your project &ldquo;{name}&rdquo; is ready!</h2>
             <ButtonToolbar>
               <Button onClick={this.handleBackBtn}>Back to Project List</Button>
               <a href={`/ide/#/${container.slug}`} className='btn btn-primary' target='_blank'>Open IDE</a>
