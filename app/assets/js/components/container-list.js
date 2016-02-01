@@ -75,8 +75,8 @@ export default class ContainerList extends React.Component {
   };
 
   snapshotStoreDidChange = () => {
-    if (this.getOrgid()) {
-      const org = orgStore.orgByOrgId(this.getOrgid());
+    if (this.getOrgId()) {
+      const org = orgStore.orgByOrgId(this.getOrgId());
       this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
     }
   }
