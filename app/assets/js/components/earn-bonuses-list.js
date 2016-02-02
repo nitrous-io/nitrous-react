@@ -32,6 +32,7 @@ export default class EarnBonusesList extends React.Component {
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
 
+    userStore.onChange(this.userStoreDidChange);
     bonusStore.onChange(this.bonusStoreDidChange);
 
     bonusActions.fetchAll();
@@ -39,7 +40,12 @@ export default class EarnBonusesList extends React.Component {
   }
 
   componentDidUnmount() {
+    userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
+  }
+
+  userStoreDidChange = () => {
+    this.setState({ user: userStore.user });
   }
 
   bonusStoreDidChange = () => {
