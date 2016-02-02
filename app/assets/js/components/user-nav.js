@@ -72,7 +72,7 @@ export default class UserNav extends React.Component {
                 <NavItem href={makeHref('account-settings')} eventKey='account'>Account Settings</NavItem>
                 <NavItem href={makeHref('billing')} eventKey='billing'>Billing</NavItem>
                 {hasFreeHost ? (
-                  <NavItem href={makeHref('bonus')} eventKey='bonus'>Bonus Hours</NavItem>
+                  <NavItem href={makeHref('earn-bonuses')} eventKey='earn-bonuses'>Bonus Hours</NavItem>
                 ) : ''}
               </Nav>
             </Col>

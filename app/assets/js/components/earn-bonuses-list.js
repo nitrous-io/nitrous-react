@@ -4,8 +4,8 @@ import { Table, Panel } from 'react-bootstrap';
 import bonusUseActions from 'actions/bonus-use-actions';
 import bonusUseStore from 'stores/bonus-use-store';
 
-export default class BonusList extends React.Component {
-  displayName = 'BonusList';
+export default class EarnBonusesList extends React.Component {
+  displayName = 'EarnBonusesList';
 
   state = {
     bonusUses: bonusUseStore.bonusUses
