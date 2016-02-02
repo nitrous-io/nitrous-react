@@ -16,11 +16,8 @@ export default class UserNav extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const hosts = hostStore.userHosts,
-          hasFreeHost = !this.hasFreeHost(hosts).isEmpty();
- 
     this.state = {
-      hasFreeHost
+      hasFreeHost: this.hasFreeHost(hostStore.userHosts)
     };
   }
 
@@ -34,15 +31,13 @@ export default class UserNav extends React.Component {
   }
 
   hostStoreDidChange = () => {
-    const hosts = hostStore.userHosts,
-          hasFreeHost = !this.hasFreeHost(hosts).isEmpty();
-    this.setState({ hasFreeHost });
+    this.setState({
+      hasFreeHost: this.hasFreeHost(hostStore.userHosts)
+    });
   }
 
   hasFreeHost(hosts) {
-    return hosts.find((h) => {
-      return h.free;
-    });
+    return hosts.some((h) => h.free);
   }
 
   static propTypes = {

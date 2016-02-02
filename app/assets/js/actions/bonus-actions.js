@@ -1,21 +1,41 @@
 import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
 
-class BonusUseActions {
+class BonusActions {
   fetchAll() {
+    const promise = authedAjax({
+      type: 'GET',
+      url: `/api/v0/bonuses`,
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.fetched-all',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.fetch-all-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
+  fetchAllBonusUses() {
     const promise = authedAjax({
       type: 'GET',
       url: `/api/v0/user/bonus_uses`,
       dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
-        type: 'bonus-use.fetched-all',
+        type: 'bonus.fetched-all-bonus-uses',
         data: { data }
       });
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'bonus-use.fetch-all-failed',
+        type: 'bonus.fetch-all-bonus-uses-failed',
         data: { jqxhr }
       });
     });
@@ -29,13 +49,13 @@ class BonusUseActions {
       data: { action }
     }).then((data) => {
       dispatcher.dispatch({
-        type: 'bonus-use.earned-bonus',
+        type: 'bonus.earned-bonus',
         data: { data }
       });
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'bonus-use.earn-bonus-failed',
+        type: 'bonus.earn-bonus-failed',
         data: { jqxhr }
       });
     });
@@ -43,4 +63,4 @@ class BonusUseActions {
   }
 }
 
-export default new BonusUseActions();
+export default new BonusActions();

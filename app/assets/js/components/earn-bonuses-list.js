@@ -1,14 +1,15 @@
 import React from 'react';
 import { Table, Panel } from 'react-bootstrap';
 
-import bonusUseActions from 'actions/bonus-use-actions';
-import bonusUseStore from 'stores/bonus-use-store';
+import bonusActions from 'actions/bonus-actions';
+import bonusStore from 'stores/bonus-store';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
 
   state = {
-    bonusUses: bonusUseStore.bonusUses
+    bonusUses: bonusStore.bonusUses,
+    bonuses: bonusStore.bonuses
   }
 
   componentDidMount() {
@@ -28,36 +29,49 @@ export default class EarnBonusesList extends React.Component {
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
 
-    bonusUseStore.onChange(this.bonusUseStoreDidChange);
+    bonusStore.onChange(this.bonusStoreDidChange);
 
-    bonusUseActions.fetchAll();
+    bonusActions.fetchAll();
+    bonusActions.fetchAllBonusUses();
   }
 
   componentDidUnmount() {
-    bonusUseStore.offChange(this.bonusUseStoreDidChange);
+    bonusStore.offChange(this.bonusStoreDidChange);
   }
 
-  bonusUseStoreDidChange = () => {
-    this.setState({ bonusUses: bonusUseStore.bonusUses });
+  bonusStoreDidChange = () => {
+    this.setState({ 
+      bonusUses: bonusStore.bonusUses,
+      bonuses: bonusStore.bonuses
+    });
   }
 
   onFollow() {
-    bonusUseActions.earnBonus('follow-twitter');
+    bonusActions.earnBonus('follow-twitter');
   }
 
   onTweet() {
-    bonusUseActions.earnBonus('tweet');
+    bonusActions.earnBonus('tweet');
   }
 
   onLikeFacebook() {
-    bonusUseActions.earnBonus('like-facebook');
+    bonusActions.earnBonus('like-facebook');
+  }
+
+  earnedBonus(task) {
+    const { bonusUses, bonuses } = this.state,
+          bonusTask = bonuses ? bonuses.get(task) : null;
+
+    if (!bonusTask) {
+      return;
+    }
+
+    return bonusUses.has(bonusTask.id);
   }
 
   render() {
-    const { bonusUses } = this.state;
-
     return (
-      <div className='bonus-tasks-component'>
+      <div className='earn-bonuses-list-component'>
         <Panel header={<h4>Get Bonus Hours</h4>}>
           <Table responsive hover>
             <thead>
@@ -68,7 +82,7 @@ export default class EarnBonusesList extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {!bonusUses.has(1) ? (
+              {!this.earnedBonus('follow-twitter') ? (
                 <tr>
                   <td>
                     Follow @Nitrous on Twitter
@@ -84,7 +98,7 @@ export default class EarnBonusesList extends React.Component {
                   </td>
                 </tr>
               ) : ''}
-              {!bonusUses.has(2) ? (
+              {!this.earnedBonus('tweet') ? (
                 <tr>
                   <td>
                     Tweet about @Nitrous
@@ -99,7 +113,7 @@ export default class EarnBonusesList extends React.Component {
                   </td>
                 </tr>
               ) : ''}
-              {!bonusUses.has(3) ? (
+              {!this.earnedBonus('like-facebook') ? (
                 <tr>
                   <td>
                     Like us on Facebook
@@ -116,7 +130,7 @@ export default class EarnBonusesList extends React.Component {
                   </td>
                 </tr>
               ) : ''}
-              {!bonusUses.has(4) ? (
+              {!this.earnedBonus('share-facebook') ? (
                 <tr>
                   <td>
                     Share about us on Facebook
