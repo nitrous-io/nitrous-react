@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
 import { Alert } from 'react-bootstrap';
-import { Link } from 'react-router';
 
 import Host from 'records/host';
+import Org from 'records/org';
 import announcementStore from 'stores/announcement-store';
+import billingStore from 'stores/billing-store';
 import containerStore from 'stores/container-store';
 import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
@@ -24,6 +25,7 @@ export default class Containers extends React.Component {
 
   static contextTypes = {
     host: PropTypes.instanceOf(Host).isRequired,
+    org: PropTypes.instanceOf(Org),
     router: PropTypes.func.isRequired
   };
 
@@ -33,6 +35,7 @@ export default class Containers extends React.Component {
     this.state = {
       containers: containerStore.liveContainersByHostSlug(this.context.host.slug),
       announcements: announcementStore.announcementsByHostSlug(this.context.host.slug),
+      billingProfile: this.findBillingProfile(),
       showDashboardTooltip: false,
       showContextTooltip: false,
       showSettingsTooltip: false,
@@ -79,6 +82,14 @@ export default class Containers extends React.Component {
     this.setState({ announcements: announcementStore.announcementsByHostSlug(this.context.host.slug) });
   };
 
+  findBillingProfile = () => {
+    const org = this.context.org;
+    if (org) {
+      return billingStore.orgBillingProfiles.get(org.id);
+    }
+    return billingStore.userBillingProfile;
+  }
+
   onHostStarted = (data) => {
     const { host } = data;
     if (this.context.host.slug === host.slug) {
@@ -106,8 +117,11 @@ export default class Containers extends React.Component {
   };
 
   renderAlert() {
-    const { host } = this.context,
-          { quotaRunningOut, quotaReached } = this.state;
+    const { host, router } = this.context,
+          { billingProfile, quotaRunningOut, quotaReached } = this.state,
+          upgradeURL = (billingProfile && !billingProfile.hasCard) ?
+            router.makeHref('payment-method', {}, { next: 'upgrade', subscription: host.subscriptionSlug }) :
+            router.makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug });
 
     if (quotaReached) {
       return (
@@ -116,8 +130,7 @@ export default class Containers extends React.Component {
           {' '}
           {host.subscriptionSlug ? (
             <span>
-              <Link to='subscriptions-upgrade'
-                params={{ subscriptionSlug: host.subscriptionSlug }}>Upgrade your plan</Link>
+              <a href={upgradeURL}>Upgrade your plan</a>
               {' '}
               for unlimited usage.
             </span>
@@ -131,8 +144,7 @@ export default class Containers extends React.Component {
           {' '}
           {host.subscriptionSlug ? (
             <span>
-              Consider <Link to='subscriptions-upgrade'
-                params={{ subscriptionSlug: host.subscriptionSlug }}>upgrading your plan</Link>.
+              Consider <a href={upgradeURL}>upgrading your plan</a>.
             </span>
           ) : ''}
         </Alert>
