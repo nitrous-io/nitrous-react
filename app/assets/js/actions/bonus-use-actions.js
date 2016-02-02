@@ -21,6 +21,26 @@ class BonusUseActions {
     });
     return promise;
   }
+
+  earnBonus(action) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/user/bonus',
+      data: { action }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus-use.earned-bonus',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus-use.earn-bonus-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new BonusUseActions();

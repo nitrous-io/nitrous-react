@@ -1,10 +1,7 @@
 import React from 'react';
 import { Table, Panel } from 'react-bootstrap';
 
-import userActions from 'actions/user-actions';
 import bonusUseActions from 'actions/bonus-use-actions';
-import snackbarActions from 'actions/snackbar-actions';
-import userStore from 'stores/user-store';
 import bonusUseStore from 'stores/bonus-use-store';
 
 export default class BonusList extends React.Component {
@@ -31,41 +28,29 @@ export default class BonusList extends React.Component {
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
 
-    userStore.on('added-bonus', this.onAddedBonus);
+    bonusUseStore.onChange(this.bonusUseStoreDidChange);
 
     bonusUseActions.fetchAll();
-    bonusUseStore.onChange(this.bonusUseStoreDidChange);
-    userStore.onChange(this.userStoreDidChange);
   }
 
   componentDidUnmount() {
-    userStore.off('added-bonus', this.onAddedBonus);
     bonusUseStore.offChange(this.bonusUseStoreDidChange);
-    userStore.offChange(this.userStoreDidChange);
   }
 
   bonusUseStoreDidChange = () => {
     this.setState({ bonusUses: bonusUseStore.bonusUses });
   }
 
-  userStoreDidChange = () => {
-    this.setState({ bonusUses: bonusUseStore.bonusUses });
-  }
-
-  onAddedBonus = () => {
-    snackbarActions.post(`Your monthly quota has been increased.`);
-  }
-
   onFollow() {
-    userActions.addBonus('follow-twitter');
+    bonusUseActions.earnBonus('follow-twitter');
   }
 
   onTweet() {
-    userActions.addBonus('tweet');
+    bonusUseActions.earnBonus('tweet');
   }
 
   onLikeFacebook() {
-    userActions.addBonus('like-facebook');
+    bonusUseActions.earnBonus('like-facebook');
   }
 
   render() {

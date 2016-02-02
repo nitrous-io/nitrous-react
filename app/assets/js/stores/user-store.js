@@ -1,11 +1,7 @@
-import { OrderedMap } from 'immutable';
-
 import Store from 'stores/store';
 import User from 'records/user';
 import UserProfile from 'records/user-profile';
-import BonusUse from 'records/bonus-use';
 import hostStore from 'stores/host-store';
-import bonusUseStore from 'stores/bonus-use-store';
 
 class UserStore extends Store {
   _user = null; // <User>
@@ -80,23 +76,6 @@ class UserStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         this.emit('account-delete-failed');
         return;
-      }
-      case 'user.added-bonus': {
-        const { data } = action.data;
-        this._user = User.deserialize(data.user);
-
-        bonusUseStore._bonusUses = OrderedMap(data.bonus_uses.map(function(d) {
-          const b = BonusUse.deserialize(d);
-          return [b.bonus_id, b];
-        }));
-
-        this.emit('added-bonus');
-        this._lastError = null;
-        break;
-      }
-      case 'user.add-bonus-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
-        break;
       }
       default: return;
     }

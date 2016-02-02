@@ -12,7 +12,7 @@ class BonusUseStore extends Store {
         const { data } = action.data;
         this._bonusUses = OrderedMap(data.bonus_uses.map(function(d) {
           const b = BonusUse.deserialize(d);
-          return [b.bonus_id, b];
+          return [b.bonusId, b];
         }));
         this._lastError = null;
         break;
@@ -20,6 +20,21 @@ class BonusUseStore extends Store {
       case 'bonus-use.fetch-all-failed': {
         break;
       }
+      case 'bonus-use.earned-bonus': {
+        const { data } = action.data;
+        this._bonusUses = OrderedMap(data.bonus_uses.map(function(d) {
+          const b = BonusUse.deserialize(d);
+          return [b.bonusId, b];
+        }));
+
+        this._lastError = null;
+        break;
+      }
+      case 'bonus-use.earn-bonus-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
+
       default: return;
     }
     this.notifyChange();

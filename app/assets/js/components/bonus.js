@@ -7,7 +7,7 @@ export default class Bonus extends React.Component {
 
   render() {
     return (
-      <div className='user-billing-component'>
+      <div className='bonus-component'>
         <UserNav activeTab='bonus'>
           <BonusList />
         </UserNav>

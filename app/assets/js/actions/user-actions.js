@@ -192,24 +192,6 @@ class UserActions {
     });
     return promise;
   }
-
-  addBonus(action) {
-    return authedAjax({
-      type: 'POST',
-      url: '/api/v0/user/bonus',
-      data: { action }
-    }).then((data) => {
-      dispatcher.dispatch({
-        type: 'user.added-bonus',
-        data: { data }
-      });
-    }).catch((jqxhr) => {
-      dispatcher.dispatch({
-        type: 'user.add-bonus-failed',
-        data: { jqxhr }
-      });
-    });
-  }
 }
 
 export default new UserActions();
