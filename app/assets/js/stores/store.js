@@ -32,10 +32,10 @@ export default class Store extends EventEmitter {
     const err = this._lastError = jqxhr.errorMessage;
     if (err && err !== 'internal_server_error') {
       const errMsg = stringUtil.capitalize(err);
-      snackbarActions.post(errMsg);
+      snackbarActions.post(errMsg, 'error');
     } else if (fallbackError) {
       const fallbackErrMsg = stringUtil.capitalize(fallbackError);
-      snackbarActions.post(fallbackErrMsg);
+      snackbarActions.post(fallbackErrMsg, 'error');
     }
   }
 
