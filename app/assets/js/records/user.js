@@ -17,6 +17,7 @@ export default class User extends Record({
   userProfile: null,
   maxContainers: null,
   usageRemaining: null, // in seconds
+  nextUsageQuotaAt: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -36,6 +37,7 @@ export default class User extends Record({
       userProfile: p.user_profile && UserProfile.deserialize(p.user_profile),
       maxContainers: p.max_containers,
       usageRemaining: p.usage_remaining,
+      nextUsageQuotaAt: p.next_usage_quota_at ? new Date(p.next_usage_quota_at) : null,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
