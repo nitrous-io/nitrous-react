@@ -1,15 +1,17 @@
 import React from 'react';
-import { Table, Panel } from 'react-bootstrap';
+import { ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
+import userStore from 'stores/user-store';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
 
   state = {
     bonusUses: bonusStore.bonusUses,
-    bonuses: bonusStore.bonuses
+    bonuses: bonusStore.bonuses,
+    user: userStore.user
   }
 
   componentDidMount() {
@@ -70,8 +72,29 @@ export default class EarnBonusesList extends React.Component {
   }
 
   render() {
+    const { user } = this.state;
+
+    let progressBarStyle = "success";
+    if (user.usagePercentage < 10) {
+      progressBarStyle = "danger";
+    }
+
     return (
       <div className='earn-bonuses-list-component'>
+        <Panel header={<h4>Current Usage</h4>}>
+          <ProgressBar
+            bsStyle={progressBarStyle}
+            label="%(percent)s%"
+            max={user.usageQuota}
+            now={user.usageRemaining} />
+
+          <li className='usage-quota-info'>
+            <ul>Monthly hours: <strong>{user.usageQuotaHours}</strong> hrs</ul>
+            <ul>Hours remaining: <strong>{user.usageRemainingHours}</strong> hrs</ul>
+            <ul>% remaining: <strong>{user.usagePercentage}</strong></ul>
+          </li>
+        </Panel>
+
         <Panel header={<h4>Get Bonus Hours</h4>}>
           <Table responsive hover>
             <thead>
