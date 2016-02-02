@@ -1,9 +1,10 @@
 import React from 'react';
-import { ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Alert, Label, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
+import Fa from 'components/fa';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -96,6 +97,10 @@ export default class EarnBonusesList extends React.Component {
         </Panel>
 
         <Panel header={<h4>Get Bonus Hours</h4>}>
+          <Alert bsStyle='info'>
+            <Fa icon='info-circle' /> Share some love for Nitrous and increase your monthly quota!
+          </Alert>
+
           <Table responsive hover>
             <thead>
               <tr>
@@ -105,67 +110,75 @@ export default class EarnBonusesList extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {!this.earnedBonus('follow-twitter') ? (
-                <tr>
-                  <td>
-                    Follow @Nitrous on Twitter
-                  </td>
-                  <td>
-                    3 extra hours/mo
-                  </td>
-                  <td>
-                    <a className="twitter-follow-button"
-                      href="https://twitter.com/Nitrous"
-                      data-show-count="false">
-                      Follow @Nitrous</a>
-                  </td>
-                </tr>
-              ) : ''}
-              {!this.earnedBonus('tweet') ? (
-                <tr>
-                  <td>
-                    Tweet about @Nitrous
-                  </td>
-                  <td>
-                    5 extra hours/mo
-                  </td>
-                  <td>
-                    <a className="twitter-share-button"
-                      href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
-                      Tweet</a>
-                  </td>
-                </tr>
-              ) : ''}
-              {!this.earnedBonus('like-facebook') ? (
-                <tr>
-                  <td>
-                    Like us on Facebook
-                  </td>
-                  <td>
-                    3 extra hours/mo
-                  </td>
-                  <td>
-                    <div className="fb-like"
-                      data-href="https://www.facebook.com/NitrousIO/"
-                      data-layout="button"
-                      data-action="like"
-                      data-show-faces="false"></div>
-                  </td>
-                </tr>
-              ) : ''}
-              {!this.earnedBonus('share-facebook') ? (
-                <tr>
-                  <td>
-                    Share about us on Facebook
-                  </td>
-                  <td>
-                    5 extra hours/mo
-                  </td>
-                  <td>
-                    <div className="fb-share-button" data-href="https://facebook.com/NitrousIO/" data-layout="button"></div>
-                  </td>
-                </tr>
-              ) : ''}
+              <tr>
+                <td>
+                  Follow @Nitrous on Twitter
+                </td>
+                <td>
+                  3 extra hours/mo
+                </td>
+                <td>
+                {!this.earnedBonus('follow-twitter') ? (
+                  <a className="twitter-follow-button"
+                    href="https://twitter.com/Nitrous"
+                    data-show-count="false">
+                    Follow @Nitrous</a>
+                ) : (
+                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                )}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Tweet about @Nitrous
+                </td>
+                <td>
+                  5 extra hours/mo
+                </td>
+                <td>
+                {!this.earnedBonus('tweet') ? (
+                  <a className="twitter-share-button"
+                    href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
+                    Tweet</a>
+                ) : (
+                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                )}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Like us on Facebook
+                </td>
+                <td>
+                  3 extra hours/mo
+                </td>
+                <td>
+                {!this.earnedBonus('like-facebook') ? (
+                  <div className="fb-like"
+                    data-href="https://www.facebook.com/NitrousIO/"
+                    data-layout="button"
+                    data-action="like"
+                    data-show-faces="false"></div>
+                ) : (
+                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                )}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Share about us on Facebook
+                </td>
+                <td>
+                  5 extra hours/mo
+                </td>
+                <td>
+                {!this.earnedBonus('share-facebook') ? (
+                  <div className="fb-share-button" data-href="https://facebook.com/NitrousIO/" data-layout="button"></div>
+                ) : (
+                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                )}
+                </td>
+              </tr>
             </tbody>
           </Table>
         </Panel>
