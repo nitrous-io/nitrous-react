@@ -1,6 +1,8 @@
 import { Record } from 'immutable';
 import md5 from 'md5';
+
 import UserProfile from 'records/user-profile';
+import format from 'lib/format';
 
 export default class User extends Record({
   id: null,
@@ -67,11 +69,11 @@ export default class User extends Record({
   }
 
   get usageRemainingHours() {
-    return (this.usageRemaining / 60 / 60).toFixed(0);
+    return format.convertSecondsToHours(this.usageRemaining);
   }
 
   get usageQuotaHours() {
-    return (this.usageQuota / 60 / 60).toFixed(0);
+    return format.convertSecondsToHours(this.usageQuota);
   }
 
   get usagePercentage() {

@@ -42,6 +42,15 @@ export default class EarnBonusesList extends React.Component {
   componentDidUnmount() {
     userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
+
+    var twttr = window.twttr,
+        FB = window.FB;
+
+    twttr.events.unbind('follow', this.onFollow);
+    twttr.events.unbind('tweet', this.onTweet);
+
+    // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
+    FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
   }
 
   userStoreDidChange = () => {
@@ -165,21 +174,6 @@ export default class EarnBonusesList extends React.Component {
                     data-layout="button"
                     data-action="like"
                     data-show-faces="false"></div>
-                ) : (
-                  <Label bsStyle='success'>Thanks, bonus added</Label>
-                )}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Share about us on Facebook
-                </td>
-                <td>
-                  5 extra hours/mo
-                </td>
-                <td>
-                {!this.earnedBonus('share-facebook') ? (
-                  <div className="fb-share-button" data-href="https://facebook.com/NitrousIO/" data-layout="button"></div>
                 ) : (
                   <Label bsStyle='success'>Thanks, bonus added</Label>
                 )}

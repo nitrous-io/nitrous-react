@@ -60,6 +60,10 @@ const format = {
       default:
         return Math.ceil(diff/24/60/60) + " days";
     }
+  },
+
+  convertSecondsToHours(seconds) {
+    return (seconds / 60 / 60).toFixed(0);
   }
 };
 
