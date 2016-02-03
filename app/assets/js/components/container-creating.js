@@ -79,6 +79,7 @@ export default class ContainerCreating extends React.Component {
             <h2>Your project &ldquo;{name}&rdquo; is ready!</h2>
             <ButtonToolbar>
               <Button onClick={this.handleBackBtn}>Back to Project List</Button>
+              <Button href='https://community.nitrous.io/docs/installing-the-nitrogen-atom-plugin-d9a97d12-b6ab-4ad2-b219-45f05451d692' target='_blank'>Install Nitrogen</Button>
               <a href={`/ide/#/${container.slug}`} className='btn btn-primary' target='_blank'>Open IDE</a>
             </ButtonToolbar>
           </div>
