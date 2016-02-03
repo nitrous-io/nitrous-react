@@ -38,7 +38,13 @@ export default class InvoiceListItem extends React.Component {
         paying: false,
         showModal: false
       });
-      snackbarActions.post(`Payment of ${inv.amountDollars} processed successfully`);
+
+      const amountCharged = format.currency(inv.amountDollars);
+      if (amountCharged) {
+        snackbarActions.post(`Payment of ${amountCharged} processed successfully`);
+      } else {
+        snackbarActions.post(`Payment processed successfully`);
+      }
     }
   }
 

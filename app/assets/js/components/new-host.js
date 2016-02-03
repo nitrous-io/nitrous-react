@@ -263,6 +263,11 @@ export default class NewHost extends React.Component {
       || this.hostsLimitReached();
   }
 
+  buttonTitle() {
+    const { user } = this.state;
+    return user.confirmed ? '' : 'Please confirm your e-mail before creating a workstation';
+  }
+
   renderPlanSelection() {
     const org = this.context.org,
           { plans } = this.state,
@@ -400,6 +405,7 @@ export default class NewHost extends React.Component {
 
           <Button bsStyle='primary' className='create-btn'
             disabled={this.submitDisabled()}
+            title={this.buttonTitle()}
             onClick={this.handleClickCreateBtn}>
             {creating ? 'Creating Workstation...' : 'Create Workstation'}
           </Button>

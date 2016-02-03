@@ -97,6 +97,19 @@ export default class ContextSwitcher extends React.Component {
     this.setState({ showSendFeedback: false });
   }
 
+  freeUsageBadgeText = () => {
+    const { user, usageRemaining } = this.state,
+          nextReset = format.nextUsageQuota(user.nextUsageQuotaAt);
+    if (usageRemaining > 0) {
+      return `${format.usageRemaining(usageRemaining)} remaining for this month`;
+    }
+    var msg = 'You have used up your free hours.';
+    if (nextReset) {
+      msg += ' Your quota will reset in ' + nextReset;
+    }
+    return msg;
+  }
+
   render() {
     const { selectedHost, showTooltip } = this.props,
           { user, sharedContainerCount, showSendFeedback, usageRemaining } = this.state,
@@ -207,11 +220,9 @@ export default class ContextSwitcher extends React.Component {
           </ButtonGroup>
         )}
 
-        {selectedHost && selectedHost.free && usageRemaining <= 60*60*5 ? (
+        {selectedHost && selectedHost.free && usageRemaining <= 5*60*60 ? (
           <Badge>
-            {usageRemaining > 0 ?
-              `${format.usageRemaining(usageRemaining)} remaining for this month`
-            : 'No more free quota this month'}
+            {this.freeUsageBadgeText()}
           </Badge>
         ) : ''}
 
