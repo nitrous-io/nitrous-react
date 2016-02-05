@@ -10,7 +10,7 @@ export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
 
   state = {
-    bonusUses: bonusStore.bonusUses,
+    earnedBonuses: bonusStore.earnedBonuses,
     bonuses: bonusStore.bonuses,
     user: userStore.user
   }
@@ -36,7 +36,7 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.onChange(this.bonusStoreDidChange);
 
     bonusActions.fetchAll();
-    bonusActions.fetchAllBonusUses();
+    bonusActions.fetchAllUserEarnedBonuses();
   }
 
   componentDidUnmount() {
@@ -59,7 +59,7 @@ export default class EarnBonusesList extends React.Component {
 
   bonusStoreDidChange = () => {
     this.setState({ 
-      bonusUses: bonusStore.bonusUses,
+      earnedBonuses: bonusStore.earnedBonuses,
       bonuses: bonusStore.bonuses
     });
   }
@@ -77,14 +77,14 @@ export default class EarnBonusesList extends React.Component {
   }
 
   earnedBonus(task) {
-    const { bonusUses, bonuses } = this.state,
+    const { earnedBonuses, bonuses } = this.state,
           bonusTask = bonuses ? bonuses.get(task) : null;
 
     if (!bonusTask) {
       return;
     }
 
-    return bonusUses.has(bonusTask.id);
+    return earnedBonuses.has(bonusTask.id);
   }
 
   render() {

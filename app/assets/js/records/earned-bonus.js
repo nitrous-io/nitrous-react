@@ -1,6 +1,6 @@
 import { Record } from 'immutable';
 
-export default class BonusUse extends Record({
+export default class EarnedBonus extends Record({
   id: null,
   bonusId: null,
   userId: null,

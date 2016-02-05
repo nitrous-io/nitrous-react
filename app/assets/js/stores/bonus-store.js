@@ -1,12 +1,12 @@
 import { OrderedMap } from 'immutable';
 
 import Store from 'stores/store';
-import BonusUse from 'records/bonus-use';
+import EarnedBonus from 'records/earned-bonus';
 import Bonus from 'records/bonus';
 
 class BonusStore extends Store {
   _bonuses = OrderedMap(); // <K: Slug, V: Bonus>
-  _bonusUses = OrderedMap(); // <K: bonusId, V: BonusUse>
+  _earnedBonuses = OrderedMap(); // <K: bonusId, V: EarnedBonus >
 
   handleAction(action) {
     switch (action.type) {
@@ -22,22 +22,22 @@ class BonusStore extends Store {
       case 'bonus.fetch-all-failed': {
         break;
       }
-      case 'bonus.fetched-all-bonus-uses': {
+      case 'bonus.fetched-all-user-earned-bonuses': {
         const { data } = action.data;
-        this._bonusUses = OrderedMap(data.bonus_uses.map(function(d) {
-          const b = BonusUse.deserialize(d);
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
           return [b.bonusId, b];
         }));
         this._lastError = null;
         break;
       }
-      case 'bonus.fetch-all-bonus-use-failed': {
+      case 'bonus.fetch-all-user-earned-bonuses-failed': {
         break;
       }
       case 'bonus.earned-bonus': {
         const { data } = action.data;
-        this._bonusUses = OrderedMap(data.bonus_uses.map(function(d) {
-          const b = BonusUse.deserialize(d);
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
           return [b.bonusId, b];
         }));
 
@@ -54,8 +54,8 @@ class BonusStore extends Store {
     this.notifyChange();
   }
 
-  get bonusUses() {
-    return this._bonusUses;
+  get earnedBonuses() {
+    return this._earnedBonuses;
   }
 
   get bonuses() {

@@ -22,20 +22,20 @@ class BonusActions {
     return promise;
   }
 
-  fetchAllBonusUses() {
+  fetchAllUserEarnedBonuses() {
     const promise = authedAjax({
       type: 'GET',
-      url: `/api/v0/user/bonus_uses`,
+      url: `/api/v0/user/earned_bonuses`,
       dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
-        type: 'bonus.fetched-all-bonus-uses',
+        type: 'bonus.fetched-all-user-earned-bonuses',
         data: { data }
       });
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'bonus.fetch-all-bonus-uses-failed',
+        type: 'bonus.fetch-all-user-earned-bonuses-failed',
         data: { jqxhr }
       });
     });
