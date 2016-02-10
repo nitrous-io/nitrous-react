@@ -37,6 +37,7 @@ import NotFound from 'components/not-found';
 import ResendConfirmation from 'components/resend-confirmation';
 import ConfirmEmail from 'components/confirm-email';
 import FirstStart from 'components/first-start';
+import EarnBonuses from 'components/earn-bonuses';
 
 // import DocsUI from 'components/docs-ui';
 // use <Route name='ui' path='ui' handler={DocsUI} /> when you need it
@@ -109,6 +110,8 @@ export default (
       <Route name='shared-container-ports' path='shared-projects/:containerSlug/ports' handler={ContainerPorts} />
 
       <Route name='account-settings' path='account' handler={AccountSettings} />
+
+      <Route name='earn-bonuses' path='earn-bonuses' handler={EarnBonuses} />
 
       <Route name='billing' path='billing' handler={UserBilling} />
       <Route name='payment-method' path='billing/payment-method' handler={UserBillingPaymentMethod} />
