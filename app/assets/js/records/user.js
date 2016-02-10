@@ -77,6 +77,6 @@ export default class User extends Record({
   }
 
   get usagePercentage() {
-    return ((this.usageRemaining / this.usageQuota) * 100).toFixed(2);
+    return ((this.usageRemaining / this.usageQuota) * 100).toFixed(0);
   }
 }

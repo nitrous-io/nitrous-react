@@ -1,10 +1,9 @@
 import React from 'react';
-import { Alert, Label, ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Label, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
-import Fa from 'components/fa';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -88,7 +87,8 @@ export default class EarnBonusesList extends React.Component {
   }
 
   render() {
-    const { user } = this.state;
+    const { user } = this.state,
+          progressBarLabel = user.usageRemainingHours + " hrs";
 
     let progressBarStyle = "success";
     if (user.usagePercentage < 10) {
@@ -97,10 +97,10 @@ export default class EarnBonusesList extends React.Component {
 
     return (
       <div className='earn-bonuses-list-component'>
-        <Panel header={<h4>Current Usage</h4>}>
+        <Panel header={<h4>Usage Remaining</h4>}>
           <ProgressBar
             bsStyle={progressBarStyle}
-            label="%(percent)s%"
+            label={progressBarLabel}
             max={user.usageQuota}
             now={user.usageRemaining} />
 
@@ -112,10 +112,6 @@ export default class EarnBonusesList extends React.Component {
         </Panel>
 
         <Panel header={<h4>Get Bonus Hours</h4>}>
-          <Alert bsStyle='info'>
-            <Fa icon='info-circle' /> Share some love for Nitrous and increase your monthly quota!
-          </Alert>
-
           <Table responsive hover>
             <thead>
               <tr>
@@ -139,7 +135,7 @@ export default class EarnBonusesList extends React.Component {
                     data-show-count="false">
                     Follow @Nitrous</a>
                 ) : (
-                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                  <Label bsStyle='success'>Done!</Label>
                 )}
                 </td>
               </tr>
@@ -150,13 +146,14 @@ export default class EarnBonusesList extends React.Component {
                 <td>
                   5 extra hours/mo
                 </td>
+                {/* FIXME: Improve tweet copy*/}
                 <td>
                 {!this.earnedBonus('tweet') ? (
                   <a className="twitter-share-button"
                     href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
                     Tweet</a>
                 ) : (
-                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                  <Label bsStyle='success'>Done!</Label>
                 )}
                 </td>
               </tr>
@@ -175,7 +172,7 @@ export default class EarnBonusesList extends React.Component {
                     data-action="like"
                     data-show-faces="false"></div>
                 ) : (
-                  <Label bsStyle='success'>Thanks, bonus added</Label>
+                  <Label bsStyle='success'>Done!</Label>
                 )}
                 </td>
               </tr>
