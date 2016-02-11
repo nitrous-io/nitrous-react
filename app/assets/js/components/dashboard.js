@@ -3,6 +3,7 @@ import { RouteHandler } from 'react-router';
 
 import TopNav from 'components/top-nav';
 import tokenStore from 'stores/token-store';
+import billingStore from 'stores/billing-store';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
 import hostActions from 'actions/host-actions';
@@ -10,6 +11,7 @@ import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
 import containerActions from 'actions/container-actions';
 import eventsSocket from 'lib/events-socket';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class Dashboard extends React.Component {
   displayName = 'Dashboard';
@@ -49,11 +51,20 @@ export default class Dashboard extends React.Component {
 
   componentDidMount() {
     eventsSocket.connect(tokenStore.token);
+    billingStore.onChange(this.billingStoreDidChange);
   }
 
   componentWillUnmount() {
     eventsSocket.disconnect();
+    billingStore.offChange(this.billingStoreDidChange);
     this.constructor.preloaded = false;
+  }
+
+  billingStoreDidChange = () => {
+    if (billingStore.isDelinquent) {
+      snackbarActions.post('you have outstanding invoices', 'error');
+      this.context.router.transitionTo('billing');
+    }
   }
 
   render() {
