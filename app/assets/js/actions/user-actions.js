@@ -192,6 +192,12 @@ class UserActions {
     });
     return promise;
   }
+
+  periodicallyFetch() {
+    this._timer = setInterval(() => {
+      this.fetch();
+    }, 60000);
+  }
 }
 
 export default new UserActions();

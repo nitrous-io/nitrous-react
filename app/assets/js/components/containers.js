@@ -50,6 +50,7 @@ export default class Containers extends React.Component {
   }
 
   componentDidMount() {
+    userStore.onChange(this.userStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
@@ -70,10 +71,19 @@ export default class Containers extends React.Component {
   }
 
   componentWillUnmount() {
+    userStore.offChange(this.userStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
     hostStore.off('started', this.onHostStarted);
   }
+
+  userStoreDidChange = () => {
+    this.setState({
+      user: userStore.user,
+      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
+      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
+    });
+  };
 
   containerStoreDidChange = () => {
     this.setState({ containers: containerStore.liveContainersByHostSlug(this.context.host.slug) });

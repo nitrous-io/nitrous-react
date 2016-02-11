@@ -30,7 +30,6 @@ export default class ContextSwitcher extends React.Component {
 
   state = {
     user: userStore.user,
-    usageRemaining: userStore.usageRemaining,
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
     sharedContainerCount: containerStore.sharedContainers.size,
@@ -39,7 +38,6 @@ export default class ContextSwitcher extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.tick', this.usageRemainingDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
@@ -56,7 +54,6 @@ export default class ContextSwitcher extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
-    userStore.off('usage-remaining.tick', this.usageRemainingDidChange);
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
@@ -67,10 +64,6 @@ export default class ContextSwitcher extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
-  };
-
-  usageRemainingDidChange = () => {
-    this.setState({ usageRemaining: userStore.usageRemaining });
   };
 
   orgStoreDidChange = () => {
@@ -98,7 +91,8 @@ export default class ContextSwitcher extends React.Component {
   }
 
   freeUsageBadgeText = () => {
-    const { user, usageRemaining } = this.state,
+    const { user } = this.state,
+          usageRemaining = user.usageRemaining,
           nextReset = format.nextUsageQuota(user.nextUsageQuotaAt);
     if (usageRemaining > 0) {
       return `${format.usageRemaining(usageRemaining)} remaining for this month`;
@@ -112,7 +106,8 @@ export default class ContextSwitcher extends React.Component {
 
   render() {
     const { selectedHost, showTooltip } = this.props,
-          { user, sharedContainerCount, showSendFeedback, usageRemaining } = this.state,
+          { user, sharedContainerCount, showSendFeedback } = this.state,
+          usageRemaining = user.usageRemaining,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
