@@ -5,7 +5,6 @@ import hostStore from 'stores/host-store';
 
 class UserStore extends Store {
   _user = null; // <User>
-  _usageRemaining = -1;
   _timer = null;
 
   handleAction(action) {
@@ -13,7 +12,7 @@ class UserStore extends Store {
       case 'user.fetched': {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
-        this._usageRemaining = this._user.usageRemaining;
+        clearTimeout(this._timer);
         this._tickUsageRemaining();
         this._lastError = null;
         break;
@@ -109,16 +108,15 @@ class UserStore extends Store {
   }
 
   get usageRemaining() {
-    return this._usageRemaining;
+    return this._user.usageRemaining;
   }
 
   hasUsageRemaining() {
-    return this._usageRemaining > 0;
+    return this._user.usageRemaining > 0;
   }
 
   _tickUsageRemaining() {
-    if (this._usageRemaining <= 0) {
-      this.emit('usage-remaining.quota-reached');
+    if (this._user.usageRemaining <= 0) {
       clearTimeout(this._timer);
       return;
     }
@@ -129,12 +127,13 @@ class UserStore extends Store {
       return;
     }
 
-    this._usageRemaining = this._usageRemaining - 1;
+    this._user = this._user.set('usageRemaining', this._user.usageRemaining - 1);
+
     this._timer = setTimeout(() => {
       this._tickUsageRemaining();
     }, 1000);
 
-    this.emit('usage-remaining.tick');
+    this.notifyChange();
   }
 }
 

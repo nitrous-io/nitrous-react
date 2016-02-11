@@ -28,25 +28,29 @@ export default class HostNav extends React.Component {
   };
 
   componentDidMount() {
+    userStore.onChange(this.userStoreDidChange);
     if (this.props.host.orgId) {
       orgStore.onChange(this.orgStoreDidChange);
       orgActions.fetchAll();
     }
-    userStore.on('usage-remaining.quota-reached', this.onQuotaReached);
   }
 
   componentWillUnmount() {
+    userStore.offChange(this.userStoreDidChange);
     if (this.props.host.orgId) {
       orgStore.offChange(this.orgStoreDidChange);
     }
   }
 
-  orgStoreDidChange = () => {
-    this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
+  userStoreDidChange = () => {
+    this.setState({
+      user: userStore.user,
+      quotaReached: userStore.usageRemaining <= 0
+    });
   }
 
-  onQuotaReached = () => {
-    this.setState({ quotaReached: true });
+  orgStoreDidChange = () => {
+    this.setState({ org: orgStore.orgByOrgId(this.props.host.orgId) });
   }
 
   handleSelectContainersTab = () => {

@@ -32,6 +32,7 @@ export default class Dashboard extends React.Component {
     } else {
       Promise.all([
         userActions.fetch(),
+        userActions.periodicallyFetch(),
         orgActions.fetchAll(),
         hostActions.fetchAll(),
         planActions.fetchAll(),
