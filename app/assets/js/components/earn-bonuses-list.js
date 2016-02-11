@@ -150,7 +150,9 @@ export default class EarnBonusesList extends React.Component {
                 <td>
                 {!this.earnedBonus('tweet') ? (
                   <a className="twitter-share-button"
-                    href="https://twitter.com/intent/tweet?text=I%E2%80%99m%20using%20%40nitrous%2C%20the%20fastest%20way%20to%20code%20in%20the%20cloud!%20Claim%20your%20free%20account%20here%3A%20https%3A%2F%2Fwww.nitrous.io">
+                    data-url="https://www.nitrous.io"
+                    data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
+                    href="https://twitter.com/share">
                     Tweet</a>
                 ) : (
                   <Label bsStyle='success'>Done!</Label>
