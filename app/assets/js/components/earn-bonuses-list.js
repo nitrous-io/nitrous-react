@@ -57,7 +57,7 @@ export default class EarnBonusesList extends React.Component {
   }
 
   bonusStoreDidChange = () => {
-    this.setState({ 
+    this.setState({
       earnedBonuses: bonusStore.earnedBonuses,
       bonuses: bonusStore.bonuses
     });
@@ -88,7 +88,7 @@ export default class EarnBonusesList extends React.Component {
 
   render() {
     const { user } = this.state,
-          progressBarLabel = user.usageRemainingHours + " hrs";
+          progressBarLabel = user.usageRemainingHours + " hours remaining";
 
     let progressBarStyle = "success";
     if (user.usagePercentage < 10) {
@@ -150,7 +150,7 @@ export default class EarnBonusesList extends React.Component {
                 <td>
                 {!this.earnedBonus('tweet') ? (
                   <a className="twitter-share-button"
-                    href="https://twitter.com/intent/tweet?text=I%20love%20Nitrous! Check it out here">
+                    href="https://twitter.com/intent/tweet?text=I%E2%80%99m%20using%20%40nitrous%2C%20the%20fastest%20way%20to%20code%20in%20the%20cloud!%20Claim%20your%20free%20account%20here%3A%20https%3A%2F%2Fwww.nitrous.io">
                     Tweet</a>
                 ) : (
                   <Label bsStyle='success'>Done!</Label>
