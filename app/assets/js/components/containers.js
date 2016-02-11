@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Org from 'records/org';
@@ -10,6 +10,7 @@ import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
 import userStore from 'stores/user-store';
 import containerActions from 'actions/container-actions';
+import hostActions from 'actions/host-actions';
 import AnnouncementAlert from 'components/announcement-alert';
 import OnboardingModal from 'components/onboarding-modal';
 import ContainerList from 'components/container-list';
@@ -49,6 +50,7 @@ export default class Containers extends React.Component {
   }
 
   componentDidMount() {
+    userStore.onChange(this.userStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
@@ -69,10 +71,19 @@ export default class Containers extends React.Component {
   }
 
   componentWillUnmount() {
+    userStore.offChange(this.userStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
     hostStore.off('started', this.onHostStarted);
   }
+
+  userStoreDidChange = () => {
+    this.setState({
+      user: userStore.user,
+      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
+      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
+    });
+  };
 
   containerStoreDidChange = () => {
     this.setState({ containers: containerStore.liveContainersByHostSlug(this.context.host.slug) });
@@ -116,6 +127,10 @@ export default class Containers extends React.Component {
     });
   };
 
+  handleStartWorkstation = () => {
+    hostActions.start(this.context.host.slug);
+  };
+
   renderAlert() {
     const { host, router } = this.context,
           { billingProfile, quotaRunningOut, quotaReached } = this.state,
@@ -135,6 +150,16 @@ export default class Containers extends React.Component {
               for unlimited usage.
             </span>
           ) : ''}
+        </Alert>
+      );
+    } else if (host.isStopped && host.autoShutdown) {
+      return (
+        <Alert bsStyle='info' className='stopped-host-alert clearfix'>
+          <Fa icon='exclamation-circle' /> We've shutdown your workstation and projects due to inactivity.
+          <Button bsStyle='default'
+            onClick={this.handleStartWorkstation}>
+            <Fa icon='play' /> Start Workstation
+          </Button>
         </Alert>
       );
     } else if (quotaRunningOut) {

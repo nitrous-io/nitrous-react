@@ -62,6 +62,13 @@ class BillingStore extends Store {
   get orgBillingProfiles() {
     return this._orgBillingProfiles;
   }
+
+  get isDelinquent() {
+    if (this._userBillingProfile) {
+      return this._userBillingProfile.state === 'delinquent';
+    }
+    return false;
+  }
 }
 
 export default new BillingStore();
