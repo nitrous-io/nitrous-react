@@ -166,6 +166,12 @@ class HostStore extends Store {
       case 'events:host.create-failed': {
         const host = Host.deserialize(action.data.host);
         this._hosts = this._hosts.set(host.slug, host);
+
+        const errMsg = action.data.error;
+        if (errMsg.includes("Your Card was declined")) {
+          snackbarActions.post(errMsg);
+        }
+
         this.emit('create-failed', { host });
         break;
       }
