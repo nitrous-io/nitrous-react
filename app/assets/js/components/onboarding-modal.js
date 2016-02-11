@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
-import { Carousel, CarouselItem, Modal } from 'react-bootstrap';
+import { Button, Carousel, CarouselItem, Modal } from 'react-bootstrap';
 
 import userActions from 'actions/user-actions';
 import userStore from 'stores/user-store';
+import hostStore from 'stores/host-store';
+import billingStore from 'stores/billing-store';
 
 export default class OnboardingModal extends React.Component {
   displayName = 'OnboardingModal';
@@ -19,12 +21,17 @@ export default class OnboardingModal extends React.Component {
     super(props, context);
 
     const user = userStore.user,
-          showOnboardingModal = user ? (user && user.firstTime) : false;
+          showOnboardingModal = user ? (user && user.firstTime) : false,
+          freeHost = this.freeHost(hostStore.userHosts),
+          freeHostSubscriptionSlug = freeHost ? freeHost.subscriptionSlug : '';
 
     this.state = {
       coverSlide: true,
       finalSlide: false,
-      showOnboardingModal
+      showOnboardingModal,
+      hasFreeHost: this.hasFreeHost(hostStore.userHosts),
+      userBillingProfile: billingStore.userBillingProfile,
+      freeHostSubscriptionSlug
     };
   }
 
@@ -41,6 +48,14 @@ export default class OnboardingModal extends React.Component {
     if (user && user.firstTime) {
       this.setState({ showOnboardingModal: true });
     }
+  }
+
+  hasFreeHost(hosts) {
+    return hosts.some((h) => h.free);
+  }
+
+  freeHost(hosts) {
+    return hosts.find((h) => h.free);
   }
 
   hideOnboardingModal = () => {
@@ -102,9 +117,14 @@ export default class OnboardingModal extends React.Component {
   }
 
   render() {
-    const { coverSlide, finalSlide, showOnboardingModal } = this.state;
+    const { userBillingProfile, freeHostSubscriptionSlug, hasFreeHost, coverSlide, finalSlide, showOnboardingModal } = this.state,
+          { makeHref } = this.context.router,
+          earnBonusHoursURL = makeHref('earn-bonuses', {}, {}),
+          subscriptionsUpgradeURL = (userBillingProfile && !userBillingProfile.hasCard && freeHostSubscriptionSlug) ?
+            makeHref('payment-method', {}, { next: 'upgrade', subscription: freeHostSubscriptionSlug }) :
+            makeHref('subscriptions-upgrade', { subscriptionSlug: freeHostSubscriptionSlug }, {});
 
-    let nextLabel = 'Show me >';
+    let nextLabel = 'Learn More >';
     let prevLabel = null;
     if (!coverSlide && !finalSlide) {
       nextLabel = 'Next >';
@@ -117,10 +137,22 @@ export default class OnboardingModal extends React.Component {
     return (
       <Modal show={showOnboardingModal} onHide={this.hideOnboardingModal} dialogClassName='onboarding-modal' backdrop={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Quick Tour</Modal.Title>
+          <Modal.Title>Welcome</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Carousel prevIcon ={prevLabel} nextIcon={nextLabel} interval={0} onSelect={this.handleSelect} id='carousel-onboard'>
+            {hasFreeHost ? (
+              <CarouselItem>
+                <h2>Your Plan: Nitrous Free Tier</h2>
+                <p className='hint'>Your Free Plan is limited to 50 hours of coding per month</p>
+                <div className='earn-bonus-hours'>
+                  <Button className='earn-bonus-hours-btn' target='_blank' href={earnBonusHoursURL} bsStyle="primary">EARN BONUS HOURS</Button>
+                </div>
+                <div className='upgrade-plan'>
+                  <Button className='upgrade-plan-btn' target='_blank' href={subscriptionsUpgradeURL}>UPGRADE PLAN</Button>
+                </div>
+              </CarouselItem>
+            ) : ''}
             <CarouselItem> 
               <h2>Welcome to the new Nitrous</h2>
               <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>
