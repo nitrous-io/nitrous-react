@@ -64,6 +64,8 @@ export default class AccountSettings extends React.Component {
   }
 
   userStoreDidChange = () => {
+    if (!this.state.updating && !this.state.updatingProfile) return;
+
     const user = userStore.user;
     this.setState({
       user,
