@@ -51,6 +51,7 @@ export default class Containers extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.tick', this.userStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
@@ -72,6 +73,7 @@ export default class Containers extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.tick', this.userStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
     hostStore.off('started', this.onHostStarted);

@@ -43,6 +43,7 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.tick', this.userStoreDidChange);
 
     templateActions.fetchAll();
     templateStore.onChange(this.templateStoreDidChange);
@@ -56,6 +57,7 @@ export default class ContainerList extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.tick', this.userStoreDidChange);
     templateStore.offChange(this.templateStoreDidChange);
     snapshotStore.offChange(this.snapshotStoreDidChange);
   }
