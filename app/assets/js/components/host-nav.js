@@ -29,6 +29,7 @@ export default class HostNav extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.tick', this.userStoreDidChange);
     if (this.props.host.orgId) {
       orgStore.onChange(this.orgStoreDidChange);
       orgActions.fetchAll();
@@ -37,6 +38,7 @@ export default class HostNav extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.tick', this.userStoreDidChange);
     if (this.props.host.orgId) {
       orgStore.offChange(this.orgStoreDidChange);
     }

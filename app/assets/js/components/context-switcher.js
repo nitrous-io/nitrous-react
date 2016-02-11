@@ -38,6 +38,7 @@ export default class ContextSwitcher extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
+    userStore.on('usage-remaining.tick', this.userStoreDidChange);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
@@ -54,6 +55,7 @@ export default class ContextSwitcher extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
+    userStore.off('usage-remaining.tick', this.userStoreDidChange);
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
