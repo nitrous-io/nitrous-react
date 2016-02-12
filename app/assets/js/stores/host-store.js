@@ -115,8 +115,13 @@ class HostStore extends Store {
         this.emit('creating', { hostSlug: slug, stream });
         break;
       }
+      case 'events:host.starting': {
+        const { host } = action.data,
+              h = Host.deserialize(host);
+        this._hosts = this._hosts.set(h.slug, h);
+        break;
+      }
       case 'events:host.created':
-      case 'events:host.starting':
       case 'events:host.started':
       case 'events:host.restarting':
       case 'events:host.restarted':
