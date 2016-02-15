@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
-import { Carousel, CarouselItem, Modal } from 'react-bootstrap';
+import { Button, Carousel, CarouselItem, Modal } from 'react-bootstrap';
 
 import userActions from 'actions/user-actions';
 import userStore from 'stores/user-store';
+import hostStore from 'stores/host-store';
+import billingStore from 'stores/billing-store';
 
 export default class OnboardingModal extends React.Component {
   displayName = 'OnboardingModal';
@@ -19,12 +21,16 @@ export default class OnboardingModal extends React.Component {
     super(props, context);
 
     const user = userStore.user,
-          showOnboardingModal = user ? (user && user.firstTime) : false;
+          showOnboardingModal = user && user.firstTime,
+          freeHost = this.freeHost(hostStore.userHosts);
 
     this.state = {
+      user,
       coverSlide: true,
       finalSlide: false,
-      showOnboardingModal
+      showOnboardingModal,
+      freeHost,
+      userBillingProfile: billingStore.userBillingProfile
     };
   }
 
@@ -43,6 +49,10 @@ export default class OnboardingModal extends React.Component {
     }
   }
 
+  freeHost(hosts) {
+    return hosts.find((h) => h.free);
+  }
+
   hideOnboardingModal = () => {
     this.setState({ showOnboardingModal: false });
     this.props.activeSlide();
@@ -51,16 +61,31 @@ export default class OnboardingModal extends React.Component {
   };
 
   handleSelect = (selectedIndex) => {
-    const slides = {
-      cover: 0,
+    let slides = {
+      welcome: 0,
       dashboard: 1,
       context: 2,
       settings: 3
     };
 
+    if (this.state.freeHost) {
+      slides = {
+        freeHostWelcome: 0,
+        welcome: 1,
+        dashboard: 2,
+        context: 3,
+        settings: 4
+      };
+    }
+
     switch (selectedIndex) {
-      case slides.cover: {
+      case 0: {
         this.setBtnLabel('cover');
+        this.props.activeSlide();
+        return;
+      }
+      case slides.welcome: {
+        this.setBtnLabel();
         this.props.activeSlide();
         return;
       }
@@ -102,9 +127,15 @@ export default class OnboardingModal extends React.Component {
   }
 
   render() {
-    const { coverSlide, finalSlide, showOnboardingModal } = this.state;
+    const { user, userBillingProfile, freeHost, coverSlide, finalSlide, showOnboardingModal } = this.state,
+          { makeHref } = this.context.router,
+          freeHostSubscriptionSlug = freeHost ? freeHost.subscriptionSlug : '',
+          earnBonusHoursURL = makeHref('earn-bonuses', {}, {}),
+          subscriptionsUpgradeURL = (userBillingProfile && !userBillingProfile.hasCard && freeHostSubscriptionSlug) ?
+            makeHref('payment-method', {}, { next: 'upgrade', subscription: freeHostSubscriptionSlug }) :
+            makeHref('subscriptions-upgrade', { subscriptionSlug: freeHostSubscriptionSlug }, {});
 
-    let nextLabel = 'Show me >';
+    let nextLabel = 'Learn More >';
     let prevLabel = null;
     if (!coverSlide && !finalSlide) {
       nextLabel = 'Next >';
@@ -117,10 +148,22 @@ export default class OnboardingModal extends React.Component {
     return (
       <Modal show={showOnboardingModal} onHide={this.hideOnboardingModal} dialogClassName='onboarding-modal' backdrop={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Quick Tour</Modal.Title>
+          <Modal.Title>Welcome</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Carousel prevIcon ={prevLabel} nextIcon={nextLabel} interval={0} onSelect={this.handleSelect} id='carousel-onboard'>
+            {freeHost ? (
+              <CarouselItem>
+                <h2>Your Plan: Nitrous Free Tier</h2>
+                <p className='hint'>Your Free Plan is limited to {user.usageQuotaHours} hours of coding per month</p>
+                <div className='earn-bonus-hours'>
+                  <Button className='earn-bonus-hours-btn' target='_blank' href={earnBonusHoursURL} bsStyle="primary">earn bonus hours</Button>
+                </div>
+                <div className='upgrade-plan'>
+                  <Button className='upgrade-plan-btn' target='_blank' href={subscriptionsUpgradeURL}>upgrade plan</Button>
+                </div>
+              </CarouselItem>
+            ) : ''}
             <CarouselItem> 
               <h2>Welcome to the new Nitrous</h2>
               <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>

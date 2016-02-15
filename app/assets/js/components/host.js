@@ -1,16 +1,19 @@
 import React, { PropTypes } from 'react';
 import { RouteHandler } from 'react-router';
 import HostRecord from 'records/host';
+import Org from 'records/org';
 import hostActions from 'actions/host-actions';
 import taskActions from 'actions/task-actions';
 import hostStore from 'stores/host-store';
 import userStore from 'stores/user-store';
+import billingStore from 'stores/billing-store';
 
 export default class Host extends React.Component {
   displayName = 'Host';
 
   static contextTypes = {
-    router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
+    router: PropTypes.func.isRequired, // Router.PropTypes.router.isRequired
+    org: PropTypes.instanceOf(Org)
   };
 
   static childContextTypes = {
@@ -49,8 +52,7 @@ export default class Host extends React.Component {
 
     const host = hostStore.liveHosts.get(this.props.params.hostSlug);
     if (this.shouldResumeHost(host)) {
-      hostActions.start(host.slug);
-      taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
+      this.resumeHost(host);
     }
   }
 
@@ -62,8 +64,7 @@ export default class Host extends React.Component {
       hostActions.fetchOne(hostSlug);
 
       if (this.shouldResumeHost(host)) {
-        hostActions.start(host.slug);
-        taskActions.update(`host-starting-${host.slug}`, 'Resuming...');
+        this.resumeHost(host);
       }
     }
   }
@@ -89,6 +90,14 @@ export default class Host extends React.Component {
     return { host: this.state.host };
   }
 
+  findBillingProfile = () => {
+    const org = this.context.org;
+    if (org) {
+      return billingStore.orgBillingProfiles.get(org.id);
+    }
+    return billingStore.userBillingProfile;
+  }
+
   shouldResumeHost(host) {
     if (!host || host.state !== 'stopped') return false;
 
@@ -96,6 +105,30 @@ export default class Host extends React.Component {
     if (host.free && !userStore.hasUsageRemaining()) return false;
 
     return true;
+  }
+
+  resumeHost(host) {
+    const { makeHref } = this.context.router,
+          billingProfile = this.findBillingProfile(),
+          upgradeURL = (billingProfile && !billingProfile.hasCard) ?
+            makeHref('payment-method', {}, { next: 'upgrade', subscription: host.subscriptionSlug }) :
+            makeHref('subscriptions-upgrade', { subscriptionSlug: host.subscriptionSlug }),
+          readMoreURL = "https://community.nitrous.io/docs/nitrous-free-tier-faq";
+
+    const resumingJSX = (
+      <span>
+        Resuming free workstation&hellip;
+        <span className='links'>
+          <a href={readMoreURL}>Read more</a>
+          &nbsp;|&nbsp;
+          <a href={upgradeURL}>Upgrade</a>
+        </span>
+      </span>
+    );
+
+    taskActions.update(`host-starting-${host.slug}`, resumingJSX);
+
+    hostActions.start(host.slug);
   }
 
   render() {
