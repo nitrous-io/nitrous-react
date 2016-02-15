@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Panel, Button, ButtonToolbar, Input, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
+import { Panel, Button, ButtonToolbar, Input, Modal, OverlayTrigger, Tooltip, Table } from 'react-bootstrap';
 import { PortBinding } from 'records/container-config';
 import Host from 'records/host';
 import containerActions from 'actions/container-actions';
@@ -39,7 +39,8 @@ export default class ContainerPorts extends React.Component {
     portBindings: this.findPortBindings(),
     processing: false,
     newPort: null,
-    newPortInvalid: false
+    newPortInvalid: false,
+    showModal: false
   }
 
   componentDidMount() {
@@ -78,6 +79,7 @@ export default class ContainerPorts extends React.Component {
     const { container } = data;
     if (container.slug === this.props.params.containerSlug) {
       snackbarActions.post(`Your project “${container.displayName}” has been successfully reconfigured.`);
+      this.hideModal();
       this.setState({ processing: false });
       containerActions.fetchConfig(this.props.params.containerSlug);
     }
@@ -86,6 +88,7 @@ export default class ContainerPorts extends React.Component {
   onContainerReconfigFailed = (data) => {
     const { containerSlug } = data;
     if (containerSlug === this.props.params.containerSlug) {
+      this.hideModal();
       this.setState({ processing: false });
     }
   }
@@ -142,6 +145,14 @@ export default class ContainerPorts extends React.Component {
   }
 
   handleApplyChanges = () => {
+    this.setState({ showModal: true });
+  }
+
+  handleApplyChangesCancel = () => {
+    this.setState({ showModal: false });
+  }
+
+  handleApplyChangesOK = () => {
     this.setState({ processing: true });
 
     const { container, containerConfig, portBindings } = this.state;
@@ -155,6 +166,10 @@ export default class ContainerPorts extends React.Component {
     }
 
     containerActions.reconfigure(container, newConfig);
+  }
+
+  hideModal = () => {
+    this.setState({ showModal: false });
   }
 
   isDirty() {
@@ -233,8 +248,8 @@ export default class ContainerPorts extends React.Component {
 
         <ButtonToolbar>
           <Button className='pull-right'
-            bsStyle={dirty ? ('primary') : 'disabled'}
-            disabled={processing}
+            bsStyle='primary'
+            disabled={!dirty || processing}
             onClick={this.handleApplyChanges}>
             {processing ? 'Applying Changes...' : 'Apply Changes'}
           </Button>
@@ -282,7 +297,7 @@ export default class ContainerPorts extends React.Component {
 
   render() {
     const { containerSlug } = this.props.params,
-          { container, containerConfig } = this.state,
+          { container, containerConfig, processing } = this.state,
           { host } = this.context,
           shared = !host,
           loading = (container == null || containerConfig == null);
@@ -298,6 +313,23 @@ export default class ContainerPorts extends React.Component {
             )}
           </Panel>
         </ContainerNav>
+
+        <Modal show={this.state.showModal} onHide={this.hideModal}>
+          <Modal.Header>
+            <Modal.Title>Restart Required</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Your project will be restarted for the port changes you've made to take effect.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleApplyChangesCancel}>Cancel</Button>
+            <Button bsStyle='danger'
+              disabled={processing}
+              onClick={processing ? null : this.handleApplyChangesOK}>
+              {processing ? 'Applying Changes...' : 'Apply Changes and Restart'}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }
