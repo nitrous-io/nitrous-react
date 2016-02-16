@@ -171,11 +171,13 @@ export default class Billing extends React.Component {
         <Table responsive hover>
           <tbody>
             {subscriptions.toList().map((subscription) => {
+              const host = hostStore.hostByHostSlug(subscription.hostSlug);
               return (
                 <SubscriptionListItem
                   key={`subscription-${subscription.slug}`}
                   billingProfile={billingProfile}
-                  subscription={subscription} />
+                  subscription={subscription}
+                  host={host} />
               );
             })}
           </tbody>
