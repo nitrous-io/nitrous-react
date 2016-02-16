@@ -299,18 +299,13 @@ export default class ContainerPorts extends React.Component {
     const { containerSlug } = this.props.params,
           { container, containerConfig, processing } = this.state,
           { host } = this.context,
-          shared = !host,
           loading = (container == null || containerConfig == null);
 
     return (
       <div className='container-ports-component'>
         <ContainerNav activeTab='ports' containerSlug={containerSlug} container={container} host={host}>
-          <Panel header={(<h4>{shared ? 'View' : 'Manage'} Ports</h4>)}>
-            {loading ? (
-              <LoadingIndicator />
-            ) : (
-              shared ? this.renderShared() : this.renderPortEditor()
-            )}
+          <Panel header={(<h4>Manage Ports</h4>)}>
+            {loading ? (<LoadingIndicator />) : this.renderPortEditor()}
           </Panel>
         </ContainerNav>
 
