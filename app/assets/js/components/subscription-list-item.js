@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import Time from 'react-time';
 
+import Host from 'records/host';
 import Subscription from 'records/subscription';
 import BillingProfile from 'records/billing-profile';
 import subscriptionActions from 'actions/subscription-actions';
@@ -18,7 +19,8 @@ export default class SubscriptionListItem extends React.Component {
 
   static propTypes = {
     subscription: PropTypes.instanceOf(Subscription).isRequired,
-    billingProfile: PropTypes.instanceOf(BillingProfile)
+    billingProfile: PropTypes.instanceOf(BillingProfile),
+    host: PropTypes.instanceOf(Host)
   };
 
   state = {
@@ -99,7 +101,7 @@ export default class SubscriptionListItem extends React.Component {
   };
 
   render() {
-    const { subscription, billingProfile } = this.props,
+    const { subscription, billingProfile, host } = this.props,
           periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
           { canceling, reactivating } = this.state,
           subscriptionPlanPrice = format.currency(subscription.plan.priceDollars),
@@ -150,7 +152,11 @@ export default class SubscriptionListItem extends React.Component {
                   <strong> {subscription.hostSlug}</strong>
                 ) : ''}
               ?</p>
-              <p>Your subscription will end on <strong><Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></strong>, after which your workstation will be terminated.</p>
+              {host && host.free ? (
+                <p>Your workstation <strong>{host.slug}</strong> will be terminated immediately.</p>
+              ) : (
+                <p>Your subscription will end on <strong><Time value={subscription.currentPeriodEnd} format="MMM DD, YYYY" /></strong>, after which your workstation will be terminated.</p>
+              )}
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={this.handleCloseCancelSubscriptionModal}>Close</Button>
