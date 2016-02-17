@@ -126,9 +126,13 @@ export default class Host extends React.Component {
       </span>
     );
 
-    taskActions.update(`host-starting-${host.slug}`, resumingJSX);
+    // re-queue host-start-action at the end of the execution queue
+    // so that it will start the host after event socket is connected.
+    setTimeout(() => {
+      hostActions.start(host.slug);
+    }, 0);
 
-    hostActions.start(host.slug);
+    taskActions.update(`host-starting-${host.slug}`, resumingJSX);
   }
 
   render() {
