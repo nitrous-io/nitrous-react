@@ -38,22 +38,16 @@ export default class AccountSettings extends React.Component {
   }
 
   componentDidMount() {
-    userActions.canDeleteAccount().then(() => {
-      this.setState({canDeleteAccount: true});
-    }).catch((jqxhr) => {
-      if (jqxhr.status === 500) {
-        return; // use default reason
-      }
-      const { responseJSON } = jqxhr;
-      if (responseJSON && responseJSON.error_description) {
-        this.setState({cannotDeleteAccountReason: responseJSON.error_description});
-      }
-    });
+    userActions.canDeleteAccount();
 
     userStore.onChange(this.userStoreDidChange);
     userStore.on('update-failed', this.onUserUpdateFailed);
     userStore.on('account-deleted', this.onAccountDeleted);
     userStore.on('account-delete-failed', this.onAccountDeleteFailed);
+    userStore.on('can-delete', this.onCanDelete);
+    userStore.on('cannot-delete', this.onCannotDelete);
+    userStore.on('github-connected', this.onGitHubConnected);
+    userStore.on('github-connect-failed', this.onGitHubConnectFailed);
   }
 
   componentWillUnmount() {
@@ -61,6 +55,10 @@ export default class AccountSettings extends React.Component {
     userStore.off('update-failed', this.onUserUpdateFailed);
     userStore.off('account-deleted', this.onAccountDeleted);
     userStore.off('account-delete-failed', this.onAccountDeleteFailed);
+    userStore.off('can-delete', this.onCanDelete);
+    userStore.off('cannot-delete', this.onCannotDelete);
+    userStore.off('github-connected', this.onGitHubConnected);
+    userStore.off('github-connect-failed', this.onGitHubConnectFailed);
   }
 
   userStoreDidChange = () => {
@@ -99,6 +97,25 @@ export default class AccountSettings extends React.Component {
 
   onAccountDeleteFailed = () => {
     this.setState({ deleting: false });
+  }
+
+  onCanDelete = () => {
+    this.setState({ canDeleteAccount: true });
+  }
+
+  onCannotDelete = (data) => {
+    this.setState({ cannotDeleteAccountReason: data.errorMessage });
+  }
+
+  onGitHubConnected = (data) => {
+    const { redirectUrl } = data;
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }
+
+  onGitHubConnectFailed = () => {
+    this.setState({ connectingToGitHub: false });
   }
 
   handleChangeNameField = (event) => {
@@ -155,11 +172,7 @@ export default class AccountSettings extends React.Component {
 
   handleClickGitHubConnect = () => {
     this.setState({ connectingToGitHub: true });
-    userActions.connectToGitHub().then((data) => {
-      window.location.href = data.redirect_url;
-    }).catch(() => {
-      this.setState({ connectingToGitHub: false });
-    });
+    userActions.connectToGitHub();
   }
 
   handleClickDeleteAccount = () => {

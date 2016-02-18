@@ -56,6 +56,33 @@ class UserStore extends Store {
         this.emit('profile-update-failed');
         return;
       }
+      case 'user.github-connected': {
+        const { redirect_url } = action.data.data;
+        this.emit('github-connected', { redirectUrl: redirect_url });
+        return;
+      }
+      case 'user.github-connect-failed': {
+        this.emit('github-connect-failed');
+        return;
+      }
+      case 'user.logged-in-via-github': {
+        const { redirect_url } = action.data.data;
+        this.emit('logged-in-via-github', { redirectUrl: redirect_url });
+        return;
+      }
+      case 'user.log-in-via-github-failed': {
+        this.emit('log-in-via-github-failed');
+        return;
+      }
+      case 'user.signed-up-via-github': {
+        const { redirect_url } = action.data.data;
+        this.emit('signed-up-via-github', { redirectUrl: redirect_url });
+        return;
+      }
+      case 'user.sign-up-via-github-failed': {
+        this.emit('sign-up-via-github-failed');
+        return;
+      }
       case 'user.dismissed-first-time': {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
@@ -66,6 +93,21 @@ class UserStore extends Store {
         // temporarily set firstTime value to prevent disruptive onboarding message.
         this._user = this._user.set('firstTime', false);
         break;
+      }
+      case 'user.can-delete': {
+        this.emit('can-delete');
+        return;
+      }
+      case 'user.cannot-delete': {
+        const { jqxhr } = action.data,
+              {responseJSON } = jqxhr;
+        let errorMessage = jqxhr.errorMessage;
+
+        if (responseJSON && responseJSON.error_description) {
+          errorMessage = responseJSON.error_description;
+        }
+        this.emit('cannot-delete', { errorMessage });
+        return;
       }
       case 'user.account-deleted': {
         this.emit('account-deleted');

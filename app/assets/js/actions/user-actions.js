@@ -106,6 +106,16 @@ class UserActions {
       url: '/api/v0/github/authorize',
       dataType: 'json',
       data: { beta: true }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.github-connected',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.github-connect-failed',
+        data: { jqxhr }
+      });
     });
   }
 
@@ -115,6 +125,16 @@ class UserActions {
       url: '/api/v0/github/authorize_to_login',
       cache: false,
       data: { beta: true }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.logged-in-via-github',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.log-in-via-github-failed',
+        data: { jqxhr }
+      });
     });
   }
 
@@ -124,6 +144,16 @@ class UserActions {
       url: '/api/v0/github/authorize_to_signup',
       cache: false,
       data: { beta: true }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.signed-up-via-github',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.sign-up-via-github-failed',
+        data: { jqxhr }
+      });
     });
   }
 
@@ -171,6 +201,16 @@ class UserActions {
     return authedAjax({
       type: 'GET',
       url: '/api/v0/user/can_delete'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'user.can-delete',
+        data: { data }
+      });
+    }).catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'user.cannot-delete',
+        data: { jqxhr }
+      });
     });
   }
 
