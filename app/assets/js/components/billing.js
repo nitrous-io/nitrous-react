@@ -27,10 +27,6 @@ export default class Billing extends React.Component {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
   };
 
-  static willTransitionTo() {
-    Mp.track(MpEvents.EventDashboardViewedBilling);
-  }
-
   findBillingProfile = () => {
     const org = this.context.org;
     if (org) {
@@ -92,6 +88,7 @@ export default class Billing extends React.Component {
   }
 
   componentDidMount() {
+    Mp.track(MpEvents.EventDashboardViewedBilling);
     subscriptionStore.onChange(this.subscriptionStoreDidChange);
     invoiceStore.onChange(this.invoiceStoreDidChange);
     hostStore.on('fetched-sub-hosts', this.onSubHostsFetched);

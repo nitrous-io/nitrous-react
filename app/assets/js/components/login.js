@@ -71,6 +71,8 @@ export default class Login extends React.Component {
         return;
       }
 
+      Mp.track(MpEvents.EventUserLoggedIn);
+
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
       snackbarActions.post(tokenStore.lastError, 'warning');
