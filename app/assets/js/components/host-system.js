@@ -13,6 +13,8 @@ import snackbarActions from 'actions/snackbar-actions';
 import ContextSwitcher from 'components/context-switcher';
 import LoadingIndicator from 'components/loading-indicator';
 import HostNav from 'components/host-nav';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class HostSystem extends React.Component {
   displayName = 'HostSystem';
@@ -21,6 +23,10 @@ export default class HostSystem extends React.Component {
     router: PropTypes.func.isRequired,
     host: PropTypes.instanceOf(Host).isRequired
   };
+
+  static willTransitionTo() {
+    Mp.track(MpEvents.EventDashboardViewedHostSystem);
+  }
 
   state = {
     stats: null,

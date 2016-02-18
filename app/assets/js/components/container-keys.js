@@ -13,6 +13,8 @@ import userKeyStore from 'stores/user-key-store';
 import ContainerNav from 'components/container-nav';
 import SelectableTextarea from 'components/selectable-textarea';
 import Fa from 'components/fa';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 import LoadingIndicator from 'components/loading-indicator';
 import UserKeyList from 'components/user-key-list';
 
@@ -46,6 +48,8 @@ export default class ContainerKeys extends React.Component {
   };
 
   componentDidMount() {
+    Mp.track(MpEvents.EventDashboardViewedContainerKeys);
+
     const containerSlug = this.props.params.containerSlug;
     containerStore.onChange(this.containerStoreDidChange);
     containerKeyStore.onChange(this.containerKeyStoreDidChange);
@@ -160,6 +164,10 @@ export default class ContainerKeys extends React.Component {
     containerKeyActions.removeFromGitHub(this.props.params.containerSlug);
   }
 
+  handleSSHUrlOnClick = () => {
+    Mp.track(MpEvents.EventDashboardUserClickedSSHURL);
+  }
+
   renderContainerKeyActionButton = () => {
     const { fetchingKeyStatus, processingGitHubActions, containerKeyStatusFailed, containerKeyOnGitHub } = this.state;
     if (fetchingKeyStatus) {
@@ -250,7 +258,7 @@ export default class ContainerKeys extends React.Component {
                   <tbody>
                     <tr>
                       <th>SSH URL</th>
-                      <td><a href={container.sshUrl}>{container.sshUrl}</a></td>
+                      <td><a onClick={this.handleSSHUrlOnClick} href={container.sshUrl}>{container.sshUrl}</a></td>
                     </tr>
                     <tr>
                       <th>Host</th>

@@ -5,6 +5,8 @@ import { Alert, ButtonInput, ButtonToolbar, Panel } from 'react-bootstrap';
 import tokenStore from 'stores/token-store';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class ResendConfirmation extends React.Component {
   displayName = 'ResendConfirmation';
@@ -50,6 +52,7 @@ export default class ResendConfirmation extends React.Component {
     this.setState({ processing: true });
 
     userActions.resendConfirmation({ appToken, confirmationToken }).then(() => {
+      Mp.track(MpEvents.EventUserResentConfirmationEmail);
       this.setState({ processed: true, processing: false });
     }).catch(() => {
       this.setState({ processing: true });

@@ -10,6 +10,8 @@ import containerConfigStore from 'stores/container-config-store';
 import ContainerNav from 'components/container-nav';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class ContainerPorts extends React.Component {
   displayName = 'ContainerPorts';
@@ -44,6 +46,8 @@ export default class ContainerPorts extends React.Component {
   }
 
   componentDidMount() {
+    Mp.track(MpEvents.EventDashboardViewedContainerPorts);
+
     const containerSlug = this.props.params.containerSlug;
 
     containerStore.onChange(this.containerStoreDidChange);

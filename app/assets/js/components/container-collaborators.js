@@ -9,6 +9,8 @@ import ContainerNav from 'components/container-nav';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
 import CollaboratorList from 'components/collaborator-list';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 
 export default class ContainerCollaborators extends React.Component {
   displayName = 'ContainerCollaborators';
@@ -29,6 +31,8 @@ export default class ContainerCollaborators extends React.Component {
   }
 
   componentDidMount() {
+    Mp.track(MpEvents.EventDashboardViewedContainerCollaborators);
+
     const containerSlug = this.props.params.containerSlug;
 
     containerStore.onChange(this.containerStoreDidChange);
