@@ -5,6 +5,7 @@ import Fa from 'components/fa';
 import classNames from 'classnames';
 
 import tokenStore from 'stores/token-store';
+import userStore from 'stores/user-store';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
@@ -39,6 +40,8 @@ export default class Login extends React.Component {
   };
 
   componentDidMount() {
+    userStore.on('logged-in-via-github', this.onUserLoggedInViaGithub);
+    userStore.on('log-in-via-github-failed', this.onUserLogInViaGithubFailed);
     tokenStore.transitionedFromResendConfirmation();
     tokenStore.onChange(this.tokenStoreDidChange);
 
@@ -52,7 +55,20 @@ export default class Login extends React.Component {
   }
 
   componentWillUnmount() {
+    userStore.off('logged-in-via-github', this.onUserLoggedInViaGithub);
+    userStore.off('log-in-via-github-failed', this.onUserLogInViaGithubFailed);
     tokenStore.offChange(this.tokenStoreDidChange);
+  }
+
+  onUserLoggedInViaGithub = (data) => {
+    const { redirectUrl } = data;
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }
+
+  onUserLogInViaGithubFailed = () => {
+    snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
   }
 
   tokenStoreDidChange = () => {
@@ -70,6 +86,8 @@ export default class Login extends React.Component {
         });
         return;
       }
+
+      Mp.track(MpEvents.EventUserLoggedIn);
 
       this.context.router.transitionTo('dashboard');
     } else if (tokenStore.lastError) {
@@ -90,12 +108,7 @@ export default class Login extends React.Component {
 
   handleLoginWithGithub = () => {
     this.setState({ loggingInWithGithub: true });
-
-    userActions.loginViaGithub().then((json) => {
-      window.location.href = json.redirect_url;
-    }).catch(() => {
-      snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
-    });
+    userActions.loginViaGithub();
   }
 
   render() {

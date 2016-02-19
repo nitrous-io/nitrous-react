@@ -164,6 +164,7 @@ export default class NewHost extends React.Component {
   handleResendConfirmation = () => {
     this.setState({ resendingConfirmation: true });
     userActions.resendConfirmation({ appToken: this.state.token }).then(() => {
+      Mp.track(MpEvents.EventUserResentConfirmationEmail);
       this.setState({ resendingConfirmation: false, confirmationResent: true });
     }).catch(() => {
       this.setState({ resendingConfirmation: false });

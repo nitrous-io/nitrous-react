@@ -88,6 +88,8 @@ export default class Signup extends React.Component {
   componentDidMount() {
     userStore.on('created', this.onUserCreated);
     userStore.on('create-failed', this.onUserCreateFailed);
+    userStore.on('signed-up-via-github', this.onUserSignedUpViaGithub);
+    userStore.on('sign-up-via-github-failed', this.onUserSignUpViaGithubFailed);
     promocodeStore.onChange(this.promocodeStoreDidChange);
     tokenStore.onChange(this.tokenStoreDidChange);
     pendingMemberStore.onChange(this.pendingMemberStoreDidChange);
@@ -102,6 +104,8 @@ export default class Signup extends React.Component {
   componentWillUnmount() {
     userStore.off('created', this.onUserCreated);
     userStore.off('create-failed', this.onUserCreateFailed);
+    userStore.off('signed-up-via-github', this.onUserSignedUpViaGithub);
+    userStore.off('sign-up-via-github-failed', this.onUserSignUpViaGithubFailed);
     promocodeStore.offChange(this.promocodeStoreDidChange);
     tokenStore.offChange(this.tokenStoreDidChange);
     pendingMemberStore.offChange(this.pendingMemberStoreDidChange);
@@ -141,6 +145,17 @@ export default class Signup extends React.Component {
   onUserCreateFailed = () => {
     this.setState({ processing: false, captchaToken: null });
     Captcha.reset();
+  }
+
+  onUserSignedUpViaGithub = (data) => {
+    const { redirectUrl } = data;
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }
+
+  onUserSignUpViaGithubFailed = () => {
+    snackbarActions.post('Unable to connect to GitHub. Please try again.');
   }
 
   tokenStoreDidChange = () => {
@@ -203,12 +218,7 @@ export default class Signup extends React.Component {
 
   handleSignupWithGithub = () => {
     this.setState({ authorizing: true });
-
-    userActions.signupViaGithub().then((json) => {
-      window.location.href = json.redirect_url;
-    }).catch(() => {
-      snackbarActions.post('Unable to connect to GitHub. Please try again.');
-    });
+    userActions.signupViaGithub();
   }
 
   handleChangeCaptcha = (value) => {

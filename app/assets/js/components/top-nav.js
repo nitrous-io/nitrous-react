@@ -5,6 +5,8 @@ import LeftNavbar from 'components/left-navbar';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
 import tokenActions from 'actions/token-actions';
+import Mp from 'lib/mp';
+import MpEvents from 'lib/mp-events';
 import $ from 'jquery';
 
 export default class TopNav extends React.Component {
@@ -47,6 +49,7 @@ export default class TopNav extends React.Component {
   };
 
   handleLogOut = () => {
+    Mp.track(MpEvents.EventUserLoggedOut);
     tokenActions.invalidate();
   };
 

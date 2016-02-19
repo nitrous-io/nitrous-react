@@ -39,9 +39,6 @@ export default class EarnBonusesList extends React.Component {
   }
 
   componentDidUnmount() {
-    userStore.offChange(this.userStoreDidChange);
-    bonusStore.offChange(this.bonusStoreDidChange);
-
     var twttr = window.twttr,
         FB = window.FB;
 
@@ -50,6 +47,11 @@ export default class EarnBonusesList extends React.Component {
 
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
     FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
+  }
+
+  componentWillUnmount() {
+    userStore.offChange(this.userStoreDidChange);
+    bonusStore.offChange(this.bonusStoreDidChange);
   }
 
   userStoreDidChange = () => {
