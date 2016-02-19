@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Nav, Navbar, NavDropdown, MenuItem, Label } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, MenuItem, Label, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
 import tokenActions from 'actions/token-actions';
@@ -62,24 +62,26 @@ export default class MainNav extends React.Component {
         <Navbar brand={<Link to="application"><span>Nitrous</span></Link>}>
           <Nav right>
             {user ? (
-              <NavDropdown className='account-menu' id='account-menu-nav'
-                title={<img className='gravatar' src={user.gravatar(40)} />} noCaret dropup>
-                <MenuItem disabled>
-                  Signed in as <strong>{user.username}</strong>
-                  {free ? (
-                    <Label className='free-label' bsStyle='primary'>FREE</Label>
-                  ) : ''}
-                </MenuItem>
-                <MenuItem divider />
-                <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
-                <MenuItem href={makeHref('billing')}>Billing</MenuItem>
-                <MenuItem divider />
-                <MenuItem href='https://community.nitrous.io/docs' target='_blank'>Documentation</MenuItem>
-                <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
-                <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
-                <MenuItem divider />
-                <MenuItem onSelect={this.handleLogOut}>Log Out</MenuItem>
-              </NavDropdown>
+              <OverlayTrigger placement='left' rootClose overlay={(<Tooltip id='account-settings-tooltip'>View account, billing and more</Tooltip>)}>
+                <NavDropdown className='account-menu' id='account-menu-nav' fixedTop
+                  title={<img className='gravatar' src={user.gravatar(40)} />}>
+                  <MenuItem disabled>
+                    Signed in as <strong>{user.username}</strong>
+                    {free ? (
+                      <Label className='free' bsStyle='primary'>free</Label>
+                    ) : ''}
+                  </MenuItem>
+                  <MenuItem divider />
+                  <MenuItem href={makeHref('account-settings')}>Account Settings</MenuItem>
+                  <MenuItem href={makeHref('billing')}>Billing</MenuItem>
+                  <MenuItem divider />
+                  <MenuItem href='https://community.nitrous.io/docs' target='_blank'>Documentation</MenuItem>
+                  <MenuItem href='https://community.nitrous.io/tutorials' target='_blank'>Tutorials</MenuItem>
+                  <MenuItem href='https://community.nitrous.io/posts' target='_blank'>Blog</MenuItem>
+                  <MenuItem divider />
+                  <MenuItem onSelect={this.handleLogOut}>Log Out</MenuItem>
+                </NavDropdown>
+              </OverlayTrigger>
             ) : ''}
           </Nav>
         </Navbar>
