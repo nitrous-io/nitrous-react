@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import { Nav, NavDropdown, MenuItem, Label } from 'react-bootstrap';
-import LeftNavbar from 'components/left-navbar';
+import { Nav, Navbar, NavDropdown, MenuItem, Label } from 'react-bootstrap';
 import userStore from 'stores/user-store';
 import billingStore from 'stores/billing-store';
 import tokenActions from 'actions/token-actions';
@@ -9,8 +8,8 @@ import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 import $ from 'jquery';
 
-export default class TopNav extends React.Component {
-  displayName = 'TopNav';
+export default class MainNav extends React.Component {
+  displayName = 'MainNav';
 
   static contextTypes = {
     router: PropTypes.func.isRequired // Router.PropTypes.router.isRequired
@@ -59,8 +58,8 @@ export default class TopNav extends React.Component {
           { makeHref } = this.context.router;
 
     return (
-      <div className='top-nav-component'>
-        <LeftNavbar brand={<Link to="application"><span>Nitrous</span></Link>}>
+      <div className='main-nav-component'>
+        <Navbar brand={<Link to="application"><span>Nitrous</span></Link>}>
           <Nav right>
             {user ? (
               <NavDropdown className='account-menu' id='account-menu-nav'
@@ -83,7 +82,7 @@ export default class TopNav extends React.Component {
               </NavDropdown>
             ) : ''}
           </Nav>
-        </LeftNavbar>
+        </Navbar>
       </div>
     );
   }

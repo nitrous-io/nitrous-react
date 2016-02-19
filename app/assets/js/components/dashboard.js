@@ -1,7 +1,7 @@
 import React from 'react';
 import { RouteHandler } from 'react-router';
 
-import TopNav from 'components/top-nav';
+import MainNav from 'components/main-nav';
 import tokenStore from 'stores/token-store';
 import billingStore from 'stores/billing-store';
 import userActions from 'actions/user-actions';
@@ -71,7 +71,7 @@ export default class Dashboard extends React.Component {
   render() {
     return (
       <div className='dashboard-component'>
-        <TopNav />
+        <MainNav />
         <div className='main-content-wrapper'>
           <RouteHandler />
         </div>

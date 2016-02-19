@@ -164,7 +164,7 @@ export default class OnboardingModal extends React.Component {
                 </div>
               </CarouselItem>
             ) : ''}
-            <CarouselItem> 
+            <CarouselItem>
               <h2>Welcome to the new Nitrous</h2>
               <p className='hint'>We&#39;ve made Nitrous even better and simpler</p>
               <div className='logo-image'></div>
