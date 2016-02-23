@@ -109,7 +109,6 @@ export default class ContextSwitcher extends React.Component {
   render() {
     const { selectedHost, showTooltip } = this.props,
           { user, sharedContainerCount, showSendFeedback } = this.state,
-          usageRemaining = user.usageRemaining,
           orgs = this.state.orgs.toList(),
           showOrgs = orgs && orgs.size > 0,
           { makeHref } = this.context.router;
@@ -217,7 +216,7 @@ export default class ContextSwitcher extends React.Component {
           </ButtonGroup>
         )}
 
-        {selectedHost && selectedHost.free && usageRemaining <= 5*60*60 ? (
+        {selectedHost && selectedHost.free ? (
           <Badge>
             {this.freeUsageBadgeText()}
           </Badge>
