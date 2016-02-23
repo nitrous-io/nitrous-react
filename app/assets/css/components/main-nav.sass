@@ -1,0 +1,96 @@
+.main-nav-component
+  z-index: 100
+
+  .label.free
+    margin-left: 6px
+    text-transform: uppercase
+
+  .account-menu
+    outline: none
+
+  .navbar
+    width: 100%
+    margin: 0
+    border-width: 0 0 1px 0
+    min-height: initial
+
+    > .container
+      padding: 0
+
+    .navbar-header
+      display: none
+
+    .navbar-nav
+      margin: 0
+
+      a.dropdown-toggle
+        z-index: 100
+
+      #account-menu-nav
+        background-image: url('/assets/images/nitrous-logo.svg')
+        background-position: 14px 17px
+        background-repeat: no-repeat
+        text-align: right
+
+      .gravatar
+        width: 20px
+        height: 20px
+
+
+  @media (min-width: $screen-sm-min)
+
+    .navbar
+      height: 32px
+      background: #f7f7f7
+
+      .navbar-header
+        display: block
+        position: absolute
+        top: 0
+        left: 0
+        width: 42px
+        height: 32px
+        margin: 0
+        padding: 0
+        z-index: 100
+
+        .navbar-brand
+          width: 42px
+          height: 32px
+          margin: 0
+          float: none
+          display: block
+          position: relative
+          background: #03a9f4 url('/assets/images/left-bar-nitrous.svg') center center no-repeat
+          background-size: 16px 12px
+
+          &:hover
+            background-color: darken(#03a9f4, 5%)
+
+          span
+            display: none
+
+      .navbar-nav
+        position: absolute
+        top: 0
+        right: 0
+        float: none
+        width: auto
+        height: 32px
+
+        li.account-menu
+
+          a.dropdown-toggle
+            padding: 6px 10px
+            text-align: center
+
+            .caret
+              margin-left: 0
+
+          .dropdown-menu
+            margin-top: -2px
+            margin-right: 3px
+            border-radius: 3px
+
+        #account-menu-nav
+          background: transparent
