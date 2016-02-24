@@ -16,6 +16,7 @@ import OrgBillingPaymentMethod from 'components/org-billing-payment-method';
 import UserHost from 'components/user-host';
 import OrgHost from 'components/org-host';
 import NewHost from 'components/new-host';
+import Hack from 'components/hack';
 import Host from 'components/host';
 import HostCreating from 'components/host-creating';
 import HostSystem from 'components/host-system';
@@ -63,6 +64,7 @@ export default (
     <Route name='dashboard' handler={Dashboard}>
       <DefaultRoute handler={FirstStart} />
 
+      <Route name='hack' path='hack' handler={Hack} />
       <Route name='new-user-host' path='workstations/new' handler={NewHost} />
       <Route name='host-creating' path='workstations/creating' handler={HostCreating} />
       <Route name='user-host' path='workstations' handler={UserHost}>
