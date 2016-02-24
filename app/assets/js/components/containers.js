@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Org from 'records/org';
@@ -157,16 +157,6 @@ export default class Containers extends React.Component {
           ) : ''}
         </Alert>
       );
-    } else if (host.isStopped && host.autoShutdown) {
-      return (
-        <Alert bsStyle='info' className='stopped-host-alert clearfix'>
-          <Fa icon='exclamation-circle' /> We've shutdown your workstation and projects due to inactivity.
-          <Button bsStyle='default'
-            onClick={this.handleStartWorkstation}>
-            <Fa icon='play' /> Start Workstation
-          </Button>
-        </Alert>
-      );
     } else if (quotaRunningOut) {
       return (
         <Alert bsStyle='warning'>
@@ -179,7 +169,7 @@ export default class Containers extends React.Component {
           ) : ''}
         </Alert>
       );
-    } else if (!host.isRunning && !host.isResuming) {
+    } else if (!host.isRunning && !host.isResuming && !host.autoShutdown) {
       return (
         <Alert bsStyle='info'>
           <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href='https://community.nitrous.io/docs/troubleshooting-connection-issues' target='_blank'>Troubleshooting Connection Issues</a>.
