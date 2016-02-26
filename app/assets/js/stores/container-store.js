@@ -75,6 +75,15 @@ class ContainerStore extends Store {
         this.emit('create-failed', { name, hostSlug });
         break;
       }
+      case 'container.ran-command': {
+        this.emit('ran-command');
+        return;
+      }
+      case 'container.command-run-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('command-run-failed');
+        return;
+      }
       case 'container.reconfigure-failed': {
         const { containerSlug, jqxhr } = action.data;
         this.handleErrorJqxhr(jqxhr);

@@ -181,6 +181,27 @@ class ContainerActions {
     });
     return promise;
   }
+
+  runCommand(container, command, timeout) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/containers/${container.slug}/run_command`,
+      data: { command, timeout },
+      dataType: 'json'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'container.ran-command',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'container.command-run-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
 }
 
 export default new ContainerActions();

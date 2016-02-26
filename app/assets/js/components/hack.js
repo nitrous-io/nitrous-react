@@ -3,9 +3,10 @@ import React, { PropTypes } from 'react';
 import { PortBinding } from 'records/container-config';
 import hackActions from 'actions/hack-actions';
 import containerActions from 'actions/container-actions';
+import containerStore from 'stores/container-store';
 import hackStore from 'stores/hack-store';
 import hostStore from 'stores/host-store';
-import LoadingIndicator from 'components/loading-indicator';
+import EtaProgressBar from 'components/eta-progress-bar';
 
 export default class Hack extends React.Component {
   displayName = 'Hack';
@@ -28,9 +29,10 @@ export default class Hack extends React.Component {
   state = {
     host: this.findHost(),
     owner: null,
-    projectName: null,
     template: null,
-    ports: null
+    ports: null,
+    container: null,
+    done: false
   };
 
   //static willTransitionTo = (transition, params, query) => {
@@ -48,6 +50,8 @@ export default class Hack extends React.Component {
 
   componentDidMount() {
     hackStore.on('fetched-repo-info', this.onRepoInfoFetched);
+    containerStore.on('created', this.onContainerCreated);
+    containerStore.on('ran-command', this.onContainerCommandRan);
 
     const { repo } = this.props.query;
     if (repo) {
@@ -57,7 +61,30 @@ export default class Hack extends React.Component {
 
   componentWillUnmount() {
     hackStore.off('fetched-repo-info', this.onRepoInfoFetched);
+    containerStore.off('created', this.onContainerCreated);
+    containerStore.off('ran-command', this.onContainerCommandRan);
   }
+
+  onContainerCommandRan = () => {
+    this.setState({ done: true });
+    const redirectUrl = `/ide/#/${this.state.container.slug}`;
+    window.location.href = redirectUrl;
+  };
+
+  onContainerCreated = (data) => {
+    const { container, hostSlug } = data,
+          { host } = this.state;
+
+    if (this.projectName() === container.name
+        && host.slug === hostSlug) {
+      this.setState({ container });
+      containerActions.runCommand(
+        container,
+        `. /etc/profile && cd && git clone ${this.props.query.repo} && cd ${this.projectName()} && ./nitrous-post-create.sh`,
+        1800
+      );
+    }
+  };
 
   onRepoInfoFetched = (data) => {
     const { hack } = data;
@@ -85,9 +112,13 @@ export default class Hack extends React.Component {
   }
 
   render() {
+    const { done } = this.state;
+
     return (
       <div className='hack-component'>
-        <LoadingIndicator large />
+        <h2>Your new container &ldquo;{this.projectName()}&rdquo; is being created...</h2>
+        <p>This may take several minutes to complete.</p>
+        <EtaProgressBar eta={200} done={done} />
       </div>
     );
   }
