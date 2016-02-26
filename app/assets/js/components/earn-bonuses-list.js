@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Label, ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Button, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
@@ -143,59 +143,49 @@ export default class EarnBonusesList extends React.Component {
 
               <tr>
                 <td>
-                  Follow @Nitrous on Twitter
-                </td>
-                <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                {!this.earnedBonus('follow-twitter') ? (
-                  <a className="twitter-follow-button"
-                    href="https://twitter.com/Nitrous"
-                    data-show-count="false">
-                    Follow @Nitrous</a>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+                  <Button disabled={this.earnedBonus('follow-twitter')} className='bonus-action-item'>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Follow @Nitrous on Twitter</span>
+                    <a className="twitter-follow-button"
+                      href="https://twitter.com/Nitrous"
+                      data-show-count="false">
+                      Follow @Nitrous</a>
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
               <tr>
                 <td>
-                  Tweet about @Nitrous
-                </td>
-                <td>
-                  5 extra hours/mo
-                </td>
-                {/* FIXME: Improve tweet copy*/}
-                <td>
-                {!this.earnedBonus('tweet') ? (
-                  <a className="twitter-share-button"
-                    data-url="https://www.nitrous.io"
-                    data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
-                    href="https://twitter.com/share">
+                  <Button disabled={this.earnedBonus('tweet')} className='bonus-action-item'>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Tweet about @Nitrous</span>
+                    <a className="twitter-share-button"
+                      data-url="https://www.nitrous.io"
+                      data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
+                      href="https://twitter.com/share">
                     Tweet</a>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+
+                    <span className='bonus-action-hours'>5 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
               <tr>
                 <td>
-                  Like us on Facebook
-                </td>
-                <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                {!this.earnedBonus('like-facebook') ? (
-                  <div className="fb-like"
-                    data-href="https://www.facebook.com/NitrousIO/"
-                    data-layout="button"
-                    data-action="like"
-                    data-show-faces="false"></div>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+                  <Button disabled={this.earnedBonus('like-facebook')} className='bonus-action-item'>
+                    <span className='bonus-action-task'>
+                    <Fa icon="facebook" />
+                    Like us on Facebook</span>
+                    <div className="fb-like"
+                      data-href="https://www.facebook.com/NitrousIO/"
+                      data-layout="button"
+                      data-action="like"
+                      data-show-faces="false"></div>
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
             </tbody>
