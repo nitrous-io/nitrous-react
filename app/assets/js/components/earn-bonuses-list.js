@@ -131,7 +131,8 @@ export default class EarnBonusesList extends React.Component {
             <tbody>
               <tr>
                 <td>
-                  <Button disabled={this.earnedBonus('connect-twitter')} className='bonus-action-item' onClick={this.connectTwitter}>
+                  <Button className='bonus-action-item' onClick={this.connectTwitter}
+                    disabled={this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
                     Connect Twitter</span>
@@ -143,14 +144,18 @@ export default class EarnBonusesList extends React.Component {
 
               <tr>
                 <td>
-                  <Button disabled={this.earnedBonus('follow-twitter')} className='bonus-action-item'>
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
                     Follow @Nitrous on Twitter</span>
-                    <a className="twitter-follow-button"
-                      href="https://twitter.com/Nitrous"
-                      data-show-count="false">
-                      Follow @Nitrous</a>
+                    {/*FIXME: We wont need these javascript buttons when we implement oauth for these actions*/}
+                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
+                      <a className="twitter-follow-button"
+                        href="https://twitter.com/Nitrous"
+                        data-show-count="false">
+                        Follow @Nitrous</a>
+                    )}
 
                     <span className='bonus-action-hours'>3 extra hours/mo</span>
                   </Button>
@@ -158,15 +163,18 @@ export default class EarnBonusesList extends React.Component {
               </tr>
               <tr>
                 <td>
-                  <Button disabled={this.earnedBonus('tweet')} className='bonus-action-item'>
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
                     Tweet about @Nitrous</span>
-                    <a className="twitter-share-button"
-                      data-url="https://www.nitrous.io"
-                      data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
-                      href="https://twitter.com/share">
-                    Tweet</a>
+                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
+                      <a className="twitter-share-button"
+                        data-url="https://www.nitrous.io"
+                        data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
+                        href="https://twitter.com/share">
+                      Tweet</a>
+                    )}
 
                     <span className='bonus-action-hours'>5 extra hours/mo</span>
                   </Button>
@@ -174,7 +182,8 @@ export default class EarnBonusesList extends React.Component {
               </tr>
               <tr>
                 <td>
-                  <Button disabled={this.earnedBonus('like-facebook')} className='bonus-action-item'>
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('like-facebook')}>
                     <span className='bonus-action-task'>
                     <Fa icon="facebook" />
                     Like us on Facebook</span>
