@@ -1,9 +1,10 @@
 import React from 'react';
-import { Label, ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Button, Label, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
+import Fa from 'components/fa';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -34,6 +35,8 @@ export default class EarnBonusesList extends React.Component {
     userStore.onChange(this.userStoreDidChange);
     bonusStore.onChange(this.bonusStoreDidChange);
 
+    bonusStore.on('connected-twitter', this.onConnectedTwitter);
+
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
   }
@@ -52,6 +55,7 @@ export default class EarnBonusesList extends React.Component {
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
+    bonusStore.off('connected-twitter', this.onConnectedTwitter);
   }
 
   userStoreDidChange = () => {
@@ -63,6 +67,15 @@ export default class EarnBonusesList extends React.Component {
       earnedBonuses: bonusStore.earnedBonuses,
       bonuses: bonusStore.bonuses
     });
+  }
+
+  onConnectedTwitter = (data) => {
+    const { redirectUrl } = data;
+    window.location.href = redirectUrl;
+  }
+
+  connectTwitter() {
+    bonusActions.connectTwitter();
   }
 
   onFollow() {
@@ -115,14 +128,19 @@ export default class EarnBonusesList extends React.Component {
 
         <Panel header={<h4>Get Bonus Hours</h4>}>
           <Table responsive hover>
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Bonus</th>
-                <th>Action</th>
-              </tr>
-            </thead>
             <tbody>
+              <tr>
+                <td>
+                  <Button disabled={this.earnedBonus('connect-twitter')} className='bonus-action-item' onClick={this.connectTwitter}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Connect Twitter</span>
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
+                </td>
+              </tr>
+
               <tr>
                 <td>
                   Follow @Nitrous on Twitter
