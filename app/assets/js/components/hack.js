@@ -32,7 +32,8 @@ export default class Hack extends React.Component {
     template: null,
     ports: null,
     container: null,
-    done: false
+    done: false,
+    logs: ['Getting repository info...']
   };
 
   //static willTransitionTo = (transition, params, query) => {
@@ -51,6 +52,7 @@ export default class Hack extends React.Component {
   componentDidMount() {
     hackStore.on('fetched-repo-info', this.onRepoInfoFetched);
     containerStore.on('created', this.onContainerCreated);
+    containerStore.on('create-failed', this.onContainerCreateFailed);
     containerStore.on('ran-command', this.onContainerCommandRan);
 
     const { repo } = this.props.query;
@@ -62,14 +64,16 @@ export default class Hack extends React.Component {
   componentWillUnmount() {
     hackStore.off('fetched-repo-info', this.onRepoInfoFetched);
     containerStore.off('created', this.onContainerCreated);
+    containerStore.off('create-failed', this.onContainerCreateFailed);
     containerStore.off('ran-command', this.onContainerCommandRan);
   }
 
   onContainerCommandRan = () => {
-    this.setState({ done: true });
+    this.log('Done!');
     const redirectUrl = `/ide/#/${this.state.container.slug}`;
     window.location.href = redirectUrl;
   };
+
 
   onContainerCreated = (data) => {
     const { container, hostSlug } = data,
@@ -78,11 +82,21 @@ export default class Hack extends React.Component {
     if (this.projectName() === container.name
         && host.slug === hostSlug) {
       this.setState({ container });
+      this.log(`Created project "${this.projectName()}".`,
+          'Cloning repository and execute nitrous-post-create.sh...');
+
       containerActions.runCommand(
         container,
         `. /etc/profile && cd && git clone ${this.props.query.repo} && cd ${this.projectName()} && ./nitrous-post-create.sh`,
         1800
       );
+    }
+  };
+
+  onContainerCreateFailed = (data) => {
+    const { name, hostSlug } = data;
+    if ((this.projectName() === name) && (this.state.host.slug === hostSlug)) {
+      this.log(`Failed to create project "${this.projectName()}".`);
     }
   };
 
@@ -100,6 +114,9 @@ export default class Hack extends React.Component {
       });
 
       this.setState({ template, ports, repoName, owner });
+
+      this.log('Retrieved repository info.', `Creating project "${repoName}"...`);
+
       containerActions.createAtomic(this.projectName(), host, {
         template, ports: serializedPorts, publishAll: true
       });
@@ -111,6 +128,25 @@ export default class Hack extends React.Component {
     return repoName;
   }
 
+  log = (...newLogs) => {
+    const logs = this.state.logs;
+    newLogs.forEach((newLog) => {
+      logs.push(newLog);
+    });
+    this.setState({ logs });
+  }
+
+  renderLogs = () => {
+    const { logs } = this.state;
+    return (
+      <div>
+        {logs.map((log) => {
+          return <p>{log}</p>;
+        })}
+      </div>
+    );
+  }
+
   render() {
     const { done } = this.state;
 
@@ -119,6 +155,7 @@ export default class Hack extends React.Component {
         <h2>Your new container &ldquo;{this.projectName()}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
         <EtaProgressBar eta={200} done={done} />
+        {this.renderLogs()}
       </div>
     );
   }
