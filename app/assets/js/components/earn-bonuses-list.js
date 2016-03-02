@@ -124,7 +124,7 @@ export default class EarnBonusesList extends React.Component {
                     Connect Twitter</span>
 
                     <span className='bonus-action-hours'>
-                      {this.earnedBonus('connect-twitter') ? 'Done' : '3 extra hours/mo'}
+                    {this.earnedBonus('connect-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
                     </span>
                   </Button>
                 </td>
@@ -137,9 +137,9 @@ export default class EarnBonusesList extends React.Component {
                     disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
-                    Follow @Nitrous on Twitter</span>
+                    Follow Nitrous on Twitter</span>
                     <span className='bonus-action-hours'>
-                      {this.earnedBonus('follow-twitter') ? 'Done' : '3 extra hours/mo'}
+                      {this.earnedBonus('follow-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
                     </span>
                   </Button>
                 </td>
@@ -151,9 +151,9 @@ export default class EarnBonusesList extends React.Component {
                     disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
-                    Tweet about @Nitrous</span>
+                    Tweet about Nitrous</span>
                     <span className='bonus-action-hours'>
-                      {this.earnedBonus('tweet') ? 'Done' : '5 extra hours/mo'}
+                      {this.earnedBonus('tweet') ? 'Bonus earned' : '5 extra hours/mo'}
                     </span>
                   </Button>
                 </td>
