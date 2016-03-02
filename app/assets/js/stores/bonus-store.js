@@ -48,12 +48,26 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
-      case 'bonus.connect-twitter': {
+      case 'bonus.connected-twitter': {
         const { redirect_url } = action.data.data;
         this.emit('connected-twitter', { redirectUrl: redirect_url });
         break;
       }
       case 'bonus.connect-twitter-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
+      case 'bonus.followed-twitter': {
+        const { data } = action.data;
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
+          return [b.bonusId, b];
+        }));
+
+        this._lastError = null;
+        break;
+      }
+      case 'bonus.follow-twitter-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
