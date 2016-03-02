@@ -71,6 +71,20 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'bonus.tweeted': {
+        const { data } = action.data;
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
+          return [b.bonusId, b];
+        }));
+
+        this._lastError = null;
+        break;
+      }
+      case 'bonus.tweet-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
 
       default: return;
     }

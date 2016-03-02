@@ -99,6 +99,26 @@ class BonusActions {
     });
     return promise;
   }
+
+  tweet() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/twitter/tweet'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.tweeted',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.tweet-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
 }
 
 export default new BonusActions();

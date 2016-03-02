@@ -16,18 +16,8 @@ export default class EarnBonusesList extends React.Component {
   }
 
   componentDidMount() {
-    var twttr = window.twttr,
-        FB = window.FB;
-
-    // Initialize JS SDKs
-    // https://dev.twitter.com/web/javascript/loading
-    twttr.widgets.load();
-    // https://developers.facebook.com/docs/reference/javascript/FB.XFBML.parse
+    var FB = window.FB;
     FB.XFBML.parse();
-
-    // https://dev.twitter.com/web/javascript/events
-    twttr.events.bind('follow', this.onFollow);
-    twttr.events.bind('tweet', this.onTweet);
 
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
@@ -42,10 +32,7 @@ export default class EarnBonusesList extends React.Component {
   }
 
   componentDidUnmount() {
-    var twttr = window.twttr,
-        FB = window.FB;
-
-    twttr.events.unbind('tweet', this.onTweet);
+    var FB = window.FB;
 
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
     FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
@@ -81,8 +68,8 @@ export default class EarnBonusesList extends React.Component {
     bonusActions.followTwitter();
   }
 
-  onTweet() {
-    bonusActions.earnBonus('tweet');
+  tweet() {
+    bonusActions.tweet();
   }
 
   onLikeFacebook() {
@@ -160,19 +147,14 @@ export default class EarnBonusesList extends React.Component {
               <tr>
                 <td>
                   <Button className='bonus-action-item'
+                    onClick={this.tweet}
                     disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
                     Tweet about @Nitrous</span>
-                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
-                      <a className="twitter-share-button"
-                        data-url="https://www.nitrous.io"
-                        data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
-                        href="https://twitter.com/share">
-                      Tweet</a>
-                    )}
-
-                    <span className='bonus-action-hours'>5 extra hours/mo</span>
+                    <span className='bonus-action-hours'>
+                      {this.earnedBonus('tweet') ? 'Done' : '5 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>
