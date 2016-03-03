@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Button, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
 import Fa from 'components/fa';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -15,19 +16,13 @@ export default class EarnBonusesList extends React.Component {
     user: userStore.user
   }
 
+  static propTypes = {
+    connectedTwitter: PropTypes.bool
+  };
+
   componentDidMount() {
-    var twttr = window.twttr,
-        FB = window.FB;
-
-    // Initialize JS SDKs
-    // https://dev.twitter.com/web/javascript/loading
-    twttr.widgets.load();
-    // https://developers.facebook.com/docs/reference/javascript/FB.XFBML.parse
+    var FB = window.FB;
     FB.XFBML.parse();
-
-    // https://dev.twitter.com/web/javascript/events
-    twttr.events.bind('follow', this.onFollow);
-    twttr.events.bind('tweet', this.onTweet);
 
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
@@ -36,26 +31,29 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.onChange(this.bonusStoreDidChange);
 
     bonusStore.on('connected-twitter', this.onConnectedTwitter);
+    bonusStore.on('followed-twitter', this.onFollowedTwitter);
+    bonusStore.on('tweeted', this.onTweeted);
 
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
-  }
 
-  componentDidUnmount() {
-    var twttr = window.twttr,
-        FB = window.FB;
-
-    twttr.events.unbind('follow', this.onFollow);
-    twttr.events.unbind('tweet', this.onTweet);
-
-    // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
-    FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
+    // When the oauth_callback endpoint on nitrous redirects to this page, display the snackbar
+    // notification by checking the connected_twitter param passed in the redirect
+    if (this.props.connectedTwitter) {
+      snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+    }
   }
 
   componentWillUnmount() {
+    var FB = window.FB;
+    // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
+    FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
+
     userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
     bonusStore.off('connected-twitter', this.onConnectedTwitter);
+    bonusStore.off('followed-twitter', this.onFollowedTwitter);
+    bonusStore.off('tweeted', this.onTweeted);
   }
 
   userStoreDidChange = () => {
@@ -74,16 +72,24 @@ export default class EarnBonusesList extends React.Component {
     window.location.href = redirectUrl;
   }
 
+  onFollowedTwitter = () => {
+    snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+  }
+
+  onTweeted = () => {
+    snackbarActions.post(`Added bonus 5 extra hours/mo`);
+  }
+
   connectTwitter() {
     bonusActions.connectTwitter();
   }
 
-  onFollow() {
-    bonusActions.earnBonus('follow-twitter');
+  followTwitter() {
+    bonusActions.followTwitter();
   }
 
-  onTweet() {
-    bonusActions.earnBonus('tweet');
+  tweet() {
+    bonusActions.tweet();
   }
 
   onLikeFacebook() {
@@ -137,7 +143,9 @@ export default class EarnBonusesList extends React.Component {
                     <Fa icon="twitter" />
                     Connect Twitter</span>
 
-                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                    <span className='bonus-action-hours'>
+                    {this.earnedBonus('connect-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>
@@ -145,38 +153,28 @@ export default class EarnBonusesList extends React.Component {
               <tr>
                 <td>
                   <Button className='bonus-action-item'
+                    onClick={this.followTwitter}
                     disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
-                    Follow @Nitrous on Twitter</span>
-                    {/*FIXME: We wont need these javascript buttons when we implement oauth for these actions*/}
-                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
-                      <a className="twitter-follow-button"
-                        href="https://twitter.com/Nitrous"
-                        data-show-count="false">
-                        Follow @Nitrous</a>
-                    )}
-
-                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                    Follow Nitrous on Twitter</span>
+                    <span className='bonus-action-hours'>
+                      {this.earnedBonus('follow-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Button className='bonus-action-item'
+                    onClick={this.tweet}
                     disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
                     <span className='bonus-action-task'>
                     <Fa icon="twitter" />
-                    Tweet about @Nitrous</span>
-                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
-                      <a className="twitter-share-button"
-                        data-url="https://www.nitrous.io"
-                        data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
-                        href="https://twitter.com/share">
-                      Tweet</a>
-                    )}
-
-                    <span className='bonus-action-hours'>5 extra hours/mo</span>
+                    Tweet about Nitrous</span>
+                    <span className='bonus-action-hours'>
+                      {this.earnedBonus('tweet') ? 'Bonus earned' : '5 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>
