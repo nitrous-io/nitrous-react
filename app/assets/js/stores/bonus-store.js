@@ -64,6 +64,8 @@ class BonusStore extends Store {
           return [b.bonusId, b];
         }));
 
+        this.emit('followed-twitter');
+
         this._lastError = null;
         break;
       }
@@ -77,6 +79,8 @@ class BonusStore extends Store {
           const b = EarnedBonus.deserialize(d);
           return [b.bonusId, b];
         }));
+
+        this.emit('tweeted');
 
         this._lastError = null;
         break;

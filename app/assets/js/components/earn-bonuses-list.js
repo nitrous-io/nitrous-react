@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Button, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
 import Fa from 'components/fa';
+import snackbarActions from 'actions/snackbar-actions';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -14,6 +15,10 @@ export default class EarnBonusesList extends React.Component {
     bonuses: bonusStore.bonuses,
     user: userStore.user
   }
+
+  static propTypes = {
+    connectedTwitter: PropTypes.bool
+  };
 
   componentDidMount() {
     var FB = window.FB;
@@ -26,22 +31,29 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.onChange(this.bonusStoreDidChange);
 
     bonusStore.on('connected-twitter', this.onConnectedTwitter);
+    bonusStore.on('followed-twitter', this.onFollowedTwitter);
+    bonusStore.on('tweeted', this.onTweeted);
 
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
-  }
 
-  componentDidUnmount() {
-    var FB = window.FB;
-
-    // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
-    FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
+    // When the oauth_callback endpoint on nitrous redirects to this page, display the snackbar
+    // notification by checking the connected_twitter param passed in the redirect
+    if (this.props.connectedTwitter) {
+      snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+    }
   }
 
   componentWillUnmount() {
+    var FB = window.FB;
+    // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
+    FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
+
     userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
     bonusStore.off('connected-twitter', this.onConnectedTwitter);
+    bonusStore.off('followed-twitter', this.onFollowedTwitter);
+    bonusStore.off('tweeted', this.onTweeted);
   }
 
   userStoreDidChange = () => {
@@ -58,6 +70,14 @@ export default class EarnBonusesList extends React.Component {
   onConnectedTwitter = (data) => {
     const { redirectUrl } = data;
     window.location.href = redirectUrl;
+  }
+
+  onFollowedTwitter = () => {
+    snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+  }
+
+  onTweeted = () => {
+    snackbarActions.post(`Added bonus 5 extra hours/mo`);
   }
 
   connectTwitter() {
