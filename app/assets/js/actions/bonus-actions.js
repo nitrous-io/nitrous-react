@@ -61,6 +61,26 @@ class BonusActions {
     });
     return promise;
   }
+
+  connectTwitter() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/twitter/connect'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.connect-twitter',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.connect-twitter-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
 }
 
 export default new BonusActions();

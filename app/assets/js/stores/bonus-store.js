@@ -48,6 +48,15 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'bonus.connect-twitter': {
+        const { redirect_url } = action.data.data;
+        this.emit('connected-twitter', { redirectUrl: redirect_url });
+        break;
+      }
+      case 'bonus.connect-twitter-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
 
       default: return;
     }

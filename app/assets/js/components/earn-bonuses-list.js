@@ -1,9 +1,10 @@
 import React from 'react';
-import { Label, ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Button, ProgressBar, Table, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import userStore from 'stores/user-store';
+import Fa from 'components/fa';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -34,6 +35,8 @@ export default class EarnBonusesList extends React.Component {
     userStore.onChange(this.userStoreDidChange);
     bonusStore.onChange(this.bonusStoreDidChange);
 
+    bonusStore.on('connected-twitter', this.onConnectedTwitter);
+
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
   }
@@ -52,6 +55,7 @@ export default class EarnBonusesList extends React.Component {
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
     bonusStore.offChange(this.bonusStoreDidChange);
+    bonusStore.off('connected-twitter', this.onConnectedTwitter);
   }
 
   userStoreDidChange = () => {
@@ -63,6 +67,15 @@ export default class EarnBonusesList extends React.Component {
       earnedBonuses: bonusStore.earnedBonuses,
       bonuses: bonusStore.bonuses
     });
+  }
+
+  onConnectedTwitter = (data) => {
+    const { redirectUrl } = data;
+    window.location.href = redirectUrl;
+  }
+
+  connectTwitter() {
+    bonusActions.connectTwitter();
   }
 
   onFollow() {
@@ -115,69 +128,73 @@ export default class EarnBonusesList extends React.Component {
 
         <Panel header={<h4>Get Bonus Hours</h4>}>
           <Table responsive hover>
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Bonus</th>
-                <th>Action</th>
-              </tr>
-            </thead>
             <tbody>
               <tr>
                 <td>
-                  Follow @Nitrous on Twitter
+                  <Button className='bonus-action-item' onClick={this.connectTwitter}
+                    disabled={this.earnedBonus('connect-twitter')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Connect Twitter</span>
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
                 </td>
+              </tr>
+
+              <tr>
                 <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                {!this.earnedBonus('follow-twitter') ? (
-                  <a className="twitter-follow-button"
-                    href="https://twitter.com/Nitrous"
-                    data-show-count="false">
-                    Follow @Nitrous</a>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Follow @Nitrous on Twitter</span>
+                    {/*FIXME: We wont need these javascript buttons when we implement oauth for these actions*/}
+                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
+                      <a className="twitter-follow-button"
+                        href="https://twitter.com/Nitrous"
+                        data-show-count="false">
+                        Follow @Nitrous</a>
+                    )}
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
               <tr>
                 <td>
-                  Tweet about @Nitrous
-                </td>
-                <td>
-                  5 extra hours/mo
-                </td>
-                {/* FIXME: Improve tweet copy*/}
-                <td>
-                {!this.earnedBonus('tweet') ? (
-                  <a className="twitter-share-button"
-                    data-url="https://www.nitrous.io"
-                    data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
-                    href="https://twitter.com/share">
-                    Tweet</a>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="twitter" />
+                    Tweet about @Nitrous</span>
+                    {this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter') ? '' : (
+                      <a className="twitter-share-button"
+                        data-url="https://www.nitrous.io"
+                        data-text="I’m using @nitrous, the fastest way to code in the cloud! Claim your free account here: "
+                        href="https://twitter.com/share">
+                      Tweet</a>
+                    )}
+
+                    <span className='bonus-action-hours'>5 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
               <tr>
                 <td>
-                  Like us on Facebook
-                </td>
-                <td>
-                  3 extra hours/mo
-                </td>
-                <td>
-                {!this.earnedBonus('like-facebook') ? (
-                  <div className="fb-like"
-                    data-href="https://www.facebook.com/NitrousIO/"
-                    data-layout="button"
-                    data-action="like"
-                    data-show-faces="false"></div>
-                ) : (
-                  <Label bsStyle='success'>Done!</Label>
-                )}
+                  <Button className='bonus-action-item'
+                    disabled={this.earnedBonus('like-facebook')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="facebook" />
+                    Like us on Facebook</span>
+                    <div className="fb-like"
+                      data-href="https://www.facebook.com/NitrousIO/"
+                      data-layout="button"
+                      data-action="like"
+                      data-show-faces="false"></div>
+
+                    <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
                 </td>
               </tr>
             </tbody>
