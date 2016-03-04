@@ -17,7 +17,8 @@ export default class EarnBonusesList extends React.Component {
   }
 
   static propTypes = {
-    connectedTwitter: PropTypes.bool
+    connectedTwitter: PropTypes.bool,
+    connectedLinkedin: PropTypes.bool
   };
 
   componentDidMount() {
@@ -33,6 +34,7 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.on('connected-twitter', this.onConnectedTwitter);
     bonusStore.on('followed-twitter', this.onFollowedTwitter);
     bonusStore.on('tweeted', this.onTweeted);
+    bonusStore.on('connected-linkedin', this.onConnectedLinkedin);
 
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
@@ -41,6 +43,10 @@ export default class EarnBonusesList extends React.Component {
     // notification by checking the connected_twitter param passed in the redirect
     if (this.props.connectedTwitter) {
       snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+    }
+
+    if (this.props.connectedLinkedin) {
+      snackbarActions.post(`Added bonus: 5 extra hours/mo`);
     }
   }
 
@@ -54,6 +60,7 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.off('connected-twitter', this.onConnectedTwitter);
     bonusStore.off('followed-twitter', this.onFollowedTwitter);
     bonusStore.off('tweeted', this.onTweeted);
+    bonusStore.off('connected-linkedin', this.onConnectedLinkedin);
   }
 
   userStoreDidChange = () => {
@@ -72,6 +79,11 @@ export default class EarnBonusesList extends React.Component {
     window.location.href = redirectUrl;
   }
 
+  onConnectedLinkedin = (data) => {
+    const { redirectUrl } = data;
+    window.location.href = redirectUrl;
+  }
+
   onFollowedTwitter = () => {
     snackbarActions.post(`Added bonus: 3 extra hours/mo`);
   }
@@ -82,6 +94,10 @@ export default class EarnBonusesList extends React.Component {
 
   connectTwitter() {
     bonusActions.connectTwitter();
+  }
+
+  connectLinkedin() {
+    bonusActions.connectLinkedin();
   }
 
   followTwitter() {
@@ -192,6 +208,20 @@ export default class EarnBonusesList extends React.Component {
                       data-show-faces="false"></div>
 
                     <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Button className='bonus-action-item'
+                    onClick={this.connectLinkedin}
+                    disabled={this.earnedBonus('connect-linkedin')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="linkedin" />
+                    Connect LinkedIn</span>
+                    <span className='bonus-action-hours'>
+                      {this.earnedBonus('connect-linkedin') ? 'Bonus earned' : '5 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>

@@ -89,6 +89,16 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'bonus.connected-linkedin': {
+        const { redirect_url } = action.data.data;
+        console.log("redirected", redirect_url);
+        this.emit('connected-linkedin', { redirectUrl: redirect_url });
+        break;
+      }
+      case 'bonus.connect-linkedin-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
 
       default: return;
     }
