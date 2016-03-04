@@ -53,6 +53,10 @@ class PlanStore extends Store {
     return this.multiHostPlans.filter((p) => p.org && p.edu);
   }
 
+  get freePlan() {
+    return this.plans.find((p) => p.price === 0);
+  }
+
   planById(id) {
     return this._plans.find((p) => {
       return p.id === id;

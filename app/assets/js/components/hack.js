@@ -3,13 +3,22 @@ import React, { PropTypes } from 'react';
 import { PortBinding } from 'records/container-config';
 import hackActions from 'actions/hack-actions';
 import containerActions from 'actions/container-actions';
+import hostActions from 'actions/host-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
+import planStore from 'stores/plan-store';
 import hackStore from 'stores/hack-store';
+import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
-import EtaProgressBar from 'components/eta-progress-bar';
+import regionStore from 'stores/region-store';
+import LoadingIndicator from 'components/loading-indicator';
 
 export default class Hack extends React.Component {
   displayName = 'Hack';
+
+  static contextTypes = {
+    router: PropTypes.func.isRequired
+  };
 
   static propTypes = {
     query: PropTypes.shape({
@@ -17,40 +26,48 @@ export default class Hack extends React.Component {
     })
   }
 
+  // First find a running user host, otherwise return an org host.
   findHost = () => {
     const { userHosts, orgHosts } = hostStore;
+    let host = null;
     if (userHosts.size > 0) {
-      // TODO We should return the first host that has not yet hit the container limit.
-      return userHosts.first();
+      host = userHosts.find((h) => {
+        // FIXME: find stopped host as well so that we can start it and use it.
+        return h.state === 'running';
+      });
     }
-    return orgHosts.first();
+    if (!host && orgHosts.size > 0) {
+      host = orgHosts.find((h) => {
+        return h.state === 'running';
+      });
+    }
+    return host;
   }
 
   state = {
     host: this.findHost(),
+    user: userStore.user,
     owner: null,
     template: null,
-    ports: null,
+    serializedPorts: null,
     container: null,
     done: false,
-    logs: ['Getting repository info...']
+    logs: ['Retrieving repository info...']
   };
 
-  //static willTransitionTo = (transition, params, query) => {
-    //const { userHosts } = hostStore;
-
-    //if (userHosts.size > 0) {
-      //return transition.redirect('new-container', {
-        //hostSlug: userHosts.first().slug
-      //}, {
-        //tab: 'hack',
-        //repo: query.repo
-      //});
-    //}
-  //}
+  static willTransitionTo = (transition) => {
+    const { userHosts } = hostStore;
+    const { freePlan } = planStore;
+    if (!userHosts && !freePlan) {
+      transition.redirect('new-user-host');
+    }
+  }
 
   componentDidMount() {
     hackStore.on('fetched-repo-info', this.onRepoInfoFetched);
+    hackStore.on('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
+    hostStore.on('created', this.onHostCreated);
+    hostStore.on('create-failed', this.onHostCreateFailed);
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
     containerStore.on('ran-command', this.onContainerCommandRan);
@@ -63,6 +80,9 @@ export default class Hack extends React.Component {
 
   componentWillUnmount() {
     hackStore.off('fetched-repo-info', this.onRepoInfoFetched);
+    hackStore.off('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
+    hostStore.off('created', this.onHostCreated);
+    hostStore.off('create-failed', this.onHostCreateFailed);
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
     containerStore.off('ran-command', this.onContainerCommandRan);
@@ -74,6 +94,22 @@ export default class Hack extends React.Component {
     window.location.href = redirectUrl;
   };
 
+  onHostCreated = (data) => {
+    const { host } = data;
+    this.setState({ host });
+
+    this.log('Workstation created.', `Creating project "${this.projectName()}"...`);
+
+    const { template, serializedPorts } = this.state;
+    containerActions.createAtomic(this.projectName(), host, {
+      template, serializedPorts, publishAll: true
+    });
+  };
+
+  onHostCreateFailed = () => {
+    snackbarActions.post('There was a problem creating a workstation. Please create one manually.');
+    this.context.router.transitionTo('new-user-host');
+  };
 
   onContainerCreated = (data) => {
     const { container, hostSlug } = data,
@@ -103,8 +139,7 @@ export default class Hack extends React.Component {
   onRepoInfoFetched = (data) => {
     const { hack } = data;
     if (hack) {
-      const { template, ports, repoName, owner } = hack,
-            { host } = this.state;
+      const { template, ports, repoName, owner } = hack;
       const serializedPorts = ports.map((port) => {
         return (new PortBinding({
           public: true,
@@ -112,6 +147,24 @@ export default class Hack extends React.Component {
           tcp: true
         })).serialize();
       });
+      this.setState({ template, serializedPorts, owner, repoName });
+
+      // If a user don't have host, we create a free host for them,
+      // and then create a container
+      const { host, user } = this.state;
+      if (!host) {
+        const logs = this.state.logs;
+        logs.push(`Creating workstation...`);
+        this.setState({ logs });
+        hostActions.create({
+          name: user.username,
+          plan: planStore.freePlan,
+          // TODO: Should assign an appropriate region instead of
+          // always using the 1st region
+          region: regionStore.regions.first()
+        });
+        return;
+      }
 
       this.setState({ template, ports, repoName, owner });
 
@@ -121,6 +174,31 @@ export default class Hack extends React.Component {
         template, ports: serializedPorts, publishAll: true
       });
     }
+  }
+
+  onRepoInfoFetchFailed = () => {
+    const { user } = this.state,
+          { canDeleteGitHubPublicKeys } = user.userProfile,
+          { makeHref } = this.context.router,
+          connectURL = makeHref('account-settings');
+    let failedMessageJSX = null;
+
+    // canDeleteGitHubPublicKeys means user has already connected to github
+    if (canDeleteGitHubPublicKeys) {
+      failedMessageJSX = (
+        <span>
+          nitrous.json not found.
+        </span>
+      );
+    } else {
+      failedMessageJSX = (
+        <span>
+          Failed to retrieve repository info.
+          Please <a href={connectURL}>connect to GitHub</a> and try again.
+        </span>
+      );
+    }
+    this.log(failedMessageJSX);
   }
 
   projectName = () => {
@@ -148,13 +226,11 @@ export default class Hack extends React.Component {
   }
 
   render() {
-    const { done } = this.state;
-
     return (
       <div className='hack-component'>
-        <h2>Your new container &ldquo;{this.projectName()}&rdquo; is being created...</h2>
+        <h2>Your new project &ldquo;{this.projectName()}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
-        <EtaProgressBar eta={200} done={done} />
+        <LoadingIndicator />
         {this.renderLogs()}
       </div>
     );

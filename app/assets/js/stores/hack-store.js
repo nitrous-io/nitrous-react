@@ -12,6 +12,7 @@ class HackStore extends Store {
       }
       case 'hack.fetch-repo-info-failed': {
         this.handleErrorJqxhr(action.data.jqxhr);
+        this.emit('fetch-repo-info-failed');
         return;
       }
       default: return;
