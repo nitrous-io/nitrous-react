@@ -119,6 +119,25 @@ class BonusActions {
     return promise;
   }
 
+  connectLinkedin() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/linkedin/connect'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.connected-linkedin',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.connect-linkedin-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
 }
 
 export default new BonusActions();
