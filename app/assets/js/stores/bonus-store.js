@@ -48,6 +48,47 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'bonus.connected-twitter': {
+        const { redirect_url } = action.data.data;
+        this.emit('connected-twitter', { redirectUrl: redirect_url });
+        break;
+      }
+      case 'bonus.connect-twitter-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
+      case 'bonus.followed-twitter': {
+        const { data } = action.data;
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
+          return [b.bonusId, b];
+        }));
+
+        this.emit('followed-twitter');
+
+        this._lastError = null;
+        break;
+      }
+      case 'bonus.follow-twitter-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
+      case 'bonus.tweeted': {
+        const { data } = action.data;
+        this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+          const b = EarnedBonus.deserialize(d);
+          return [b.bonusId, b];
+        }));
+
+        this.emit('tweeted');
+
+        this._lastError = null;
+        break;
+      }
+      case 'bonus.tweet-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
 
       default: return;
     }

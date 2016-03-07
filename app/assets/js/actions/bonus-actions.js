@@ -61,6 +61,64 @@ class BonusActions {
     });
     return promise;
   }
+
+  connectTwitter() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/twitter/connect'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.connected-twitter',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.connect-twitter-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
+  followTwitter() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/twitter/follow'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.followed-twitter',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.follow-twitter-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
+  tweet() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/twitter/tweet'
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.tweeted',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.tweet-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
 }
 
 export default new BonusActions();
