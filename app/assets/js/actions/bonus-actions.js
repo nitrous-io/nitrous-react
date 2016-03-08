@@ -119,6 +119,27 @@ class BonusActions {
     return promise;
   }
 
+  connectGithub() {
+    const promise = authedAjax({
+      type: 'POST',
+      url: '/api/v0/github/authorize',
+      dataType: 'json',
+      data: { beta: true, bonus: true }
+    }).then((data) => {
+      dispatcher.dispatch({
+        type: 'bonus.connected-github',
+        data: { data }
+      });
+    });
+    promise.catch((jqxhr) => {
+      dispatcher.dispatch({
+        type: 'bonus.connect-github-failed',
+        data: { jqxhr }
+      });
+    });
+    return promise;
+  }
+
 }
 
 export default new BonusActions();

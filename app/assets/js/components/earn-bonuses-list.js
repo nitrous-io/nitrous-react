@@ -34,6 +34,8 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.on('followed-twitter', this.onFollowedTwitter);
     bonusStore.on('tweeted', this.onTweeted);
 
+    bonusStore.on('connected-github', this.onConnectedGithub);
+
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
 
@@ -54,6 +56,8 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.off('connected-twitter', this.onConnectedTwitter);
     bonusStore.off('followed-twitter', this.onFollowedTwitter);
     bonusStore.off('tweeted', this.onTweeted);
+
+    bonusStore.off('connected-github', this.onConnectedGithub);
   }
 
   userStoreDidChange = () => {
@@ -94,6 +98,15 @@ export default class EarnBonusesList extends React.Component {
 
   onLikeFacebook() {
     bonusActions.earnBonus('like-facebook');
+  }
+
+  connectGithub() {
+    bonusActions.connectGithub();
+  }
+
+  onConnectedGithub = (data) => {
+    const { redirectUrl } = data;
+    window.location.href = redirectUrl;
   }
 
   earnedBonus(task) {
@@ -192,6 +205,20 @@ export default class EarnBonusesList extends React.Component {
                       data-show-faces="false"></div>
 
                     <span className='bonus-action-hours'>3 extra hours/mo</span>
+                  </Button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Button className='bonus-action-item'
+                    onClick={this.connectGithub}
+                    disabled={this.earnedBonus('connect-github')}>
+                    <span className='bonus-action-task'>
+                    <Fa icon="github " />
+                    Connect With GitHub</span>
+                    <span className='bonus-action-hours'>
+                      {this.earnedBonus('connect-github') ? 'Bonus earned' : '5 extra hours/mo'}
+                    </span>
                   </Button>
                 </td>
               </tr>
