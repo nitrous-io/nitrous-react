@@ -307,7 +307,7 @@ export default class AccountSettings extends React.Component {
             </form>
           </Panel>
 
-          <Panel header={<h4>Delete my Account</h4>}>
+          <Panel header={<h4>Delete Nitrous Account</h4>}>
             {canDeleteAccount ? (
               <Button onClick={this.handleClickDeleteAccount} disabled={deleting} type='submit' bsStyle='danger'>{deleting ? 'Deleting...' : 'Delete Account'}</Button>
             ) : (
@@ -319,9 +319,9 @@ export default class AccountSettings extends React.Component {
               okButtonDisabled={this.state.usernameConfirmation !== username} placeholder={username}
               onOK={this.handleDeleteAccountModalOK} onTextInput={this.handleDeleteAccountModalTextInput}>
               <p>This action <strong>CANNOT</strong> be undone!</p>
-              <p>Deleting your account is irreversible.</p>
+              <p>Deleting your Nitrous account will permanently delete your projects and workstations, including any data stored in them.</p>
               <p>
-                Please type your username
+                Please type in your username
                 (<SelectableText><strong>{username}</strong></SelectableText>)
                 to confirm:
               </p>
