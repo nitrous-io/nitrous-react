@@ -17,7 +17,8 @@ export default class EarnBonusesList extends React.Component {
   }
 
   static propTypes = {
-    connectedTwitter: PropTypes.bool
+    connectedTwitter: PropTypes.bool,
+    connectedGithub: PropTypes.bool
   };
 
   componentDidMount() {
@@ -44,6 +45,10 @@ export default class EarnBonusesList extends React.Component {
     // notification by checking the connected_twitter param passed in the redirect
     if (this.props.connectedTwitter) {
       snackbarActions.post(`Added bonus: 3 extra hours/mo`);
+    }
+
+    if (this.props.connectedGithub) {
+      snackbarActions.post(`Added bonus: 5 extra hours/mo`);
     }
   }
 
@@ -112,7 +117,7 @@ export default class EarnBonusesList extends React.Component {
   }
 
   onAlreadyConnectedGithub = () => {
-    snackbarActions.post(`We note that you have already connected with GitHub. We just added bonus 5 extra hours/mo`);
+    snackbarActions.post(`GitHub connection already completed. 5 bonus hours added to your account.`);
   }
 
   earnedBonus(task) {
