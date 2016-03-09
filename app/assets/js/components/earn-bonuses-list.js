@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, ProgressBar, Table, Panel } from 'react-bootstrap';
+import { Button, ProgressBar, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
@@ -34,6 +34,7 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.on('followed-twitter', this.onFollowedTwitter);
     bonusStore.on('tweeted', this.onTweeted);
 
+    bonusStore.on('already-connected-github', this.onAlreadyConnectedGithub);
     bonusStore.on('connected-github', this.onConnectedGithub);
 
     bonusActions.fetchAll();
@@ -57,6 +58,7 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.off('followed-twitter', this.onFollowedTwitter);
     bonusStore.off('tweeted', this.onTweeted);
 
+    bonusStore.off('already-connected-github', this.onAlreadyConnectedGithub);
     bonusStore.off('connected-github', this.onConnectedGithub);
   }
 
@@ -109,6 +111,10 @@ export default class EarnBonusesList extends React.Component {
     window.location.href = redirectUrl;
   }
 
+  onAlreadyConnectedGithub = () => {
+    snackbarActions.post(`We note that you have already connected with GitHub. We just added bonus 5 extra hours/mo`);
+  }
+
   earnedBonus(task) {
     const { earnedBonuses, bonuses } = this.state,
           bonusTask = bonuses ? bonuses.get(task) : null;
@@ -146,84 +152,65 @@ export default class EarnBonusesList extends React.Component {
         </Panel>
 
         <Panel header={<h4>Get Bonus Hours</h4>}>
-          <Table responsive hover>
-            <tbody>
-              <tr>
-                <td>
-                  <Button className='bonus-action-item' onClick={this.connectTwitter}
-                    disabled={this.earnedBonus('connect-twitter')}>
-                    <span className='bonus-action-task'>
-                    <Fa icon="twitter" />
-                    Connect Twitter</span>
+          <Button className='bonus-action-item' onClick={this.connectTwitter}
+            block
+            disabled={this.earnedBonus('connect-twitter')}>
+            <span className='bonus-action-task'>
+            <Fa icon="twitter" />
+            Connect Twitter</span>
 
-                    <span className='bonus-action-hours'>
-                    {this.earnedBonus('connect-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
-                    </span>
-                  </Button>
-                </td>
-              </tr>
+            <span className='bonus-action-hours'>
+            {this.earnedBonus('connect-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+            </span>
+          </Button>
+          <Button className='bonus-action-item'
+            block
+            onClick={this.followTwitter}
+            disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
+            <span className='bonus-action-task'>
+            <Fa icon="twitter" />
+            Follow Nitrous on Twitter</span>
+            <span className='bonus-action-hours'>
+              {this.earnedBonus('follow-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+            </span>
+          </Button>
+          <Button className='bonus-action-item'
+            block
+            onClick={this.tweet}
+            disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
+            <span className='bonus-action-task'>
+            <Fa icon="twitter" />
+            Tweet about Nitrous</span>
+            <span className='bonus-action-hours'>
+              {this.earnedBonus('tweet') ? 'Bonus earned' : '5 extra hours/mo'}
+            </span>
+          </Button>
+          <Button className='bonus-action-item'
+            block
+            disabled={this.earnedBonus('like-facebook')}>
+            <span className='bonus-action-task'>
+            <Fa icon="facebook" />
+            Like us on Facebook</span>
+            <div className="fb-like"
+              data-href="https://www.facebook.com/NitrousIO/"
+              data-layout="button"
+              data-action="like"
+              data-show-faces="false"></div>
 
-              <tr>
-                <td>
-                  <Button className='bonus-action-item'
-                    onClick={this.followTwitter}
-                    disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
-                    <span className='bonus-action-task'>
-                    <Fa icon="twitter" />
-                    Follow Nitrous on Twitter</span>
-                    <span className='bonus-action-hours'>
-                      {this.earnedBonus('follow-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
-                    </span>
-                  </Button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <Button className='bonus-action-item'
-                    onClick={this.tweet}
-                    disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
-                    <span className='bonus-action-task'>
-                    <Fa icon="twitter" />
-                    Tweet about Nitrous</span>
-                    <span className='bonus-action-hours'>
-                      {this.earnedBonus('tweet') ? 'Bonus earned' : '5 extra hours/mo'}
-                    </span>
-                  </Button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <Button className='bonus-action-item'
-                    disabled={this.earnedBonus('like-facebook')}>
-                    <span className='bonus-action-task'>
-                    <Fa icon="facebook" />
-                    Like us on Facebook</span>
-                    <div className="fb-like"
-                      data-href="https://www.facebook.com/NitrousIO/"
-                      data-layout="button"
-                      data-action="like"
-                      data-show-faces="false"></div>
+            <span className='bonus-action-hours'>3 extra hours/mo</span>
+          </Button>
+          <Button className='bonus-action-item'
+            block
+            onClick={this.connectGithub}
+            disabled={this.earnedBonus('connect-github')}>
+            <span className='bonus-action-task'>
+            <Fa icon="github " />
+            Connect With GitHub</span>
+            <span className='bonus-action-hours'>
+              {this.earnedBonus('connect-github') ? 'Bonus earned' : '5 extra hours/mo'}
+            </span>
+          </Button>
 
-                    <span className='bonus-action-hours'>3 extra hours/mo</span>
-                  </Button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <Button className='bonus-action-item'
-                    onClick={this.connectGithub}
-                    disabled={this.earnedBonus('connect-github')}>
-                    <span className='bonus-action-task'>
-                    <Fa icon="github " />
-                    Connect With GitHub</span>
-                    <span className='bonus-action-hours'>
-                      {this.earnedBonus('connect-github') ? 'Bonus earned' : '5 extra hours/mo'}
-                    </span>
-                  </Button>
-                </td>
-              </tr>
-            </tbody>
-          </Table>
         </Panel>
       </div>
     );
