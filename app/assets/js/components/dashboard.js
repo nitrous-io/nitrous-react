@@ -24,7 +24,9 @@ export default class Dashboard extends React.Component {
 
   static willTransitionTo = (transition, params, query, callback) => {
     if (!tokenStore.token) {
-      transition.redirect('login');
+      transition.redirect('login', {}, {
+        returnTo: transition.path
+      });
       callback();
       return;
     }

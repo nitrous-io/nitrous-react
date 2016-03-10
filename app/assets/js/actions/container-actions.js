@@ -1,4 +1,5 @@
 import { authedAjax }  from 'lib/ajax';
+import ContainerRunCommandSocket from 'lib/container-run-command-socket';
 import dispatcher from 'app-dispatcher';
 
 class ContainerActions {
@@ -150,7 +151,7 @@ class ContainerActions {
   }
 
   createAtomic(name, host, opts) {
-    const { imageRepo, template, snapshotId, privileged, publishAll, skipPull } = opts;
+    const { imageRepo, template, snapshotId, privileged, ports, publishAll, skipPull } = opts;
 
     const promise = authedAjax({
       type: 'POST',
@@ -159,9 +160,10 @@ class ContainerActions {
         name,
         host: host.slug,
         image: imageRepo,
-        template: template ? template.slug : null,
+        template,
         snapshot_id: snapshotId,
         privileged,
+        port: ports,
         publish_all: publishAll,
         skip_pull: skipPull
       },
@@ -179,6 +181,23 @@ class ContainerActions {
       });
     });
     return promise;
+  }
+
+  runCommand(host, container, command, timeout) {
+    const promise = authedAjax({
+      type: 'POST',
+      url: `/api/v0/containers/${container.slug}/token`,
+      data: { permission: ['run_command'] },
+      dataType: 'json'
+    }).then((data) => {
+      const socket = new ContainerRunCommandSocket(data.token);
+      socket.connect(host, container, command, timeout);
+    });
+    promise.catch(() => {
+      dispatcher.dispatch({
+        type: 'container.run-command-failed'
+      });
+    });
   }
 }
 

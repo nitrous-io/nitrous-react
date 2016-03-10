@@ -27,8 +27,8 @@ export default class Signup extends React.Component {
       gitHubUserName: PropTypes.string,
       gitHubUserEmail: PropTypes.string,
       promo: PropTypes.string,
-
-      invite: PropTypes.string
+      invite: PropTypes.string,
+      returnTo: PropTypes.string
     })
   };
 
@@ -179,7 +179,11 @@ export default class Signup extends React.Component {
       return;
     }
 
-    this.context.router.transitionTo('dashboard');
+    if (this.props.query.returnTo) {
+      this.context.router.transitionTo(this.props.query.returnTo);
+    } else {
+      this.context.router.transitionTo('dashboard');
+    }
   }
 
   handleUsernameChanged = (event) => {

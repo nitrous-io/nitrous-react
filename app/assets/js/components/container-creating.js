@@ -85,7 +85,7 @@ export default class ContainerCreating extends React.Component {
           </div>
         ) : (
           <div className='container creating'>
-            <h2>Your new container &ldquo;{name}&rdquo; is being created...</h2>
+            <h2>Your new project &ldquo;{name}&rdquo; is being created...</h2>
             <p>This may take several minutes to complete.</p>
             <EtaProgressBar eta={200} done={done} />
           </div>

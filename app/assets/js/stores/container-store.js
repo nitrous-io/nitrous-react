@@ -92,6 +92,10 @@ class ContainerStore extends Store {
         this.emit('commit-failed', { containerSlug });
         break;
       }
+      case 'container.run-command-failed': {
+        this.emit('run-command-failed');
+        return;
+      }
       // from events-socket
       case 'events:container.create-failed': {
         const { name, error } = action.data,
@@ -163,6 +167,20 @@ class ContainerStore extends Store {
           snackbarActions.post(`Your project “${c.displayName}” was terminated successfully.`);
         }
         break;
+      }
+      // from container-run-command-socket
+      case 'run_command': {
+        this.emit('run-command');
+        return;
+      }
+      case 'running_command': {
+        const { data } = action;
+        this.emit('running-command', { data });
+        return;
+      }
+      case 'ran_command': {
+        this.emit('ran-command');
+        return;
       }
       default: return;
     }

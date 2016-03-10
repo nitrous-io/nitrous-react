@@ -107,4 +107,11 @@ export default class Host extends Record({
   get isFree() {
     return this.plan === 'free';
   }
+
+  get freighterProxyUrl() {
+    if (this.freighterdPort === 65333) {
+      return this.proxyHostname;
+    }
+    return `${this.proxyHostname}:${this.freighterdPort}`;
+  }
 }

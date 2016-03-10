@@ -18,7 +18,8 @@ export default class Login extends React.Component {
   static propTypes = {
     query: PropTypes.shape({
       token: PropTypes.string,
-      existingGitHubEmail: PropTypes.string
+      existingGitHubEmail: PropTypes.string,
+      returnTo: PropTypes.string
     })
   };
 
@@ -89,7 +90,11 @@ export default class Login extends React.Component {
 
       Mp.track(MpEvents.EventUserLoggedIn);
 
-      this.context.router.transitionTo('dashboard');
+      if (this.props.query.returnTo) {
+        this.context.router.transitionTo(this.props.query.returnTo);
+      } else {
+        this.context.router.transitionTo('dashboard');
+      }
     } else if (tokenStore.lastError) {
       snackbarActions.post(tokenStore.lastError, 'warning');
       this.setState({ loggingIn: false }, () => {
@@ -113,7 +118,7 @@ export default class Login extends React.Component {
 
   render() {
     const { loggingIn, loggingInWithGithub, errorMessage } = this.state,
-          { existingGitHubEmail } = this.props.query,
+          { existingGitHubEmail, returnTo } = this.props.query,
           disabled = loggingIn || loggingInWithGithub;
 
     return (
@@ -145,7 +150,7 @@ export default class Login extends React.Component {
           </form>
         </Panel>
         <div className='misc-links'>
-          <p>No account? <Link to='signup'>Sign Up</Link></p>
+          <p>No account? <Link to='signup' query={{ returnTo }}>Sign Up</Link></p>
           <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
         </div>
       </div>
