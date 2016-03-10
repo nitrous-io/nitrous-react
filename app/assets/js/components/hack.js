@@ -156,7 +156,7 @@ export default class Hack extends React.Component {
         && host.slug === hostSlug) {
       this.setState({ container });
       this.log(`Created project "${this.projectName()}".`,
-          'Cloning repository and execute nitrous-post-create.sh...');
+          'Cloning repository and executing nitrous-post-create.sh...');
 
       containerActions.runCommand(
         host,
