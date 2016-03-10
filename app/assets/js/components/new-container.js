@@ -228,7 +228,7 @@ export default class NewContainer extends React.Component {
 
     containerActions.createAtomic(projectName, host, {
       imageRepo: selectedImage,
-      template,
+      template: template ? template.slug : null,
       snapshotId: selectedSnapshotId,
       privileged,
       publishAll,
