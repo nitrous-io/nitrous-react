@@ -12,6 +12,7 @@ import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import regionStore from 'stores/region-store';
 import LoadingIndicator from 'components/loading-indicator';
+import term from 'term.js';
 
 export default class Hack extends React.Component {
   displayName = 'Hack';
@@ -24,6 +25,22 @@ export default class Hack extends React.Component {
     query: PropTypes.shape({
       repo: PropTypes.string
     })
+  }
+
+  findTerminal = () => {
+    if (!this.state.terminal) {
+      this.setState({
+        terminal: (new term.Terminal({
+          cols: 80,
+          rows: 24,
+          useStyle: true,
+          screenKeys: true,
+          cursorBlink: false
+        }))
+      });
+    }
+
+    return this.state.terminal;
   }
 
   // First find a running user host, otherwise return an org host.
@@ -51,8 +68,8 @@ export default class Hack extends React.Component {
     template: null,
     serializedPorts: null,
     container: null,
-    done: false,
-    logs: ['Retrieving repository info...']
+    logs: ['Retrieving repository info...'],
+    terminal: null
   };
 
   static willTransitionTo = (transition) => {
@@ -70,7 +87,10 @@ export default class Hack extends React.Component {
     hostStore.on('create-failed', this.onHostCreateFailed);
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
+    containerStore.on('run-command', this.onContainerCommandRun);
+    containerStore.on('running-command', this.onContainerCommandRunning);
     containerStore.on('ran-command', this.onContainerCommandRan);
+    containerStore.on('run-command-failed', this.onContainerCommandRunFailed);
 
     const { repo } = this.props.query;
     if (repo) {
@@ -85,13 +105,30 @@ export default class Hack extends React.Component {
     hostStore.off('create-failed', this.onHostCreateFailed);
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
+    containerStore.off('run-command', this.onContainerCommandRun);
+    containerStore.off('running-command', this.onContainerCommandRunning);
     containerStore.off('ran-command', this.onContainerCommandRan);
+    containerStore.off('run-command-failed', this.onContainerCommandRunFailed);
   }
+
+  onContainerCommandRun = () => {
+    this.log((<span id="run-command-terminal"></span>));
+    this.findTerminal().open(document.getElementById("run-command-terminal"));
+  };
+
+  onContainerCommandRunning = (data) => {
+    this.findTerminal().write(data.data);
+  };
 
   onContainerCommandRan = () => {
     this.log('Done!');
     const redirectUrl = `/ide/#/${this.state.container.slug}`;
     window.location.href = redirectUrl;
+    this.findTerminal().terminal.destroy();
+  };
+
+  onContainerCommandRunFailed = () => {
+    this.log('Failed to clone project or execute nitrous-post-create.sh.');
   };
 
   onHostCreated = (data) => {
@@ -122,8 +159,9 @@ export default class Hack extends React.Component {
           'Cloning repository and execute nitrous-post-create.sh...');
 
       containerActions.runCommand(
+        host,
         container,
-        `. /etc/profile && cd && git clone ${this.props.query.repo} && cd ${this.projectName()} && ./nitrous-post-create.sh`,
+        `. /etc/profile && cd && git clone ${this.props.query.repo} && cd ${this.projectName()} && ./nitrous-post-create.sh; echo "Run command done."`,
         1800
       );
     }

@@ -75,15 +75,6 @@ class ContainerStore extends Store {
         this.emit('create-failed', { name, hostSlug });
         break;
       }
-      case 'container.ran-command': {
-        this.emit('ran-command');
-        return;
-      }
-      case 'container.command-run-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
-        this.emit('command-run-failed');
-        return;
-      }
       case 'container.reconfigure-failed': {
         const { containerSlug, jqxhr } = action.data;
         this.handleErrorJqxhr(jqxhr);
@@ -100,6 +91,10 @@ class ContainerStore extends Store {
         this.handleErrorJqxhr(jqxhr);
         this.emit('commit-failed', { containerSlug });
         break;
+      }
+      case 'container.run-command-failed': {
+        this.emit('run-command-failed');
+        return;
       }
       // from events-socket
       case 'events:container.create-failed': {
@@ -172,6 +167,20 @@ class ContainerStore extends Store {
           snackbarActions.post(`Your project “${c.displayName}” was terminated successfully.`);
         }
         break;
+      }
+      // from container-run-command-socket
+      case 'run_command': {
+        this.emit('run-command');
+        return;
+      }
+      case 'running_command': {
+        const { data } = action;
+        this.emit('running-command', { data });
+        return;
+      }
+      case 'ran_command': {
+        this.emit('ran-command');
+        return;
       }
       default: return;
     }

@@ -1,4 +1,5 @@
 import { authedAjax }  from 'lib/ajax';
+import ContainerRunCommandSocket from 'lib/container-run-command-socket';
 import dispatcher from 'app-dispatcher';
 
 class ContainerActions {
@@ -182,25 +183,21 @@ class ContainerActions {
     return promise;
   }
 
-  runCommand(container, command, timeout) {
+  runCommand(host, container, command, timeout) {
     const promise = authedAjax({
       type: 'POST',
-      url: `/api/v0/containers/${container.slug}/run_command`,
-      data: { command, timeout },
+      url: `/api/v0/containers/${container.slug}/token`,
+      data: { permission: ['run_command'] },
       dataType: 'json'
     }).then((data) => {
+      const socket = new ContainerRunCommandSocket(data.token);
+      socket.connect(host, container, command, timeout);
+    });
+    promise.catch(() => {
       dispatcher.dispatch({
-        type: 'container.ran-command',
-        data: { data }
+        type: 'container.run-command-failed'
       });
     });
-    promise.catch((jqxhr) => {
-      dispatcher.dispatch({
-        type: 'container.command-run-failed',
-        data: { jqxhr }
-      });
-    });
-    return promise;
   }
 }
 
