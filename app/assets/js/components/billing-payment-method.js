@@ -38,9 +38,9 @@ export default class BillingPaymentMethod extends React.Component {
         <Panel header={
           <h4>
             {billingProfile.hasCard ? (
-              org ? `Update Card for ${org.name}` : 'Update Card'
+              org ? `Update Credit Card for ${org.name}` : 'Update Credit Card'
             ) : (
-              org ? `Add Card for ${org.name}` : 'Add Card'
+              org ? `Add Credit Card for ${org.name}` : 'Add Credit Card'
             )}
           </h4>
         }>

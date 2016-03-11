@@ -48,20 +48,22 @@ export default class PaymentMethod extends React.Component {
   };
 
   componentDidMount() {
-    billingStore.onChange(this.billingStoreDidChange);
+    billingStore.on('updated', this.onBillingUpdated);
     billingStore.on('update-failed', this.onBillingUpdateFailed);
 
     paymentStore.on('submit-requested', this.onPaymentSubmitRequested);
   }
 
   componentWillUnmount() {
-    billingStore.offChange(this.billingStoreDidChange);
+    billingStore.off('updated', this.onBillingUpdated);
     billingStore.off('update-failed', this.onBillingUpdateFailed);
 
     paymentStore.off('submit-requested', this.onPaymentSubmitRequested);
   }
 
-  billingStoreDidChange = () => {
+  onBillingUpdated = () => {
+    if (!this.state.saving) return;
+
     this.setState({ saving: false });
 
     if (this.props.standalone) {
