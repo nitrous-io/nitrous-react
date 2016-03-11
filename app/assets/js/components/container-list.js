@@ -4,6 +4,7 @@ import { Grid, Row, Col, Button } from 'react-bootstrap';
 import Host from 'records/host';
 import userStore from 'stores/user-store';
 import orgStore from 'stores/org-store';
+import freeUsageStore from 'stores/free-usage-store';
 import templateStore from 'stores/template-store';
 import snapshotStore from 'stores/snapshot-store';
 import templateActions from 'actions/template-actions';
@@ -35,7 +36,7 @@ export default class ContainerList extends React.Component {
 
     this.state = {
       user: userStore.user,
-      quotaReached: userStore.usageRemaining <= 0,
+      quotaReached: freeUsageStore.quotaReached,
       templates: templateStore.templates,
       snapshots: snapshotStore.snapshotsByOrgSlug(orgSlug)
     };
@@ -43,7 +44,7 @@ export default class ContainerList extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.on('usage-remaining-tick', this.onUsageRemainingTick);
 
     templateActions.fetchAll();
     templateStore.onChange(this.templateStoreDidChange);
@@ -57,17 +58,18 @@ export default class ContainerList extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
-    userStore.off('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.off('usage-remaining-tick', this.onUsageRemainingTick);
     templateStore.offChange(this.templateStoreDidChange);
     snapshotStore.offChange(this.snapshotStoreDidChange);
   }
 
   userStoreDidChange = () => {
-    this.setState({
-      user: userStore.user,
-      quotaReached: userStore.usageRemaining <= 0
-    });
-  }
+    this.setState({ user: userStore.user });
+  };
+
+  onUsageRemainingTick = () => {
+    this.setState({ quotaReached: freeUsageStore.quotaReached });
+  };
 
   templateStoreDidChange = () => {
     this.setState({ templates: templateStore.templates });
@@ -78,7 +80,7 @@ export default class ContainerList extends React.Component {
       const org = orgStore.orgByOrgId(this.getOrgId());
       this.setState({ snapshots: snapshotStore.snapshotsByOrgSlug(org.slug) });
     }
-  }
+  };
 
   getTemplate(container) {
     const { templates } = this.state;

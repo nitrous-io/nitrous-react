@@ -8,7 +8,7 @@ import billingStore from 'stores/billing-store';
 import containerStore from 'stores/container-store';
 import announcementActions from 'actions/announcement-actions';
 import hostStore from 'stores/host-store';
-import userStore from 'stores/user-store';
+import freeUsageStore from 'stores/free-usage-store';
 import containerActions from 'actions/container-actions';
 import hostActions from 'actions/host-actions';
 import AnnouncementAlert from 'components/announcement-alert';
@@ -40,8 +40,8 @@ export default class Containers extends React.Component {
       showDashboardTooltip: false,
       showContextTooltip: false,
       showSettingsTooltip: false,
-      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
-      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
+      quotaReached: this.context.host.isFree && freeUsageStore.quotaReached,
+      quotaRunningOut: this.isQuotaRunningOut(freeUsageStore.usageRemaining)
     };
   }
 
@@ -50,8 +50,7 @@ export default class Containers extends React.Component {
   }
 
   componentDidMount() {
-    userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.on('usage-remaining-tick', this.onUsageRemainingTick);
     containerStore.onChange(this.containerStoreDidChange);
     containerActions.fetchAllByHostSlug(this.context.host.slug);
     announcementStore.onChange(this.announcementStoreDidChange);
@@ -72,19 +71,23 @@ export default class Containers extends React.Component {
   }
 
   componentWillUnmount() {
-    userStore.offChange(this.userStoreDidChange);
-    userStore.off('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.off('usage-remaining-tick', this.onUsageRemainingTick);
     containerStore.offChange(this.containerStoreDidChange);
     announcementStore.offChange(this.announcementStoreDidChange);
     hostStore.off('started', this.onHostStarted);
   }
 
-  userStoreDidChange = () => {
-    this.setState({
-      user: userStore.user,
-      quotaReached: this.context.host.isFree && !userStore.hasUsageRemaining(),
-      quotaRunningOut: this.context.host.isFree && userStore.usageRemaining < 60*60*5
-    });
+  onUsageRemainingTick = () => {
+    const { host } = this.context,
+          quotaReached = host.isFree && freeUsageStore.quotaReached,
+          quotaRunningOut = this.isQuotaRunningOut(freeUsageStore.usageRemaining);
+    this.setState({ quotaReached, quotaRunningOut });
+  };
+
+  isQuotaRunningOut = (usageRemaining) => {
+    if (usageRemaining == null) return false;
+    const fiveHours = 5*60*60;
+    return this.context.host.isFree && usageRemaining < fiveHours;
   };
 
   containerStoreDidChange = () => {

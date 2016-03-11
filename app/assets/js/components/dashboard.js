@@ -4,14 +4,15 @@ import { RouteHandler } from 'react-router';
 import MainNav from 'components/main-nav';
 import tokenStore from 'stores/token-store';
 import billingStore from 'stores/billing-store';
+import freeUsageActions from 'actions/free-usage-actions';
 import userActions from 'actions/user-actions';
 import orgActions from 'actions/org-actions';
 import hostActions from 'actions/host-actions';
 import planActions from 'actions/plan-actions';
 import regionActions from 'actions/region-actions';
 import containerActions from 'actions/container-actions';
-import eventsSocket from 'lib/events-socket';
 import snackbarActions from 'actions/snackbar-actions';
+import eventsSocket from 'lib/events-socket';
 
 export default class Dashboard extends React.Component {
   displayName = 'Dashboard';
@@ -36,7 +37,6 @@ export default class Dashboard extends React.Component {
     } else {
       Promise.all([
         userActions.fetch(),
-        userActions.periodicallyFetch(),
         orgActions.fetchAll(),
         hostActions.fetchAll(),
         planActions.fetchAll(),
@@ -55,12 +55,16 @@ export default class Dashboard extends React.Component {
   componentDidMount() {
     eventsSocket.connect(tokenStore.token);
     billingStore.onChange(this.billingStoreDidChange);
+
+    freeUsageActions.periodicallyFetch();
   }
 
   componentWillUnmount() {
     eventsSocket.disconnect();
     billingStore.offChange(this.billingStoreDidChange);
     this.constructor.preloaded = false;
+
+    freeUsageActions.stopFetching();
   }
 
   billingStoreDidChange = () => {
