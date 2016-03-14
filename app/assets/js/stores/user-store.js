@@ -114,13 +114,6 @@ class UserStore extends Store {
         this.emit('account-delete-failed');
         return;
       }
-      case 'bonus.earned-bonus': {
-        const { data } = action.data;
-        this._user = this._user.set('usageQuota', data.user.usage_quota);
-        this._user = this._user.set('usageRemaining', data.user.usage_remaining);
-        this._lastError = null;
-        break;
-      }
 
       default: return;
     }
