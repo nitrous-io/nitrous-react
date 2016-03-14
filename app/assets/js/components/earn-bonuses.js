@@ -8,13 +8,15 @@ export default class EarnBonuses extends React.Component {
   static propTypes = {
     query: PropTypes.shape({
       connected_twitter: PropTypes.string,
-      connected_github: PropTypes.string
+      connected_github: PropTypes.string,
+      completed_survey: PropTypes.string
     })
   };
 
   render() {
     const connectedTwitter = (this.props.query.connected_twitter === 'true'),
-          connectedGithub = (this.props.query.connected_github === 'true');
+          connectedGithub = (this.props.query.connected_github === 'true'),
+          completedSurvey = (this.props.query.completed_survey === 'true');
 
     return (
       <div className='bonus-component'>
@@ -22,6 +24,7 @@ export default class EarnBonuses extends React.Component {
           <EarnBonusesList
             connectedTwitter={connectedTwitter}
             connectedGithub={connectedGithub}
+            completedSurvey={completedSurvey}
           />
         </UserNav>
       </div>

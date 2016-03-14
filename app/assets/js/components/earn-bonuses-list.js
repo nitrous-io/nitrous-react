@@ -21,7 +21,8 @@ export default class EarnBonusesList extends React.Component {
 
   static propTypes = {
     connectedTwitter: PropTypes.bool,
-    connectedGithub: PropTypes.bool
+    connectedGithub: PropTypes.bool,
+    completedSurvey: PropTypes.bool
   };
 
   componentDidMount() {
@@ -50,9 +51,11 @@ export default class EarnBonusesList extends React.Component {
     if (this.props.connectedTwitter) {
       snackbarActions.post(`Added bonus: 3 extra hours/mo`);
     }
-
     if (this.props.connectedGithub) {
       snackbarActions.post(`Added bonus: 5 extra hours/mo`);
+    }
+    if (this.props.completedSurvey) {
+      snackbarActions.post(`Added bonus: 10 extra hours/mo`);
     }
   }
 
@@ -124,6 +127,13 @@ export default class EarnBonusesList extends React.Component {
 
   onAlreadyConnectedGithub = () => {
     snackbarActions.post(`GitHub connection already completed. 5 bonus hours added to your account.`);
+  }
+
+  completeSurvey = () => {
+    const { user } = this.state,
+          // Prefill email field
+          surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field1=" + user.username;
+    window.location.href = surveyUrl;
   }
 
   earnedBonus(task) {
@@ -227,10 +237,21 @@ export default class EarnBonusesList extends React.Component {
             onClick={this.connectGithub}
             disabled={this.earnedBonus('connect-github')}>
             <span className='bonus-action-task'>
-            <Fa icon="github " />
+            <Fa icon="github" />
             Connect With GitHub</span>
             <span className='bonus-action-hours'>
               {this.earnedBonus('connect-github') ? 'Bonus earned' : '5 extra hours/mo'}
+            </span>
+          </Button>
+          <Button className='bonus-action-item'
+            block
+            onClick={this.completeSurvey}
+            disabled={this.earnedBonus('complete-survey')}>
+            <span className='bonus-action-task'>
+            <Fa icon="laptop" />
+            Complete our survey</span>
+            <span className='bonus-action-hours'>
+              {this.earnedBonus('complete') ? 'Bonus earned' : '10 extra hours/mo'}
             </span>
           </Button>
 
