@@ -112,7 +112,31 @@ export default class Hack extends React.Component {
 
   onContainerCommandRun = () => {
     this.log((<span id="run-command-terminal"></span>));
-    this.terminal.open(document.getElementById("run-command-terminal"));
+    const iframe = document.getElementById('run-command-terminal')
+      .appendChild(document.createElement('iframe'));
+    iframe.style.width = '550px';
+    iframe.style.height = '330px';
+    iframe.style.border = 'none';
+    const iframeWindow = iframe.contentWindow;
+    const iframeDocument = iframeWindow.document;
+
+    // hack to make iframe ready for injection in firefox
+    iframeDocument.open();
+    iframeDocument.close();
+
+    const origin = location.protocol + "//" + location.host;
+    const terminalJSPath = origin + '/assets/js/term.js';
+
+    const scriptEl = iframeDocument.createElement('script');
+    scriptEl.setAttribute('src', terminalJSPath);
+    scriptEl.onload = () => {
+      const terminalDiv = iframeDocument.createElement('div');
+      terminalDiv.id = 'terminal';
+      iframeDocument.body.appendChild(terminalDiv);
+      this.terminal.open(iframeDocument.getElementById('terminal'));
+      iframeDocument.body.style.margin = '0px';
+    };
+    iframeDocument.body.appendChild(scriptEl);
   };
 
   onContainerCommandRunning = (data) => {
