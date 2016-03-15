@@ -22,11 +22,13 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     chalk = require('chalk'),
     del = require('del'),
-    path = require('path');
+    path = require('path'),
+    fs = require('fs');
 
 var appJS = 'app/assets/js/app.js',
     appCSS = 'app/assets/css/app.sass',
-    vendorJSPath = 'vendor/assets/js';
+    vendorJSBundlePath = 'vendor/assets/js/bundle',
+    vendorJSLibPath = 'vendor/assets/js/lib';
 
 // for the index.html.tmpl
 // CDN_ADDRESS should include final /. Example: https://randomstring.cloudfront.net/
@@ -114,7 +116,8 @@ gulp.task('js-dev', function() {
 
   var build = function() {
     gutil.log('Building ' + chalk.cyan('JS') + '...');
-    buildJS(jsOptions).on('end', onBuild);
+    buildLibJS(dest);
+    buildBundleJS(jsOptions).on('end', onBuild);
   };
 
   build();
@@ -174,7 +177,9 @@ gulp.task('js-dist', ['lint-dist'], function() {
 
   del.sync([dest]);
 
-  return buildJS({
+  buildLibJS(dest);
+
+  return buildBundleJS({
     dest: dest,
     production: true,
     sourcemaps: false,
@@ -254,7 +259,7 @@ function browserifyBundler(options) {
   var jsExtensions = ['.js', '.jsx', '.es6', '.json'];
   options = merge({
     extensions: jsExtensions,
-    paths: [path.dirname(appJS), vendorJSPath],
+    paths: [path.dirname(appJS), vendorJSBundlePath],
     cache: {},
     packageCache: {},
     noParse: ['jquery']
@@ -284,7 +289,22 @@ function lintJS() {
     .pipe(eslint.format());
 }
 
-function buildJS(options) {
+function buildLibJS(dest) {
+  fs.readdir(vendorJSLibPath, function(err, files) {
+    if (err) {
+      gutil.log(chalk.red(err.name)
+        + ': ' + chalk.yellow(err.message));
+      return;
+    }
+    files.forEach(function(file) {
+      gulp.src(vendorJSLibPath+'/'+file)
+        .pipe(uglify())
+        .pipe(gulp.dest(dest));
+    });
+  });
+}
+
+function buildBundleJS(options) {
   options = merge({
     dest: 'build/assets/dev',
     sourcemaps: true,
