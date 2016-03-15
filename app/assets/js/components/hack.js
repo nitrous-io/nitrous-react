@@ -11,7 +11,7 @@ import hackStore from 'stores/hack-store';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import regionStore from 'stores/region-store';
-import LoadingIndicator from 'components/loading-indicator';
+import EtaProgressBar from 'components/eta-progress-bar';
 import term from 'term.js';
 
 export default class Hack extends React.Component {
@@ -69,7 +69,8 @@ export default class Hack extends React.Component {
     serializedPorts: null,
     container: null,
     logs: ['Retrieving repository info...'],
-    terminal: null
+    terminal: null,
+    done: false
   };
 
   static willTransitionTo = (transition) => {
@@ -122,6 +123,7 @@ export default class Hack extends React.Component {
 
   onContainerCommandRan = () => {
     this.log('Done!');
+    this.setState({ done: true });
     const redirectUrl = `/ide/#/${this.state.container.slug}`;
     window.location.href = redirectUrl;
     this.findTerminal().terminal.destroy();
@@ -144,6 +146,7 @@ export default class Hack extends React.Component {
   };
 
   onHostCreateFailed = () => {
+    this.setState({ done: true });
     snackbarActions.post('There was a problem creating a workstation. Please create one manually.');
     this.context.router.transitionTo('new-user-host');
   };
@@ -170,6 +173,7 @@ export default class Hack extends React.Component {
   onContainerCreateFailed = (data) => {
     const { name, hostSlug } = data;
     if ((this.projectName() === name) && (this.state.host.slug === hostSlug)) {
+      this.setState({ done: true });
       this.log(`Failed to create project "${this.projectName()}".`);
     }
   };
@@ -236,6 +240,7 @@ export default class Hack extends React.Component {
         </span>
       );
     }
+    this.setState({ done: true });
     this.log(failedMessageJSX);
   }
 
@@ -264,11 +269,12 @@ export default class Hack extends React.Component {
   }
 
   render() {
+    const { done } = this.state;
     return (
-      <div className='hack-component'>
+      <div className='hack-component container'>
         <h2>Your new project &ldquo;{this.projectName()}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
-        <LoadingIndicator />
+        <EtaProgressBar eta={500} done={done} />
         {this.renderLogs()}
       </div>
     );
