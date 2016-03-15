@@ -4,7 +4,7 @@ import { Nav, NavItem } from 'react-bootstrap';
 import Host from 'records/host';
 import orgActions from 'actions/org-actions';
 import orgStore from 'stores/org-store';
-import userStore from 'stores/user-store';
+import freeUsageStore from 'stores/free-usage-store';
 
 export default class HostNav extends React.Component {
   displayName = 'HostNav';
@@ -24,12 +24,11 @@ export default class HostNav extends React.Component {
 
   state = {
     org: this.props.host.orgId ? orgStore.orgByOrgId(this.props.host.orgId) : null,
-    quotaReached: userStore.usageRemaining <= 0
+    quotaReached: freeUsageStore.quotaReached
   };
 
   componentDidMount() {
-    userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.on('usage-remaining-tick', this.onUsageRemainingTick);
     if (this.props.host.orgId) {
       orgStore.onChange(this.orgStoreDidChange);
       orgActions.fetchAll();
@@ -37,18 +36,14 @@ export default class HostNav extends React.Component {
   }
 
   componentWillUnmount() {
-    userStore.offChange(this.userStoreDidChange);
-    userStore.off('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.off('usage-remaining-tick', this.onUsageRemainingTick);
     if (this.props.host.orgId) {
       orgStore.offChange(this.orgStoreDidChange);
     }
   }
 
-  userStoreDidChange = () => {
-    this.setState({
-      user: userStore.user,
-      quotaReached: userStore.usageRemaining <= 0
-    });
+  onUsageRemainingTick = () => {
+    this.setState({ quotaReached: freeUsageStore.quotaReached });
   }
 
   orgStoreDidChange = () => {

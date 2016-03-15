@@ -3,9 +3,11 @@ import { Button, ProgressBar, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
-import userStore from 'stores/user-store';
+import freeUsageStore from 'stores/free-usage-store';
 import Fa from 'components/fa';
+import LoadingIndicator from 'components/loading-indicator';
 import snackbarActions from 'actions/snackbar-actions';
+import format from 'lib/format';
 
 export default class EarnBonusesList extends React.Component {
   displayName = 'EarnBonusesList';
@@ -13,7 +15,8 @@ export default class EarnBonusesList extends React.Component {
   state = {
     earnedBonuses: bonusStore.earnedBonuses,
     bonuses: bonusStore.bonuses,
-    user: userStore.user
+    usageRemaining: freeUsageStore.usageRemaining,
+    usageQuota: freeUsageStore.usageQuota
   }
 
   static propTypes = {
@@ -28,7 +31,8 @@ export default class EarnBonusesList extends React.Component {
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.subscribe/v2.5
     FB.Event.subscribe('edge.create', this.onLikeFacebook);
 
-    userStore.onChange(this.userStoreDidChange);
+    freeUsageStore.on('usage-remaining-tick', this.onUsageRemainingTick);
+
     bonusStore.onChange(this.bonusStoreDidChange);
 
     bonusStore.on('connected-twitter', this.onConnectedTwitter);
@@ -57,7 +61,8 @@ export default class EarnBonusesList extends React.Component {
     // https://developers.facebook.com/docs/reference/javascript/FB.Event.unsubscribe
     FB.Event.unsubscribe('edge.create', this.onLikeFacebook);
 
-    userStore.offChange(this.userStoreDidChange);
+    freeUsageStore.off('usage-remaining-tick', this.onUsageRemainingTick);
+
     bonusStore.offChange(this.bonusStoreDidChange);
     bonusStore.off('connected-twitter', this.onConnectedTwitter);
     bonusStore.off('followed-twitter', this.onFollowedTwitter);
@@ -67,8 +72,9 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.off('connected-github', this.onConnectedGithub);
   }
 
-  userStoreDidChange = () => {
-    this.setState({ user: userStore.user });
+  onUsageRemainingTick = () => {
+    const { usageRemaining, usageQuota } = freeUsageStore;
+    this.setState({ usageRemaining, usageQuota });
   }
 
   bonusStoreDidChange = () => {
@@ -131,29 +137,41 @@ export default class EarnBonusesList extends React.Component {
     return earnedBonuses.has(bonusTask.id);
   }
 
+  usagePercentage() {
+    const { usageRemaining, usageQuota } = this.state;
+    if (usageRemaining == null || usageQuota == null || usageQuota === 0) {
+      return 0;
+    }
+    return (usageRemaining / usageQuota * 100).toFixed(0);
+  }
+
   render() {
-    const { user } = this.state,
-          progressBarLabel = user.usageRemainingHours + " hours remaining";
+    const { usageRemaining, usageQuota } = this.state,
+          usageRemainingLoaded = usageRemaining != null && usageQuota != null;
 
     let progressBarStyle = "success";
-    if (user.usagePercentage < 10) {
+    if (this.usagePercentage() < 10) {
       progressBarStyle = "danger";
     }
 
     return (
       <div className='earn-bonuses-list-component'>
         <Panel header={<h4>Usage Remaining</h4>}>
-          <ProgressBar
-            bsStyle={progressBarStyle}
-            label={progressBarLabel}
-            max={user.usageQuota}
-            now={user.usageRemaining} />
+          {usageRemainingLoaded ? (
+            <div>
+              <ProgressBar
+                bsStyle={progressBarStyle}
+                label={format.convertSecondsToHours(usageRemaining) + " hours remaining"}
+                max={usageQuota}
+                now={usageRemaining} />
 
-          <li className='usage-quota-info'>
-            <ul>Monthly hours: <strong>{user.usageQuotaHours}</strong> hrs</ul>
-            <ul>Hours remaining: <strong>{user.usageRemainingHours}</strong> hrs</ul>
-            <ul>% remaining: <strong>{user.usagePercentage}</strong></ul>
-          </li>
+              <li className='usage-quota-info'>
+                <ul>Monthly hours: <strong>{format.convertSecondsToHours(usageQuota)}</strong> hrs</ul>
+                <ul>Hours remaining: <strong>{format.convertSecondsToHours(usageRemaining)}</strong> hrs</ul>
+                <ul>% remaining: <strong>{this.usagePercentage()}</strong></ul>
+              </li>
+            </div>
+          ) : (<LoadingIndicator />)}
         </Panel>
 
         <Panel header={<h4>Get Bonus Hours</h4>}>

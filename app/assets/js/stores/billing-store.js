@@ -34,6 +34,7 @@ class BillingStore extends Store {
         const bp = BillingProfile.deserialize(data.billing_profile);
         this.assignBillingProfile(bp);
         this._lastError = null;
+        this.emit('updated');
         break;
       }
       case 'billing-profile.update-failed': {

@@ -5,7 +5,7 @@ import Org from 'records/org';
 import hostActions from 'actions/host-actions';
 import taskActions from 'actions/task-actions';
 import hostStore from 'stores/host-store';
-import userStore from 'stores/user-store';
+import freeUsageStore from 'stores/free-usage-store';
 import billingStore from 'stores/billing-store';
 
 export default class Host extends React.Component {
@@ -102,7 +102,7 @@ export default class Host extends React.Component {
     if (!host || host.state !== 'stopped') return false;
 
     // Don't resume free host if user has no more usage remaining.
-    if (host.free && !userStore.hasUsageRemaining()) return false;
+    if (host.free && freeUsageStore.quotaReached) return false;
 
     return true;
   }

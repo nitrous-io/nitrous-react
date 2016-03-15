@@ -4,6 +4,7 @@ import { ButtonGroup, DropdownButton, MenuItem, OverlayTrigger, Tooltip, Badge, 
 import Host from 'records/host';
 import Org from 'records/org';
 import userStore from 'stores/user-store';
+import freeUsageStore from 'stores/free-usage-store';
 import orgStore from 'stores/org-store';
 import hostStore from 'stores/host-store';
 import subscriptionStore from 'stores/subscription-store';
@@ -30,6 +31,8 @@ export default class ContextSwitcher extends React.Component {
 
   state = {
     user: userStore.user,
+    usageRemaining: freeUsageStore.usageRemaining,
+    quotaResetDate: freeUsageStore.nextUsageQuotaAt,
     orgs: orgStore.orgs,
     hosts: hostStore.hosts,
     sharedContainerCount: containerStore.sharedContainers.size,
@@ -38,7 +41,7 @@ export default class ContextSwitcher extends React.Component {
 
   componentDidMount() {
     userStore.onChange(this.userStoreDidChange);
-    userStore.on('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.on('usage-remaining-tick', this.onUsageRemainingTick);
     orgStore.onChange(this.orgStoreDidChange);
     hostStore.onChange(this.hostStoreDidChange);
     containerStore.onChange(this.containerStoreDidChange);
@@ -55,7 +58,7 @@ export default class ContextSwitcher extends React.Component {
 
   componentWillUnmount() {
     userStore.offChange(this.userStoreDidChange);
-    userStore.off('usage-remaining.tick', this.userStoreDidChange);
+    freeUsageStore.off('usage-remaining-tick', this.onUsageRemainingTick);
     orgStore.offChange(this.orgStoreDidChange);
     hostStore.offChange(this.hostStoreDidChange);
     containerStore.offChange(this.containerStoreDidChange);
@@ -66,6 +69,11 @@ export default class ContextSwitcher extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  };
+
+  onUsageRemainingTick = () => {
+    const { usageRemaining, nextUsageQuotaAt } = freeUsageStore;
+    this.setState({ usageRemaining, quotaResetDate: nextUsageQuotaAt });
   };
 
   orgStoreDidChange = () => {
@@ -93,15 +101,17 @@ export default class ContextSwitcher extends React.Component {
   }
 
   freeUsageBadgeText = () => {
-    const { user } = this.state,
-          usageRemaining = user.usageRemaining,
-          nextReset = format.nextUsageQuota(user.nextUsageQuotaAt);
+    const { usageRemaining, quotaResetDate } = this.state;
+    if (usageRemaining === null) {
+      return;
+    }
+
     if (usageRemaining > 0) {
       return `${format.usageRemaining(usageRemaining)} remaining for this month`;
     }
     var msg = 'You have used up your free hours.';
-    if (nextReset) {
-      msg += ' Your quota will reset in ' + nextReset;
+    if (quotaResetDate) {
+      msg += ' Your quota will reset in ' + format.nextUsageQuota(quotaResetDate);
     }
     return msg;
   }

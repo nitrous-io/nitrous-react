@@ -2,7 +2,6 @@ import { Record } from 'immutable';
 import md5 from 'md5';
 
 import UserProfile from 'records/user-profile';
-import format from 'lib/format';
 
 export default class User extends Record({
   id: null,
@@ -66,17 +65,5 @@ export default class User extends Record({
     }
 
     return this.unconfirmedEmail || this.email;
-  }
-
-  get usageRemainingHours() {
-    return format.convertSecondsToHours(this.usageRemaining);
-  }
-
-  get usageQuotaHours() {
-    return format.convertSecondsToHours(this.usageQuota);
-  }
-
-  get usagePercentage() {
-    return ((this.usageRemaining / this.usageQuota) * 100).toFixed(0);
   }
 }
