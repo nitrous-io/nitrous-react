@@ -5,7 +5,7 @@ import dispatcher from 'app-dispatcher';
 class FreeUsageActions {
   _timer = null;
 
-  _fetch() {
+  fetch() {
     const promise = authedAjax({
       type: 'GET',
       url: '/api/v0/user',
@@ -27,7 +27,7 @@ class FreeUsageActions {
 
   periodicallyFetch() {
     this._timer = setInterval(() => {
-      this._fetch();
+      this.fetch();
     }, 60000);
   }
 

@@ -40,7 +40,8 @@ export default class Dashboard extends React.Component {
         orgActions.fetchAll(),
         hostActions.fetchAll(),
         planActions.fetchAll(),
-        regionActions.fetchAll()
+        regionActions.fetchAll(),
+        freeUsageActions.fetch()
       ]).then(() => {
         this.preloaded = true;
         callback();
