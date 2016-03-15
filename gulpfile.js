@@ -320,7 +320,10 @@ function buildBundleJS(options) {
     .pipe(buffer());
 
   if (options.production) {
-    js = js.pipe(envify({ NODE_ENV: 'production' }));
+    js = js.pipe(envify({
+      NODE_ENV: 'production',
+      CDN_ADDRESS: assetsUrl
+    }));
   }
 
   if (options.compress) {

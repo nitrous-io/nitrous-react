@@ -124,8 +124,12 @@ export default class Hack extends React.Component {
     iframeDocument.open();
     iframeDocument.close();
 
-    const origin = location.protocol + "//" + location.host;
-    const terminalJSPath = origin + '/assets/js/term.js';
+    let terminalJSPath = location.protocol + "//" + location.host + '/assets/js/term.js';
+    /* eslint-disable no-undef */
+    if (process.env.CDN_ADDRESS) {
+      terminalJSPath = process.env.CDN_ADDRESS + 'js/term.js';
+    }
+    /* eslint-enable no-undef */
 
     const scriptEl = iframeDocument.createElement('script');
     scriptEl.setAttribute('src', terminalJSPath);
