@@ -4,6 +4,7 @@ var gulp = require('gulp'),
     babelify = require('babelify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
+    envify = require('gulp-envify'),
     uglify = require('gulp-uglify'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -11,17 +12,17 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     eslint = require('gulp-eslint'),
     autoprefixer = require('gulp-autoprefixer'),
-    chalk = require('chalk'),
-    del = require('del'),
-    path = require('path')
     rev = require('gulp-rev'),
     debug = require('gulp-debug'),
     sequence = require('gulp-sequence'),
     fingerprint = require('gulp-fingerprint'),
     replace = require('gulp-replace'),
     rename = require('gulp-rename'),
-    cache = require('gulp-cached')
-    livereload = require('gulp-livereload');
+    cache = require('gulp-cached'),
+    livereload = require('gulp-livereload'),
+    chalk = require('chalk'),
+    del = require('del'),
+    path = require('path');
 
 var appJS = 'app/assets/js/app.js',
     appCSS = 'app/assets/css/app.sass',
@@ -175,6 +176,7 @@ gulp.task('js-dist', ['lint-dist'], function() {
 
   return buildJS({
     dest: dest,
+    production: true,
     sourcemaps: false,
     compress: true,
     watch: false
@@ -296,6 +298,10 @@ function buildJS(options) {
     .on('error', mapError)
     .pipe(source('app.js'))
     .pipe(buffer());
+
+  if (options.production) {
+    js = js.pipe(envify({ NODE_ENV: 'production' }));
+  }
 
   if (options.compress) {
     js = js.pipe(uglify());
