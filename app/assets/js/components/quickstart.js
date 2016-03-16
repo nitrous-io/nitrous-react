@@ -179,13 +179,16 @@ export default class Quickstart extends React.Component {
 
   onContainerCreated = (data) => {
     const { container, hostSlug } = data,
-          { host } = this.state;
+          { host, template } = this.state,
+          { repo } = this.props.query;
 
     if (this.projectName() === container.name
         && host.slug === hostSlug) {
       this.setState({ container });
       this.log(`Created project "${this.projectName()}".`,
           'Cloning repository and executing nitrous-post-create.sh...');
+
+      quickstartActions.create({ container, repo, template });
 
       containerActions.runCommand(
         host,

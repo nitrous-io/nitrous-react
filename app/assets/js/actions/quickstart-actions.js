@@ -23,6 +23,19 @@ class QuickstartActions {
     });
     return promise;
   }
+
+  create(options) {
+    const { container, repo, template } = options;
+    return authedAjax({
+      type: 'POST',
+      url: '/api/v0/quickstart',
+      dataType: 'json',
+      data: {
+        container_id: container.id,
+        repo, template
+      }
+    });
+  }
 }
 
 export default new QuickstartActions();
