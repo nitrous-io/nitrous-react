@@ -21,6 +21,7 @@ export default class Host extends Record({
   state: 'stopped',
   autoShutdown: false,
   maxContainers: 0,
+  containerCount: null,
   pendingRespec: false,
   subscriptionSlug: null,
   free: false,
@@ -52,6 +53,7 @@ export default class Host extends Record({
       state: p.state,
       autoShutdown: !!p.auto_shutdown,
       maxContainers: p.max_containers,
+      containerCount: p.container_count,
       pendingRespec: !!p.pending_respec,
       subscriptionSlug: p.subscription_slug,
       free: !!p.free,
@@ -104,6 +106,10 @@ export default class Host extends Record({
 
   get isFree() {
     return this.plan === 'free';
+  }
+
+  get containersMaxedOut() {
+    return this.containerCount >= this.maxContainers;
   }
 
   get freighterProxyUrl() {
