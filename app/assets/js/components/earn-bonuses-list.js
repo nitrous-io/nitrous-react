@@ -18,10 +18,11 @@ export default class EarnBonusesList extends React.Component {
     bonuses: bonusStore.bonuses,
     usageRemaining: freeUsageStore.usageRemaining,
     usageQuota: freeUsageStore.usageQuota,
+    user: userStore.user,
     showPublishArticleModal: false,
     showPublishBlogModal: false,
     showIncludeQuickstartModal: false,
-    user: userStore.user
+    showReferralModal: false
   }
 
   static propTypes = {
@@ -209,6 +210,22 @@ export default class EarnBonusesList extends React.Component {
     return earnedBonuses.has(bonusTask.id);
   }
 
+  referUsers = () => {
+    this.setState({ showReferralModal: true });
+  }
+
+  handleShowReferralModal = () => {
+    this.setState({ showReferralModal: true });
+  };
+
+  handleCloseReferralModal = () => {
+    this.setState({ showReferralModal: false });
+  };
+
+  hideReferralModal = () => {
+    this.setState({ showReferralModal: false });
+  };
+
   usagePercentage() {
     const { usageRemaining, usageQuota } = this.state;
     if (usageRemaining == null || usageQuota == null || usageQuota === 0) {
@@ -330,6 +347,19 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('refer-friend') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.referUsers}
+              disabled={this.earnedBonus('refer-friend')}>
+              <span className='bonus-action-task'>
+              <Fa icon="github " />
+              Invite Friends and Colleagues</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('refer-friend') ? 'Bonus earned' : 'Up to 30 extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
           {this.getBonusHours('publish-article') ? (
             <Button className='bonus-action-item'
               block
@@ -417,7 +447,19 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Footer>
         </Modal>
 
-      </div>
+        <Modal show={this.state.showReferralModal} onHide={this.hideReferralModal} backdrop='static'>
+          <Modal.Header>
+            <Modal.Title>Invite Friends and Colleagues</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            hello
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleCloseReferralModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
+    </div>
     );
   }
 }
