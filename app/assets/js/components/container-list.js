@@ -110,24 +110,18 @@ export default class ContainerList extends React.Component {
   }
 
   canCreateContainer = () => {
-    const { containers, host } = this.props,
-          { user } = this.state;
+    const { containers, host } = this.props;
 
     if (!host || !containers) {
       return false;
     }
 
-    let containerLimit = host.maxContainers;
-    if (!containerLimit || (user && user.maxContainers && containerLimit < user.maxContainers)) {
-      containerLimit = user.maxContainers;
-    }
-
     // no limits exist
-    if (containerLimit === null) {
+    if (host.maxContainers === null) {
       return true;
     }
 
-    return containers.size < containerLimit;
+    return containers.size < host.maxContainers;
   }
 
   handleClickNewContainer = () => {
