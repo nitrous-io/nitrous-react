@@ -45,7 +45,7 @@ class BonusActions {
   earnBonus(action) {
     const promise = authedAjax({
       type: 'POST',
-      url: '/api/v0/user/bonus',
+      url: '/api/v0/bonuses/earn',
       data: { action }
     }).then((data) => {
       dispatcher.dispatch({
@@ -139,7 +139,6 @@ class BonusActions {
     });
     return promise;
   }
-
 }
 
 export default new BonusActions();
