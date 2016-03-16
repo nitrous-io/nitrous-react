@@ -4,6 +4,7 @@ import { Button, ProgressBar, Panel } from 'react-bootstrap';
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import freeUsageStore from 'stores/free-usage-store';
+import userStore from 'stores/user-store';
 import Fa from 'components/fa';
 import LoadingIndicator from 'components/loading-indicator';
 import snackbarActions from 'actions/snackbar-actions';
@@ -16,7 +17,8 @@ export default class EarnBonusesList extends React.Component {
     earnedBonuses: bonusStore.earnedBonuses,
     bonuses: bonusStore.bonuses,
     usageRemaining: freeUsageStore.usageRemaining,
-    usageQuota: freeUsageStore.usageQuota
+    usageQuota: freeUsageStore.usageQuota,
+    user: userStore.user
   }
 
   static propTypes = {
@@ -46,6 +48,8 @@ export default class EarnBonusesList extends React.Component {
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
 
+    userStore.onChange(this.userStoreDidChange);
+
     // When the oauth_callback endpoint on nitrous redirects to this page, display the snackbar
     // notification by checking the connected_twitter param passed in the redirect
     if (this.props.connectedTwitter) {
@@ -73,6 +77,8 @@ export default class EarnBonusesList extends React.Component {
 
     bonusStore.off('already-connected-github', this.onAlreadyConnectedGithub);
     bonusStore.off('connected-github', this.onConnectedGithub);
+
+    userStore.offChange(this.userStoreDidChange);
   }
 
   onUsageRemainingTick = () => {
@@ -85,6 +91,10 @@ export default class EarnBonusesList extends React.Component {
       earnedBonuses: bonusStore.earnedBonuses,
       bonuses: bonusStore.bonuses
     });
+  }
+
+  userStoreDidChange = () => {
+    this.setState({ user: userStore.user });
   }
 
   onConnectedTwitter = (data) => {
@@ -131,8 +141,8 @@ export default class EarnBonusesList extends React.Component {
 
   completeSurvey = () => {
     const { user } = this.state,
-          // Prefill email field
-          surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field1=" + user.username;
+          // Prefill username field in Wufoo form.
+          surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field113=" + user.username;
     window.location.href = surveyUrl;
   }
 
