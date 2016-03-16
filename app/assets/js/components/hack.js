@@ -16,6 +16,7 @@ import term from 'term.js';
 
 export default class Hack extends React.Component {
   displayName = 'Hack';
+  _terminal = null;
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -27,20 +28,18 @@ export default class Hack extends React.Component {
     })
   }
 
-  findTerminal = () => {
-    if (!this.state.terminal) {
-      this.setState({
-        terminal: (new term.Terminal({
-          cols: 80,
-          rows: 24,
-          useStyle: true,
-          screenKeys: true,
-          cursorBlink: false
-        }))
+  get terminal() {
+    if (!this._terminal) {
+      this._terminal = new term.Terminal({
+        cols: 80,
+        rows: 24,
+        useStyle: true,
+        screenKeys: true,
+        cursorBlink: false
       });
     }
 
-    return this.state.terminal;
+    return this._terminal;
   }
 
   // First find a running user host, otherwise return an org host.
@@ -69,7 +68,6 @@ export default class Hack extends React.Component {
     serializedPorts: null,
     container: null,
     logs: ['Retrieving repository info...'],
-    terminal: null,
     done: false
   };
 
@@ -114,11 +112,39 @@ export default class Hack extends React.Component {
 
   onContainerCommandRun = () => {
     this.log((<span id="run-command-terminal"></span>));
-    this.findTerminal().open(document.getElementById("run-command-terminal"));
+    const iframe = document.getElementById('run-command-terminal')
+      .appendChild(document.createElement('iframe'));
+    iframe.style.width = '550px';
+    iframe.style.height = '330px';
+    iframe.style.border = 'none';
+    const iframeWindow = iframe.contentWindow;
+    const iframeDocument = iframeWindow.document;
+
+    // hack to make iframe ready for injection in firefox
+    iframeDocument.open();
+    iframeDocument.close();
+
+    let terminalJSPath = location.protocol + "//" + location.host + '/assets/js/term.js';
+    /* eslint-disable no-undef */
+    if (process.env.CDN_ADDRESS) {
+      terminalJSPath = process.env.CDN_ADDRESS + 'js/term.js';
+    }
+    /* eslint-enable no-undef */
+
+    const scriptEl = iframeDocument.createElement('script');
+    scriptEl.setAttribute('src', terminalJSPath);
+    scriptEl.onload = () => {
+      const terminalDiv = iframeDocument.createElement('div');
+      terminalDiv.id = 'terminal';
+      iframeDocument.body.appendChild(terminalDiv);
+      this.terminal.open(iframeDocument.getElementById('terminal'));
+      iframeDocument.body.style.margin = '0px';
+    };
+    iframeDocument.body.appendChild(scriptEl);
   };
 
   onContainerCommandRunning = (data) => {
-    this.findTerminal().write(data.data);
+    this.terminal.write(data.data);
   };
 
   onContainerCommandRan = () => {
@@ -126,7 +152,7 @@ export default class Hack extends React.Component {
     this.setState({ done: true });
     const redirectUrl = `/ide/#/${this.state.container.slug}`;
     window.location.href = redirectUrl;
-    this.findTerminal().terminal.destroy();
+    this.terminal.destroy();
   };
 
   onContainerCommandRunFailed = () => {
