@@ -1,23 +1,23 @@
 import { authedAjax }  from 'lib/ajax';
 import dispatcher from 'app-dispatcher';
 
-class HackActions {
+class QuickstartActions {
   fetchRepoInfo(repo) {
     const promise = authedAjax({
       type: 'GET',
-      url: '/api/v0/hack/repo_info',
+      url: '/api/v0/quickstart/repo_info',
       dataType: 'json',
       data: { repo }
     });
     promise.then((data) => {
       dispatcher.dispatch({
-        type: 'hack.fetched-repo-info',
+        type: 'quickstart.fetched-repo-info',
         data: { data }
       });
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'hack.fetch-repo-info-failed',
+        type: 'quickstart.fetch-repo-info-failed',
         data: { jqxhr }
       });
     });
@@ -25,4 +25,4 @@ class HackActions {
   }
 }
 
-export default new HackActions();
+export default new QuickstartActions();
