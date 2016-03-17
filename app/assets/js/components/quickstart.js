@@ -42,41 +42,44 @@ export default class Quickstart extends React.Component {
     return this._terminal;
   }
 
-  // First find a running user host, otherwise return an org host.
-  findHost = () => {
+  constructor(props, context) {
+    super(props, context);
+
+    // Find a host that hasn't hit the max_container limit, preferring user hosts
+    // to org hosts. Stopped hosts are fine - we'll just start them.
     const { userHosts, orgHosts } = hostStore;
     let host = null;
     if (userHosts.size > 0) {
       host = userHosts.find((h) => {
-        // FIXME: find stopped host as well so that we can start it and use it.
-        return h.state === 'running';
+        return !h.containersMaxedOut;
       });
     }
     if (!host && orgHosts.size > 0) {
       host = orgHosts.find((h) => {
-        return h.state === 'running';
+        return !h.containersMaxedOut;
       });
     }
-    return host;
-  }
 
-  state = {
-    host: this.findHost(),
-    user: userStore.user,
-    owner: null,
-    template: null,
-    serializedPorts: null,
-    container: null,
-    logs: ['Retrieving repository info...'],
-    done: false
-  };
-
-  static willTransitionTo = (transition) => {
-    const { userHosts } = hostStore;
-    const { freePlan } = planStore;
-    if (!userHosts && !freePlan) {
-      transition.redirect('new-user-host');
+    // If there are no eligible hosts because they've all hit the project limit,
+    // we'll ask the user to upgrade the host (excluding org hosts).
+    let hostToUpgrade = null;
+    if (host == null && userHosts.size > 0) {
+      hostToUpgrade = userHosts.first();
     }
+
+    this.state = {
+      host,
+      hostToUpgrade,
+      hasHosts: userHosts.size > 0 || orgHosts.size > 0,
+      user: userStore.user,
+      owner: null,
+      template: null,
+      serializedPorts: null,
+      container: null,
+      logs: ['Retrieving repository info...'],
+      done: false,
+      hasError: false
+    };
   }
 
   componentDidMount() {
@@ -84,6 +87,7 @@ export default class Quickstart extends React.Component {
     quickstartStore.on('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
     hostStore.on('created', this.onHostCreated);
     hostStore.on('create-failed', this.onHostCreateFailed);
+    hostStore.on('started', this.onHostStarted);
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
     containerStore.on('run-command', this.onContainerCommandRun);
@@ -92,6 +96,8 @@ export default class Quickstart extends React.Component {
     containerStore.on('run-command-failed', this.onContainerCommandRunFailed);
 
     const { repo } = this.props.query;
+    // TODO If there is no repo in the query string, we should either redirect
+    // users elsewhere, or show a form allowing them to specify a repo.
     if (repo) {
       quickstartActions.fetchRepoInfo(repo);
     }
@@ -102,6 +108,7 @@ export default class Quickstart extends React.Component {
     quickstartStore.off('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
     hostStore.off('created', this.onHostCreated);
     hostStore.off('create-failed', this.onHostCreateFailed);
+    hostStore.off('started', this.onHostStarted);
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
     containerStore.off('run-command', this.onContainerCommandRun);
@@ -167,14 +174,28 @@ export default class Quickstart extends React.Component {
 
     const { template, serializedPorts } = this.state;
     containerActions.createAtomic(this.projectName(), host, {
-      template, serializedPorts, publishAll: true
+      template, serializedPorts, publishAll: true,
+      repo: this.props.query.repo
     });
   };
 
   onHostCreateFailed = () => {
-    this.setState({ done: true });
-    snackbarActions.post('There was a problem creating a workstation. Please create one manually.');
+    this.setState({ done: true, hasError: true });
+    snackbarActions.post('There was a problem creating a workstation. Please create one manually.', 'error');
     this.context.router.transitionTo('new-user-host');
+  };
+
+  onHostStarted = (data) => {
+    const { host } = data;
+    if (this.state.host.slug === host.slug) {
+      this.log('Workstation started.', `Creating project "${this.projectName()}"...`);
+
+      const { template, serializedPorts } = this.state;
+      containerActions.createAtomic(this.projectName(), host, {
+        template, ports: serializedPorts, publishAll: true,
+        repo: this.props.query.repo
+      });
+    }
   };
 
   onContainerCreated = (data) => {
@@ -199,50 +220,88 @@ export default class Quickstart extends React.Component {
   onContainerCreateFailed = (data) => {
     const { name, hostSlug } = data;
     if ((this.projectName() === name) && (this.state.host.slug === hostSlug)) {
-      this.setState({ done: true });
+      this.setState({ done: true, hasError: true });
       this.log(`Failed to create project "${this.projectName()}".`);
     }
   };
 
   onRepoInfoFetched = (data) => {
-    const { quickstart } = data;
-    if (quickstart) {
-      const { template, ports, repoName, owner } = quickstart,
-            { repo } = this.props.query;
-      const serializedPorts = ports.map((port) => {
-        return (new PortBinding({
-          public: true,
-          containerPort: port,
-          tcp: true
-        })).serialize();
-      });
-      this.setState({ template, serializedPorts, owner, repoName });
+    const { quickstart } = data,
+          { template, ports, repoName, owner } = quickstart;
+    const serializedPorts = ports.map((port) => {
+      return (new PortBinding({
+        public: true,
+        containerPort: port,
+        tcp: true
+      })).serialize();
+    });
+    this.setState({ template, serializedPorts, owner, repoName });
 
-      // If a user don't have host, we create a free host for them,
-      // and then create a container
-      const { host, user } = this.state;
-      if (!host) {
-        const logs = this.state.logs;
-        logs.push(`Creating workstation...`);
-        this.setState({ logs });
-        hostActions.create({
-          name: user.username,
-          plan: planStore.freePlan,
-          // TODO: Should assign an appropriate region instead of
-          // always using the 1st region
-          region: regionStore.regions.first()
-        });
+    this.log('Retrieved repository info.');
+
+    const { host } = this.state;
+
+    // If there is no eligible host, and the user is not eligible for a free
+    // plan, we either ask the user to upgrade a host, or just show an error
+    // message if none of the hosts can be upgraded.
+    if (!host && !planStore.freePlan) {
+      this.setState({ done: true, hasError: true });
+
+      const { hostToUpgrade } = this.state;
+      if (hostToUpgrade) {
+        snackbarActions.post(`You have hit the project limit of ${hostToUpgrade.maxContainers} ${hostToUpgrade.maxContainers === 1 ? 'project' : 'projects'} for your workstation's plan. Please upgrade or terminate a project to continue.`, 'error');
+        this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: hostToUpgrade.subscriptionSlug }, { prev: 'container-list' });
         return;
       }
 
-      this.setState({ template, ports, repoName, owner });
+      if (this.state.hasHosts) {
+        snackbarActions.post(`You have hit the project limit for your workstation's plan. Please terminate a project if you want to continue.`, 'error');
+      } else {
+        // Give up.
+        snackbarActions.post(`Please create a workstation and try again.`, 'error');
+      }
 
-      this.log('Retrieved repository info.', `Creating project "${repoName}"...`);
-
-      containerActions.createAtomic(this.projectName(), host, {
-        template, ports: serializedPorts, publishAll: true, repo
-      });
+      this.context.router.transitionTo('dashboard');
+      return;
     }
+
+    // If a user don't have host, but is eligible for a free plan, we create a
+    // free host on their behalf.
+    if (!host) {
+      const logs = this.state.logs;
+      logs.push(`Creating workstation...`);
+      this.setState({ logs });
+      hostActions.create({
+        name: this.state.user.username,
+        plan: planStore.freePlan,
+        // TODO: Should assign an appropriate region instead of
+        // always using the 1st region
+        region: regionStore.regions.first()
+      });
+      return;
+    }
+
+    // If eligible host is not running, we start it.
+    if (!host.isRunning) {
+      if (!host.isStopped) {
+        // TODO We should also handle cases when the host is starting /
+        // restarting / stopping.
+        snackbarActions.post(`Please start your workstation and try again.`, 'error');
+        this.context.router.transitionTo('dashboard');
+        return;
+      }
+
+      this.log(`Starting your "${host.displayName}" workstation...`);
+      hostActions.start(host.slug);
+      return;
+    }
+
+    this.log(`Creating project "${this.projectName()}"...`);
+
+    containerActions.createAtomic(this.projectName(), host, {
+      template, ports: serializedPorts, publishAll: true,
+      repo: this.props.query.repo
+    });
   }
 
   onRepoInfoFetchFailed = () => {
@@ -267,7 +326,7 @@ export default class Quickstart extends React.Component {
         </span>
       );
     }
-    this.setState({ done: true });
+    this.setState({ done: true, hasError: true });
     this.log(failedMessageJSX);
   }
 
@@ -296,12 +355,12 @@ export default class Quickstart extends React.Component {
   }
 
   render() {
-    const { done } = this.state;
+    const { done, hasError } = this.state;
     return (
       <div className='quickstart-component container'>
         <h2>Your new project &ldquo;{this.projectName()}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
-        <EtaProgressBar eta={500} done={done} />
+        <EtaProgressBar eta={500} done={done} bsStyle={hasError ? 'danger' : 'info'} />
         {this.renderLogs()}
       </div>
     );

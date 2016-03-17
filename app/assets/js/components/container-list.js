@@ -110,24 +110,18 @@ export default class ContainerList extends React.Component {
   }
 
   canCreateContainer = () => {
-    const { containers, host } = this.props,
-          { user } = this.state;
+    const { containers, host } = this.props;
 
     if (!host || !containers) {
       return false;
     }
 
-    let containerLimit = host.maxContainers;
-    if (!containerLimit || (user && user.maxContainers && containerLimit < user.maxContainers)) {
-      containerLimit = user.maxContainers;
-    }
-
     // no limits exist
-    if (containerLimit === null) {
+    if (host.maxContainers === null) {
       return true;
     }
 
-    return containers.size < containerLimit;
+    return containers.size < host.maxContainers;
   }
 
   handleClickNewContainer = () => {
@@ -149,7 +143,7 @@ export default class ContainerList extends React.Component {
           // If cannot create container, hide plus sign if under org, but
           // show plus sign if individual sub to prompt upgrade.
           showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared,
-          isDisabled = (host && host.isUnusable) || quotaReached;
+          isDisabled = (host && !host.isRunning) || quotaReached;
 
     return (
       <div className='container-list-component'>
