@@ -206,10 +206,20 @@ export default class Quickstart extends React.Component {
       this.logProgress('Cloning repository and executing nitrous-post-create.sh...');
       this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
 
+      const commands = [
+        '. /etc/profile && ',
+        'cd && ',
+        'echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config && ',
+        `git clone ${this.props.query.repo} && `,
+        'rm ~/.ssh/config &&',
+        `cd ${this.projectName()} && `,
+        './nitrous-post-create.sh;',
+        'echo "Run command done."'
+      ];
       containerActions.runCommand(
         host,
         container,
-        `. /etc/profile && cd && git clone ${this.props.query.repo} && cd ${this.projectName()} && ./nitrous-post-create.sh; echo "Run command done."`,
+        commands.join(''),
         1800
       );
     }
