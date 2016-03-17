@@ -96,8 +96,8 @@ export default class Host extends Record({
     return this.state === 'starting' || this.state === 'restarting';
   }
 
-  get isUnusable() {
-    return this.state !== 'running';
+  get isRunning() {
+    return this.state === 'running';
   }
 
   get isStopped() {

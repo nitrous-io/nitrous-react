@@ -282,7 +282,7 @@ export default class Quickstart extends React.Component {
     }
 
     // If eligible host is not running, we start it.
-    if (host.isUnusable) {
+    if (!host.isRunning) {
       if (!host.isStopped) {
         // TODO We should also handle cases when the host is starting /
         // restarting / stopping.

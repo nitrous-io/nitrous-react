@@ -179,7 +179,7 @@ export default class Containers extends React.Component {
           ) : ''}
         </Alert>
       );
-    } else if (host.isUnusable && !host.isResuming) {
+    } else if (!host.isRunning && !host.isResuming) {
       return (
         <Alert bsStyle='info'>
           <Fa icon='exclamation-circle' /> It appears that your workstation is not running. If the problem persists, please visit <a href='https://community.nitrous.io/docs/troubleshooting-connection-issues' target='_blank'>Troubleshooting Connection Issues</a>.
