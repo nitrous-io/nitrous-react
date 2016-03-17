@@ -179,16 +179,13 @@ export default class Quickstart extends React.Component {
 
   onContainerCreated = (data) => {
     const { container, hostSlug } = data,
-          { host, template } = this.state,
-          { repo } = this.props.query;
+          { host } = this.state;
 
     if (this.projectName() === container.name
         && host.slug === hostSlug) {
       this.setState({ container });
       this.log(`Created project "${this.projectName()}".`,
           'Cloning repository and executing nitrous-post-create.sh...');
-
-      quickstartActions.create({ container, repo, template });
 
       containerActions.runCommand(
         host,
@@ -210,7 +207,8 @@ export default class Quickstart extends React.Component {
   onRepoInfoFetched = (data) => {
     const { quickstart } = data;
     if (quickstart) {
-      const { template, ports, repoName, owner } = quickstart;
+      const { template, ports, repoName, owner } = quickstart,
+            { repo } = this.props.query;
       const serializedPorts = ports.map((port) => {
         return (new PortBinding({
           public: true,
@@ -242,7 +240,7 @@ export default class Quickstart extends React.Component {
       this.log('Retrieved repository info.', `Creating project "${repoName}"...`);
 
       containerActions.createAtomic(this.projectName(), host, {
-        template, ports: serializedPorts, publishAll: true
+        template, ports: serializedPorts, publishAll: true, repo
       });
     }
   }
