@@ -1,6 +1,6 @@
 import { Record } from 'immutable';
 
-export default class Hack extends Record({
+export default class Quickstart extends Record({
   owner: null,
   repoName: null,
   template: null,

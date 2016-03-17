@@ -151,7 +151,8 @@ class ContainerActions {
   }
 
   createAtomic(name, host, opts) {
-    const { imageRepo, template, snapshotId, privileged, ports, publishAll, skipPull } = opts;
+    const { imageRepo, template, snapshotId,
+      privileged, ports, publishAll, skipPull, repo } = opts;
 
     const promise = authedAjax({
       type: 'POST',
@@ -165,7 +166,8 @@ class ContainerActions {
         privileged,
         port: ports,
         publish_all: publishAll,
-        skip_pull: skipPull
+        skip_pull: skipPull,
+        repo
       },
       dataType: 'json'
     }).then((data) => {

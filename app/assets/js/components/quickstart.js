@@ -1,21 +1,21 @@
 import React, { PropTypes } from 'react';
 
 import { PortBinding } from 'records/container-config';
-import hackActions from 'actions/hack-actions';
+import quickstartActions from 'actions/quickstart-actions';
 import containerActions from 'actions/container-actions';
 import hostActions from 'actions/host-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
 import planStore from 'stores/plan-store';
-import hackStore from 'stores/hack-store';
+import quickstartStore from 'stores/quickstart-store';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import regionStore from 'stores/region-store';
 import EtaProgressBar from 'components/eta-progress-bar';
 import term from 'term.js';
 
-export default class Hack extends React.Component {
-  displayName = 'Hack';
+export default class Quickstart extends React.Component {
+  displayName = 'Quickstart';
   _terminal = null;
 
   static contextTypes = {
@@ -80,8 +80,8 @@ export default class Hack extends React.Component {
   }
 
   componentDidMount() {
-    hackStore.on('fetched-repo-info', this.onRepoInfoFetched);
-    hackStore.on('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
+    quickstartStore.on('fetched-repo-info', this.onRepoInfoFetched);
+    quickstartStore.on('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
     hostStore.on('created', this.onHostCreated);
     hostStore.on('create-failed', this.onHostCreateFailed);
     containerStore.on('created', this.onContainerCreated);
@@ -93,13 +93,13 @@ export default class Hack extends React.Component {
 
     const { repo } = this.props.query;
     if (repo) {
-      hackActions.fetchRepoInfo(repo);
+      quickstartActions.fetchRepoInfo(repo);
     }
   }
 
   componentWillUnmount() {
-    hackStore.off('fetched-repo-info', this.onRepoInfoFetched);
-    hackStore.off('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
+    quickstartStore.off('fetched-repo-info', this.onRepoInfoFetched);
+    quickstartStore.off('fetch-repo-info-failed', this.onRepoInfoFetchFailed);
     hostStore.off('created', this.onHostCreated);
     hostStore.off('create-failed', this.onHostCreateFailed);
     containerStore.off('created', this.onContainerCreated);
@@ -205,9 +205,10 @@ export default class Hack extends React.Component {
   };
 
   onRepoInfoFetched = (data) => {
-    const { hack } = data;
-    if (hack) {
-      const { template, ports, repoName, owner } = hack;
+    const { quickstart } = data;
+    if (quickstart) {
+      const { template, ports, repoName, owner } = quickstart,
+            { repo } = this.props.query;
       const serializedPorts = ports.map((port) => {
         return (new PortBinding({
           public: true,
@@ -239,7 +240,7 @@ export default class Hack extends React.Component {
       this.log('Retrieved repository info.', `Creating project "${repoName}"...`);
 
       containerActions.createAtomic(this.projectName(), host, {
-        template, ports: serializedPorts, publishAll: true
+        template, ports: serializedPorts, publishAll: true, repo
       });
     }
   }
@@ -297,7 +298,7 @@ export default class Hack extends React.Component {
   render() {
     const { done } = this.state;
     return (
-      <div className='hack-component container'>
+      <div className='quickstart-component container'>
         <h2>Your new project &ldquo;{this.projectName()}&rdquo; is being created...</h2>
         <p>This may take several minutes to complete.</p>
         <EtaProgressBar eta={500} done={done} />
