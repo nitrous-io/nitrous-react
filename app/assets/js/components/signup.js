@@ -28,10 +28,10 @@ export default class Signup extends React.Component {
       gitHubUserEmail: PropTypes.string,
       promo: PropTypes.string,
       invite: PropTypes.string,
+      referral: PropTypes.string,
       returnTo: PropTypes.string,
       intent: PropTypes.string,
       repo: PropTypes.string
-      referral: PropTypes.string,
     })
   };
 
