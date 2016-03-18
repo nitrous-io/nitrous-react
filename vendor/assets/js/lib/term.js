@@ -730,14 +730,14 @@ Terminal.prototype.open = function(parent) {
     Terminal.brokenBold = isBoldBroken(this.document);
   }
 
-  // this.emit('open');
-
   // This can be useful for pasting,
   // as well as the iPad fix.
   setTimeout(function() {
     self.element.focus();
     self.inputElement.focus();
   }, 100);
+
+  this.emit('open');
 };
 
 // XTerm mouse events
