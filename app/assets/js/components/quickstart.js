@@ -17,6 +17,8 @@ import term from 'term.js';
 export default class Quickstart extends React.Component {
   displayName = 'Quickstart';
   _terminal = null;
+  _terminalReady = false;
+  _terminalBuffer = [];
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -103,6 +105,7 @@ export default class Quickstart extends React.Component {
     // users elsewhere, or show a form allowing them to specify a repo.
     if (repo) {
       quickstartActions.fetchRepoInfo(repo);
+      this.terminalPrint(`Querying the GitHub API for ${repo}...`);
     }
 
     this.initTerminal();
@@ -368,8 +371,19 @@ export default class Quickstart extends React.Component {
       const terminalDiv = iframeDocument.createElement('div');
       terminalDiv.id = 'terminal';
       iframeDocument.body.appendChild(terminalDiv);
+
+      this.terminal.on('open', () => {
+        // Flush any lines that were written before the terminal is opened.
+        this._terminalBuffer.forEach((line) => {
+          this.terminal.writeln(line);
+        });
+        this._terminalBuffer = [];
+
+        this._terminalReady = true;
+      });
+
       this.terminal.open(iframeDocument.getElementById('terminal'));
-      this.terminalPrint(`Querying the GitHub API for ${this.props.query.repo}...`);
+
       iframeDocument.body.style.margin = '0px';
     };
     iframeDocument.body.appendChild(scriptEl);
@@ -397,15 +411,29 @@ export default class Quickstart extends React.Component {
   }
 
   terminalPrint = (text) => {
-    this.terminal.writeln(`${text}`);
+    if (this._terminalReady) {
+      this.terminal.writeln(text);
+    } else {
+      this._terminalBuffer.push(text);
+    }
   }
 
   terminalPrintSuccess = (text) => {
-    this.terminal.writeln(`\x1b[92m${text}\x1b[m`);
+    const line = `\x1b[92m${text}\x1b[m`;
+    if (this._terminalReady) {
+      this.terminal.writeln(line);
+    } else {
+      this._terminalBuffer.push(line);
+    }
   }
 
   terminalPrintError = (text) => {
-    this.terminal.writeln(`\x1b[91m${text}\x1b[m`);
+    const line = `\x1b[91m${text}\x1b[m`;
+    if (this._terminalReady) {
+      this.terminal.writeln(line);
+    } else {
+      this._terminalBuffer.push(line);
+    }
   }
 
   renderProgressMessages = () => {
