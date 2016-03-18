@@ -226,7 +226,7 @@ export default class Quickstart extends React.Component {
 
   onRepoInfoFetched = (data) => {
     const { quickstart } = data,
-          { template, ports, repoName, owner, repoLogoUrl } = quickstart;
+          { template, ports, repoName, owner, ownerAvatar } = quickstart;
     const serializedPorts = ports.map((port) => {
       return (new PortBinding({
         public: true,
@@ -234,7 +234,8 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
-    this.setState({ template, serializedPorts, owner, repoName, repoLogoUrl,
+    this.setState({ template, serializedPorts, owner, repoName,
+      repoLogoUrl: ownerAvatar,
       repoInfoFetched: true });
 
     this.logProgress('Retrieved repository info.');
