@@ -2,7 +2,6 @@ import { Record } from 'immutable';
 import md5 from 'md5';
 
 import UserProfile from 'records/user-profile';
-import format from 'lib/format';
 
 export default class User extends Record({
   id: null,
@@ -17,7 +16,6 @@ export default class User extends Record({
   phoneAuthed: false,
   phoneCountryCode: null,
   userProfile: null,
-  maxContainers: null,
   usageQuota: null, // in seconds
   usageRemaining: null, // in seconds
   nextUsageQuotaAt: null,
@@ -38,7 +36,6 @@ export default class User extends Record({
       phoneAuthed: !!p.phone_authed,
       phoneCountryCode: p.phone_country_code,
       userProfile: p.user_profile && UserProfile.deserialize(p.user_profile),
-      maxContainers: p.max_containers,
       usageQuota: p.usage_quota,
       usageRemaining: p.usage_remaining,
       nextUsageQuotaAt: p.next_usage_quota_at ? new Date(p.next_usage_quota_at) : null,
@@ -66,17 +63,5 @@ export default class User extends Record({
     }
 
     return this.unconfirmedEmail || this.email;
-  }
-
-  get usageRemainingHours() {
-    return format.convertSecondsToHours(this.usageRemaining);
-  }
-
-  get usageQuotaHours() {
-    return format.convertSecondsToHours(this.usageQuota);
-  }
-
-  get usagePercentage() {
-    return ((this.usageRemaining / this.usageQuota) * 100).toFixed(0);
   }
 }

@@ -20,8 +20,8 @@ export default class Host extends Record({
   plan: null,
   state: 'stopped',
   autoShutdown: false,
-  updateAvailable: null,
   maxContainers: 0,
+  containerCount: null,
   pendingRespec: false,
   subscriptionSlug: null,
   free: false,
@@ -52,8 +52,8 @@ export default class Host extends Record({
       plan: p.size,
       state: p.state,
       autoShutdown: !!p.auto_shutdown,
-      updateAvailable: p.update_available,
       maxContainers: p.max_containers,
+      containerCount: p.container_count,
       pendingRespec: !!p.pending_respec,
       subscriptionSlug: p.subscription_slug,
       free: !!p.free,
@@ -96,8 +96,8 @@ export default class Host extends Record({
     return this.state === 'starting' || this.state === 'restarting';
   }
 
-  get isUnusable() {
-    return this.state !== 'running';
+  get isRunning() {
+    return this.state === 'running';
   }
 
   get isStopped() {
@@ -106,6 +106,10 @@ export default class Host extends Record({
 
   get isFree() {
     return this.plan === 'free';
+  }
+
+  get containersMaxedOut() {
+    return this.containerCount >= this.maxContainers;
   }
 
   get freighterProxyUrl() {

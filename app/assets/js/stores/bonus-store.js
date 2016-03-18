@@ -89,6 +89,27 @@ class BonusStore extends Store {
         this.handleErrorJqxhr(action.data.jqxhr);
         break;
       }
+      case 'bonus.connected-github': {
+        const { data } = action.data;
+        if (data.earned_bonuses) {
+          this._earnedBonuses = OrderedMap(data.earned_bonuses.map(function(d) {
+            const b = EarnedBonus.deserialize(d);
+            return [b.bonusId, b];
+          }));
+
+          this.emit('already-connected-github');
+
+          this._lastError = null;
+          break;
+        } else {
+          this.emit('connected-github', { redirectUrl: data.redirect_url });
+          break;
+        }
+      }
+      case 'bonus.connect-github-failed': {
+        this.handleErrorJqxhr(action.data.jqxhr);
+        break;
+      }
 
       default: return;
     }

@@ -32,6 +32,7 @@ export default class EtaProgressBar extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (this.props.done === nextProps.done) return;
     if (nextProps.done) {
       window.clearInterval(this._timer);
       this.setState({ now: 100, animated: true });

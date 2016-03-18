@@ -6,7 +6,17 @@
     list-style-type: none
 
   .bonus-action-item
-    width: 100%
+    margin-bottom: 16px
+    &:hover
+      background-color: #009AED
+      color: #fff
+    &:disabled
+      &:hover
+        background-color: transparent
+        color: #333
+        opacity: 0.65
+    &:last-child
+      margin-bottom: 0
 
     .bonus-action-task
       float: left

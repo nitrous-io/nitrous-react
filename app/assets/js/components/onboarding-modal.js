@@ -5,6 +5,7 @@ import userActions from 'actions/user-actions';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import billingStore from 'stores/billing-store';
+import format from 'lib/format';
 
 export default class OnboardingModal extends React.Component {
   displayName = 'OnboardingModal';
@@ -155,7 +156,7 @@ export default class OnboardingModal extends React.Component {
             {freeHost ? (
               <CarouselItem>
                 <h2>Your Plan: Nitrous Free Tier</h2>
-                <p className='hint'>Your Free Plan is limited to {user.usageQuotaHours} hours of coding per month</p>
+                <p className='hint'>Your Free Plan is limited to {format.convertSecondsToHours(user.usageQuota)} hours of coding per month</p>
                 <div className='earn-bonus-hours'>
                   <Button className='earn-bonus-hours-btn' target='_blank' href={earnBonusHoursURL} bsStyle="primary">earn bonus hours</Button>
                 </div>

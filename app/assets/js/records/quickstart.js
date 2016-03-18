@@ -1,7 +1,8 @@
 import { Record } from 'immutable';
 
-export default class Hack extends Record({
+export default class Quickstart extends Record({
   owner: null,
+  ownerAvatar: null,
   repoName: null,
   template: null,
   ports: null
@@ -9,6 +10,7 @@ export default class Hack extends Record({
   static deserialize(p) {
     return new this({
       owner: p.owner,
+      ownerAvatar: p.owner_avatar,
       repoName: p.repo_name,
       template: p.template,
       ports: p.ports

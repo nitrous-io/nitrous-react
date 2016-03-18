@@ -1,19 +1,15 @@
 import Store from 'stores/store';
 import User from 'records/user';
 import UserProfile from 'records/user-profile';
-import hostStore from 'stores/host-store';
 
 class UserStore extends Store {
   _user = null; // <User>
-  _timer = null;
 
   handleAction(action) {
     switch (action.type) {
       case 'user.fetched': {
         const { data } = action.data;
         this._user = User.deserialize(data.user);
-        clearTimeout(this._timer);
-        this._tickUsageRemaining();
         this._lastError = null;
         break;
       }
@@ -118,13 +114,6 @@ class UserStore extends Store {
         this.emit('account-delete-failed');
         return;
       }
-      case 'bonus.earned-bonus': {
-        const { data } = action.data;
-        this._user = this._user.set('usageQuota', data.user.usage_quota);
-        this._user = this._user.set('usageRemaining', data.user.usage_remaining);
-        this._lastError = null;
-        break;
-      }
 
       default: return;
     }
@@ -147,35 +136,6 @@ class UserStore extends Store {
       return !!this.userProfile.advanced;
     }
     return false;
-  }
-
-  get usageRemaining() {
-    return this._user.usageRemaining;
-  }
-
-  hasUsageRemaining() {
-    return this._user.usageRemaining > 0;
-  }
-
-  _tickUsageRemaining() {
-    this.emit('usage-remaining.tick');
-
-    if (this._user.usageRemaining <= 0) {
-      clearTimeout(this._timer);
-      return;
-    }
-
-    // Stop countdown when the free user host is stopped
-    // Assume user only has 1 free host
-    if (hostStore.stoppedFreeHosts.size !== 0) {
-      return;
-    }
-
-    this._user = this._user.set('usageRemaining', this._user.usageRemaining - 1);
-
-    this._timer = setTimeout(() => {
-      this._tickUsageRemaining();
-    }, 1000);
   }
 }
 
