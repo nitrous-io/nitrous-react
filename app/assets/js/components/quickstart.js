@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 import { PortBinding } from 'records/container-config';
 import quickstartActions from 'actions/quickstart-actions';
@@ -11,7 +12,6 @@ import quickstartStore from 'stores/quickstart-store';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import regionStore from 'stores/region-store';
-import EtaProgressBar from 'components/eta-progress-bar';
 import term from 'term.js';
 
 export default class Quickstart extends React.Component {
@@ -76,9 +76,12 @@ export default class Quickstart extends React.Component {
       template: null,
       serializedPorts: null,
       container: null,
-      logs: ['Retrieving repository info...'],
+      progressMessages: ['Retrieving repository info...'],
+      repoInfoFetched: false,
+      repoLogoUrl: null,
       done: false,
-      hasError: false
+      hasError: false,
+      showConsole: false
     };
   }
 
@@ -101,6 +104,8 @@ export default class Quickstart extends React.Component {
     if (repo) {
       quickstartActions.fetchRepoInfo(repo);
     }
+
+    this.initTerminal();
   }
 
   componentWillUnmount() {
@@ -118,36 +123,7 @@ export default class Quickstart extends React.Component {
   }
 
   onContainerCommandRun = () => {
-    this.log((<span id="run-command-terminal"></span>));
-    const iframe = document.getElementById('run-command-terminal')
-      .appendChild(document.createElement('iframe'));
-    iframe.style.width = '550px';
-    iframe.style.height = '330px';
-    iframe.style.border = 'none';
-    const iframeWindow = iframe.contentWindow;
-    const iframeDocument = iframeWindow.document;
-
-    // hack to make iframe ready for injection in firefox
-    iframeDocument.open();
-    iframeDocument.close();
-
-    let terminalJSPath = location.protocol + "//" + location.host + '/assets/js/term.js';
-    /* eslint-disable no-undef */
-    if (process.env.CDN_ADDRESS) {
-      terminalJSPath = process.env.CDN_ADDRESS + 'js/term.js';
-    }
-    /* eslint-enable no-undef */
-
-    const scriptEl = iframeDocument.createElement('script');
-    scriptEl.setAttribute('src', terminalJSPath);
-    scriptEl.onload = () => {
-      const terminalDiv = iframeDocument.createElement('div');
-      terminalDiv.id = 'terminal';
-      iframeDocument.body.appendChild(terminalDiv);
-      this.terminal.open(iframeDocument.getElementById('terminal'));
-      iframeDocument.body.style.margin = '0px';
-    };
-    iframeDocument.body.appendChild(scriptEl);
+    this.terminalPrint(`Running nitrous-post-create.sh from repository...`);
   };
 
   onContainerCommandRunning = (data) => {
@@ -155,22 +131,32 @@ export default class Quickstart extends React.Component {
   };
 
   onContainerCommandRan = () => {
-    this.log('Done!');
+    this.logProgress(`We're all done! Redirecting to the IDE...`);
+    this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
     this.setState({ done: true });
-    const redirectUrl = `/ide/#/${this.state.container.slug}`;
-    window.location.href = redirectUrl;
+
+    const ideUrl = `/ide/#/${this.state.container.slug}`;
+    window.location.href = ideUrl;
     this.terminal.destroy();
   };
 
   onContainerCommandRunFailed = () => {
-    this.log('Failed to clone project or execute nitrous-post-create.sh.');
+    this.logProgress(`Failed to clone repository or execute nitrous-post-create.sh.`);
+    this.terminalPrintError(`Error cloning repository ${this.props.query.repo}.`);
+    // TODO What happens now? Ideally we should show the user exactly what went
+    // wrong (i.e. we should be able to tell the difference between a failed
+    // git clone and an error in running nitrous-post-create.sh), and give them
+    // a way to go to the IDE anyway.
   };
 
   onHostCreated = (data) => {
     const { host } = data;
     this.setState({ host });
 
-    this.log('Workstation created.', `Creating project "${this.projectName()}"...`);
+    this.logProgress('Workstation created.');
+    this.terminalPrintSuccess(`OK - a new workstation "${host.slug}" has been created.`);
+    this.logProgress(`Creating project "${this.projectName()}"...`);
+    this.terminalPrint(`Creating a new project "${this.projectName()}" on workstation "${host.slug}"...`);
 
     const { template, serializedPorts } = this.state;
     containerActions.createAtomic(this.projectName(), host, {
@@ -182,13 +168,18 @@ export default class Quickstart extends React.Component {
   onHostCreateFailed = () => {
     this.setState({ done: true, hasError: true });
     snackbarActions.post('There was a problem creating a workstation. Please create one manually.', 'error');
+    this.logProgress(`There was a problem creating a workstation.`);
+    this.terminalPrintError(`Error creating workstation.`);
     this.context.router.transitionTo('new-user-host');
   };
 
   onHostStarted = (data) => {
     const { host } = data;
     if (this.state.host.slug === host.slug) {
-      this.log('Workstation started.', `Creating project "${this.projectName()}"...`);
+      this.logProgress('Workstation started.');
+      this.terminalPrintSuccess(`OK - workstation "${host.slug}" started.`);
+      this.logProgress(`Creating project "${this.projectName()}"...`);
+      this.terminalPrint(`Creating a new project "${this.projectName()}" on workstation "${host.slug}"...`);
 
       const { template, serializedPorts } = this.state;
       containerActions.createAtomic(this.projectName(), host, {
@@ -205,8 +196,15 @@ export default class Quickstart extends React.Component {
     if (this.projectName() === container.name
         && host.slug === hostSlug) {
       this.setState({ container });
-      this.log(`Created project "${this.projectName()}".`,
-          'Cloning repository and executing nitrous-post-create.sh...');
+      this.logProgress(`Created project "${this.projectName()}".`);
+      this.terminalPrintSuccess(`OK - project "${this.projectName()}" created.`);
+
+      // TODO Cloning repository and executing nitrous-post-create.sh should be
+      // 2 separate steps. We should also know whether a repository actually has
+      // a nitrous-post-create.sh or not (otherwise it looks dumb saying we're
+      // "executing nitrous-post-create.sh").
+      this.logProgress('Cloning repository and executing nitrous-post-create.sh...');
+      this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
 
       containerActions.runCommand(
         host,
@@ -221,13 +219,14 @@ export default class Quickstart extends React.Component {
     const { name, hostSlug } = data;
     if ((this.projectName() === name) && (this.state.host.slug === hostSlug)) {
       this.setState({ done: true, hasError: true });
-      this.log(`Failed to create project "${this.projectName()}".`);
+      this.logProgress(`Failed to create project "${this.projectName()}".`);
+      this.terminalPrintError(`Error creating project.`);
     }
   };
 
   onRepoInfoFetched = (data) => {
     const { quickstart } = data,
-          { template, ports, repoName, owner } = quickstart;
+          { template, ports, repoName, owner, ownerAvatar } = quickstart;
     const serializedPorts = ports.map((port) => {
       return (new PortBinding({
         public: true,
@@ -235,9 +234,12 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
-    this.setState({ template, serializedPorts, owner, repoName });
+    this.setState({ template, serializedPorts, owner, repoName,
+      repoLogoUrl: ownerAvatar,
+      repoInfoFetched: true });
 
-    this.log('Retrieved repository info.');
+    this.logProgress('Retrieved repository info.');
+    this.terminalPrintSuccess(`OK - GitHub says ${this.props.query.repo} is legit.`);
 
     const { host } = this.state;
 
@@ -249,6 +251,8 @@ export default class Quickstart extends React.Component {
 
       const { hostToUpgrade } = this.state;
       if (hostToUpgrade) {
+        this.logProgress(`Workstation has hit the project limit.`);
+        this.terminalPrintError(`Could not find an eligible workstation.`);
         snackbarActions.post(`You have hit the project limit of ${hostToUpgrade.maxContainers} ${hostToUpgrade.maxContainers === 1 ? 'project' : 'projects'} for your workstation's plan. Please upgrade or terminate a project to continue.`, 'error');
         this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: hostToUpgrade.subscriptionSlug }, { prev: 'container-list' });
         return;
@@ -256,9 +260,13 @@ export default class Quickstart extends React.Component {
 
       if (this.state.hasHosts) {
         snackbarActions.post(`You have hit the project limit for your workstation's plan. Please terminate a project if you want to continue.`, 'error');
+        this.logProgress(`Workstation has hit project limit.`);
+        this.terminalPrintError(`Could not find an eligible workstation.`);
       } else {
         // Give up.
         snackbarActions.post(`Please create a workstation and try again.`, 'error');
+        this.logProgress(`Could not find an eligible workstation.`);
+        this.terminalPrintError(`Could not find an eligible workstation.`);
       }
 
       this.context.router.transitionTo('dashboard');
@@ -268,9 +276,8 @@ export default class Quickstart extends React.Component {
     // If a user don't have host, but is eligible for a free plan, we create a
     // free host on their behalf.
     if (!host) {
-      const logs = this.state.logs;
-      logs.push(`Creating workstation...`);
-      this.setState({ logs });
+      this.logProgress(`Creating workstation...`);
+      this.terminalPrint(`Creating a free workstation...`);
       hostActions.create({
         name: this.state.user.username,
         plan: planStore.freePlan,
@@ -291,12 +298,14 @@ export default class Quickstart extends React.Component {
         return;
       }
 
-      this.log(`Starting your "${host.displayName}" workstation...`);
+      this.logProgress(`Starting your "${host.displayName}" workstation...`);
+      this.terminalPrint(`Workstation "${host.displayName}" is stopped, starting it up...`);
       hostActions.start(host.slug);
       return;
     }
 
-    this.log(`Creating project "${this.projectName()}"...`);
+    this.logProgress(`Creating project "${this.projectName()}"...`);
+    this.terminalPrint(`Creating project on workstation "${host.displayName}"...`);
 
     containerActions.createAtomic(this.projectName(), host, {
       template, ports: serializedPorts, publishAll: true,
@@ -309,7 +318,8 @@ export default class Quickstart extends React.Component {
           { canDeleteGitHubPublicKeys } = user.userProfile,
           { makeHref } = this.context.router,
           connectURL = makeHref('account-settings');
-    let failedMessageJSX = null;
+    let failedMessageJSX = null,
+        failedMessage = null;
 
     // canDeleteGitHubPublicKeys means user has already connected to github
     if (canDeleteGitHubPublicKeys) {
@@ -318,6 +328,7 @@ export default class Quickstart extends React.Component {
           nitrous.json not found.
         </span>
       );
+      failedMessage = 'Repository does not contain a nitrous.json file.';
     } else {
       failedMessageJSX = (
         <span>
@@ -325,9 +336,53 @@ export default class Quickstart extends React.Component {
           Please <a href={connectURL}>connect to GitHub</a> and try again.
         </span>
       );
+      failedMessage = 'Failed to retrieve repository info.';
     }
     this.setState({ done: true, hasError: true });
-    this.log(failedMessageJSX);
+    this.logProgress(failedMessageJSX);
+    this.terminalPrintError(failedMessage);
+  }
+
+  // We render the term.js terminal into an iframe because term.js binds events
+  // on the document object (e.g. keydown event).
+  initTerminal = () => {
+    const iframe = document.getElementById('quickstart-terminal')
+      .appendChild(document.createElement('iframe'));
+    const iframeWindow = iframe.contentWindow;
+    const iframeDocument = iframeWindow.document;
+
+    // hack to make iframe ready for injection in firefox
+    iframeDocument.open();
+    iframeDocument.close();
+
+    let terminalJSPath = location.protocol + '//' + location.host + '/assets/js/term.js';
+    /* eslint-disable no-undef */
+    if (process.env.CDN_ADDRESS) {
+      terminalJSPath = process.env.CDN_ADDRESS + 'js/term.js';
+    }
+    /* eslint-enable no-undef */
+
+    const scriptEl = iframeDocument.createElement('script');
+    scriptEl.setAttribute('src', terminalJSPath);
+    scriptEl.onload = () => {
+      const terminalDiv = iframeDocument.createElement('div');
+      terminalDiv.id = 'terminal';
+      iframeDocument.body.appendChild(terminalDiv);
+      this.terminal.open(iframeDocument.getElementById('terminal'));
+      this.terminalPrint(`Querying the GitHub API for ${this.props.query.repo}...`);
+      iframeDocument.body.style.margin = '0px';
+    };
+    iframeDocument.body.appendChild(scriptEl);
+  }
+
+  showConsole = (e) => {
+    e.preventDefault();
+    this.setState({ showConsole: true });
+  }
+
+  hideConsole = (e) => {
+    e.preventDefault();
+    this.setState({ showConsole: false });
   }
 
   projectName = () => {
@@ -335,33 +390,66 @@ export default class Quickstart extends React.Component {
     return repoName;
   }
 
-  log = (...newLogs) => {
-    const logs = this.state.logs;
-    newLogs.forEach((newLog) => {
-      logs.push(newLog);
-    });
-    this.setState({ logs });
+  logProgress = (msg) => {
+    const progressMessages = this.state.progressMessages;
+    progressMessages.push(msg);
+    this.setState({ progressMessages });
   }
 
-  renderLogs = () => {
-    const { logs } = this.state;
+  terminalPrint = (text) => {
+    this.terminal.writeln(`${text}`);
+  }
+
+  terminalPrintSuccess = (text) => {
+    this.terminal.writeln(`\x1b[92m${text}\x1b[m`);
+  }
+
+  terminalPrintError = (text) => {
+    this.terminal.writeln(`\x1b[91m${text}\x1b[m`);
+  }
+
+  renderProgressMessages = () => {
+    const { progressMessages } = this.state;
     return (
-      <div>
-        {logs.map((log) => {
-          return <p>{log}</p>;
+      <div className="progress-messages">
+        {progressMessages.map((msg, i) => {
+          return <p key={`progess-message-${i}`}>{msg}</p>;
         })}
       </div>
     );
   }
 
   render() {
-    const { done, hasError } = this.state;
+    const { repoInfoFetched, repoLogoUrl, showConsole, done, hasError } = this.state;
     return (
-      <div className='quickstart-component container'>
-        <h2>Your new project &ldquo;{this.projectName()}&rdquo; is being created...</h2>
-        <p>This may take several minutes to complete.</p>
-        <EtaProgressBar eta={500} done={done} bsStyle={hasError ? 'danger' : 'info'} />
-        {this.renderLogs()}
+      <div className='quickstart-component'>
+        <h1>Nitrous Quickstart</h1>
+
+        <p className='tagline'>Your Nitrous Quickstart environment is loading&hellip;</p>
+
+        <div className='pane'>
+          <img className='repo-logo'
+            src={repoLogoUrl || '/assets/images/n-logo-round.png'} />
+
+          {repoInfoFetched ? (
+            <h2>Launching &ldquo;{this.projectName()}&rdquo;&hellip;</h2>
+          ) : (
+            <h2>Launching&hellip;</h2>
+          )}
+
+          {this.renderProgressMessages()}
+
+          <div className={classNames('bar', { done, danger: hasError })}>
+            <div className='progress'></div>
+          </div>
+
+          {showConsole ? (
+            <a className='toggle' href='#' onClick={this.hideConsole}>&#9660; &nbsp; Hide detailed logs</a>
+          ) : (
+            <a className='toggle' href='#' onClick={this.showConsole}>&#9654; &nbsp; Detailed logs</a>
+          )}
+          <span id='quickstart-terminal' className={classNames({ show: showConsole })}></span>
+        </div>
       </div>
     );
   }
