@@ -411,8 +411,8 @@ export default class Quickstart extends React.Component {
     const { progressMessages } = this.state;
     return (
       <div className="progress-messages">
-        {progressMessages.map((msg) => {
-          return <p>{msg}</p>;
+        {progressMessages.map((msg, i) => {
+          return <p key={`progess-message-${i}`}>{msg}</p>;
         })}
       </div>
     );
