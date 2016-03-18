@@ -146,6 +146,19 @@ export default class EarnBonusesList extends React.Component {
     window.location.href = surveyUrl;
   }
 
+  getBonusHours(action) {
+    const { bonuses } = this.state;
+
+    const bonus = bonuses.find((b) => {
+      return b.slug === action;
+    });
+
+    if (bonus) {
+      return bonus.amountHours;
+    }
+    return null;
+  }
+
   earnedBonus(task) {
     const { earnedBonuses, bonuses } = this.state,
           bonusTask = bonuses ? bonuses.get(task) : null;
@@ -203,7 +216,7 @@ export default class EarnBonusesList extends React.Component {
             Connect Twitter</span>
 
             <span className='bonus-action-hours'>
-            {this.earnedBonus('connect-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+            {this.earnedBonus('connect-twitter') ? 'Bonus earned' : this.getBonusHours('connect-twitter') + ' extra hours/mo'}
             </span>
           </Button>
           <Button className='bonus-action-item'
@@ -214,7 +227,7 @@ export default class EarnBonusesList extends React.Component {
             <Fa icon="twitter" />
             Follow Nitrous on Twitter</span>
             <span className='bonus-action-hours'>
-              {this.earnedBonus('follow-twitter') ? 'Bonus earned' : '3 extra hours/mo'}
+              {this.earnedBonus('follow-twitter') ? 'Bonus earned' : this.getBonusHours('follow-twitter') + ' extra hours/mo'}
             </span>
           </Button>
           <Button className='bonus-action-item'
@@ -225,7 +238,7 @@ export default class EarnBonusesList extends React.Component {
             <Fa icon="twitter" />
             Tweet about Nitrous</span>
             <span className='bonus-action-hours'>
-              {this.earnedBonus('tweet') ? 'Bonus earned' : '5 extra hours/mo'}
+              {this.earnedBonus('tweet') ? 'Bonus earned' : this.getBonusHours('tweet') + ' extra hours/mo'}
             </span>
           </Button>
           <Button className='bonus-action-item'
@@ -240,7 +253,9 @@ export default class EarnBonusesList extends React.Component {
               data-action="like"
               data-show-faces="false"></div>
 
-            <span className='bonus-action-hours'>3 extra hours/mo</span>
+            <span className='bonus-action-hours'>
+              {this.earnedBonus('tweet') ? 'Bonus earned' : this.getBonusHours('like-facebook') + ' extra hours/mo'}
+            </span>
           </Button>
           <Button className='bonus-action-item'
             block
@@ -250,7 +265,7 @@ export default class EarnBonusesList extends React.Component {
             <Fa icon="github" />
             Connect With GitHub</span>
             <span className='bonus-action-hours'>
-              {this.earnedBonus('connect-github') ? 'Bonus earned' : '5 extra hours/mo'}
+              {this.earnedBonus('connect-github') ? 'Bonus earned' : this.getBonusHours('connect-github') + ' extra hours/mo'}
             </span>
           </Button>
           <Button className='bonus-action-item'
@@ -261,7 +276,7 @@ export default class EarnBonusesList extends React.Component {
             <Fa icon="laptop" />
             Complete our survey</span>
             <span className='bonus-action-hours'>
-              {this.earnedBonus('complete') ? 'Bonus earned' : '10 extra hours/mo'}
+              {this.earnedBonus('complete-survey') ? 'Bonus earned' : this.getBonusHours('complete-survey') + ' extra hours/mo'}
             </span>
           </Button>
 
