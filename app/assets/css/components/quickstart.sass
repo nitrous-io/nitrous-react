@@ -44,7 +44,6 @@
       left: 40px
       height: 50px
       width: 50px
-      background-color: #eee
 
     h2
       margin: 0 0 8px 65px
@@ -65,18 +64,51 @@
         &:last-child
           display: block
 
-    .progress-bar
+    .bar
+      position: relative
       margin-left: 65px
       width: 475px
       height: 8px
-      background: rgba(0, 0, 0, .7)
-      background: -moz-linear-gradient(top, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, .5) 100%)
-      background: -webkit-linear-gradient(top, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, .5) 100%)
-      background: linear-gradient(to bottom, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, .5) 100%)
-      border-radius: 4px
 
-      &.danger
-        background: $progress-bar-danger-bg
+      > .progress
+        height: 100%
+        border-radius: 4px
+        background: #0099ed
+        background: -moz-linear-gradient(top, #76ceff 0%, #0099ed 100%)
+        background: -webkit-linear-gradient(top, #76ceff 0%, #0099ed 100%)
+        background: linear-gradient(to bottom, #76ceff 0%, #0099ed 100%)
+        position: relative
+        overflow: hidden
+
+        &:after
+          content: ""
+          position: absolute
+          top: 0
+          left: 0
+          bottom: 0
+          right: 0
+          background: #ffffff
+          background: -moz-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+          background: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+          background: linear-gradient(135deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+          background-size: 30px 30px
+          animation: progress-bar-move 2s linear infinite
+          overflow: hidden
+
+    .bar.danger
+      > .progress
+        background: #ed0018
+        background: -moz-linear-gradient(top, #ff7684 0%, #ed0018 100%)
+        background: -webkit-linear-gradient(top, #ff7684 0%, #ed0018 100%)
+        background: linear-gradient(to bottom, #ff7 684 0%, #ed0018 100%)
+
+        &:after
+          animation: none
+
+    .bar.done
+      > .progress
+        &:after
+          animation: none
 
     .toggle
       display: block

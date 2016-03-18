@@ -250,7 +250,7 @@ export default class Quickstart extends React.Component {
 
       const { hostToUpgrade } = this.state;
       if (hostToUpgrade) {
-        this.logProgress(`Workstation has hit project limit.`);
+        this.logProgress(`Workstation has hit the project limit.`);
         this.terminalPrintError(`Could not find an eligible workstation.`);
         snackbarActions.post(`You have hit the project limit of ${hostToUpgrade.maxContainers} ${hostToUpgrade.maxContainers === 1 ? 'project' : 'projects'} for your workstation's plan. Please upgrade or terminate a project to continue.`, 'error');
         this.context.router.transitionTo('subscriptions-upgrade', { subscriptionSlug: hostToUpgrade.subscriptionSlug }, { prev: 'container-list' });
@@ -354,7 +354,7 @@ export default class Quickstart extends React.Component {
     iframeDocument.open();
     iframeDocument.close();
 
-    let terminalJSPath = location.protocol + "//" + location.host + '/assets/js/term.js';
+    let terminalJSPath = location.protocol + '//' + location.host + '/assets/js/term.js';
     /* eslint-disable no-undef */
     if (process.env.CDN_ADDRESS) {
       terminalJSPath = process.env.CDN_ADDRESS + 'js/term.js';
@@ -428,7 +428,7 @@ export default class Quickstart extends React.Component {
 
         <div className='pane'>
           <img className='repo-logo'
-            src={repoLogoUrl || '/assets/images/left-bar-nitrous.svg'} />
+            src={repoLogoUrl || '/assets/images/n-logo-round.png'} />
 
           {repoInfoFetched ? (
             <h2>Launching &ldquo;{this.projectName()}&rdquo;&hellip;</h2>
@@ -438,7 +438,9 @@ export default class Quickstart extends React.Component {
 
           {this.renderProgressMessages()}
 
-          <div className={classNames('progress-bar', { done, danger: hasError })}></div>
+          <div className={classNames('bar', { done, danger: hasError })}>
+            <div className='progress'></div>
+          </div>
 
           {showConsole ? (
             <a className='toggle' href='#' onClick={this.hideConsole}>&#9660; &nbsp; Hide detailed logs</a>
