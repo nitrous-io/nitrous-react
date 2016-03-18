@@ -428,8 +428,11 @@ export default class Quickstart extends React.Component {
         <p className='tagline'>Your Nitrous Quickstart environment is loading&hellip;</p>
 
         <div className='pane'>
-          <img className='repo-logo'
-            src={repoLogoUrl || '/assets/images/n-logo-round.png'} />
+          {repoLogoUrl ? (
+            <img className='repo-logo' src={repoLogoUrl} />
+          ) : (
+            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+          )}
 
           {repoInfoFetched ? (
             <h2>Launching &ldquo;{this.projectName()}&rdquo;&hellip;</h2>
