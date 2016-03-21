@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { Alert, Input, ButtonToolbar, ButtonInput, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import Fa from 'components/fa';
 import classNames from 'classnames';
 
 import tokenStore from 'stores/token-store';
@@ -9,6 +8,8 @@ import userStore from 'stores/user-store';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
 import snackbarActions from 'actions/snackbar-actions';
+import QuickstartContext from 'components/quickstart-context';
+import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 
@@ -72,6 +73,7 @@ export default class Login extends React.Component {
   onUserLogInViaGithubFailed = () => {
     snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
   }
+
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
       snackbarActions.clear();
@@ -128,11 +130,7 @@ export default class Login extends React.Component {
     return (
       <div className='login-component login-screen'>
         {this.isQuickstartIntent() ? (
-          <div className='quickstart-context-component'>
-            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
-           <h3>You need to log in first to Quickstart on Nitrous.</h3>
-           <p>Not so fast, hotshot.</p>
-         </div>
+          <QuickstartContext repo={repo} login />
         ) : ''}
 
         <Panel className={classNames({ shake: errorMessage })}>
