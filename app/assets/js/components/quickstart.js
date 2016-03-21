@@ -211,7 +211,7 @@ export default class Quickstart extends React.Component {
 
       const commands = [
         '. /etc/profile && ',
-        'cd && ',
+        'cd /home/nitrous/code && ',
         'echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config && ',
         `git clone ${this.props.query.repo} && `,
         'rm ~/.ssh/config &&',
