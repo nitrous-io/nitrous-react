@@ -19,7 +19,8 @@ export default class Login extends React.Component {
     query: PropTypes.shape({
       token: PropTypes.string,
       existingGitHubEmail: PropTypes.string,
-      returnTo: PropTypes.string
+      returnTo: PropTypes.string,
+      repo: PropTypes.string
     })
   };
 
@@ -71,7 +72,6 @@ export default class Login extends React.Component {
   onUserLogInViaGithubFailed = () => {
     snackbarActions.post('Could not connect to GitHub. Please try again.', 'error');
   }
-
   tokenStoreDidChange = () => {
     if (tokenStore.token) {
       snackbarActions.clear();
@@ -116,13 +116,25 @@ export default class Login extends React.Component {
     userActions.loginViaGithub();
   }
 
+  isQuickstartIntent = () => {
+    return !!this.props.query.repo;
+  }
+
   render() {
     const { loggingIn, loggingInWithGithub, errorMessage } = this.state,
-          { existingGitHubEmail, returnTo } = this.props.query,
+          { existingGitHubEmail, returnTo, repo } = this.props.query,
           disabled = loggingIn || loggingInWithGithub;
 
     return (
       <div className='login-component login-screen'>
+        {this.isQuickstartIntent() ? (
+          <div className='quickstart-context-component'>
+            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+           <h3>You need to log in first to Quickstart on Nitrous.</h3>
+           <p>Not so fast, hotshot.</p>
+         </div>
+        ) : ''}
+
         <Panel className={classNames({ shake: errorMessage })}>
           <h2 className='nitrous-logo'><span>Nitrous</span></h2>
 
@@ -150,7 +162,7 @@ export default class Login extends React.Component {
           </form>
         </Panel>
         <div className='misc-links'>
-          <p>No account? <Link to='signup' query={{ returnTo }}>Sign Up</Link></p>
+          <p>No account? <Link to='signup' query={{ returnTo, repo }}>Sign Up</Link></p>
           <p><Link to='forgot-password'>Forgot Your Password?</Link></p>
         </div>
       </div>
