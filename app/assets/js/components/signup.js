@@ -23,12 +23,13 @@ export default class Signup extends React.Component {
 
   static propTypes = {
     query: PropTypes.shape({
-      intent: PropTypes.string,
       gitHubUserName: PropTypes.string,
       gitHubUserEmail: PropTypes.string,
       promo: PropTypes.string,
       invite: PropTypes.string,
-      returnTo: PropTypes.string
+      returnTo: PropTypes.string,
+      intent: PropTypes.string,
+      repo: PropTypes.string
     })
   };
 
@@ -229,10 +230,15 @@ export default class Signup extends React.Component {
     this.setState({captchaToken: value});
   }
 
+  isQuickstartIntent = () => {
+    return !!this.props.query.repo;
+  }
+
   render() {
     const { isViaGitHub, username, email, password, passwordConfirmation,
             authorizing, processing, createOrg, promocode, isInvited, pendingMember,
             invalidCode, captchaToken } = this.state,
+          { returnTo, repo } = this.props.query,
           showPasswordConfirmError = passwordConfirmation && (password !== passwordConfirmation),
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           missing = !(username && signupEmail && password && passwordConfirmation && (!Captcha.isInitialized() || Captcha.isInitialized() && captchaToken)),
@@ -241,6 +247,14 @@ export default class Signup extends React.Component {
 
     return (
       <div className='signup-component login-screen'>
+        {this.isQuickstartIntent() ? (
+          <div className='quickstart-context-component'>
+            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+           <h3>Sign up to Quickstart on Nitrous.</h3>
+           <p>Your first project is free forever.</p>
+         </div>
+        ) : ''}
+
         <Panel>
           <h2 className='nitrous-logo'></h2>
           {isViaGitHub ? (
@@ -294,7 +308,7 @@ export default class Signup extends React.Component {
 
             <ButtonToolbar>
               <ButtonInput type='submit' bsStyle='primary' value={
-                processing ? 'Creating...' : 'Create Account'
+                processing ? 'Signing up...' : 'Sign Up'
               } disabled={submitDisabled} />
               {isViaGitHub ? '' : (
                 <OverlayTrigger placement='bottom' overlay={<Tooltip id='container-state-tooltip'>Log in with GitHub account</Tooltip>}>
@@ -309,7 +323,7 @@ export default class Signup extends React.Component {
         </Panel>
         <div className='misc-links'>
           <p>By creating an account, you agree to the Nitrous <a href='https://community.nitrous.io/docs/terms-of-use'>Terms of Service</a> and <a href='https://community.nitrous.io/docs/privacy-policy'>Privacy Policy</a>.</p>
-          <p>Already have an account? <Link to='login'>Log in</Link></p>
+          <p>Already have an account? <Link to='login' query={{ returnTo, repo }}>Log in</Link></p>
         </div>
       </div>
     );
