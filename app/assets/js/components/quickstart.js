@@ -216,7 +216,8 @@ export default class Quickstart extends React.Component {
         `git clone ${this.props.query.repo} && `,
         'rm ~/.ssh/config &&',
         `cd ${this.projectName()} && `,
-        './nitrous-post-create.sh;',
+        '[ -f nitrous-post-create.sh ] && chmod +x nitrous-post-create.sh && ',
+        './nitrous-post-create.sh || true;',
         'echo "Run command done."'
       ];
       containerActions.runCommand(

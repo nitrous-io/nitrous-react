@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Alert, ButtonToolbar, ButtonInput, Input, Button, Panel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+import QuickstartContext from 'components/quickstart-context';
 import Fa from 'components/fa';
 import tokenActions from 'actions/token-actions';
 import userActions from 'actions/user-actions';
@@ -248,11 +249,7 @@ export default class Signup extends React.Component {
     return (
       <div className='signup-component login-screen'>
         {this.isQuickstartIntent() ? (
-          <div className='quickstart-context-component'>
-            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
-           <h3>Sign up to Quickstart on Nitrous.</h3>
-           <p>Your first project is free forever.</p>
-         </div>
+          <QuickstartContext repo={repo} signup />
         ) : ''}
 
         <Panel>

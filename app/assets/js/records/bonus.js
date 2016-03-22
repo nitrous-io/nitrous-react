@@ -1,4 +1,5 @@
 import { Record } from 'immutable';
+import format from 'lib/format';
 
 export default class Bonus extends Record({
   id: null,
@@ -15,5 +16,9 @@ export default class Bonus extends Record({
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
+  }
+
+  get amountHours() {
+    return format.convertSecondsToHours(this.amount);
   }
 }
