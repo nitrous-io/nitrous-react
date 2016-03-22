@@ -11,125 +11,133 @@
   background: -webkit-linear-gradient(top, #03a9f4 0%, #03a9f4 50%, #2ebcfc 100%)
   background: linear-gradient(to bottom, #03a9f4 0%, #03a9f4 50%, #2ebcfc 100%)
 
-  h1
-    margin: 0
-    padding: 150px 0 0
-    color: #fff
-    font-weight: 300
-    font-size: 60px
-    line-height: 60px
-    text-align: center
-    text-transform: uppercase
-    text-shadow: 0 1px 3px rgba(0, 0, 0, .3)
+  .scroller
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    overflow: auto
 
-  .tagline
-    margin: 10px 0 150px
-    color: #fff
-    font-size: 16px
-    text-shadow: 0 1px 2px rgba(0, 0, 0, .3)
-    text-align: center
+    h1
+      margin: 0
+      padding: 150px 0 0
+      color: #fff
+      font-weight: 300
+      font-size: 60px
+      line-height: 60px
+      text-align: center
+      text-transform: uppercase
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .3)
 
-  .pane
-    position: relative
-    width: 620px
-    margin: 0 auto
-    padding: 40px
-    background: #fff
-    border-radius: 5px
-    box-shadow: 0 5px 10px rgba(0, 0, 0, .3)
+    .tagline
+      margin: 10px 0 150px
+      color: #fff
+      font-size: 16px
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .3)
+      text-align: center
 
-    img.repo-logo
-      position: absolute
-      top: 46px
-      left: 40px
-      height: 50px
-      width: 50px
-
-      &.default
-        background-image: url(/assets/images/n-logo-round.png)
-        background-size: 50px 50px
-
-    h2
-      margin: 0 0 8px 65px
-      color: #393c44
-      font-weight: 600
-      font-size: 18px
-      line-height: 18px
-
-    .progress-messages
-      p
-        display: none
-        margin-left: 65px
-        margin-bottom: 14px
-        color: #8696a0
-        font-size: 14px
-        line-height: 14px
-
-        &:last-child
-          display: block
-
-    .bar
+    .pane
       position: relative
-      margin-left: 65px
-      width: 475px
-      height: 8px
+      width: 620px
+      margin: 0 auto
+      padding: 40px
+      background: #fff
+      border-radius: 5px
+      box-shadow: 0 5px 10px rgba(0, 0, 0, .3)
 
-      > .progress
-        height: 100%
-        border-radius: 4px
-        background: #0099ed
-        background: -moz-linear-gradient(top, #76ceff 0%, #0099ed 100%)
-        background: -webkit-linear-gradient(top, #76ceff 0%, #0099ed 100%)
-        background: linear-gradient(to bottom, #76ceff 0%, #0099ed 100%)
+      img.repo-logo
+        position: absolute
+        top: 46px
+        left: 40px
+        height: 50px
+        width: 50px
+
+        &.default
+          background-image: url(/assets/images/n-logo-round.png)
+          background-size: 50px 50px
+
+      h2
+        margin: 0 0 8px 65px
+        color: #393c44
+        font-weight: 600
+        font-size: 18px
+        line-height: 18px
+
+      .progress-messages
+        p
+          display: none
+          margin-left: 65px
+          margin-bottom: 14px
+          color: #8696a0
+          font-size: 14px
+          line-height: 14px
+
+          &:last-child
+            display: block
+
+      .bar
         position: relative
-        overflow: hidden
+        margin-left: 65px
+        width: 475px
+        height: 8px
 
-        &:after
-          content: ""
-          position: absolute
-          top: 0
-          left: 0
-          bottom: 0
-          right: 0
-          background: #ffffff
-          background: -moz-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
-          background: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
-          background: linear-gradient(135deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
-          background-size: 30px 30px
-          animation: progress-bar-move 2s linear infinite
+        > .progress
+          height: 100%
+          border-radius: 4px
+          background: #0099ed
+          background: -moz-linear-gradient(top, #76ceff 0%, #0099ed 100%)
+          background: -webkit-linear-gradient(top, #76ceff 0%, #0099ed 100%)
+          background: linear-gradient(to bottom, #76ceff 0%, #0099ed 100%)
+          position: relative
           overflow: hidden
 
-    .bar.danger
-      > .progress
-        background: #ed0018
-        background: -moz-linear-gradient(top, #ff7684 0%, #ed0018 100%)
-        background: -webkit-linear-gradient(top, #ff7684 0%, #ed0018 100%)
-        background: linear-gradient(to bottom, #ff7 684 0%, #ed0018 100%)
+          &:after
+            content: ""
+            position: absolute
+            top: 0
+            left: 0
+            bottom: 0
+            right: 0
+            background: #ffffff
+            background: -moz-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+            background: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+            background: linear-gradient(135deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%, transparent 75%, transparent 100%)
+            background-size: 30px 30px
+            animation: progress-bar-move 2s linear infinite
+            overflow: hidden
 
-        &:after
-          animation: none
+      .bar.danger
+        > .progress
+          background: #ed0018
+          background: -moz-linear-gradient(top, #ff7684 0%, #ed0018 100%)
+          background: -webkit-linear-gradient(top, #ff7684 0%, #ed0018 100%)
+          background: linear-gradient(to bottom, #ff7 684 0%, #ed0018 100%)
 
-    .bar.done
-      > .progress
-        &:after
-          animation: none
+          &:after
+            animation: none
 
-    .toggle
-      display: block
-      padding-top: 40px
-      color: #0099ed
-      font-size: 13px
-      line-height: 13px
-      text-decoration: none
+      .bar.done
+        > .progress
+          &:after
+            animation: none
 
-    #quickstart-terminal
-      display: none
-      margin-top: 8px
-
-      &.show
+      .toggle
         display: block
+        padding-top: 40px
+        color: #0099ed
+        font-size: 13px
+        line-height: 13px
+        text-decoration: none
 
-      iframe
-        width: 540px
-        height: 330px
-        border: 0
+      #quickstart-terminal
+        display: none
+        margin-top: 8px
+
+        &.show
+          display: block
+
+        iframe
+          width: 540px
+          height: 330px
+          border: 0
