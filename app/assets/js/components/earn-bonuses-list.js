@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, ProgressBar, Panel } from 'react-bootstrap';
+import { Modal, Button, ProgressBar, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
@@ -18,6 +18,7 @@ export default class EarnBonusesList extends React.Component {
     bonuses: bonusStore.bonuses,
     usageRemaining: freeUsageStore.usageRemaining,
     usageQuota: freeUsageStore.usageQuota,
+    showPublishArticleModal: false,
     user: userStore.user
   }
 
@@ -146,6 +147,18 @@ export default class EarnBonusesList extends React.Component {
     window.location.href = surveyUrl;
   }
 
+  publishArticle = () => {
+    this.setState({ showPublishArticleModal: true });
+  }
+
+  handleClosePublishArticleModal = () => {
+    this.setState({ showPublishArticleModal: false });
+  };
+
+  hidePublishArticleModal = () => {
+    this.setState({ showPublishArticleModal: false });
+  };
+
   getBonusHours(action) {
     const { bonuses } = this.state;
 
@@ -228,7 +241,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
               <span className='bonus-action-task'>
               <Fa icon="twitter" />
-              Follow Nitrous on Twitter</span>
+              Follow Nitrous On Twitter</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('follow-twitter') ? 'Bonus earned' : this.getBonusHours('follow-twitter') + ' extra hours/mo'}
               </span>
@@ -241,7 +254,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
               <span className='bonus-action-task'>
               <Fa icon="twitter" />
-              Tweet about Nitrous</span>
+              Tweet About Nitrous</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('tweet') ? 'Bonus earned' : this.getBonusHours('tweet') + ' extra hours/mo'}
               </span>
@@ -253,7 +266,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('like-facebook')}>
               <span className='bonus-action-task'>
               <Fa icon="facebook" />
-              Like us on Facebook</span>
+              Like Us On Facebook</span>
               <div className="fb-like"
                 data-href="https://www.facebook.com/NitrousIO/"
                 data-layout="button"
@@ -285,14 +298,46 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('complete-survey')}>
               <span className='bonus-action-task'>
               <Fa icon="laptop" />
-              Complete our survey</span>
+              Complete Our Survey</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('complete-survey') ? 'Bonus earned' : this.getBonusHours('complete-survey') + ' extra hours/mo'}
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('publish-article') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.publishArticle}
+              disabled={this.earnedBonus('publish-article')}>
+              <span className='bonus-action-task'>
+              <Fa icon="newspaper-o" />
+              Publish A Community Article</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('publish-article') ? 'Bonus earned' : this.getBonusHours('publish-article') + ' extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
 
         </Panel>
+
+        <Modal show={this.state.showPublishArticleModal} onHide={this.hidePublishArticleModal}>
+          <Modal.Header>
+            <Modal.Title>Publish A Community Article</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Submit a tutorial or blog post to <a href='mailto:community@nitrous.io'>community@nitrous.io</a>. If we approve your submission, you can earn:</p>
+            <ul>
+              <li><strong>Up to $200</strong> for an article (> 1000 words); and</li>
+              <li>Additional <strong>{this.getBonusHours('publish-article')} free hours.</strong></li>
+            </ul>
+            <p>You can read more about <a href='https://community.nitrous.io/docs/tutorial-submission-guidelines' target='_blank'>submission guidelines here</a>.</p>
+            <p><a href='mailto:community@nitrous.io'>Send us an article proposal</a>.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleClosePublishArticleModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
       </div>
     );
   }
