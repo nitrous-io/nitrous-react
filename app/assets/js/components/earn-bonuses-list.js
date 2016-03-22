@@ -241,7 +241,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('follow-twitter') || !this.earnedBonus('connect-twitter')}>
               <span className='bonus-action-task'>
               <Fa icon="twitter" />
-              Follow Nitrous on Twitter</span>
+              Follow Nitrous On Twitter</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('follow-twitter') ? 'Bonus earned' : this.getBonusHours('follow-twitter') + ' extra hours/mo'}
               </span>
@@ -254,7 +254,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('tweet') || !this.earnedBonus('connect-twitter')}>
               <span className='bonus-action-task'>
               <Fa icon="twitter" />
-              Tweet about Nitrous</span>
+              Tweet About Nitrous</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('tweet') ? 'Bonus earned' : this.getBonusHours('tweet') + ' extra hours/mo'}
               </span>
@@ -266,7 +266,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('like-facebook')}>
               <span className='bonus-action-task'>
               <Fa icon="facebook" />
-              Like us on Facebook</span>
+              Like Us On Facebook</span>
               <div className="fb-like"
                 data-href="https://www.facebook.com/NitrousIO/"
                 data-layout="button"
@@ -298,7 +298,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('complete-survey')}>
               <span className='bonus-action-task'>
               <Fa icon="laptop" />
-              Complete our survey</span>
+              Complete Our Survey</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('complete-survey') ? 'Bonus earned' : this.getBonusHours('complete-survey') + ' extra hours/mo'}
               </span>
@@ -311,7 +311,7 @@ export default class EarnBonusesList extends React.Component {
               disabled={this.earnedBonus('publish-article')}>
               <span className='bonus-action-task'>
               <Fa icon="newspaper-o" />
-              Publish a community article</span>
+              Publish A Community Article</span>
               <span className='bonus-action-hours'>
                 {this.earnedBonus('publish-article') ? 'Bonus earned' : this.getBonusHours('publish-article') + ' extra hours/mo'}
               </span>
