@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Button, ProgressBar, Panel } from 'react-bootstrap';
+import { Modal, Button, ProgressBar, Panel } from 'react-bootstrap';
 
 import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
@@ -18,6 +18,7 @@ export default class EarnBonusesList extends React.Component {
     bonuses: bonusStore.bonuses,
     usageRemaining: freeUsageStore.usageRemaining,
     usageQuota: freeUsageStore.usageQuota,
+    showPublishArticleModal: false,
     user: userStore.user
   }
 
@@ -145,6 +146,18 @@ export default class EarnBonusesList extends React.Component {
           surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field113=" + user.username;
     window.location.href = surveyUrl;
   }
+
+  publishArticle = () => {
+    this.setState({ showPublishArticleModal: true });
+  }
+
+  handleClosePublishArticleModal = () => {
+    this.setState({ showPublishArticleModal: false });
+  };
+
+  hidePublishArticleModal = () => {
+    this.setState({ showPublishArticleModal: false });
+  };
 
   getBonusHours(action) {
     const { bonuses } = this.state;
@@ -291,8 +304,40 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('publish-article') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.publishArticle}
+              disabled={this.earnedBonus('publish-article')}>
+              <span className='bonus-action-task'>
+              <Fa icon="newspaper-o" />
+              Publish a community article</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('publish-article') ? 'Bonus earned' : this.getBonusHours('publish-article') + ' extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
 
         </Panel>
+
+        <Modal show={this.state.showPublishArticleModal} onHide={this.hidePublishArticleModal}>
+          <Modal.Header>
+            <Modal.Title>Publish A Community Article</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Submit a tutorial or blog post to <a href='mailto:community@nitrous.io'>community@nitrous.io</a>. If we approve your submission, you can earn:</p>
+            <ul>
+              <li><strong>Up to $200</strong> for an article (> 1000 words); and</li>
+              <li>Additional <strong>{this.getBonusHours('publish-article')} free hours.</strong></li>
+            </ul>
+            <p>You can read more about <a href='https://community.nitrous.io/docs/tutorial-submission-guidelines' target='_blank'>submission guidelines here</a>.</p>
+            <p><a href='mailto:community@nitrous.io'>Send us an article proposal</a>.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleClosePublishArticleModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
       </div>
     );
   }
