@@ -1,0 +1,6 @@
+{
+  "template": "golang",
+  "ports": [4000],
+  "name": "nitrous.io react",
+  "description": "nitrous.io frontend app"
+}
