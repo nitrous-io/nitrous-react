@@ -14,6 +14,7 @@ export default class QuickstartContext extends React.Component {
   };
 
   state = {
+    repoInfoFetched: false,
     repoLogoUrl: null,
     repoName: null
   };
@@ -30,6 +31,7 @@ export default class QuickstartContext extends React.Component {
       dataType: 'json'
     }).then((data) => {
       this.setState({
+        repoInfoFetched: true,
         repoLogoUrl: data.owner.avatar_url,
         repoName: data.full_name
       });
@@ -64,10 +66,10 @@ export default class QuickstartContext extends React.Component {
   }
 
   renderLogin() {
-    const { repoName } = this.state;
+    const { repoInfoFetched, repoName } = this.state;
     return (
       <div>
-        {repoName ? (
+        {repoInfoFetched ? (
           <h3>You need to log in first to launch &ldquo;{repoName}&rdquo;.</h3>
         ) : (
           <h3>You need to log in first to Quickstart on Nitrous.</h3>
@@ -78,10 +80,10 @@ export default class QuickstartContext extends React.Component {
   }
 
   renderSignup() {
-    const { repoName } = this.state;
+    const { repoInfoFetched, repoName } = this.state;
     return (
       <div>
-        {repoName ? (
+        {repoInfoFetched ? (
           <h3>You need to sign up first to launch &ldquo;{repoName}&rdquo;.</h3>
         ) : (
           <h3>Sign up to Quickstart on Nitrous.</h3>
@@ -93,11 +95,11 @@ export default class QuickstartContext extends React.Component {
 
   render() {
     const { login, signup } = this.props,
-          { repoLogoUrl } = this.state;
+          { repoInfoFetched, repoLogoUrl } = this.state;
 
     return (
       <div className='quickstart-context-component'>
-        {repoLogoUrl ? (
+        {repoInfoFetched ? (
           <img className='repo-logo' src={repoLogoUrl} />
         ) : (
           // "src" is the data URI for a transparent gif. We do this because the
