@@ -462,35 +462,37 @@ export default class Quickstart extends React.Component {
     const { repoInfoFetched, repoLogoUrl, showConsole, done, hasError } = this.state;
     return (
       <div className='quickstart-component'>
-        <h1>Nitrous Quickstart</h1>
+        <div className='scroller'>
+          <h1>Nitrous Quickstart</h1>
 
-        <p className='tagline'>Your Nitrous Quickstart environment is loading&hellip;</p>
+          <p className='tagline'>Your Nitrous Quickstart environment is loading&hellip;</p>
 
-        <div className='pane'>
-          {repoLogoUrl ? (
-            <img className='repo-logo' src={repoLogoUrl} />
-          ) : (
-            <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
-          )}
+          <div className='pane'>
+            {repoLogoUrl ? (
+              <img className='repo-logo' src={repoLogoUrl} />
+            ) : (
+              <img className='repo-logo default' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+            )}
 
-          {repoInfoFetched ? (
-            <h2>Launching &ldquo;{this.projectName()}&rdquo;&hellip;</h2>
-          ) : (
-            <h2>Launching&hellip;</h2>
-          )}
+            {repoInfoFetched ? (
+              <h2>Launching &ldquo;{this.projectName()}&rdquo;&hellip;</h2>
+            ) : (
+              <h2>Launching&hellip;</h2>
+            )}
 
-          {this.renderProgressMessages()}
+            {this.renderProgressMessages()}
 
-          <div className={classNames('bar', { done, danger: hasError })}>
-            <div className='progress'></div>
+            <div className={classNames('bar', { done, danger: hasError })}>
+              <div className='progress'></div>
+            </div>
+
+            {showConsole ? (
+              <a className='toggle' href='#' onClick={this.hideConsole}>&#9660; &nbsp; Hide detailed logs</a>
+            ) : (
+              <a className='toggle' href='#' onClick={this.showConsole}>&#9654; &nbsp; Detailed logs</a>
+            )}
+            <span id='quickstart-terminal' className={classNames({ show: showConsole })}></span>
           </div>
-
-          {showConsole ? (
-            <a className='toggle' href='#' onClick={this.hideConsole}>&#9660; &nbsp; Hide detailed logs</a>
-          ) : (
-            <a className='toggle' href='#' onClick={this.showConsole}>&#9654; &nbsp; Detailed logs</a>
-          )}
-          <span id='quickstart-terminal' className={classNames({ show: showConsole })}></span>
         </div>
       </div>
     );
