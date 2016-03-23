@@ -74,13 +74,14 @@ export default class Quickstart extends React.Component {
       hostToUpgrade,
       hasHosts: userHosts.size > 0 || orgHosts.size > 0,
       user: userStore.user,
+      repoInfoFetched: false,
       owner: null,
       template: null,
       serializedPorts: null,
+      repoName: null,
+      repoLogoUrl: null,
       container: null,
       progressMessages: ['Retrieving repository info...'],
-      repoInfoFetched: false,
-      repoLogoUrl: null,
       done: false,
       hasError: false,
       showConsole: false
@@ -138,7 +139,7 @@ export default class Quickstart extends React.Component {
     this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
     this.setState({ done: true });
 
-    const ideUrl = `/ide/#/${this.state.container.slug}`;
+    const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
     window.location.href = ideUrl;
     this.terminal.destroy();
   };
