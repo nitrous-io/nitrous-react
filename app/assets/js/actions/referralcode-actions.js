@@ -15,7 +15,7 @@ class ReferralcodeActions {
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'referralcode.fetch-all',
+        type: 'referralcode.fetch-failed',
         data: { jqxhr }
       });
     });

@@ -368,7 +368,7 @@ export default class EarnBonusesList extends React.Component {
               <Fa icon="users" />
               Invite Friends and Colleagues</span>
               <span className='bonus-action-hours'>
-                {this.earnedBonus('refer-friend') ? 'Bonus earned' : 'Up to 30 extra hours/mo'}
+                {this.earnedBonus('refer-friend') ? 'Bonus earned' : 'Up to ' + referralcode.bonusHoursTotal + ' extra hours/mo'}
               </span>
             </Button>
           ) : ''}
@@ -469,9 +469,13 @@ export default class EarnBonusesList extends React.Component {
               <SelectableText><strong>{referralURL}</strong></SelectableText>
             </p>
             <p>Share this URL on your blog, personal website or paste it in an email to earn additional bonus hours on Nitrous.</p>
-            <p>You will receive an additional <strong>3 bonus hours</strong> each for the first 10 users who sign up via your referral code, up to 30 hours in total.</p>
+            {referralcode ? (
+              <div>
+                <p>You will receive an additional <strong>{referralcode.bonusHours} bonus hours</strong> each for the first {referralcode.cap} users who sign up via your referral code, up to {referralcode.bonusHoursTotal} hours in total.</p>
 
-            <p>Each new user who signs up with your referral code will also earn 3 extra bonus hours.</p>
+                <p>Each new user who signs up with your referral code will also earn {referralcode.bonusHours} extra bonus hours.</p>
+              </div>
+            ) : ''}
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.handleCloseReferralModal}>Close</Button>

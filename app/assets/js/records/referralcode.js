@@ -1,5 +1,7 @@
 import { Record } from 'immutable';
 
+import format from 'lib/format';
+
 export default class Referralcode extends Record({
   id: null,
   userID: null,
@@ -20,4 +22,13 @@ export default class Referralcode extends Record({
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
   }
+
+  get bonusHours() {
+    return format.convertSecondsToHours(this.bonus);
+  }
+
+  get bonusHoursTotal() {
+    return this.bonusHours * this.cap;
+  }
+
 }
