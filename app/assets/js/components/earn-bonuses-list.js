@@ -5,6 +5,8 @@ import bonusActions from 'actions/bonus-actions';
 import bonusStore from 'stores/bonus-store';
 import freeUsageStore from 'stores/free-usage-store';
 import userStore from 'stores/user-store';
+import referralcodeStore from 'stores/referralcode-store';
+import referralcodeActions from 'actions/referralcode-actions';
 import Fa from 'components/fa';
 import SelectableText from 'components/selectable-text';
 import LoadingIndicator from 'components/loading-indicator';
@@ -20,6 +22,7 @@ export default class EarnBonusesList extends React.Component {
     usageRemaining: freeUsageStore.usageRemaining,
     usageQuota: freeUsageStore.usageQuota,
     user: userStore.user,
+    referralcode: referralcodeStore.referralcode,
     showPublishArticleModal: false,
     showPublishBlogModal: false,
     showIncludeQuickstartModal: false,
@@ -53,6 +56,10 @@ export default class EarnBonusesList extends React.Component {
     bonusActions.fetchAll();
     bonusActions.fetchAllUserEarnedBonuses();
 
+    referralcodeStore.onChange(this.referralcodeStoreDidChange);
+
+    referralcodeActions.fetch();
+
     userStore.onChange(this.userStoreDidChange);
 
     // When the oauth_callback endpoint on nitrous redirects to this page, display the snackbar
@@ -83,6 +90,8 @@ export default class EarnBonusesList extends React.Component {
     bonusStore.off('already-connected-github', this.onAlreadyConnectedGithub);
     bonusStore.off('connected-github', this.onConnectedGithub);
 
+    referralcodeStore.offChange(this.referralcodeStoreDidChange);
+
     userStore.offChange(this.userStoreDidChange);
   }
 
@@ -100,6 +109,10 @@ export default class EarnBonusesList extends React.Component {
 
   userStoreDidChange = () => {
     this.setState({ user: userStore.user });
+  }
+
+  referralcodeStoreDidChange = () => {
+    this.setState({ referralcode: referralcodeStore.referralcode });
   }
 
   onConnectedTwitter = (data) => {
@@ -232,9 +245,10 @@ export default class EarnBonusesList extends React.Component {
   }
 
   render() {
-    const { user, usageRemaining, usageQuota } = this.state,
+    const { referralcode, usageRemaining, usageQuota } = this.state,
           usageRemainingLoaded = usageRemaining != null && usageQuota != null,
-          referralURL = "https://www.nitrous.io/app/#/signup?referral=" + user.referralCode;
+          referralCode = referralcode ? referralcode.code : '',
+          referralURL = "https://www.nitrous.io/app/#/signup?referral=" + referralCode;
 
     let progressBarStyle = "success";
     if (this.usagePercentage() < 10) {
@@ -345,7 +359,7 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
-          {user.referralCode ? (
+          {referralcode && referralcode.code ? (
             <Button className='bonus-action-item'
               block
               onClick={this.referUsers}

@@ -19,7 +19,6 @@ export default class User extends Record({
   usageQuota: null, // in seconds
   usageRemaining: null, // in seconds
   nextUsageQuotaAt: null,
-  referralCode: null,
   createdAt: null,
   updatedAt: null
 }) {
@@ -40,7 +39,6 @@ export default class User extends Record({
       usageQuota: p.usage_quota,
       usageRemaining: p.usage_remaining,
       nextUsageQuotaAt: p.next_usage_quota_at ? new Date(p.next_usage_quota_at) : null,
-      referralCode: p.referral_code,
       createdAt: p.created_at ? new Date(p.created_at) : null,
       updatedAt: p.updated_at ? new Date(p.updated_at) : null
     });
