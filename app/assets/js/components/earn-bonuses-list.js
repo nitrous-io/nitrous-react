@@ -143,7 +143,7 @@ export default class EarnBonusesList extends React.Component {
   completeSurvey = () => {
     const { user } = this.state,
           // Prefill username field in Wufoo form.
-          surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field113=" + user.username;
+          surveyUrl = "https://actionio.wufoo.com/forms/q1vgejzs0mnoffy/def/field113=" + user.email;
     window.location.href = surveyUrl;
   }
 
