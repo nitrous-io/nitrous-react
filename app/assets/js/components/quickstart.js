@@ -80,6 +80,7 @@ export default class Quickstart extends React.Component {
       serializedPorts: null,
       repoName: null,
       repoLogoUrl: null,
+      scripts: null,
       container: null,
       progressMessages: ['Retrieving repository info...'],
       done: false,
@@ -195,7 +196,7 @@ export default class Quickstart extends React.Component {
 
   onContainerCreated = (data) => {
     const { container, hostSlug } = data,
-          { host } = this.state;
+          { host, scripts } = this.state;
 
     if (this.projectName() === container.name
         && host.slug === hostSlug) {
@@ -210,11 +211,15 @@ export default class Quickstart extends React.Component {
       this.logProgress('Cloning repository and executing nitrous-post-create.sh...');
       this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
 
+      const preclone = scripts.preclone ? `${scripts.preclone} && ` : "";
+      const postclone = scripts.postclone ? `${scripts.postclone} && ` : "";
       const commands = [
         '. /etc/profile && ',
         'cd /home/nitrous/code && ',
         'echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config && ',
+        preclone,
         `git clone ${this.props.query.repo} && `,
+        postclone,
         'rm ~/.ssh/config &&',
         `cd ${this.projectName()} && `,
         '[ -f nitrous-post-create.sh ] && chmod +x nitrous-post-create.sh && ',
@@ -241,7 +246,7 @@ export default class Quickstart extends React.Component {
 
   onRepoInfoFetched = (data) => {
     const { quickstart } = data,
-          { template, ports, repoName, owner, ownerAvatar } = quickstart;
+          { template, ports, repoName, owner, ownerAvatar, scripts } = quickstart;
     const serializedPorts = ports.map((port) => {
       return (new PortBinding({
         public: true,
@@ -249,8 +254,9 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
+
     this.setState({ template, serializedPorts, owner, repoName,
-      repoLogoUrl: ownerAvatar,
+      repoLogoUrl: ownerAvatar, scripts,
       repoInfoFetched: true });
 
     this.logProgress('Retrieved repository info.');
