@@ -110,6 +110,9 @@ export default class Quickstart extends React.Component {
     }
 
     this.initTerminal();
+
+    // Warn when users try to leave the page.
+    window.addEventListener('beforeunload', this.onBeforeunload);
   }
 
   componentWillUnmount() {
@@ -124,6 +127,14 @@ export default class Quickstart extends React.Component {
     containerStore.off('running-command', this.onContainerCommandRunning);
     containerStore.off('ran-command', this.onContainerCommandRan);
     containerStore.off('run-command-failed', this.onContainerCommandRunFailed);
+
+    window.removeEventListener('beforeunload', this.onBeforeunload);
+  }
+
+  onBeforeunload(evt) {
+    const msg ='Your Nitrous Quickstart request is still in progress.';
+    evt.returnValue = msg;
+    return msg;
   }
 
   onContainerCommandRun = () => {
