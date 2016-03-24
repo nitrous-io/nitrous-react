@@ -146,6 +146,8 @@ export default class Quickstart extends React.Component {
   };
 
   onContainerCommandRan = () => {
+    window.removeEventListener('beforeunload', this.onBeforeunload);
+
     this.logProgress(`We're all done! Redirecting to the IDE...`);
     this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
     this.setState({ done: true });
