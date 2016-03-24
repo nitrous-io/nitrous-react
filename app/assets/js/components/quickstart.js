@@ -138,7 +138,7 @@ export default class Quickstart extends React.Component {
   }
 
   onContainerCommandRun = () => {
-    this.terminalPrint(`Running nitrous-post-create.sh from repository...`);
+    this.terminalPrint(`Cloning repository and running nitrous-post-create.sh from repository...`);
   };
 
   onContainerCommandRunning = (data) => {
@@ -146,6 +146,8 @@ export default class Quickstart extends React.Component {
   };
 
   onContainerCommandRan = () => {
+    window.removeEventListener('beforeunload', this.onBeforeunload);
+
     this.logProgress(`We're all done! Redirecting to the IDE...`);
     this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
     this.setState({ done: true });
