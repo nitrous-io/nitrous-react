@@ -1,11 +1,12 @@
 .quickstart-context-component
   position: relative
-  width: 540px
+  width: 320px
   margin-bottom: 40px
   padding: 30px
   background: #fff
   border: 1px solid #ddd
   border-radius: 2px
+  min-height: 112px
 
   img
     position: absolute
@@ -19,12 +20,28 @@
       background-size: 50px 50px
 
   h3
-    margin: 2px 0 5px 65px
-    font-size: 26px
-    line-height: 26px
+    margin: 0 0 5px 65px
+    font-size: 15px
+    line-height: 18px
 
   p
+    display: none
     margin: 0 0 0 65px
     color: rgba(85, 85, 85, 0.8)
     font-size: 15px
     line-height: 15px
+
+@media (min-width: $screen-xs-min)
+  .quickstart-context-component
+    width: 480px
+
+    h3
+      font-size: 23px
+      line-height: 27px
+
+@media (min-width: $screen-sm-min)
+  .quickstart-context-component
+    min-height: 132px
+
+    p
+      display: block
