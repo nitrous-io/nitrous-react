@@ -19,6 +19,7 @@ export default class EarnBonusesList extends React.Component {
     usageRemaining: freeUsageStore.usageRemaining,
     usageQuota: freeUsageStore.usageQuota,
     showPublishArticleModal: false,
+    showPublishBlogModal: false,
     user: userStore.user
   }
 
@@ -157,6 +158,18 @@ export default class EarnBonusesList extends React.Component {
 
   hidePublishArticleModal = () => {
     this.setState({ showPublishArticleModal: false });
+  };
+
+  publishBlog = () => {
+    this.setState({ showPublishBlogModal: true });
+  }
+
+  handleClosePublishBlogModal = () => {
+    this.setState({ showPublishBlogModal: false });
+  };
+
+  hidePublishBlogModal = () => {
+    this.setState({ showPublishBlogModal: false });
   };
 
   getBonusHours(action) {
@@ -317,6 +330,19 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('publish-blog') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.publishBlog}
+              disabled={this.earnedBonus('publish-blog')}>
+              <span className='bonus-action-task'>
+              <Fa icon="newspaper-o" />
+              Publish A Tutorial On Your Blog</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('publish-blog') ? 'Bonus earned' : this.getBonusHours('publish-blog') + ' extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
 
         </Panel>
 
@@ -335,6 +361,19 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.handleClosePublishArticleModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={this.state.showPublishBlogModal} onHide={this.hidePublishBlogModal}>
+          <Modal.Header>
+            <Modal.Title>Publish A Tutorial On Your Blog</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Publish a programming tutorial on your personal blog. The tutorial must <strong>use Nitrous and include screenshots of the Nitrous platform</strong>, and have more than 750 words.</p>
+            <p>Email your Nitrous username and a link to the tutorial to <a href='mailto:community@nitrous.io'>community@nitrous.io</a> and we will increase the limit on your account.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleClosePublishBlogModal}>Close</Button>
           </Modal.Footer>
         </Modal>
 
