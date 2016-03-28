@@ -18,6 +18,5 @@ export default {
   EventUserLoggedIn: "User Logged In",
   EventUserLoggedOut: "User Logged Out",
   EventUserResentConfirmationEmail: "User Resent Confirmation Email",
-  EventUserSignedUp: "User Signed Up",
   EventViewedLogin: "Viewed Login"
 };
