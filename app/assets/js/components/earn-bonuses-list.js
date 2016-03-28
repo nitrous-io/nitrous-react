@@ -20,6 +20,7 @@ export default class EarnBonusesList extends React.Component {
     usageQuota: freeUsageStore.usageQuota,
     showPublishArticleModal: false,
     showPublishBlogModal: false,
+    showIncludeQuickstartModal: false,
     user: userStore.user
   }
 
@@ -154,11 +155,11 @@ export default class EarnBonusesList extends React.Component {
 
   handleClosePublishArticleModal = () => {
     this.setState({ showPublishArticleModal: false });
-  };
+  }
 
   hidePublishArticleModal = () => {
     this.setState({ showPublishArticleModal: false });
-  };
+  }
 
   publishBlog = () => {
     this.setState({ showPublishBlogModal: true });
@@ -166,11 +167,23 @@ export default class EarnBonusesList extends React.Component {
 
   handleClosePublishBlogModal = () => {
     this.setState({ showPublishBlogModal: false });
-  };
+  }
 
   hidePublishBlogModal = () => {
     this.setState({ showPublishBlogModal: false });
-  };
+  }
+
+  includeQuickstart = () => {
+    this.setState({ showIncludeQuickstartModal: true });
+  }
+
+  handleCloseIncludeQuickstartModal = () => {
+    this.setState({ showIncludeQuickstartModal: false });
+  }
+
+  hideIncludeQuickstartModal = () => {
+    this.setState({ showIncludeQuickstartModal: false });
+  }
 
   getBonusHours(action) {
     const { bonuses } = this.state;
@@ -343,6 +356,19 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('include-quickstart') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.includeQuickstart}
+              disabled={this.earnedBonus('include-quickstart')}>
+              <span className='bonus-action-task'>
+              <Fa icon="keyboard-o" />
+              Include Nitrous Quickstart</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('include-quickstart') ? 'Bonus earned' : 'Up to ' + this.getBonusHours('include-quickstart') + ' extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
 
         </Panel>
 
@@ -374,6 +400,20 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.handleClosePublishBlogModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={this.state.showIncludeQuickstartModal} onHide={this.hideIncludeQuickstartModal}>
+          <Modal.Header>
+            <Modal.Title>Include Nitrous Quickstart</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Please read <a href='https://community.nitrous.io/docs/nitrous-quickstarts' target='_blank'>our guide</a> to learn how to include the Nitrous Quickstart Button in your git repository README.</p>
+            <p>Once you have included the Quickstart Button in your README, please email the link to your repository and your Nitrous username to <a href='mailto:community@nitrous.io'>community@nitrous.io</a>.</p>
+            <p>We will award 1 bonus hour for each star on your project, up to a maximum of {this.getBonusHours('include-quickstart')} hours.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleCloseIncludeQuickstartModal}>Close</Button>
           </Modal.Footer>
         </Modal>
 
