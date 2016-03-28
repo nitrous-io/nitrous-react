@@ -140,7 +140,6 @@ export default class Signup extends React.Component {
 
   onUserCreated = (data) => {
     const { username } = data;
-    Mp.track(MpEvents.EventUserSignedUp);
     tokenActions.fetch(username, this.state.password);
   }
 
