@@ -179,7 +179,8 @@ class ContainerStore extends Store {
         return;
       }
       case 'ran_command': {
-        this.emit('ran-command');
+        const { msg } = action;
+        this.emit('ran-command', { msg });
         return;
       }
       default: return;

@@ -31,10 +31,13 @@ class ContainerRunCommandSocket {
 
   handleMessage(message) {
     if (message.indexOf('d|') > -1) {
-      if (message.indexOf('d|Run command done.') > -1) {
+      if (message.indexOf('d|Run command done.') > -1 ||
+          message.indexOf('d|Repository cloned.') > -1) {
         this.disconnect();
+        const msg = message.replace('d|', '');
         dispatcher.dispatch({
-          type: "ran_command"
+          type: "ran_command",
+          msg
         });
         return;
       }

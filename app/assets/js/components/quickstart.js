@@ -96,7 +96,6 @@ export default class Quickstart extends React.Component {
     hostStore.on('started', this.onHostStarted);
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
-    containerStore.on('run-command', this.onContainerCommandRun);
     containerStore.on('running-command', this.onContainerCommandRunning);
     containerStore.on('ran-command', this.onContainerCommandRan);
     containerStore.on('run-command-failed', this.onContainerCommandRunFailed);
@@ -123,7 +122,6 @@ export default class Quickstart extends React.Component {
     hostStore.off('started', this.onHostStarted);
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
-    containerStore.off('run-command', this.onContainerCommandRun);
     containerStore.off('running-command', this.onContainerCommandRunning);
     containerStore.off('ran-command', this.onContainerCommandRan);
     containerStore.off('run-command-failed', this.onContainerCommandRunFailed);
@@ -137,24 +135,25 @@ export default class Quickstart extends React.Component {
     return msg;
   }
 
-  onContainerCommandRun = () => {
-    this.terminalPrint(`Cloning repository and running nitrous-post-create.sh from repository...`);
-  };
-
   onContainerCommandRunning = (data) => {
     this.terminal.write(data.data);
   };
 
-  onContainerCommandRan = () => {
-    window.removeEventListener('beforeunload', this.onBeforeunload);
+  onContainerCommandRan = (data) => {
+    if (data.msg.indexOf('Repository cloned.') > -1) {
+      this.terminalPrintSuccess('OK - Cloned repository.');
+      this.executePostCreateScript();
+    } else if (data.msg.indexOf('Run command done.') > -1) {
+      window.removeEventListener('beforeunload', this.onBeforeunload);
 
-    this.logProgress(`We're all done! Redirecting to the IDE...`);
-    this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
-    this.setState({ done: true });
+      this.logProgress(`We're all done! Redirecting to the IDE...`);
+      this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
+      this.setState({ done: true });
 
-    const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
-    window.location.href = ideUrl;
-    this.terminal.destroy();
+      const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
+      window.location.href = ideUrl;
+      this.terminal.destroy();
+    }
   };
 
   onContainerCommandRunFailed = () => {
@@ -215,31 +214,7 @@ export default class Quickstart extends React.Component {
       this.setState({ container });
       this.logProgress(`Created project "${this.projectName()}".`);
       this.terminalPrintSuccess(`OK - project "${this.projectName()}" created.`);
-
-      // TODO Cloning repository and executing nitrous-post-create.sh should be
-      // 2 separate steps. We should also know whether a repository actually has
-      // a nitrous-post-create.sh or not (otherwise it looks dumb saying we're
-      // "executing nitrous-post-create.sh").
-      this.logProgress('Cloning repository and executing nitrous-post-create.sh...');
-      this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
-
-      const commands = [
-        '. /etc/profile && ',
-        'cd /home/nitrous/code && ',
-        'echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config && ',
-        `git clone ${this.props.query.repo} && `,
-        'rm ~/.ssh/config &&',
-        `cd ${this.projectName()} && `,
-        '[ -f nitrous-post-create.sh ] && chmod +x nitrous-post-create.sh && ',
-        './nitrous-post-create.sh || true;',
-        'echo "Run command done."'
-      ];
-      containerActions.runCommand(
-        host,
-        container,
-        commands.join(''),
-        1800
-      );
+      this.cloneRepository();
     }
   };
 
@@ -459,6 +434,50 @@ export default class Quickstart extends React.Component {
     } else {
       this._terminalBuffer.push(line);
     }
+  }
+
+  cloneRepository = () => {
+    this.logProgress('Cloning repository...');
+    this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
+    const { host, container } = this.state,
+          commands = `
+            . /etc/profile &&
+            cd /home/nitrous/code &&
+            echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config &&
+            git clone ${this.props.query.repo} &&
+            rm ~/.ssh/config &&
+            echo "Repository cloned."
+          `;
+    containerActions.runCommand(
+      host,
+      container,
+      commands,
+      1800
+    );
+  }
+
+  executePostCreateScript = () => {
+    this.logProgress('Executing nitrous-post-create.sh...');
+    this.terminalPrint(`Executing nitrous-post-create.sh in /home/nitrous/code/${this.projectName()}...`);
+    const { host, container } = this.state,
+          commands = `
+            . /etc/profile &&
+            cd /home/nitrous/code/${this.projectName()} &&
+            if [ -f nitrous-post-create.sh ]
+            then
+              chmod +x nitrous-post-create.sh &&
+              ./nitrous-post-create.sh
+            else
+              echo "nitrous-post-create.sh not found."
+            fi
+            echo "Run command done."
+          `;
+    containerActions.runCommand(
+      host,
+      container,
+      commands,
+      1800
+    );
   }
 
   renderProgressMessages = () => {
