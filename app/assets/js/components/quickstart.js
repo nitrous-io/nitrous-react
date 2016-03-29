@@ -447,9 +447,10 @@ export default class Quickstart extends React.Component {
           commands = `
             source /etc/profile &&
             cd /home/nitrous/code &&
-            echo -e "Host github.com\n\tStrictHostKeyChecking no" > ~/.ssh/config &&
-            git clone ${this.props.query.repo} &&
-            rm ~/.ssh/config &&
+            echo -e '#!/bin/bash\nexec /usr/bin/ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no "$@"' >> ~/git-ssh.sh &&
+            chmod +x ~/git-ssh.sh &&
+            export GIT_SSH=~/git-ssh.sh &&
+            until git clone ${this.props.query.repo}; do echo "Trying again"; done &&
             echo "Repository cloned."
           `;
     containerActions.runCommand(
