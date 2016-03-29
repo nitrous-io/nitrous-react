@@ -195,9 +195,10 @@ class ContainerActions {
       const socket = new ContainerRunCommandSocket(data.token);
       socket.connect(host, container, command, timeout);
     });
-    promise.catch(() => {
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'container.run-command-failed'
+        type: 'container.run-command-failed',
+        data: { jqxhr }
       });
     });
   }

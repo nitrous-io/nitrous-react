@@ -136,7 +136,7 @@ export default class Quickstart extends React.Component {
   }
 
   onContainerCommandRunning = (data) => {
-    this.terminal.write(data.data);
+    this.terminal.write(data.msg);
   };
 
   onContainerCommandRan = (data) => {
@@ -156,13 +156,17 @@ export default class Quickstart extends React.Component {
     }
   };
 
-  onContainerCommandRunFailed = () => {
-    this.logProgress(`Failed to clone repository or execute nitrous-post-create.sh.`);
-    this.terminalPrintError(`Error cloning repository ${this.props.query.repo}.`);
-    // TODO What happens now? Ideally we should show the user exactly what went
-    // wrong (i.e. we should be able to tell the difference between a failed
-    // git clone and an error in running nitrous-post-create.sh), and give them
-    // a way to go to the IDE anyway.
+  onContainerCommandRunFailed = (data) => {
+    if (data && data.msg) {
+      const { container } = this.state,
+            openIDEJSX = (
+              <span>
+                Something went wrong. <a href={`/ide/#/${container.slug}`} target='_blank'>Open IDE</a> anyway.
+              </span>
+            );
+      this.logProgress(openIDEJSX);
+      this.terminalPrintError('Exited with non-zero code.');
+    }
   };
 
   onHostCreated = (data) => {
@@ -441,9 +445,9 @@ export default class Quickstart extends React.Component {
     this.terminalPrint(`Cloning ${this.props.query.repo} to home directory on "${this.projectName()}"...`);
     const { host, container } = this.state,
           commands = `
-            . /etc/profile &&
+            source /etc/profile &&
             cd /home/nitrous/code &&
-            echo -e "Host github.com\n\tStrictHostKeyChecking no" >> ~/.ssh/config &&
+            echo -e "Host github.com\n\tStrictHostKeyChecking no" > ~/.ssh/config &&
             git clone ${this.props.query.repo} &&
             rm ~/.ssh/config &&
             echo "Repository cloned."
@@ -461,16 +465,17 @@ export default class Quickstart extends React.Component {
     this.terminalPrint(`Executing nitrous-post-create.sh in /home/nitrous/code/${this.projectName()}...`);
     const { host, container } = this.state,
           commands = `
-            . /etc/profile &&
+            source /etc/profile &&
             cd /home/nitrous/code/${this.projectName()} &&
             if [ -f nitrous-post-create.sh ]
             then
               chmod +x nitrous-post-create.sh &&
-              ./nitrous-post-create.sh
+              ./nitrous-post-create.sh; echo "Exit status: $?" &&
+              echo "Run command done."
             else
-              echo "nitrous-post-create.sh not found."
+              echo "nitrous-post-create.sh not found." &&
+              echo "Run command done."
             fi
-            echo "Run command done."
           `;
     containerActions.runCommand(
       host,

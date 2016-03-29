@@ -93,7 +93,8 @@ class ContainerStore extends Store {
         break;
       }
       case 'container.run-command-failed': {
-        this.emit('run-command-failed');
+        const { jqxhr } = action.data;
+        this.emit('run-command-failed', { jqxhr });
         return;
       }
       // from events-socket
@@ -173,9 +174,14 @@ class ContainerStore extends Store {
         this.emit('run-command');
         return;
       }
+      case 'run_command_failed': {
+        const { msg } = action;
+        this.emit('run-command-failed', { msg });
+        return;
+      }
       case 'running_command': {
-        const { data } = action;
-        this.emit('running-command', { data });
+        const { msg } = action;
+        this.emit('running-command', { msg });
         return;
       }
       case 'ran_command': {

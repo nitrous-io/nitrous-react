@@ -20,7 +20,7 @@ class ContainerRunCommandSocket {
 
     this._socket = new EventedSocket(url);
     this._socket.on('message', this.handleMessage);
-    this._socket.connect();
+    this._socket.connect(false);
   }
 
   disconnect() {
@@ -31,20 +31,31 @@ class ContainerRunCommandSocket {
 
   handleMessage(message) {
     if (message.indexOf('d|') > -1) {
+      if (message.indexOf('d|Exit status:') > -1) {
+        const statuses = message.match(/Exit status: (\d+)/);
+        if (statuses[1] !== '0') {
+          this.disconnect();
+          dispatcher.dispatch({
+            type: 'run_command_failed',
+            msg: statuses[1]
+          });
+          return;
+        }
+      }
       if (message.indexOf('d|Run command done.') > -1 ||
           message.indexOf('d|Repository cloned.') > -1) {
         this.disconnect();
         const msg = message.replace('d|', '');
         dispatcher.dispatch({
-          type: "ran_command",
+          type: 'ran_command',
           msg
         });
         return;
       }
       const msg = message.replace('d|', '');
       dispatcher.dispatch({
-        type: "running_command",
-        data: msg
+        type: 'running_command',
+        msg
       });
     }
   }
