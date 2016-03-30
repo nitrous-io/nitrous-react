@@ -170,23 +170,19 @@ class ContainerStore extends Store {
         break;
       }
       // from container-run-command-socket
-      case 'run_command': {
-        this.emit('run-command');
-        return;
-      }
       case 'run_command_failed': {
-        const { msg } = action;
-        this.emit('run-command-failed', { msg });
+        const { msg, requestId } = action;
+        this.emit('run-command-failed', { msg, requestId });
         return;
       }
       case 'running_command': {
-        const { msg } = action;
-        this.emit('running-command', { msg });
+        const { msg, requestId } = action;
+        this.emit('running-command', { msg, requestId });
         return;
       }
       case 'ran_command': {
-        const { msg } = action;
-        this.emit('ran-command', { msg });
+        const { msg, requestId } = action;
+        this.emit('ran-command', { msg, requestId });
         return;
       }
       default: return;

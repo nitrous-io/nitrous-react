@@ -12,6 +12,7 @@ import quickstartStore from 'stores/quickstart-store';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
 import regionStore from 'stores/region-store';
+import { randomRequestId } from 'lib/random';
 import term from 'term.js';
 
 export default class Quickstart extends React.Component {
@@ -19,6 +20,9 @@ export default class Quickstart extends React.Component {
   _terminal = null;
   _terminalReady = false;
   _terminalBuffer = [];
+  _containerRequestId = null;
+  _quickstartRequestId = null;
+;
 
   static contextTypes = {
     router: PropTypes.func.isRequired
@@ -86,6 +90,8 @@ export default class Quickstart extends React.Component {
       hasError: false,
       showConsole: false
     };
+
+    this._quickstartRequestId = randomRequestId();
   }
 
   componentDidMount() {
@@ -94,6 +100,7 @@ export default class Quickstart extends React.Component {
     hostStore.on('created', this.onHostCreated);
     hostStore.on('create-failed', this.onHostCreateFailed);
     hostStore.on('started', this.onHostStarted);
+    containerStore.on('creating', this.onContainerCreating);
     containerStore.on('created', this.onContainerCreated);
     containerStore.on('create-failed', this.onContainerCreateFailed);
     containerStore.on('running-command', this.onContainerCommandRunning);
@@ -104,7 +111,7 @@ export default class Quickstart extends React.Component {
     // TODO If there is no repo in the query string, we should either redirect
     // users elsewhere, or show a form allowing them to specify a repo.
     if (repo) {
-      quickstartActions.fetchRepoInfo(repo);
+      quickstartActions.fetchRepoInfo(repo, this._quickstartRequestId);
       this.terminalPrint(`Querying the GitHub API for ${repo}...`);
     }
 
@@ -120,6 +127,7 @@ export default class Quickstart extends React.Component {
     hostStore.off('created', this.onHostCreated);
     hostStore.off('create-failed', this.onHostCreateFailed);
     hostStore.off('started', this.onHostStarted);
+    containerStore.off('creating', this.onContainerCreating);
     containerStore.off('created', this.onContainerCreated);
     containerStore.off('create-failed', this.onContainerCreateFailed);
     containerStore.off('running-command', this.onContainerCommandRunning);
@@ -136,10 +144,18 @@ export default class Quickstart extends React.Component {
   }
 
   onContainerCommandRunning = (data) => {
+    if (data.requestId !== this._quickstartRequestId) {
+      return;
+    }
+
     this.terminal.write(data.msg);
   };
 
   onContainerCommandRan = (data) => {
+    if (data.requestId !== this._quickstartRequestId) {
+      return;
+    }
+
     if (data.msg.indexOf('Repository cloned.') > -1) {
       this.terminalPrintSuccess('OK - Cloned repository.');
       this.executePostCreateScript();
@@ -157,6 +173,10 @@ export default class Quickstart extends React.Component {
   };
 
   onContainerCommandRunFailed = (data) => {
+    if (data.requestId !== this._quickstartRequestId) {
+      return;
+    }
+
     if (data && data.msg) {
       const { container } = this.state,
             openIDEJSX = (
@@ -209,12 +229,23 @@ export default class Quickstart extends React.Component {
     }
   };
 
+  onContainerCreating = (data) => {
+    const { name, hostSlug, requestId } = data,
+          { host } = this.state;
+    if (this.projectName() === name &&
+        host.slug === hostSlug &&
+        this._containerRequestId === null) {
+      this._containerRequestId = requestId;
+    }
+  };
+
   onContainerCreated = (data) => {
-    const { container, hostSlug } = data,
+    const { container, hostSlug, requestId } = data,
           { host } = this.state;
 
-    if (this.projectName() === container.name
-        && host.slug === hostSlug) {
+    if (this.projectName() === container.name &&
+        host.slug === hostSlug &&
+        this._containerRequestId === requestId) {
       this.setState({ container });
       this.logProgress(`Created project "${this.projectName()}".`);
       this.terminalPrintSuccess(`OK - project "${this.projectName()}" created.`);
@@ -223,8 +254,11 @@ export default class Quickstart extends React.Component {
   };
 
   onContainerCreateFailed = (data) => {
-    const { name, hostSlug } = data;
-    if ((this.projectName() === name) && (this.state.host.slug === hostSlug)) {
+    const { name, hostSlug } = data,
+          { host } = this.state;
+
+    if (this.projectName() === name && 
+        host.slug === hostSlug) {
       this.setState({ done: true, hasError: true });
       this.logProgress(`Failed to create project "${this.projectName()}".`);
       this.terminalPrintError(`Error creating project.`);
@@ -232,8 +266,12 @@ export default class Quickstart extends React.Component {
   };
 
   onRepoInfoFetched = (data) => {
-    const { quickstart } = data,
+    const { quickstart, requestId } = data,
           { template, ports, repoName, owner, ownerAvatar } = quickstart;
+
+    if (this._quickstartRequestId !== requestId)
+      return;
+
     const serializedPorts = ports.map((port) => {
       return (new PortBinding({
         public: true,
@@ -320,11 +358,16 @@ export default class Quickstart extends React.Component {
     });
   }
 
-  onRepoInfoFetchFailed = () => {
-    const { user } = this.state,
+  onRepoInfoFetchFailed = (data) => {
+    const { requestId } = data,
+          { user } = this.state,
           { canDeleteGitHubPublicKeys } = user.userProfile,
           { makeHref } = this.context.router,
           connectURL = makeHref('account-settings');
+
+    if (this._quickstartRequestId !== requestId)
+      return;
+
     let failedMessageJSX = null,
         failedMessage = null;
 
@@ -457,7 +500,8 @@ export default class Quickstart extends React.Component {
       host,
       container,
       commands,
-      1800
+      1800,
+      this._quickstartRequestId
     );
   }
 
@@ -482,7 +526,8 @@ export default class Quickstart extends React.Component {
       host,
       container,
       commands,
-      1800
+      1800,
+      this._quickstartRequestId
     );
   }
 
