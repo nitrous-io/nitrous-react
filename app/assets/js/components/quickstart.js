@@ -82,6 +82,7 @@ export default class Quickstart extends React.Component {
       owner: null,
       template: null,
       serializedPorts: null,
+      scripts: null,
       repoName: null,
       repoLogoUrl: null,
       container: null,
@@ -198,11 +199,7 @@ export default class Quickstart extends React.Component {
     this.logProgress(`Creating project "${this.projectName()}"...`);
     this.terminalPrint(`Creating a new project "${this.projectName()}" on workstation "${host.slug}"...`);
 
-    const { template, serializedPorts } = this.state;
-    containerActions.createAtomic(this.projectName(), host, {
-      template, serializedPorts, publishAll: true,
-      repo: this.props.query.repo
-    });
+    this.createContainer();
   };
 
   onHostCreateFailed = () => {
@@ -221,11 +218,7 @@ export default class Quickstart extends React.Component {
       this.logProgress(`Creating project "${this.projectName()}"...`);
       this.terminalPrint(`Creating a new project "${this.projectName()}" on workstation "${host.slug}"...`);
 
-      const { template, serializedPorts } = this.state;
-      containerActions.createAtomic(this.projectName(), host, {
-        template, ports: serializedPorts, publishAll: true,
-        repo: this.props.query.repo
-      });
+      this.createContainer();
     }
   };
 
@@ -257,7 +250,7 @@ export default class Quickstart extends React.Component {
     const { name, hostSlug } = data,
           { host } = this.state;
 
-    if (this.projectName() === name && 
+    if (this.projectName() === name &&
         host.slug === hostSlug) {
       this.setState({ done: true, hasError: true });
       this.logProgress(`Failed to create project "${this.projectName()}".`);
@@ -267,7 +260,7 @@ export default class Quickstart extends React.Component {
 
   onRepoInfoFetched = (data) => {
     const { quickstart, requestId } = data,
-          { template, ports, repoName, owner, ownerAvatar } = quickstart;
+          { template, ports, scripts, repoName, owner, ownerAvatar } = quickstart;
 
     if (this._quickstartRequestId !== requestId)
       return;
@@ -279,7 +272,7 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
-    this.setState({ template, serializedPorts, owner, repoName,
+    this.setState({ template, serializedPorts, scripts, owner, repoName,
       repoLogoUrl: ownerAvatar,
       repoInfoFetched: true });
 
@@ -352,10 +345,7 @@ export default class Quickstart extends React.Component {
     this.logProgress(`Creating project "${this.projectName()}"...`);
     this.terminalPrint(`Creating project on workstation "${host.displayName}"...`);
 
-    containerActions.createAtomic(this.projectName(), host, {
-      template, ports: serializedPorts, publishAll: true,
-      repo: this.props.query.repo
-    });
+    this.createContainer();
   }
 
   onRepoInfoFetchFailed = (data) => {
@@ -391,6 +381,15 @@ export default class Quickstart extends React.Component {
     this.setState({ done: true, hasError: true });
     this.logProgress(failedMessageJSX);
     this.terminalPrintError(failedMessage);
+  }
+
+  createContainer = () => {
+    const { host, template, serializedPorts, scripts } = this.state;
+    containerActions.createAtomic(this.projectName(), host, {
+      template, serializedPorts, scripts,
+      publishAll: true,
+      repo: this.props.query.repo
+    });
   }
 
   // We render the term.js terminal into an iframe because term.js binds events
