@@ -10,7 +10,7 @@ class EventsSocket {
 
     this._socket = new EventedSocket(url);
     this._socket.on('message', this.handleMessage);
-    this._socket.connect();
+    this._socket.connect(true);
   }
 
   disconnect() {

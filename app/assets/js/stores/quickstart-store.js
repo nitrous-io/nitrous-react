@@ -5,14 +5,15 @@ class QuickstartStore extends Store {
   handleAction(action) {
     switch (action.type) {
       case 'quickstart.fetched-repo-info': {
-        const { data } = action.data,
+        const { data, requestId } = action.data,
               quickstart = Quickstart.deserialize(data.quickstart);
-        this.emit('fetched-repo-info', { quickstart });
+        this.emit('fetched-repo-info', { quickstart, requestId });
         break;
       }
       case 'quickstart.fetch-repo-info-failed': {
-        this.handleErrorJqxhr(action.data.jqxhr);
-        this.emit('fetch-repo-info-failed');
+        const { jqxhr, requestId } = action.data;
+        this.handleErrorJqxhr(jqxhr);
+        this.emit('fetch-repo-info-failed', { requestId });
         return;
       }
       default: return;

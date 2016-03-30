@@ -5,22 +5,21 @@ import $ from 'jquery';
 class ContainerRunCommandSocket {
   _socket = null;
   _token = null;
+  _requestId = null;
 
-  constructor(token) {
+  constructor(token, requestId) {
     this._token = token;
+    this._requestId = requestId;
   }
 
   connect(host, container, command, timeout) {
-    dispatcher.dispatch({
-      type: 'run_command'
-    });
     const params = $.param({ token: this._token, command, timeout, binary: false }),
           origin = location.protocol.replace('http', 'ws') + "//" + host.freighterProxyUrl,
           url = `${origin}/containers/${container.cid}/run_command?${params}`;
 
     this._socket = new EventedSocket(url);
     this._socket.on('message', this.handleMessage);
-    this._socket.connect();
+    this._socket.connect(false);
   }
 
   disconnect() {
@@ -29,19 +28,36 @@ class ContainerRunCommandSocket {
     }
   }
 
-  handleMessage(message) {
+  handleMessage = (message) => {
     if (message.indexOf('d|') > -1) {
-      if (message.indexOf('d|Run command done.') > -1) {
+      if (message.indexOf('Exit status:') > -1) {
+        const statuses = message.match(/Exit status: (\d+)/);
+        if (statuses[1] !== '0') {
+          this.disconnect();
+          dispatcher.dispatch({
+            type: 'run_command_failed',
+            msg: statuses[1],
+            requestId: this._requestId
+          });
+          return;
+        }
+      }
+      if (message.indexOf('Run command done.') > -1 ||
+          message.indexOf('Repository cloned.') > -1) {
         this.disconnect();
+        const msg = message.replace('d|', '');
         dispatcher.dispatch({
-          type: "ran_command"
+          type: 'ran_command',
+          msg,
+          requestId: this._requestId
         });
         return;
       }
       const msg = message.replace('d|', '');
       dispatcher.dispatch({
-        type: "running_command",
-        data: msg
+        type: 'running_command',
+        msg,
+        requestId: this._requestId
       });
     }
   }
