@@ -29,22 +29,20 @@ class ContainerRunCommandSocket {
   }
 
   handleMessage = (message) => {
-    if (message.indexOf('d|') > -1) {
-      if (message.indexOf('Exit status:') > -1) {
-        const statuses = message.match(/Exit status: (\d+)/);
-        if (statuses[1] !== '0') {
-          this.disconnect();
-          dispatcher.dispatch({
-            type: 'run_command_failed',
-            msg: statuses[1],
-            requestId: this._requestId
-          });
-          return;
-        }
-      }
-      if (message.indexOf('Run command done.') > -1 ||
-          message.indexOf('Repository cloned.') > -1) {
-        this.disconnect();
+    if (message.indexOf('d|') === -1)
+      return;
+
+    if (message.indexOf('exit code:') > -1) {
+      this.disconnect();
+      const statuses = message.match(/exit code: (\d+)/);
+      if (statuses[1] !== '0') {
+        dispatcher.dispatch({
+          type: 'run_command_failed',
+          msg: statuses[1],
+          requestId: this._requestId
+        });
+        return;
+      } else {
         const msg = message.replace('d|', '');
         dispatcher.dispatch({
           type: 'ran_command',
@@ -53,13 +51,14 @@ class ContainerRunCommandSocket {
         });
         return;
       }
-      const msg = message.replace('d|', '');
-      dispatcher.dispatch({
-        type: 'running_command',
-        msg,
-        requestId: this._requestId
-      });
     }
+
+    const msg = message.replace('d|', '');
+    dispatcher.dispatch({
+      type: 'running_command',
+      msg,
+      requestId: this._requestId
+    });
   }
 }
 
