@@ -18,8 +18,9 @@ export default class EventedSocket extends EventEmitter {
     conn.onclose = (ev) => this.didClose(ev);
   }
 
-  connect(nobeforeopen) {
+  connect(shouldRetry, nobeforeopen) {
     this._conn.url = this.url;
+    this._conn.shouldRetry = shouldRetry;
     this._conn.open(nobeforeopen);
   }
 

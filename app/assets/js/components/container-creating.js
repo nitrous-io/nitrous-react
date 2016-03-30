@@ -1,6 +1,4 @@
 import React, { PropTypes } from 'react';
-import { ButtonToolbar, Button } from 'react-bootstrap';
-import EtaProgressBar from 'components/eta-progress-bar';
 import Host from 'records/host';
 import containerStore from 'stores/container-store';
 
@@ -74,30 +72,37 @@ export default class ContainerCreating extends React.Component {
 
     return (
       <div className='container-creating-component'>
-        {done ? (
-          <div className='container done'>
-            <h2>Your project &ldquo;{name}&rdquo; is ready!</h2>
-            <ButtonToolbar>
-              <Button onClick={this.handleBackBtn}>Back to Project List</Button>
-              <Button href='https://community.nitrous.io/docs/installing-the-nitrogen-atom-plugin-d9a97d12-b6ab-4ad2-b219-45f05451d692' target='_blank'>Install Nitrogen</Button>
-              <a href={`/ide/#/${container.slug}`} className='btn btn-primary' target='_blank'>Open IDE</a>
-            </ButtonToolbar>
-          </div>
-        ) : (
-          <div className='container creating'>
-            <h2>Your new project &ldquo;{name}&rdquo; is being created...</h2>
-            <p>This may take several minutes to complete.</p>
-            <EtaProgressBar eta={200} done={done} />
-          </div>
-        )}
+        <div className='content'>
+          {done ? (
+            <div>
+              <h2>Your project &ldquo;{name}&rdquo; is ready!</h2>
+              <div className='buttons'>
+                <a href={`/ide/#/${container.slug}`} className='primary' target='_blank'>Open IDE</a>
+                <a href='#' onClick={this.handleBackBtn}>Back to Project List</a>
+                <a href='https://community.nitrous.io/docs/installing-the-nitrogen-atom-plugin-d9a97d12-b6ab-4ad2-b219-45f05451d692' target='_blank'>Install Nitrogen</a>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h2>Your new project &ldquo;{name}&rdquo; is being created...</h2>
+              <p>This may take several minutes to complete.</p>
+              <div className='bar'>
+                <div className='progress'></div>
+              </div>
+              <p>(The process will continue even if you leave the page.)</p>
+            </div>
+          )}
 
-        <div className='container tutorial-links'>
-          <h2>Getting Started</h2>
+          <h3>Getting Started</h3>
           <ul>
             <li><a href={snapshotURL} target='_blank'>Snapshot a Project</a></li>
             <li><a href={editCodeURL} target='_blank'>Editing Code on a New Project</a></li>
             <li><a href={previewAppURL} target='_blank'>Previewing Your Application</a></li>
           </ul>
+        </div>
+
+        <div className='hero'>
+          <div className='image'></div>
         </div>
       </div>
     );

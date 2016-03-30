@@ -32,6 +32,16 @@ function randomPassword(options={}) {
   return password.join('');
 }
 
+function randomRequestId() {
+  let i = 0;
+  let text = "";
+  for (i = 0; i < 6; i++)
+    text += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+
+  return text;
+}
+
 export default {
-  randomPassword
+  randomPassword,
+  randomRequestId
 };

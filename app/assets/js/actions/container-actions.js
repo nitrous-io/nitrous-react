@@ -185,19 +185,20 @@ class ContainerActions {
     return promise;
   }
 
-  runCommand(host, container, command, timeout) {
+  runCommand(host, container, command, timeout, requestId) {
     const promise = authedAjax({
       type: 'POST',
       url: `/api/v0/containers/${container.slug}/token`,
       data: { permission: ['run_command'] },
       dataType: 'json'
     }).then((data) => {
-      const socket = new ContainerRunCommandSocket(data.token);
+      const socket = new ContainerRunCommandSocket(data.token, requestId);
       socket.connect(host, container, command, timeout);
     });
-    promise.catch(() => {
+    promise.catch((jqxhr) => {
       dispatcher.dispatch({
-        type: 'container.run-command-failed'
+        type: 'container.run-command-failed',
+        data: { jqxhr }
       });
     });
   }
