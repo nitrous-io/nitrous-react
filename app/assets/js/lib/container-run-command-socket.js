@@ -19,12 +19,26 @@ class ContainerRunCommandSocket {
 
     this._socket = new EventedSocket(url);
     this._socket.on('message', this.handleMessage);
+    this._socket.on('close', this.handleClose);
     this._socket.connect(false);
   }
 
   disconnect() {
     if (this._socket) {
       this._socket.disconnect();
+    }
+  }
+
+  handleClose = (ev) => {
+    // 1006 indicate that a connection was closed abnormally
+    // https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
+    if (ev.code === 1006) {
+      this._socket.disconnect();
+      dispatcher.dispatch({
+        type: 'run_command_failed',
+        msg: 'connection closed',
+        requestId: this._requestId
+      });
     }
   }
 
