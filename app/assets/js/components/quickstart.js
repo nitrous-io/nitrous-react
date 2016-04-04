@@ -493,6 +493,8 @@ export default class Quickstart extends React.Component {
             chmod +x ~/git-ssh.sh &&
             export GIT_SSH=~/git-ssh.sh &&
             until git clone ${this.props.query.repo}; do echo "Trying again"; done &&
+            rm ~/git-ssh.sh &&
+            unset GIT_SSH &&
             echo "Repository cloned."
           `;
     containerActions.runCommand(
