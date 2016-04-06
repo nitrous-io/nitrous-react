@@ -386,7 +386,7 @@ export default class Quickstart extends React.Component {
   createContainer = () => {
     const { host, template, serializedPorts, scripts } = this.state;
     containerActions.createAtomic(this.projectName(), host, {
-      template, serializedPorts, scripts,
+      template, ports: serializedPorts, scripts,
       publishAll: true,
       repo: this.props.query.repo
     });
