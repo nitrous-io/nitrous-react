@@ -28,6 +28,7 @@ export default class Signup extends React.Component {
       gitHubUserEmail: PropTypes.string,
       promo: PropTypes.string,
       invite: PropTypes.string,
+      referral: PropTypes.string,
       returnTo: PropTypes.string,
       intent: PropTypes.string,
       repo: PropTypes.string
@@ -75,6 +76,7 @@ export default class Signup extends React.Component {
       gitHubUserName: isViaGitHub ? props.query.gitHubUserName : null,
       createOrg: this.props.query.intent === 'org',
       inviteCode: isInvited ? this.props.query.invite : null,
+      referralCode: this.props.query.referral,
       pendingMember: null,
       invalidCode: false,
       captchaToken: null
@@ -213,12 +215,12 @@ export default class Signup extends React.Component {
     this.setState({ processing: true });
 
     const { username, email, pendingMember, password, gitHubUserName, promocode,
-            inviteCode, captchaToken } = this.state,
+            inviteCode, referralCode, captchaToken } = this.state,
           signupEmail = (pendingMember && pendingMember.pendingEmail) ? pendingMember.pendingEmail : email,
           promocodeSlug = promocode && promocode.slug;
 
     userActions.create({ username, signupEmail, password, gitHubUserName, promocodeSlug,
-                         inviteCode, captchaToken });
+                         inviteCode, referralCode, captchaToken });
   }
 
   handleSignupWithGithub = () => {

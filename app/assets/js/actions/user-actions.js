@@ -33,12 +33,12 @@ class UserActions {
 
   create(options) {
     const { username, signupEmail, password, gitHubUserName, promocodeSlug,
-            inviteCode, captchaToken } = options;
+            inviteCode, referralCode, captchaToken } = options;
     return ajax({
       type: 'POST',
       url: '/api/v0/users',
       data: { username, email: signupEmail, password, github_username: gitHubUserName, promo_code: promocodeSlug,
-              invite_code: inviteCode, captcha_token: captchaToken }
+              invite_code: inviteCode, referral_code: referralCode, captcha_token: captchaToken }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.created',
