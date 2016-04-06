@@ -89,7 +89,8 @@ export default class Quickstart extends React.Component {
       progressMessages: ['Retrieving repository info...'],
       done: false,
       hasError: false,
-      showConsole: false
+      showConsole: false,
+      runCommand: 'starting'
     };
 
     this._quickstartRequestId = randomRequestId();
@@ -157,19 +158,26 @@ export default class Quickstart extends React.Component {
       return;
     }
 
-    if (data.msg.indexOf('Repository cloned.') > -1) {
-      this.terminalPrintSuccess('OK - Cloned repository.');
-      this.executePostCreateScript();
-    } else if (data.msg.indexOf('Run command done.') > -1) {
-      window.removeEventListener('beforeunload', this.onBeforeunload);
+    switch (this.state.runCommand) {
+      case 'cloning':
+        this.terminalPrintSuccess('OK - Cloned repository.');
+        this.executePostCreateScript();
 
-      this.logProgress(`We're all done! Redirecting to the IDE...`);
-      this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
-      this.setState({ done: true });
+        return;
+      case 'executing':
+        window.removeEventListener('beforeunload', this.onBeforeunload);
 
-      const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
-      window.location.href = ideUrl;
-      this.terminal.destroy();
+        this.logProgress(`We're all done! Redirecting to the IDE...`);
+        this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
+        this.setState({ done: true });
+
+        const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
+        window.location.href = ideUrl;
+        this.terminal.destroy();
+
+        return;
+      default:
+        return;
     }
   };
 
@@ -494,9 +502,9 @@ export default class Quickstart extends React.Component {
             export GIT_SSH=~/git-ssh.sh &&
             until git clone ${this.props.query.repo}; do echo "Trying again"; done &&
             rm ~/git-ssh.sh &&
-            unset GIT_SSH &&
-            echo "Repository cloned."
+            unset GIT_SSH
           `;
+    this.setState({ runCommand: 'cloning' });
     containerActions.runCommand(
       host,
       container,
@@ -516,13 +524,12 @@ export default class Quickstart extends React.Component {
             if [ -f nitrous-post-create.sh ]
             then
               chmod +x nitrous-post-create.sh &&
-              ./nitrous-post-create.sh; echo "Exit status: $?" &&
-              echo "Run command done."
+              ./nitrous-post-create.sh
             else
-              echo "nitrous-post-create.sh not found." &&
-              echo "Run command done."
+              echo "nitrous-post-create.sh not found."
             fi
           `;
+    this.setState({ runCommand: 'executing' });
     containerActions.runCommand(
       host,
       container,
