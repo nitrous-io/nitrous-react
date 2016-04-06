@@ -46,12 +46,12 @@ export default class Plan extends Record({
   }
 
   get isStandard() {
-    const planTypeRe = /standard/;
+    const planTypeRe = /professional/;
     return this.slug.match(planTypeRe);
   }
 
   get isBasic() {
-    const planTypeRe = /basic/;
+    const planTypeRe = /hobbyist/;
     return this.slug.match(planTypeRe);
   }
 
