@@ -89,27 +89,6 @@ export default class PlanListItem extends React.Component {
     );
   }
 
-  renderTemplateIcons() {
-    const { plan } = this.props;
-
-    if (!plan) {
-      return;
-    }
-
-    if (!plan.isBasic
-        && !plan.isStandard
-        && !plan.isPlus) {
-      return;
-    }
-
-    if (plan.org) {
-      return;
-    }
-
-    return (
-      <RecommendTemplateList plan={plan} />
-    );
-  }
 
   render() {
     const { plan, selected, activeTrialEnd } = this.props,
@@ -138,18 +117,24 @@ export default class PlanListItem extends React.Component {
               ) : ''}
             </h4>
             <div className='description'>{plan.description}</div>
-            <ul className='features'>
-              {this.renderMaxHosts()}
-              <li>
-                {plan.maxContainers > 1 ? 'Up to ' : ''}
-                <span className='highlight'>{plan.maxContainers}</span>
-                {plan.maxContainers === 1 ? ' Project' : ' Projects'}
-              </li>
-              <li><span className='highlight'>{plan.memory}</span> Memory</li>
-              <li><span className='highlight'>{plan.storage}</span> Storage</li>
-              {this.renderTrialInfo()}
-              {this.renderTemplateIcons()}
-            </ul>
+            <div className='features-box'>
+              <ul className='features'>
+                {this.renderMaxHosts()}
+                <li>
+                  {plan.maxContainers > 1 ? 'Up to ' : ''}
+                  <span className='highlight'>{plan.maxContainers}</span>
+                  {plan.maxContainers === 1 ? ' Project' : ' Projects'}
+                </li>
+                <li><span className='highlight'>{plan.storage}</span> Storage</li>
+                {plan.price === 0 ? (<li><span className='highlight'>50 hr/mo</span> limit</li>)
+                  : (<li><span className='highlight'>Unlimited</span> hours</li>)}
+                {plan.memory && plan.memory.length > 0 ? (<li><span className='highlight'>{plan.memory}</span> Memory</li>)
+                  : ''}
+                {!plan.autoShutdown ? (<li>Always <span className='highlight'>ON</span></li>)
+                  : ''}
+                {this.renderTrialInfo()}
+              </ul>
+            </div>
             {this.renderAction()}
           </div>
         </div>
