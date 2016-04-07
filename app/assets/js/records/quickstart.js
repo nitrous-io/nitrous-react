@@ -6,7 +6,8 @@ export default class Quickstart extends Record({
   repoName: null,
   template: null,
   ports: null,
-  scripts: null
+  scripts: null,
+  noClone: null
 }) {
   static deserialize(p) {
     return new this({
@@ -15,7 +16,8 @@ export default class Quickstart extends Record({
       repoName: p.repo_name,
       template: p.template,
       ports: p.ports,
-      scripts: p.scripts
+      scripts: p.scripts,
+      noClone: p.no_clone
     });
   }
 }
