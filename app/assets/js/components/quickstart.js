@@ -85,11 +85,13 @@ export default class Quickstart extends React.Component {
       scripts: null,
       repoName: null,
       repoLogoUrl: null,
+      noClone: false,
       container: null,
       progressMessages: ['Retrieving repository info...'],
       done: false,
       hasError: false,
-      showConsole: false
+      showConsole: false,
+      runCommand: 'starting'
     };
 
     this._quickstartRequestId = randomRequestId();
@@ -157,19 +159,29 @@ export default class Quickstart extends React.Component {
       return;
     }
 
-    if (data.msg.indexOf('Repository cloned.') > -1) {
-      this.terminalPrintSuccess('OK - Cloned repository.');
-      this.executePostCreateScript();
-    } else if (data.msg.indexOf('Run command done.') > -1) {
-      window.removeEventListener('beforeunload', this.onBeforeunload);
+    switch (this.state.runCommand) {
+      case 'cloning':
+        this.setState({ runCommand: 'cloned' });
+        this.terminalPrintSuccess('OK - Cloned repository.');
+        this.executePostCreateScript();
 
-      this.logProgress(`We're all done! Redirecting to the IDE...`);
-      this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
-      this.setState({ done: true });
+        return;
+      case 'executing':
+        this.setState({ runCommand: 'executed' });
 
-      const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
-      window.location.href = ideUrl;
-      this.terminal.destroy();
+        window.removeEventListener('beforeunload', this.onBeforeunload);
+
+        this.logProgress(`We're all done! Redirecting to the IDE...`);
+        this.terminalPrintSuccess(`Ran nitrous-post-create.sh, redirecting to the IDE...`);
+        this.setState({ done: true });
+
+        const ideUrl = `/ide/#/${this.state.container.slug}?codeDir=${this.state.repoName}`;
+        window.location.href = ideUrl;
+        this.terminal.destroy();
+
+        return;
+      default:
+        return;
     }
   };
 
@@ -234,7 +246,7 @@ export default class Quickstart extends React.Component {
 
   onContainerCreated = (data) => {
     const { container, hostSlug, requestId } = data,
-          { host } = this.state;
+          { host, noClone } = this.state;
 
     if (this.projectName() === container.name &&
         host.slug === hostSlug &&
@@ -242,7 +254,11 @@ export default class Quickstart extends React.Component {
       this.setState({ container });
       this.logProgress(`Created project "${this.projectName()}".`);
       this.terminalPrintSuccess(`OK - project "${this.projectName()}" created.`);
-      this.cloneRepository();
+      if (noClone) {
+        this.executePostCreateScript();
+      } else {
+        this.cloneRepository();
+      }
     }
   };
 
@@ -260,7 +276,7 @@ export default class Quickstart extends React.Component {
 
   onRepoInfoFetched = (data) => {
     const { quickstart, requestId } = data,
-          { template, ports, scripts, repoName, owner, ownerAvatar } = quickstart;
+          { template, ports, scripts, repoName, owner, ownerAvatar, noClone } = quickstart;
 
     if (this._quickstartRequestId !== requestId)
       return;
@@ -272,7 +288,7 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
-    this.setState({ template, serializedPorts, scripts, owner, repoName,
+    this.setState({ template, serializedPorts, scripts, owner, repoName, noClone,
       repoLogoUrl: ownerAvatar,
       repoInfoFetched: true });
 
@@ -494,9 +510,9 @@ export default class Quickstart extends React.Component {
             export GIT_SSH=~/git-ssh.sh &&
             until git clone ${this.props.query.repo}; do echo "Trying again"; done &&
             rm ~/git-ssh.sh &&
-            unset GIT_SSH &&
-            echo "Repository cloned."
+            unset GIT_SSH
           `;
+    this.setState({ runCommand: 'cloning' });
     containerActions.runCommand(
       host,
       container,
@@ -507,22 +523,21 @@ export default class Quickstart extends React.Component {
   }
 
   executePostCreateScript = () => {
-    this.logProgress('Executing nitrous-post-create.sh...');
-    this.terminalPrint(`Executing nitrous-post-create.sh in /home/nitrous/code/${this.projectName()}...`);
-    const { host, container } = this.state,
-          commands = `
-            source /etc/profile &&
-            cd /home/nitrous/code/${this.projectName()} &&
-            if [ -f nitrous-post-create.sh ]
-            then
-              chmod +x nitrous-post-create.sh &&
-              ./nitrous-post-create.sh; echo "Exit status: $?" &&
-              echo "Run command done."
-            else
-              echo "nitrous-post-create.sh not found." &&
-              echo "Run command done."
-            fi
-          `;
+    const { host, container, scripts } = this.state;
+    let commands = `
+      source /etc/profile &&
+      if [ -f nitrous-post-create.sh ]; then
+        chmod +x nitrous-post-create.sh &&
+        ./nitrous-post-create.sh
+      fi`;
+
+    if (scripts['post-create']) {
+      this.logProgress('Executing post-create script...');
+      this.terminalPrint(`Executing post-create script...`);
+      commands = commands.concat(` && ${scripts['post-create']}`);
+    }
+
+    this.setState({ runCommand: 'executing' });
     containerActions.runCommand(
       host,
       container,
