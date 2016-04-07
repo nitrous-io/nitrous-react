@@ -7,7 +7,6 @@ import Fa from 'components/fa';
 import format from 'lib/format';
 import Plan from 'records/plan';
 import promocodeStore from 'stores/promocode-store';
-import RecommendTemplateList from 'components/recommend-template-list';
 
 export default class PlanListItem extends React.Component {
   displayName = 'PlanListItem';
