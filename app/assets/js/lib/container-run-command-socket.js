@@ -49,8 +49,8 @@ class ContainerRunCommandSocket {
     if (message.indexOf('exit code:') > -1) {
       this.disconnect();
       const matches = message.match(/exit code: (\d+)/),
-            exitCode = matches[1];
-      if (exitCode !== '0') {
+            exitCode = parseInt(matches[1]);
+      if (exitCode !== 0) {
         dispatcher.dispatch({
           type: 'run_command_failed',
           msg: exitCode,
