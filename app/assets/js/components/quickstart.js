@@ -85,6 +85,7 @@ export default class Quickstart extends React.Component {
       scripts: null,
       repoName: null,
       repoLogoUrl: null,
+      noClone: false,
       container: null,
       progressMessages: ['Retrieving repository info...'],
       done: false,
@@ -160,11 +161,14 @@ export default class Quickstart extends React.Component {
 
     switch (this.state.runCommand) {
       case 'cloning':
+        this.setState({ runCommand: 'cloned' });
         this.terminalPrintSuccess('OK - Cloned repository.');
         this.executePostCreateScript();
 
         return;
       case 'executing':
+        this.setState({ runCommand: 'executed' });
+
         window.removeEventListener('beforeunload', this.onBeforeunload);
 
         this.logProgress(`We're all done! Redirecting to the IDE...`);
@@ -242,7 +246,7 @@ export default class Quickstart extends React.Component {
 
   onContainerCreated = (data) => {
     const { container, hostSlug, requestId } = data,
-          { host } = this.state;
+          { host, noClone } = this.state;
 
     if (this.projectName() === container.name &&
         host.slug === hostSlug &&
@@ -250,7 +254,11 @@ export default class Quickstart extends React.Component {
       this.setState({ container });
       this.logProgress(`Created project "${this.projectName()}".`);
       this.terminalPrintSuccess(`OK - project "${this.projectName()}" created.`);
-      this.cloneRepository();
+      if (noClone) {
+        this.executePostCreateScript();
+      } else {
+        this.cloneRepository();
+      }
     }
   };
 
@@ -268,7 +276,7 @@ export default class Quickstart extends React.Component {
 
   onRepoInfoFetched = (data) => {
     const { quickstart, requestId } = data,
-          { template, ports, scripts, repoName, owner, ownerAvatar } = quickstart;
+          { template, ports, scripts, repoName, owner, ownerAvatar, noClone } = quickstart;
 
     if (this._quickstartRequestId !== requestId)
       return;
@@ -280,7 +288,7 @@ export default class Quickstart extends React.Component {
         tcp: true
       })).serialize();
     });
-    this.setState({ template, serializedPorts, scripts, owner, repoName,
+    this.setState({ template, serializedPorts, scripts, owner, repoName, noClone,
       repoLogoUrl: ownerAvatar,
       repoInfoFetched: true });
 
