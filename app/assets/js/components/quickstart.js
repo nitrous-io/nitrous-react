@@ -523,17 +523,19 @@ export default class Quickstart extends React.Component {
   }
 
   executePostCreateScript = () => {
+    this.logProgress('Executing post-create script...');
+    this.terminalPrint(`Executing post-create script...`);
+
     const { host, container, scripts } = this.state;
     let commands = `
       source /etc/profile &&
+      cd ~/code/${this.projectName()} &&
       if [ -f nitrous-post-create.sh ]; then
         chmod +x nitrous-post-create.sh &&
         ./nitrous-post-create.sh
       fi`;
 
     if (scripts && scripts['post-create']) {
-      this.logProgress('Executing post-create script...');
-      this.terminalPrint(`Executing post-create script...`);
       commands = commands.concat(` && ${scripts['post-create']}`);
     }
 
