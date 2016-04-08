@@ -529,7 +529,9 @@ export default class Quickstart extends React.Component {
     const { host, container, scripts } = this.state;
     let commands = `
       source /etc/profile &&
-      cd ~/code/${this.projectName()} &&
+      if [ -d ~/code/${this.projectName()} ]; then
+        cd ~/code/${this.projectName()}
+      fi &&
       if [ -f nitrous-post-create.sh ]; then
         chmod +x nitrous-post-create.sh &&
         ./nitrous-post-create.sh
