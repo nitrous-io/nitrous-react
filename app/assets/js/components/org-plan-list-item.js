@@ -47,7 +47,7 @@ export default class OrgPlanListItem extends React.Component {
       return "1 workstation";
     }
 
-    return `${plan.maxHosts} x ${plan.price/plan.maxHosts/100}$ workstations`;
+    return `${plan.maxHosts} x $${plan.price/plan.maxHosts/100} workstations`;
   }
 
   renderTrialInfo = () => {
