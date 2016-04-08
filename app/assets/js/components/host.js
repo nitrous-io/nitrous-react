@@ -117,7 +117,7 @@ export default class Host extends React.Component {
 
     const resumingJSX = (
       <span>
-        Resuming free workstation&hellip;
+        Resuming {host.free ? 'free' : ''} workstation&hellip;
         <span className='links'>
           <a href={readMoreURL}>Read more</a>
           &nbsp;|&nbsp;
