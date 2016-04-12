@@ -1,5 +1,6 @@
 import { authedAjax }  from 'lib/ajax';
 import ContainerRunCommandSocket from 'lib/container-run-command-socket';
+import PingerSocket from 'lib/pinger-socket';
 import dispatcher from 'app-dispatcher';
 
 class ContainerActions {
@@ -186,15 +187,19 @@ class ContainerActions {
     return promise;
   }
 
-  runCommand(host, container, command, timeout, requestId) {
+  runCommand(host, container, command, timeout, token, requestId) {
     const promise = authedAjax({
       type: 'POST',
       url: `/api/v0/containers/${container.slug}/token`,
       data: { permission: ['run_command'] },
       dataType: 'json'
     }).then((data) => {
-      const socket = new ContainerRunCommandSocket(data.token, requestId);
-      socket.connect(host, container, command, timeout);
+      const pingerSocket = new PingerSocket({ host, token, requestId });
+      pingerSocket.connect();
+      const runCommandSocket = new ContainerRunCommandSocket({
+        host, container, command, timeout, requestId, pingerSocket, token: data.token
+      });
+      runCommandSocket.connect();
     });
     promise.catch((jqxhr) => {
       dispatcher.dispatch({

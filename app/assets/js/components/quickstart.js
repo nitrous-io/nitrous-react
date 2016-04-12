@@ -8,6 +8,7 @@ import hostActions from 'actions/host-actions';
 import snackbarActions from 'actions/snackbar-actions';
 import containerStore from 'stores/container-store';
 import planStore from 'stores/plan-store';
+import tokenStore from 'stores/token-store';
 import quickstartStore from 'stores/quickstart-store';
 import userStore from 'stores/user-store';
 import hostStore from 'stores/host-store';
@@ -518,6 +519,7 @@ export default class Quickstart extends React.Component {
       container,
       commands,
       1800,
+      tokenStore.token,
       this._quickstartRequestId
     );
   }
@@ -547,6 +549,7 @@ export default class Quickstart extends React.Component {
       container,
       commands,
       1800,
+      tokenStore.token,
       this._quickstartRequestId
     );
   }
