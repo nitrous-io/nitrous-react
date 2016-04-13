@@ -4,18 +4,35 @@ import $ from 'jquery';
 
 class ContainerRunCommandSocket {
   _socket = null;
+  _host = null;
+  _container = null;
+  _command = null;
+  _timeout = null;
   _token = null;
   _requestId = null;
+  _pingerSocket = null;
 
-  constructor(token, requestId) {
+  constructor(data) {
+    const { host, container, command, timeout,
+      token, requestId, pingerSocket } = data;
+    this._host = host;
+    this._container = container;
+    this._command = command;
+    this._timeout = timeout;
     this._token = token;
     this._requestId = requestId;
+    this._pingerSocket = pingerSocket;
   }
 
-  connect(host, container, command, timeout) {
-    const params = $.param({ token: this._token, command, timeout, binary: false }),
-          origin = location.protocol.replace('http', 'ws') + "//" + host.freighterProxyUrl,
-          url = `${origin}/containers/${container.cid}/run_command?${params}`;
+  connect() {
+    const params = $.param({
+      token: this._token,
+      command: this._command,
+      timeout: this._timeout,
+      binary: false
+    });
+    const origin = location.protocol.replace('http', 'ws') + "//" + this._host.freighterProxyUrl,
+          url = `${origin}/containers/${this._container.cid}/run_command?${params}`;
 
     this._socket = new EventedSocket(url);
     this._socket.on('message', this.handleMessage);
@@ -23,30 +40,26 @@ class ContainerRunCommandSocket {
     this._socket.connect(false);
   }
 
-  disconnect() {
+  disconnect = () => {
     if (this._socket) {
       this._socket.disconnect();
+      this._pingerSocket.disconnect();
     }
   }
 
-  handleClose = (ev) => {
+  handleClose = () => {
     // 1006 indicate that a connection was closed abnormally
     // https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
-    if (ev.code === 1006) {
-      this._socket.disconnect();
-      dispatcher.dispatch({
-        type: 'run_command_failed',
-        msg: 'connection closed',
-        requestId: this._requestId
-      });
-    }
+    // FIXME 1006 is return randomly in production
   }
 
   handleMessage = (message) => {
+    this._pingerSocket.ping();
     if (message.indexOf('d|') === -1)
       return;
 
     if (message.indexOf('exit code:') > -1) {
+      this.disconnect();
       const matches = message.match(/exit code: (\d+)/),
             exitCode = parseInt(matches[1]);
       if (exitCode !== 0) {
