@@ -104,8 +104,7 @@ class UserActions {
     return authedAjax({
       type: 'POST',
       url: '/api/v0/github/authorize',
-      dataType: 'json',
-      data: { beta: true }
+      dataType: 'json'
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.github-connected',
@@ -123,8 +122,7 @@ class UserActions {
     return ajax({
       type: 'POST',
       url: '/api/v0/github/authorize_to_login',
-      cache: false,
-      data: { beta: true }
+      cache: false
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.logged-in-via-github',
@@ -142,8 +140,7 @@ class UserActions {
     return ajax({
       type: 'POST',
       url: '/api/v0/github/authorize_to_signup',
-      cache: false,
-      data: { beta: true }
+      cache: false
     }).then((data) => {
       dispatcher.dispatch({
         type: 'user.signed-up-via-github',
