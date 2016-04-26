@@ -143,7 +143,7 @@ export default class ContainerList extends React.Component {
           // If cannot create container, hide plus sign if under org, but
           // show plus sign if individual sub to prompt upgrade.
           showAddContainer = !(!this.canCreateContainer() && isOrg) && !shared,
-          isDisabled = (host && !host.isRunning) || quotaReached;
+          isDisabled = (host && !host.isRunning) || (host && host.isFree && quotaReached);
 
     return (
       <div className='container-list-component'>

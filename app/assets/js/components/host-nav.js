@@ -69,7 +69,7 @@ export default class HostNav extends React.Component {
   render() {
     const { activeTab, host } = this.props,
           { org, quotaReached } = this.state,
-          disableTab = !host.isRunning || quotaReached;
+          disableTab = !host.isRunning || (host.isFree && quotaReached);
 
     return (
       <div className='host-nav-component'>
