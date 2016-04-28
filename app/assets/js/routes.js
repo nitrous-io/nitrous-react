@@ -27,7 +27,6 @@ import Containers from 'components/containers';
 import NewContainer from 'components/new-container';
 import ContainerCollaborators from 'components/container-collaborators';
 import ContainerKeys from 'components/container-keys';
-import ContainerPorts from 'components/container-ports';
 import ContainerCustomDomains from 'components/container-custom-domains';
 import ContainerCreating from 'components/container-creating';
 import SharedContainers from 'components/shared-containers';
@@ -98,7 +97,6 @@ export default (
 
         <Route name='container-collaborators' path='projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
         <Route name='container-keys' path='projects/:containerSlug/keys' handler={ContainerKeys} />
-        <Route name='container-ports' path='projects/:containerSlug/ports' handler={ContainerPorts} />
         <Route name='container-custom-domains' path='projects/:containerSlug/custom-domains' handler={ContainerCustomDomains} />
 
         <Route name='host-images' path='images' handler={HostImages} />
@@ -111,7 +109,6 @@ export default (
       <Route name='shared-containers' path='shared-projects' handler={SharedContainers} />
       <Route name='shared-container-collaborators' path='shared-projects/:containerSlug/collaborators' handler={ContainerCollaborators} />
       <Route name='shared-container-keys' path='shared-projects/:containerSlug/keys' handler={ContainerKeys} />
-      <Route name='shared-container-ports' path='shared-projects/:containerSlug/ports' handler={ContainerPorts} />
       <Route name='shared-container-custom-domains' path='shared-projects/:containerSlug/custom-domains' handler={ContainerCustomDomains} />
 
       <Route name='account-settings' path='account' handler={AccountSettings} />
