@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import TimeAgo from 'react-timeago';
 import prettyBytes from 'pretty-bytes';
+import numbro from 'numbro';
 
 import Host from 'records/host';
 import hostStore from 'stores/host-store';
@@ -199,6 +200,14 @@ export default class HostSystem extends React.Component {
                 <th>Storage Used</th>
                 <td>{prettyBytes(stats.storageUsage)} of {prettyBytes(stats.storageTotal)}</td>
               </tr>
+              <tr>
+                <th>Inodes Used</th>
+                {stats.inodeUsage ? (
+                  <td>{numbro(stats.inodeUsage).format("0,0")} of {numbro(stats.inodeTotal).format("0,0")}</td>
+                ) : (
+                  <td>Coming soon</td>
+                )}
+              </tr>
             </tbody>
           ) : (
             <tbody>
@@ -216,6 +225,10 @@ export default class HostSystem extends React.Component {
               </tr>
               <tr>
                 <th>Storage Used</th>
+                <td><LoadingIndicator /></td>
+              </tr>
+              <tr>
+                <th>Inodes Used</th>
                 <td><LoadingIndicator /></td>
               </tr>
             </tbody>
