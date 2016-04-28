@@ -189,8 +189,14 @@ class HostStore extends Store {
         }
         break;
       }
+      case 'events:host.disk-almost-full': {
+        const { host } = action.data;
+        snackbarActions.post(`${host.slug}'s disk space is almost full! Please clean unnecessary files`);
+        break;
+      }
       default: return;
     }
+
     this.notifyChange();
   }
 
