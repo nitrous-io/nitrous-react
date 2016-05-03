@@ -41,7 +41,8 @@
     "react-time": "^4.0.0",
     "slug": "^0.9.1",
     "ua-parser-js": "^0.7.9",
-    "term.js": "0.0.7"
+    "term.js": "0.0.7",
+    "numbro": "1.7.1"
   },
   "devDependencies": {
     "babel": "^5.8.21",
