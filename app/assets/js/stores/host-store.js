@@ -161,7 +161,7 @@ class HostStore extends Store {
         this._lastError = null;
         break;
       }
-      case 'events:host.respec_failed': {
+      case 'events:host.respec-failed': {
         const { host } = action.data;
         snackbarActions.post(`Failed to upgrade workstation ${host.slug}! Please contact support`);
         taskActions.fail(`host-respec-${host.slug}`);
