@@ -593,6 +593,9 @@ export default class Quickstart extends React.Component {
               <div className='progress'></div>
             </div>
 
+            <a className='quickstarts-doc' href='https://community.nitrous.io/docs/nitrous-quickstarts' target='_blank'>
+              Create your own Nitrous Quickstart
+            </a>
             {showConsole ? (
               <a className='toggle' href='#' onClick={this.hideConsole}>&#9660; &nbsp; Hide detailed logs</a>
             ) : (
