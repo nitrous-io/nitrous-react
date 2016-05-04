@@ -12,7 +12,9 @@ RUN curl -s https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.tar.
 # Caching node_modules in the container generation
 RUN mkdir -p /tmp/nitrous-react-builder
 ADD package.json /tmp/nitrous-react-builder/
-RUN cd /tmp/nitrous-react-builder && npm install --quiet
+
+# Use http instead of https (https caused the CI fo fail during builds)
+RUN cd /tmp/nitrous-react-builder && npm config set registry http://registry.npmjs.org/ &&npm install --quiet
 
 RUN mkdir -p /opt/nitrous/nitrous-react
 RUN cp -r /tmp/nitrous-react-builder/node_modules /opt/nitrous/nitrous-react/
