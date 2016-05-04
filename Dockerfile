@@ -12,7 +12,7 @@ RUN curl -s https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.tar.
 # Caching node_modules in the container generation
 RUN mkdir -p /tmp/nitrous-react-builder
 ADD package.json /tmp/nitrous-react-builder/
-RUN cd /tmp/nitrous-react-builder && npm install
+RUN cd /tmp/nitrous-react-builder && npm install --quiet
 
 RUN mkdir -p /opt/nitrous/nitrous-react
 RUN cp -r /tmp/nitrous-react-builder/node_modules /opt/nitrous/nitrous-react/
