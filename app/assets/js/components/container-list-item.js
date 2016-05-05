@@ -87,9 +87,9 @@ export default class ContainerListItem extends React.Component {
           keysUrl = (shared ?
             makeHref('shared-container-keys', { containerSlug: container.slug }) :
             makeHref('container-keys', { hostSlug: host.slug, containerSlug: container.slug })),
-          portsURL = (shared ?
-            makeHref('shared-container-ports', { containerSlug: container.slug }) :
-            makeHref('container-ports', { hostSlug: host.slug, containerSlug: container.slug })),
+          customDomainsURL = (shared ?
+            makeHref('shared-container-custom-domains', { containerSlug: container.slug }) :
+            makeHref('container-custom-domains', { hostSlug: host.slug, containerSlug: container.slug })),
           snapshotName = (snapshot && snapshot.displayName) ? snapshot.displayName : 'team snapshot';
 
     return (
@@ -140,7 +140,7 @@ export default class ContainerListItem extends React.Component {
                     {shared ? 'View Collaborators...' : 'Manage Collaborators...'}
                   </MenuItem>
                   <MenuItem href={keysUrl}>Manage SSH Keys...</MenuItem>
-                  <MenuItem href={portsURL}>Manage Ports...</MenuItem>
+                  <MenuItem href={customDomainsURL}>Manage Custom Domains...</MenuItem>
                 </DropdownButton>
                 {container.canOpenIDE && !isDisabled ? (
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>

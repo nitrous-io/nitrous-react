@@ -7,6 +7,8 @@ export default class HostStats extends Record({
   perCPUUsage: null,
   storageTotal: null,
   storageUsage: null,
+  inodeTotal: null,
+  inodeUsage: null,
   uptime: null
 }) {
   static deserialize(p) {
@@ -17,6 +19,8 @@ export default class HostStats extends Record({
       perCPUUsage: p.per_cpu_usage,
       storageTotal: p.storage_total,
       storageUsage: p.storage_usage,
+      inodeTotal: p.inode_total > 0 ? p.inode_total : null,
+      inodeUsage: p.inode_usage > 0 ? p.inode_usage : null,
       uptime: p.uptime
     });
   }

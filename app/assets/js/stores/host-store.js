@@ -161,7 +161,7 @@ class HostStore extends Store {
         this._lastError = null;
         break;
       }
-      case 'events:host.respec_failed': {
+      case 'events:host.respec-failed': {
         const { host } = action.data;
         snackbarActions.post(`Failed to upgrade workstation ${host.slug}! Please contact support`);
         taskActions.fail(`host-respec-${host.slug}`);
@@ -189,8 +189,14 @@ class HostStore extends Store {
         }
         break;
       }
+      case 'events:host.disk-almost-full': {
+        const { host } = action.data;
+        snackbarActions.post(`${host.slug}'s disk space is almost full! Please clean unnecessary files`);
+        break;
+      }
       default: return;
     }
+
     this.notifyChange();
   }
 

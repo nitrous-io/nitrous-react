@@ -61,7 +61,7 @@ export default class ContainerNav extends React.Component {
               <Nav bsStyle='pills' stacked activeKey={activeTab}>
                 <NavItem href={makeContainerHref('collaborators')} eventKey='collaborators'>Collaborators</NavItem>
                 <NavItem href={makeContainerHref('keys')} eventKey='keys'>SSH Keys</NavItem>
-                <NavItem href={makeContainerHref('ports')} eventKey='ports'>Ports</NavItem>
+                <NavItem href={makeContainerHref('custom-domains')} eventKey='custom-domains'>Custom Domains</NavItem>
               </Nav>
             </Col>
             <Col lg={10} md={10} sm={9} xs={12}>
