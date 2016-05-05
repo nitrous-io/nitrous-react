@@ -9,6 +9,7 @@ export default {
   EventDashboardViewedContainerCollaborators: "Dashboard Viewed Container Collaborators",
   EventDashboardViewedContainerKeys: "Dashboard Viewed Container Keys",
   EventDashboardViewedContainerPorts: "Dashboard Viewed Container Ports",
+  EventDashboardViewedContainerCustomDomains: "Dashboard Viewed Container Custom Domains",
   EventDashboardViewedHostSnapshots: "Dashboard Viewed Host Snapshots",
   EventDashboardViewedTeamSnapshots: "Dashboard Viewed Team Snapshots",
   EventDashboardViewedHostSystem: "Dashboard Viewed Host System",
