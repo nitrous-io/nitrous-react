@@ -7,6 +7,7 @@ import taskActions from 'actions/task-actions';
 import hostStore from 'stores/host-store';
 import freeUsageStore from 'stores/free-usage-store';
 import billingStore from 'stores/billing-store';
+import eventsSocket from 'lib/events-socket';
 
 export default class Host extends React.Component {
   displayName = 'Host';
@@ -99,6 +100,11 @@ export default class Host extends React.Component {
   }
 
   shouldResumeHost(host) {
+    // If event socket is not established at this time,
+    // There could be a chance to miss some events if it start a host now.
+    // We just leave as stopped if the event socket is not ready.
+    if (!eventsSocket.connected) return false;
+
     if (!host || host.state !== 'stopped') return false;
 
     // Don't resume free host if user has no more usage remaining.
