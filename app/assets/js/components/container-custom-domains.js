@@ -7,6 +7,7 @@ import containerStore from 'stores/container-store';
 import customDomainStore from 'stores/custom-domain-store';
 import ContainerNav from 'components/container-nav';
 import LoadingIndicator from 'components/loading-indicator';
+import Fa from 'components/fa';
 import Mp from 'lib/mp';
 import MpEvents from 'lib/mp-events';
 
@@ -140,6 +141,7 @@ export default class ContainerCustomDomains extends React.Component {
               <LoadingIndicator />
             ) : (
               <div className="table-responsive">
+                <p className='hint'><Fa icon='info-circle' /> <a target="_blank" href="https://community.nitrous.io/docs/custom-domains">How to use Custom Domains</a></p>
                 <Table striped bordered>
                   <tbody>
                     <tr>

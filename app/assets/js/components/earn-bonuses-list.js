@@ -21,6 +21,7 @@ export default class EarnBonusesList extends React.Component {
     showPublishArticleModal: false,
     showPublishBlogModal: false,
     showIncludeQuickstartModal: false,
+    showDeployToPubStormModal: false,
     user: userStore.user
   }
 
@@ -185,6 +186,19 @@ export default class EarnBonusesList extends React.Component {
     this.setState({ showIncludeQuickstartModal: false });
   }
 
+  deployToPubStorm = () => {
+    this.setState({ showDeployToPubStormModal: true });
+  }
+
+  handleCloseDeployToPubStormModal = () => {
+    this.setState({ showDeployToPubStormModal: false });
+  }
+
+  hideDeployToPubStormModal = () => {
+    this.setState({ showDeployToPubStormModal: false });
+  }
+
+
   getBonusHours(action) {
     const { bonuses } = this.state;
 
@@ -218,7 +232,9 @@ export default class EarnBonusesList extends React.Component {
   }
 
   render() {
-    const { usageRemaining, usageQuota } = this.state,
+    const { usageRemaining, usageQuota,
+      showPublishArticleModal, showPublishBlogModal,
+      showIncludeQuickstartModal, showDeployToPubStormModal } = this.state,
           usageRemainingLoaded = usageRemaining != null && usageQuota != null;
 
     let progressBarStyle = "success";
@@ -369,10 +385,23 @@ export default class EarnBonusesList extends React.Component {
               </span>
             </Button>
           ) : ''}
+          {this.getBonusHours('deploy-to-pubstorm') ? (
+            <Button className='bonus-action-item'
+              block
+              onClick={this.deployToPubStorm}
+              disabled={this.earnedBonus('deploy-to-pubstorm')}>
+              <span className='bonus-action-task'>
+              <Fa icon="keyboard-o" />
+              Deploy To PubStorm</span>
+              <span className='bonus-action-hours'>
+                {this.earnedBonus('deploy-to-pubstorm') ? 'Bonus earned' : this.getBonusHours('deploy-to-pubstorm') + ' extra hours/mo'}
+              </span>
+            </Button>
+          ) : ''}
 
         </Panel>
 
-        <Modal show={this.state.showPublishArticleModal} onHide={this.hidePublishArticleModal}>
+        <Modal show={showPublishArticleModal} onHide={this.hidePublishArticleModal}>
           <Modal.Header>
             <Modal.Title>Publish A Community Article</Modal.Title>
           </Modal.Header>
@@ -390,7 +419,7 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Footer>
         </Modal>
 
-        <Modal show={this.state.showPublishBlogModal} onHide={this.hidePublishBlogModal}>
+        <Modal show={showPublishBlogModal} onHide={this.hidePublishBlogModal}>
           <Modal.Header>
             <Modal.Title>Publish A Tutorial On Your Blog</Modal.Title>
           </Modal.Header>
@@ -403,7 +432,7 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Footer>
         </Modal>
 
-        <Modal show={this.state.showIncludeQuickstartModal} onHide={this.hideIncludeQuickstartModal}>
+        <Modal show={showIncludeQuickstartModal} onHide={this.hideIncludeQuickstartModal}>
           <Modal.Header>
             <Modal.Title>Include Nitrous Quickstart</Modal.Title>
           </Modal.Header>
@@ -414,6 +443,19 @@ export default class EarnBonusesList extends React.Component {
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.handleCloseIncludeQuickstartModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showDeployToPubStormModal} onHide={this.hideIncludeQuickstartModal}>
+          <Modal.Header>
+            <Modal.Title>Deploy To PubStorm</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Deploy any static website or HTML5 application to PubStorm and assign a custom domain and earn 20 additional bonus hours per month.</p>
+            <p>Email <a href='mailto:hello@nitrous.io'>hello@nitrous.io</a> with your Nitrous username and the name of the PubStorm project you published. </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleCloseDeployToPubStormModal}>Close</Button>
           </Modal.Footer>
         </Modal>
 
