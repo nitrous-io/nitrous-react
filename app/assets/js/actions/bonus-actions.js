@@ -124,7 +124,7 @@ class BonusActions {
       type: 'POST',
       url: '/api/v0/github/authorize',
       dataType: 'json',
-      data: { beta: true, bonus: true }
+      data: { bonus: true }
     }).then((data) => {
       dispatcher.dispatch({
         type: 'bonus.connected-github',
