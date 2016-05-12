@@ -252,7 +252,7 @@ export default class SubscriptionsUpgrade extends React.Component {
           selectedPlanSlug = selectedPlan ? selectedPlan.slug : '',
           selectedPlanPrice = selectedPlan ? format.currency(selectedPlan.priceDollars) : null,
           selectedPlanTitle = selectedPlan ? selectedPlan.name : '',
-          prorataCharge = upgradeEstimate ? `of ${format.currency(upgradeEstimate)}` : '',
+          prorataCharge = (upgradeEstimate && upgradeEstimate > 0) ? `of ${format.currency(upgradeEstimate)}` : '',
           upgradeBtnLabel = upgrading ? 'Upgrading...' : 'Upgrade',
           availablePlansText = plansForUpgrade.isEmpty() ? 'There are no available plans to upgrade to for this subscription.' : 'Select one of these plans to upgrade your subscription to',
           onTrial = subscription ? subscription.activeTrialEnd : false,
