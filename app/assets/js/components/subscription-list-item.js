@@ -101,7 +101,7 @@ export default class SubscriptionListItem extends React.Component {
   };
 
   render() {
-    const { subscription, billingProfile, host } = this.props,
+    const { subscription, host } = this.props,
           periodEndDescriptor = subscription.cancelPending ? "Cancels on" : "Renews on",
           { canceling, reactivating } = this.state,
           subscriptionPlanPrice = format.currency(subscription.plan.priceDollars),
@@ -109,9 +109,7 @@ export default class SubscriptionListItem extends React.Component {
           reactivateButtonLabel = reactivating ? "Reactivating ..." : "Reactivate",
           disableUpgrade = planStore.plansForUpgrade(subscription.plan).isEmpty(),
           { makeHref } = this.context.router,
-          subscriptionsUpgradeURL = (billingProfile && !billingProfile.hasCard) ?
-            makeHref('payment-method', {}, { next: 'upgrade', subscription: subscription.slug }) :
-            makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }, { prev: 'billing' });
+          subscriptionsUpgradeURL = makeHref('subscriptions-upgrade', { subscriptionSlug: subscription.slug }, { prev: 'billing' });
 
     let title = `Workstation ${subscription.hostSlug} – ${subscription.plan.name}`;
     if (subscription.multiHost) {
