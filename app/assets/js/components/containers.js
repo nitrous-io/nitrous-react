@@ -157,16 +157,28 @@ export default class Containers extends React.Component {
           ) : ''}
         </Alert>
       );
-    } else if (host.isStopped && host.autoShutdown) {
-      return (
-        <Alert bsStyle='info' className='stopped-host-alert clearfix'>
-          <Fa icon='exclamation-circle' /> We've shutdown your workstation and projects due to inactivity.
-          <Button bsStyle='default'
-            onClick={this.handleStartWorkstation}>
-            <Fa icon='play' /> Start Workstation
-          </Button>
-        </Alert>
-      );
+    } else if (host.isStopped) {
+      if (host.autoShutdown) {
+        return (
+          <Alert bsStyle='info' className='stopped-host-alert clearfix'>
+            <Fa icon='exclamation-circle' /> We've shutdown your workstation and projects due to inactivity.
+            <Button bsStyle='default'
+              onClick={this.handleStartWorkstation}>
+              <Fa icon='play' /> Start Workstation
+            </Button>
+          </Alert>
+        );
+      } else {
+        return (
+          <Alert bsStyle='info' className='stopped-host-alert clearfix'>
+            <Fa icon='exclamation-circle' /> It appears that your workstation has been stopped abnormally.
+            <Button bsStyle='default'
+              onClick={this.handleStartWorkstation}>
+              <Fa icon='play' /> Start Workstation
+            </Button>
+          </Alert>
+        );
+      }
     } else if (quotaRunningOut) {
       return (
         <Alert bsStyle='warning'>
