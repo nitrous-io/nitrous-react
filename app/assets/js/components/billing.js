@@ -14,6 +14,7 @@ import InvoiceListItem from 'components/invoice-list-item';
 import SubHostListItem from 'components/sub-host-list-item';
 import LoadingIndicator from 'components/loading-indicator';
 import SendFeedback from 'components/send-feedback';
+import BankCard from 'components/bank-card';
 import Org from 'records/org';
 import Fa from 'components/fa';
 import Mp from 'lib/mp';
@@ -345,11 +346,6 @@ export default class Billing extends React.Component {
           { makeHref } = this.context.router,
           multiHost = org && org.multiHost;
 
-    let cardTypeCssClass = cardType ? cardType.replace(/[_-\s]/g, '').toLowerCase() : '';
-    if (cardType === 'americanexpress') {
-      cardTypeCssClass = 'amex';
-    }
-
     var href = makeHref('payment-method');
     if (org) {
       href = makeHref('org-payment-method', { orgSlug: org.slug });
@@ -361,33 +357,16 @@ export default class Billing extends React.Component {
 
         <Panel header={<h4>Payment Method</h4>} className='payment-method'>
           {hasCard ? (
-
             <div>
-              <div className='bank-card'>
-                <div className='card-number'>
-                  <span className='card-number-hidden'>••••</span>
-                  <span className='card-number-hidden'>••••</span>
-                  <span className='card-number-hidden'>••••</span>
-                  <span>{lastFour}</span>
-                </div>
-                <div className={`card-type ${cardTypeCssClass}`}>
-                  {cardType}
-                </div>
-                <div className='card-expiry'>
-                  <span className='card-expiry-label'>Valid until</span>
-                  <div className='card-expiry-date'>{expMonth}/{expYear}</div>
-                </div>
-              </div>
+              <BankCard cardType={cardType} lastFour={lastFour}
+                expMonth={expMonth} expYear={expYear} />
 
-              <div>
-                <ButtonToolbar>
-                  <ButtonGroup>
-                    <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Card</Button>
-                  </ButtonGroup>
-                </ButtonToolbar>
-              </div>
+              <ButtonToolbar>
+                <ButtonGroup>
+                  <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Card</Button>
+                </ButtonGroup>
+              </ButtonToolbar>
             </div>
-
           ) : (
             <div>
               <p>No card on file.</p>
