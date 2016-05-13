@@ -1,16 +1,22 @@
 import React, { PropTypes } from 'react';
-import { Alert, Grid, Row, Button, Modal } from 'react-bootstrap';
+import { Grid, Row, Button, Modal, Panel, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
 
 import PlanListItem from 'components/plan-list-item';
 import LoadingIndicator from 'components/loading-indicator';
 import Fa from 'components/fa';
+import UserNav from 'components/user-nav';
+import PaymentMethod from 'components/payment-method';
+import BankCard from 'components/bank-card';
 import subscriptionStore from 'stores/subscription-store';
+import billingStore from 'stores/billing-store';
 import planStore from 'stores/plan-store';
 import hostStore from 'stores/host-store';
 import subscriptionActions from 'actions/subscription-actions';
 import planActions from 'actions/plan-actions';
 import taskActions from 'actions/task-actions';
 import hostActions from 'actions/host-actions';
+import paymentActions from 'actions/payment-actions';
+import snackbarActions from 'actions/snackbar-actions';
 import Org from 'records/org';
 import format from 'lib/format';
 import promocodeActions from 'actions/promocode-actions';
@@ -35,6 +41,7 @@ export default class SubscriptionsUpgrade extends React.Component {
 
   state = {
     subscription: this.findSubscription(),
+    billingProfile: this.findBillingProfile(),
     plansForUpgrade: this.findPlansForUpgrade(),
     selectedPlan: this.findPlansForUpgrade() ? this.findPlansForUpgrade().first() : null,
     showUpgradeSubscriptionModal: false,
@@ -171,6 +178,14 @@ export default class SubscriptionsUpgrade extends React.Component {
     return subscriptionStore.findBySlug(subscriptionSlug);
   }
 
+  findBillingProfile() {
+    const org = this.context.org;
+    if (org) {
+      return billingStore.orgBillingProfiles.get(org.id);
+    }
+    return billingStore.userBillingProfile;
+  }
+
   findPlansForUpgrade() {
     const subscription = this.findSubscription();
     if (subscription) {
@@ -191,8 +206,23 @@ export default class SubscriptionsUpgrade extends React.Component {
 
   handleUpgradeSubscription = () => {
     this.setState({ upgrading: true });
+    const { selectedPlan, billingProfile } = this.state,
+          { hasCard } = billingProfile;
+    if (hasCard) {
+      subscriptionActions.upgrade(this.props.params.subscriptionSlug, selectedPlan);
+    } else {
+      paymentActions.requestSubmit();
+    }
+  };
+
+  handlePaymentSuccess = () => {
     const { selectedPlan } = this.state;
     subscriptionActions.upgrade(this.props.params.subscriptionSlug, selectedPlan);
+  };
+
+  handlePaymentFailure = () => {
+    this.setState({ upgrading: false });
+    snackbarActions.post('Failed to submit payment.', 'error');
   };
 
   hideUpgradeSubscriptionModal = () => {
@@ -217,103 +247,113 @@ export default class SubscriptionsUpgrade extends React.Component {
       );
     }
 
-    const { upgrading, upgradeEstimate, plansForUpgrade, selectedPlan, numberUsedHosts } = this.state,
+    const { upgrading, upgradeEstimate, plansForUpgrade, selectedPlan, numberUsedHosts, billingProfile } = this.state,
           { org, router } = this.context,
           selectedPlanSlug = selectedPlan ? selectedPlan.slug : '',
           selectedPlanPrice = selectedPlan ? format.currency(selectedPlan.priceDollars) : null,
           selectedPlanTitle = selectedPlan ? selectedPlan.name : '',
-          prorataCharge = upgradeEstimate ? `of ${format.currency(upgradeEstimate)}` : '',
+          prorataCharge = (upgradeEstimate && upgradeEstimate > 0) ? `of ${format.currency(upgradeEstimate)}` : '',
           upgradeBtnLabel = upgrading ? 'Upgrading...' : 'Upgrade',
           availablePlansText = plansForUpgrade.isEmpty() ? 'There are no available plans to upgrade to for this subscription.' : 'Select one of these plans to upgrade your subscription to',
           onTrial = subscription ? subscription.activeTrialEnd : false,
-          prevURLHint = this.props.query.prev,
           { makeHref } = router,
-          billingURL = org ? makeHref('org-billing', { orgSlug: org.slug }) : makeHref('billing'),
-          newOrgHostURL = org ? makeHref('new-org-host', { orgSlug: org.slug }) : billingURL,
-          hostSlug = subscription ? subscription.hostSlug : null,
-          containerListURL = (!org && hostSlug) ? makeHref('host', { hostSlug }) : billingURL;
+          { hasCard, cardType, expMonth, expYear, lastFour } = billingProfile;
 
-    let prevURL = billingURL,
-        containersLimitReached = false;
-    if (prevURLHint === 'new-org-host') {
-      prevURL = newOrgHostURL;
-    } else if (prevURLHint === 'container-list') {
-      containersLimitReached = true;
-      prevURL = containerListURL;
+
+    let href = makeHref('payment-method');
+    if (org) {
+      href = makeHref('org-payment-method', { orgSlug: org.slug });
     }
 
     return (
       <div className='subscriptions-upgrade-component'>
-        <div className='container'>
-          {containersLimitReached ? (
-            <Alert bsStyle='info'>
-            <Fa icon='exclamation-circle' /> You have reached the maximum number of projects allowed for your subscription. Please upgrade to create more projects.
-            </Alert>
-          ) : ''}
-          <h2>Upgrade Your Subscription</h2>
-          <p className='hint'>You will have a chance to review your changes before upgrading</p>
-          <h3>Current Plan</h3>
-          <Grid className='ui-card-grid'>
-            <Row>
-              {subscription ? (
-                <PlanListItem key={`plan-${subscription.plan.slug}`} plan={subscription.plan}
-                  selected={false}
-                  onSelect={this.handlePlanSelection}
-                  trialEligible={false}
-                  activeTrialEnd={subscription.activeTrialEnd}
-                  numberUsedHosts={numberUsedHosts}
-                  showHosts
-                  currentPlan
-                  disabled
-                />
-              ) : ''}
-            </Row>
-          </Grid>
-          <h3>Available Plan(s)</h3>
-          <p className='hint'>{availablePlansText}</p>
-          <Grid className='ui-card-grid'>
-            <Row>
-              {plansForUpgrade.toList().map((plan) => {
-                return (
-                  <PlanListItem key={`plan-${plan.slug}`} plan={plan}
-                    selected={selectedPlanSlug === plan.slug}
+        <UserNav activeTab='billing'>
+          <h4>Upgrade Your Subscription</h4>
+          <Panel header="Current Plan" eventKey="current-plan">
+            <p className='hint'>You will have a chance to review your changes before upgrading</p>
+            <Grid className='ui-card-grid'>
+              <Row>
+                {subscription ? (
+                  <PlanListItem key={`plan-${subscription.plan.slug}`} plan={subscription.plan}
+                    selected={false}
                     onSelect={this.handlePlanSelection}
                     trialEligible={false}
+                    activeTrialEnd={subscription.activeTrialEnd}
+                    numberUsedHosts={numberUsedHosts}
                     showHosts
+                    currentPlan
+                    disabled
                   />
-                );
-              })}
-            </Row>
-
-            <Row>
-              <Button className='back-btn pull-left' bsStyle='default' href={prevURL}>Back</Button>
-
-              {!plansForUpgrade.isEmpty() ? (
-                <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
-              ) : ''}
-            </Row>
-
-            <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop='static'>
-              <Modal.Header>
-                <Modal.Title>Begin Upgrade</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                {onTrial ? (
-                  <p>To perform the upgrade you will be immediately charged {selectedPlanPrice} for the month.</p>
-                ) : (
-                  <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then {selectedPlanPrice} each month.</p>
-                )}
-                <p>After your subscription has been successfully upgraded, your workstation will be upgraded and restarted to perform the upgrade. <strong>Please ensure you have saved your work.</strong></p>
-              </Modal.Body>
-              <Modal.Footer>
-                {!upgrading ? (
-                  <Button onClick={this.handleCloseModal}>Close</Button>
                 ) : ''}
-                <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
-              </Modal.Footer>
-            </Modal>
-          </Grid>
-        </div>
+              </Row>
+            </Grid>
+          </Panel>
+
+          <Panel header="Available Plan(s)" eventKey="available-plans">
+            <p className='hint'>{availablePlansText}</p>
+            <Grid className='ui-card-grid'>
+              <Row>
+                {plansForUpgrade.toList().map((plan) => {
+                  return (
+                    <PlanListItem key={`plan-${plan.slug}`} plan={plan}
+                      selected={selectedPlanSlug === plan.slug}
+                      onSelect={this.handlePlanSelection}
+                      trialEligible={false}
+                      showHosts
+                    />
+                  );
+                })}
+              </Row>
+            </Grid>
+          </Panel>
+
+          <Panel header="Credit Card" eventKey="credit-card">
+            <Grid className='ui-card-grid'>
+              <Row>
+                {hasCard ? (
+                  <div>
+                    <BankCard cardType={cardType} lastFour={lastFour}
+                      expMonth={expMonth} expYear={expYear} />
+
+                    <ButtonToolbar>
+                      <ButtonGroup>
+                        <Button href={href} className='btn btn-default'><Fa icon='credit-card' /> Update Card</Button>
+                      </ButtonGroup>
+                    </ButtonToolbar>
+                  </div>
+                ) : (
+                  <PaymentMethod subscriptionSlug={subscription.slug}
+                    onSuccess={this.handlePaymentSuccess}
+                    onFailure={this.handlePaymentFailure} />
+                )}
+              </Row>
+            </Grid>
+          </Panel>
+
+          {!plansForUpgrade.isEmpty() ? (
+            <Button className='upgrade-btn pull-left' bsStyle='primary' onClick={this.handleShowUpgradeSubscriptionModal}>Upgrade To {selectedPlanTitle}</Button>
+          ) : ''}
+
+          <Modal show={this.state.showUpgradeSubscriptionModal} onHide={this.hideUpgradeSubscriptionModal} backdrop='static'>
+            <Modal.Header>
+              <Modal.Title>Begin Upgrade</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {onTrial ? (
+                <p>To perform the upgrade you will be immediately charged {selectedPlanPrice} for the month.</p>
+              ) : (
+                <p>To perform the upgrade you will be immediately charged a prorated amount {prorataCharge} and then {selectedPlanPrice} each month.</p>
+              )}
+              <p>After your subscription has been successfully upgraded, your workstation will be upgraded and restarted to perform the upgrade. This system upgrade can take up to <strong>2 hours</strong> to perform so we recommend doing at the end of your workday. <strong>Please ensure you have saved your work.</strong></p>
+            </Modal.Body>
+            <Modal.Footer>
+              {!upgrading ? (
+                <Button onClick={this.handleCloseModal}>Close</Button>
+              ) : ''}
+              <Button disabled={upgrading} onClick={this.handleUpgradeSubscription} bsStyle='primary'>{upgradeBtnLabel}</Button>
+            </Modal.Footer>
+          </Modal>
+        </UserNav>
       </div>
     );
   }
