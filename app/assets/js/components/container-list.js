@@ -124,6 +124,18 @@ export default class ContainerList extends React.Component {
     return containers.size < host.maxContainers;
   }
 
+  hasCreatingContainer(containers) {
+    if (containers === null || containers.size === 0) {
+      return false;
+    }
+
+    const creatingContainers = containers.filter((c) => {
+      return c.state === 'creating';
+    });
+
+    return (creatingContainers.size > 0) ? true : false;
+  }
+
   handleClickNewContainer = () => {
     const host = this.props.host;
     if (!host) {
@@ -163,7 +175,7 @@ export default class ContainerList extends React.Component {
               })}
               {showAddContainer ? (
                 <Col lg={3} md={4} sm={6} xs={12} className='new-container-btn container-list-item'>
-                  <Button className='ui-card' disabled={isDisabled} onClick={this.handleClickNewContainer}>
+                  <Button className='ui-card' disabled={isDisabled || this.hasCreatingContainer(containers)} onClick={this.handleClickNewContainer}>
                     <Fa icon='plus' />
                     {showTooltip ? (
                       <div className='pin dashboard'></div>
