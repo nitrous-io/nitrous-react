@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Col, ButtonToolbar, Button, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Col, ButtonToolbar, DropdownButton, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import Host from 'records/host';
 import Container from 'records/container';
@@ -114,7 +114,7 @@ export default class ContainerListItem extends React.Component {
               </div>
             </div>
 
-            {container.state !== 'terminated' ? (
+            {container.state !== 'terminated' && container.state !== 'creating' ? (
               <ButtonToolbar className='buttons'>
                 <DropdownButton title={<Fa icon='power-off' />} disabled={container.isInIntermediateState || isDisabled} id={`container-actions-${container.id}`}>
                   {container.state === 'running' ? [
@@ -146,11 +146,14 @@ export default class ContainerListItem extends React.Component {
                   <a href={ideURL} className='btn btn-default' target='_blank'>Open IDE</a>
                 ) : ''}
               </ButtonToolbar>
-            ) : (
-              <ButtonToolbar className='buttons'>
-                <Button disabled>Terminated</Button>
-              </ButtonToolbar>
-            )}
+            ) : ''}
+
+            {container.state === 'creating' ? (
+              <div className='bar'>
+                <div className='progress'></div>
+              </div>
+            ) : ''}
+
             {container.state === 'stopped' ? (
               <PromptModal ref='terminateModal' okButtonLabel='Terminate' okButtonStyle='danger'
                 okButtonDisabled={this.state.slugConfirmation !== container.slug} placeholder={container.slug}
