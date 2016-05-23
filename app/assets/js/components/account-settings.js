@@ -19,12 +19,15 @@ export default class AccountSettings extends React.Component {
     user: userStore.user,
     updating: false,
     updatingProfile: false,
+    updatingGitConfig: false,
     name: userStore.user.name,
     email: userStore.user.unconfirmedEmail || userStore.user.email,
     newPassword: null,
     newPasswordConfirm: null,
     existingPassword: null,
     connectingToGitHub: false,
+    gitName: userStore.user.userProfile.gitName,
+    gitEmail: userStore.user.userProfile.gitEmail,
     advanced: userStore.advanced,
 
     canDeleteAccount: false,
@@ -62,19 +65,25 @@ export default class AccountSettings extends React.Component {
   }
 
   userStoreDidChange = () => {
-    if (!this.state.updating && !this.state.updatingProfile) return;
+    if (!this.state.updating &&
+        !this.state.updatingProfile &&
+        !this.state.updatingGitConfig)
+      return;
 
     const user = userStore.user;
     this.setState({
       user,
       updating: false,
       updatingProfile: false,
+      updatingGitConfig: false,
       name: user.name,
       email: user.unconfirmedEmail || user.email,
       newPassword: null,
       newPasswordConfirm: null,
       existingPassword: null,
       connectingToGitHub: false,
+      gitName: user.userProfile.gitName,
+      gitEmail: user.userProfile.gitEmail,
       advanced: userStore.advanced
     });
     snackbarActions.post('Account details updated successfully.');
@@ -150,6 +159,22 @@ export default class AccountSettings extends React.Component {
     this.setState({ existingPassword: val });
   }
 
+  handleChangeGitNameField = (event) => {
+    var val = event.target.value;
+    if (val === '') {
+      val = null;
+    }
+    this.setState({ gitName: val });
+  }
+
+  handleChangeGitEmailField = (event) => {
+    var val = event.target.value;
+    if (val === '') {
+      val = null;
+    }
+    this.setState({ gitEmail: val });
+  }
+
   handleChangeAdvanced = () => {
     this.setState({ advanced: this.refs.advanced.getChecked() });
   }
@@ -167,7 +192,19 @@ export default class AccountSettings extends React.Component {
     const { advanced } = this.state;
 
     this.setState({ updatingProfile: true });
-    userActions.updateProfile({ advanced });
+    userActions.updateProfile({ update: 'settings', advanced });
+  }
+
+  handleSubmitGitConfig = (evt) => {
+    evt.preventDefault();
+    const { gitName, gitEmail } = this.state;
+
+    this.setState({ updatingGitConfig: true });
+    userActions.updateProfile({
+      update: 'gitConfig',
+      git_name: gitName,
+      git_email: gitEmail
+    });
   }
 
   handleClickGitHubConnect = () => {
@@ -190,7 +227,7 @@ export default class AccountSettings extends React.Component {
     userActions.deleteUser();
   }
 
-  submitDisabled() {
+  submitDisabled = () => {
     const { updating, email, newPassword, newPasswordConfirm, existingPassword } = this.state;
     return updating || !email || (newPassword !== newPasswordConfirm) || (newPassword && !existingPassword);
   }
@@ -233,12 +270,15 @@ export default class AccountSettings extends React.Component {
   render() {
     const { updating,
             updatingProfile,
+            updatingGitConfig,
             user,
             name,
             email,
             newPassword,
             newPasswordConfirm,
             existingPassword,
+            gitName,
+            gitEmail,
             advanced,
             canDeleteAccount,
             cannotDeleteAccountReason,
@@ -296,6 +336,21 @@ export default class AccountSettings extends React.Component {
               <p className='connected'>Connected as <strong>{authorizedGitHubUserName}</strong>.</p>
             ) : ''}
             {this.renderGitHubConnectButton()}
+          </Panel>
+
+          <Panel header={(<h4>Git Config</h4>)}>
+            <p className='hint'><Fa icon='info-circle' /> <a target="_blank" href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration">About Git Config</a></p>
+            <form onSubmit={this.handleSubmitGitConfig}>
+              <div className='name'>
+                <Input label='Name' type='text' placeholder='johndoe'
+                  disabled={updatingGitConfig} value={gitName} onChange={this.handleChangeGitNameField} />
+              </div>
+              <div className='email'>
+                <Input label='Email' type='email' placeholder='johndoe@mail.com'
+                  disabled={updatingGitConfig} value={gitEmail} onChange={this.handleChangeGitEmailField} />
+              </div>
+              <Button disabled={updatingGitConfig} type='submit' bsStyle='primary'>{updatingGitConfig ? 'Saving...' : 'Save Changes'}</Button>
+            </form>
           </Panel>
 
           <Panel header={<h4>Settings</h4>}>
