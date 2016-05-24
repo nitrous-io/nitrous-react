@@ -141,7 +141,7 @@ export default class ContainerCustomDomains extends React.Component {
               <LoadingIndicator />
             ) : (
               <div className="table-responsive">
-                <p className='hint'><Fa icon='info-circle' /> <a target="_blank" href="https://community.nitrous.io/docs/custom-domains">How to use Custom Domains</a></p>
+                <p className='hint'><Fa icon='info-circle' /> <a target="_blank" href="https://community.nitrous.io/docs/setting-up-a-custom-domain">How to use Custom Domains</a></p>
                 <Table striped bordered>
                   <tbody>
                     <tr>
